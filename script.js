@@ -3,11 +3,12 @@
 // ===========================
 
 // ---- PRELOADER ----
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    document.getElementById('preloader')?.classList.add('done');
-  }, 1500);
-});
+window.onload = function () {
+  const preloader = document.getElementById("preloader");
+  if (preloader) {
+    preloader.style.display = "none";
+  }
+};
 
 // ---- NAV SCROLL ----
 const nav = document.getElementById('nav');
