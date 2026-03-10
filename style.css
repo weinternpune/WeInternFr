@@ -579,6 +579,37 @@ textarea{
   transition: all .3s ease;
 }
 
+.apply-row{
+display:flex;
+gap:20px;
+margin-top:20px;
+flex-wrap:wrap;
+}
+
+.apply-row .btn{
+flex:1;
+text-align:center;
+}
+
+/* WhatsApp Button */
+
+.whatsapp-btn{
+display:block;
+margin-top:20px;
+background:#25D366;
+color:white;
+text-align:center;
+padding:14px;
+border-radius:10px;
+font-weight:600;
+text-decoration:none;
+transition:0.3s;
+}
+
+.whatsapp-btn:hover{
+background:#1ebe5d;
+}
+
 .modal-box button[type="button"]:hover{
   background: #f5f5f5;
 }
