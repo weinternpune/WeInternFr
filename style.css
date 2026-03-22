@@ -42,9 +42,9 @@ body{font-family:var(--fb);color:var(--text);background:var(--cream);overflow-x:
 
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  padding:.72rem 1.6rem;border-radius:50px;font-family:var(--fb);
-  font-weight:700;font-size:.93rem;text-decoration:none;cursor:pointer;
-  border:none;transition:var(--ease);white-space:nowrap;position:relative;overflow:hidden;
+  padding:.85rem 1.8rem;border-radius:50px;font-family:var(--fb);
+  font-weight:700;font-size:.97rem;text-decoration:none;cursor:pointer;
+  border:none;transition:var(--ease);white-space:nowrap;position:relative;overflow:hidden;line-height:1.5;
 }
 /* Button spacing fix */
 form .btn{
@@ -61,7 +61,7 @@ textarea{
 .btn-outline:hover{background:var(--cyan);color:white;transform:translateY(-2px);box-shadow:var(--shcyan)}
 .btn-white{background:white;color:var(--navy)}
 .btn-white:hover{background:var(--navy);color:white;transform:translateY(-2px)}
-.btn-lg{padding:.9rem 2.1rem;font-size:1rem}
+.btn-lg{padding:1.05rem 2.4rem;font-size:1.02rem;font-weight:700;line-height:1.5}
 .btn-full{width:100%;border-radius:var(--rsm)}
 .btn-glow{animation:pulseGlow 3s ease infinite}
 @keyframes pulseGlow{0%,100%{box-shadow:var(--shgold)}50%{box-shadow:0 0 0 8px rgba(232,168,32,.15),var(--shgold)}}
@@ -591,23 +591,67 @@ flex:1;
 text-align:center;
 }
 
+.apply-btn-group{
+display:flex;
+gap:15px;
+width:100%;
+justify-content:center;
+align-items:center;
+flex-wrap:wrap;
+margin-top:1.5rem;
+}
+
+.apply-btn-group .btn{
+flex:1 1 calc(50% - 7.5px);
+min-width:160px;
+max-width:280px;
+display:flex;
+align-items:center;
+justify-content:center;
+height:auto;
+padding:1rem 1.8rem;
+font-size:1.02rem;
+line-height:1.5;
+}
+
 /* WhatsApp Button */
 
 .whatsapp-btn{
-display:block;
-margin-top:20px;
+width:100%;
+max-width:280px;
+display:flex;
+align-items:center;
+justify-content:center;
 background:#25D366;
 color:white;
 text-align:center;
-padding:14px;
-border-radius:10px;
+padding:1rem 1.8rem;
+border-radius:50px;
 font-weight:600;
 text-decoration:none;
 transition:0.3s;
+font-size:1.02rem;
+margin-top:12px;
+border:none;
+cursor:pointer;
+height:auto;
+line-height:1.5;
 }
 
 .whatsapp-btn:hover{
 background:#1ebe5d;
+transform:translateY(-2px);
+box-shadow:0 4px 12px rgba(37,211,102,.3);
+}
+
+/* Form Note */
+.form-note{
+text-align:center;
+margin-top:1.5rem;
+font-size:0.9rem;
+color:var(--muted);
+font-weight:500;
+line-height:1.5;
 }
 
 .modal-box button[type="button"]:hover{
