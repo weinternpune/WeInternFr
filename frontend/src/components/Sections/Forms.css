@@ -1,0 +1,13 @@
+.apply-section { padding: 6rem 0; background: white; }
+.hire-section { padding: 6rem 0; background: var(--cream); }
+
+.contact-success {
+  background: rgba(39,174,96,.1); border: 1px solid rgba(39,174,96,.3);
+  color: #1e8449; border-radius: var(--rsm); padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem; font-weight: 600; font-size: .92rem;
+}
+.contact-actions {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  align-items: center; margin-top: 1.25rem;
+}
+.contact-actions .whatsapp-btn { margin-top: 0; flex: 1; min-width: 200px; max-width: 260px; }

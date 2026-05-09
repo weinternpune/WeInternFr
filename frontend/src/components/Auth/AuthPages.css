@@ -1,0 +1,222 @@
+
+/* ── Dark Navy Auth Pages ── */
+.auth-page {
+  background: linear-gradient(135deg, #0d1b2e 0%, #1B2A4A 50%, #0f2340 100%) !important;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+.auth-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+.auth-page::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(232,168,32,.12) 0%, transparent 70%);
+  top: -100px; right: -100px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.auth-card {
+  background: rgba(255,255,255,0.07) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05) !important;
+}
+.auth-card h2 { color: #ffffff !important; }
+.auth-card p  { color: rgba(255,255,255,0.55) !important; }
+.auth-card label { color: rgba(255,255,255,0.75) !important; }
+.auth-card input, .auth-card select {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.18) !important;
+  color: #ffffff !important;
+}
+.auth-card input::placeholder { color: rgba(255,255,255,0.35) !important; }
+.auth-card input:focus, .auth-card select:focus {
+  border-color: #E8A820 !important;
+  background: rgba(255,255,255,0.12) !important;
+  box-shadow: 0 0 0 3px rgba(232,168,32,0.15) !important;
+}
+.auth-card .auth-link, .auth-card a {
+  color: #E8A820 !important;
+}
+.auth-card .auth-link:hover, .auth-card a:hover {
+  color: #f5c842 !important;
+}
+.auth-card .auth-divider { color: rgba(255,255,255,0.3) !important; }
+.auth-card .auth-divider::before,
+.auth-card .auth-divider::after {
+  background: rgba(255,255,255,0.12) !important;
+}
+.auth-card .oauth-btn {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.18) !important;
+  color: rgba(255,255,255,0.85) !important;
+}
+.auth-card .oauth-btn:hover {
+  background: rgba(255,255,255,0.15) !important;
+  border-color: rgba(255,255,255,0.3) !important;
+}
+.auth-card .otp-input {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.18) !important;
+  color: #ffffff !important;
+}
+.auth-card .otp-input:focus {
+  border-color: #E8A820 !important;
+  background: rgba(255,255,255,0.12) !important;
+}
+.auth-back-btn { color: rgba(255,255,255,0.6) !important; }
+.auth-back-btn:hover { color: #E8A820 !important; }
+
+/* ── Dark Navy Auth Pages ── */
+.auth-page {
+  background: linear-gradient(135deg, #0d1b2e 0%, #1B2A4A 50%, #0f2340 100%) !important;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+.auth-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+.auth-page::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(232,168,32,.12) 0%, transparent 70%);
+  top: -100px; right: -100px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.auth-card {
+  background: rgba(255,255,255,0.07) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05) !important;
+}
+.auth-card h2 { color: #ffffff !important; }
+.auth-card p  { color: rgba(255,255,255,0.55) !important; }
+.auth-card label { color: rgba(255,255,255,0.75) !important; }
+.auth-card input, .auth-card select {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.18) !important;
+  color: #ffffff !important;
+}
+.auth-card input::placeholder { color: rgba(255,255,255,0.35) !important; }
+.auth-card input:focus, .auth-card select:focus {
+  border-color: #E8A820 !important;
+  background: rgba(255,255,255,0.12) !important;
+  box-shadow: 0 0 0 3px rgba(232,168,32,0.15) !important;
+}
+.auth-card .auth-link, .auth-card a {
+  color: #E8A820 !important;
+}
+.auth-card .auth-link:hover, .auth-card a:hover {
+  color: #f5c842 !important;
+}
+.auth-card .auth-divider { color: rgba(255,255,255,0.3) !important; }
+.auth-card .auth-divider::before,
+.auth-card .auth-divider::after {
+  background: rgba(255,255,255,0.12) !important;
+}
+.auth-card .oauth-btn {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.18) !important;
+  color: rgba(255,255,255,0.85) !important;
+}
+.auth-card .oauth-btn:hover {
+  background: rgba(255,255,255,0.15) !important;
+  border-color: rgba(255,255,255,0.3) !important;
+}
+.auth-card .otp-input {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.18) !important;
+  color: #ffffff !important;
+}
+.auth-card .otp-input:focus {
+  border-color: #E8A820 !important;
+  background: rgba(255,255,255,0.12) !important;
+}
+.auth-back-btn { color: rgba(255,255,255,0.6) !important; }
+.auth-back-btn:hover { color: #E8A820 !important; }
+
+/* ── Dark Navy Auth ── */
+.auth-page {
+  background: linear-gradient(135deg,#0d1b2e 0%,#1B2A4A 50%,#0f2340 100%) !important;
+  min-height: 100vh;
+}
+.auth-bg { display: none !important; }
+.auth-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+.auth-card {
+  background: rgba(255,255,255,0.07) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05) !important;
+  position: relative;
+  z-index: 1;
+}
+.auth-logo { filter: brightness(0) invert(1) !important; }
+.auth-title { color: #ffffff !important; }
+.auth-sub { color: rgba(255,255,255,0.55) !important; }
+.form-group label { color: rgba(255,255,255,0.75) !important; }
+.auth-card .form-group input,
+.auth-card .form-group select {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.18) !important;
+  color: #ffffff !important;
+}
+.auth-card .form-group input::placeholder { color: rgba(255,255,255,0.3) !important; }
+.auth-card .form-group input:focus,
+.auth-card .form-group select:focus {
+  border-color: #E8A820 !important;
+  background: rgba(255,255,255,0.12) !important;
+  box-shadow: 0 0 0 3px rgba(232,168,32,0.2) !important;
+  outline: none;
+}
+.auth-forgot a { color: #E8A820 !important; }
+.pass-toggle { color: rgba(255,255,255,0.5) !important; }
+.auth-divider { color: rgba(255,255,255,0.35) !important; }
+.auth-divider::before, .auth-divider::after { background: rgba(255,255,255,0.12) !important; }
+.social-auth-btn {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.18) !important;
+  color: rgba(255,255,255,0.85) !important;
+}
+.social-auth-btn:hover { background: rgba(255,255,255,0.15) !important; }
+.social-auth-btn.github { background: rgba(255,255,255,0.12) !important; color: white !important; }
+.auth-switch { color: rgba(255,255,255,0.55) !important; }
+.auth-switch a, .auth-switch button { color: #E8A820 !important; }
+.auth-back { color: rgba(255,255,255,0.5) !important; }
+.auth-back:hover { color: #E8A820 !important; }
+.otp-input {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.18) !important;
+  color: #ffffff !important;
+}
+.otp-input:focus { border-color: #E8A820 !important; box-shadow: 0 0 0 3px rgba(232,168,32,0.2) !important; }
+.resend-btn { color: #E8A820 !important; }
