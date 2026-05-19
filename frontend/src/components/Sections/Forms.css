@@ -11,3 +11,26 @@
   align-items: center; margin-top: 1.25rem;
 }
 .contact-actions .whatsapp-btn { margin-top: 0; flex: 1; min-width: 200px; max-width: 260px; }
+
+/* ── Mobile form fixes ── */
+@media (max-width: 640px) {
+  .apply-section { padding: 3rem 0; }
+  .apply-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .google-form-card { padding: 1.5rem; border-radius: 16px; }
+  .google-form-card h3 { font-size: 1.1rem; }
+  .gfc-apply-btn { font-size: .88rem; padding: .85rem 1rem; }
+  .gfc-wa-btn { font-size: .85rem; padding: .75rem 1rem; }
+  .gfc-trust { font-size: .68rem; flex-direction: column; align-items: center; gap: .25rem; }
+}
+
+/* ── Galaxy Z Fold 5 (344px) fixes ONLY ── */
+@media (max-width: 360px) {
+  .apply-section .container { padding: 0 .85rem; }
+  .google-form-card { padding: 1.25rem .85rem; border-radius: 14px; }
+  .google-form-card h3 { font-size: 1rem; }
+  .google-form-card p { font-size: .82rem; }
+  .gfc-apply-btn { font-size: .82rem; padding: .75rem .85rem; }
+  .gfc-wa-btn { font-size: .8rem; padding: .7rem .85rem; }
+  .gfc-trust { font-size: .65rem; }
+  .form-group input { font-size: .85rem; padding: .65rem .85rem; }
+}

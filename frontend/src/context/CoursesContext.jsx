@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { client, QUERIES } from '../utils/sanityClient';
 
 const STORAGE_KEY = 'weintern_courses_v2';
 
@@ -14,18 +15,67 @@ const DEFAULT_COURSES = [
 
 const CoursesContext = createContext(null);
 
+const normTools = (t) => {
+  if (Array.isArray(t)) return t.map(x => x.trim()).filter(Boolean);
+  if (typeof t === 'string') return t.split(',').map(x => x.trim()).filter(Boolean);
+  return [];
+};
+
 export const CoursesProvider = ({ children }) => {
   const [courses, setCourses] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : DEFAULT_COURSES;
-    } catch { return DEFAULT_COURSES; }
+      if (saved) { const p = JSON.parse(saved); if (Array.isArray(p) && p.length) return p; }
+    } catch {}
+    return DEFAULT_COURSES;
   });
 
-  // Persist every change
+  // Try fetching from Sanity on mount — merge with local
+  useEffect(() => {
+    client && client.fetch(QUERIES.courses)
+      .then(sanityCourses => { if (!sanityCourses) return;
+        if (!sanityCourses || sanityCourses.length === 0) return;
+        // Convert Sanity format to our format
+        const converted = sanityCourses.map(c => ({
+          id: c._id,
+          emoji: c.emoji || '🎓',
+          title: c.title,
+          desc: c.description || c.tagline || '',
+          tagline: c.tagline || '',
+          about: c.about || '',
+          duration: c.duration || '',
+          level: c.level || 'beginner',
+          tools: normTools(c.tools),
+          price: c.price || 0,
+          colors: { h1: c.colorH1 || '#1B2A4A', h2: c.colorH2 || '#243659' },
+          language: c.language || 'English + Hindi',
+          status: 'active',
+          fromSanity: true,
+        }));
+        // Merge: Sanity courses replace matching local ones, add new ones
+        setCourses(prev => {
+          const localOnly = prev.filter(lc =>
+            !converted.find(sc => sc.title === lc.title) && !lc.fromSanity
+          );
+          return [...localOnly, ...converted];
+        });
+      })
+      .catch(() => {}); // Silently fail - use local data
+  }, []);
+
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
   }, [courses]);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        try { const u = JSON.parse(e.newValue); if (Array.isArray(u)) setCourses(u); } catch {}
+      }
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
 
   const COLOR_PRESETS = [
     {h1:'#e76f51',h2:'#f4a261'},{h1:'#2a9d8f',h2:'#264653'},
@@ -34,63 +84,29 @@ export const CoursesProvider = ({ children }) => {
     {h1:'#1e8449',h2:'#27ae60'},{h1:'#2c3e50',h2:'#3498db'},
   ];
 
-  const normalizeTools = (tools) => {
-    if (Array.isArray(tools)) return tools.map(t => t.trim()).filter(Boolean);
-    if (typeof tools === 'string') return tools.split(',').map(t => t.trim()).filter(Boolean);
-    return [];
-  };
-
   const addCourse = (form, colorIdx = 0) => {
-    const newCourse = {
-      id: Date.now(),
-      emoji: form.emoji || '🎓',
-      title: form.title,
-      desc: form.desc || form.tagline || form.about || '',
-      tagline: form.tagline || '',
-      about: form.about || '',
-      duration: form.duration,
-      level: form.level || 'beginner',
-      tools: normalizeTools(form.tools),
-      price: Number(form.price),
-      colors: COLOR_PRESETS[colorIdx] || COLOR_PRESETS[0],
-      language: form.language || 'English + Hindi',
-      status: 'active',
-    };
-    setCourses(prev => [...prev, newCourse]);
-    return newCourse;
+    const c = { id:Date.now(), emoji:form.emoji||'🎓', title:form.title, desc:form.desc||form.tagline||form.about||'', tagline:form.tagline||'', about:form.about||'', duration:form.duration, level:form.level||'beginner', tools:normTools(form.tools), price:Number(form.price), colors:COLOR_PRESETS[colorIdx]||COLOR_PRESETS[0], language:form.language||'English + Hindi', status:'active' };
+    setCourses(prev => { const u=[...prev,c]; localStorage.setItem(STORAGE_KEY,JSON.stringify(u)); return u; });
+    return c;
   };
 
   const updateCourse = (id, form, colorIdx) => {
-    setCourses(prev => prev.map(c => c.id === id ? {
-      ...c,
-      emoji: form.emoji || c.emoji,
-      title: form.title || c.title,
-      desc: form.desc || form.tagline || c.desc,
-      tagline: form.tagline || c.tagline,
-      about: form.about || c.about,
-      duration: form.duration || c.duration,
-      level: form.level || c.level,
-      tools: normalizeTools(form.tools) || c.tools,
-      price: Number(form.price) || c.price,
-      colors: colorIdx !== undefined ? COLOR_PRESETS[colorIdx] : c.colors,
-      language: form.language || c.language,
-    } : c));
+    setCourses(prev => {
+      const u = prev.map(c => c.id===id ? { ...c, emoji:form.emoji||c.emoji, title:form.title||c.title, desc:form.desc||form.tagline||c.desc, tagline:form.tagline||c.tagline, about:form.about||c.about, duration:form.duration||c.duration, level:form.level||c.level, tools:normTools(form.tools).length?normTools(form.tools):c.tools, price:Number(form.price)||c.price, colors:colorIdx!==undefined?COLOR_PRESETS[colorIdx]:c.colors, language:form.language||c.language } : c);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(u)); return u;
+    });
   };
 
-  const deleteCourse = (id) => setCourses(prev => prev.filter(c => c.id !== id));
+  const deleteCourse = (id) => {
+    setCourses(prev => { const u=prev.filter(c=>c.id!==id); localStorage.setItem(STORAGE_KEY,JSON.stringify(u)); return u; });
+  };
 
   const toggleStatus = (id) => {
-    setCourses(prev => prev.map(c =>
-      c.id === id ? { ...c, status: c.status === 'active' ? 'inactive' : 'active' } : c
-    ));
+    setCourses(prev => { const u=prev.map(c=>c.id===id?{...c,status:c.status==='active'?'inactive':'active'}:c); localStorage.setItem(STORAGE_KEY,JSON.stringify(u)); return u; });
   };
 
-  const activeCourses = courses.filter(c => c.status === 'active');
-
   return (
-    <CoursesContext.Provider value={{
-      courses, activeCourses, addCourse, updateCourse, deleteCourse, toggleStatus, COLOR_PRESETS
-    }}>
+    <CoursesContext.Provider value={{ courses, activeCourses:courses.filter(c=>c.status==='active'), addCourse, updateCourse, deleteCourse, toggleStatus, COLOR_PRESETS }}>
       {children}
     </CoursesContext.Provider>
   );

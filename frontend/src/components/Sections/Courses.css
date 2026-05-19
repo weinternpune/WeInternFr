@@ -101,3 +101,49 @@
 @media (max-width: 480px) {
   .enroll-form-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Mobile course card fixes ── */
+@media (max-width: 640px) {
+  .courses-grid { grid-template-columns: 1fr; gap: 1rem; }
+
+  .cc-body { padding: 1rem; }
+  .cc-body h3 { font-size: .95rem; }
+  .cc-body p { font-size: .82rem; }
+
+  .cc-tools { display: flex; flex-wrap: wrap; gap: 4px; }
+  .cc-tools span { font-size: .68rem; padding: .18rem .55rem; }
+
+  .cc-stipend { font-size: .72rem; white-space: normal; line-height: 1.4; }
+
+  .cc-footer { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: nowrap; padding-top: .75rem; }
+  .cc-price small { font-size: .62rem; }
+  .cc-price strong { font-size: 1rem; white-space: nowrap; }
+
+  .cc-footer .btn { font-size: .72rem; padding: .42rem .65rem; white-space: nowrap; }
+  .cc-footer div { display: flex; gap: .35rem; flex-shrink: 0; }
+}
+
+/* ── Galaxy Z Fold 5 - CTA card fix ONLY ── */
+@media (max-width: 360px) {
+  .courses-cta {
+    padding: 1.5rem 1rem;
+    text-align: center;
+  }
+  .courses-cta .ccta-text h3 {
+    font-size: .95rem;
+    word-break: break-word;
+    white-space: normal;
+    line-height: 1.4;
+  }
+  .courses-cta .ccta-text p {
+    font-size: .78rem;
+    word-break: break-word;
+  }
+  .courses-cta .btn {
+    font-size: .78rem;
+    padding: .6rem 1rem;
+    white-space: normal;
+    text-align: center;
+    width: 100%;
+  }
+}
