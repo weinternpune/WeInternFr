@@ -141,42 +141,128 @@ export const HowItWorks = () => {
   );
 };
 
-// ===== Services =====
-export const Services = () => {
-  const SERVICES = [
-    { icon:'🌐', title:'Website Development', desc:'From landing pages to full-stack web apps. React, Next.js, Node.js, and more.', tags:['React','Next.js','Node.js','MongoDB'] },
-    { icon:'📱', title:'App Development', desc:'Native and cross-platform mobile apps that solve real problems with beautiful UX.', tags:['Flutter','React Native','iOS','Android'] },
-    { icon:'🤖', title:'AI & Automation', desc:'Smart chatbots, workflow automation, AI dashboards, and ML integrations.', tags:['Python','LangChain','OpenAI','n8n'] },
-    { icon:'☁️', title:'Cloud Solutions', desc:'Cloud infrastructure, deployment pipelines, scalable architecture.', tags:['AWS','GCP','Docker','CI/CD'] },
-    { icon:'💎', title:'Digital Products', desc:'SaaS platforms, admin dashboards, CRMs, and custom digital tools.', tags:['SaaS','Dashboard','CRM','API'] }
+// ===== EcosystemSection =====
+export const EcosystemSection = () => {
+  const STEPS = [
+    { num: 1, icon: '📚', title: 'Learn', desc: 'Learn in-demand skills with expert mentors' },
+    { num: 2, icon: '💻', title: 'Build', desc: 'Build real projects and create your portfolio' },
+    { num: 3, icon: '🗂️', title: 'Get Assigned', desc: 'Get assigned to live projects from WeNexa (our IT arm)' },
+    { num: 4, icon: '👥', title: 'Work & Grow', desc: 'Work under mentor supervision and improve your industry skills' },
+    { num: 5, icon: '₹', title: 'Earn', desc: 'Earn stipend and become financially independent while you learn' },
   ];
+
+  const BENEFITS = [
+    { icon: '💼', title: 'Financial Independence', desc: 'Students earn real income through their skills and hard work.' },
+    { icon: '🏗️', title: 'Industry Experience', desc: 'Work on real projects and gain experience before graduation.' },
+    { icon: '📈', title: 'Career Growth', desc: 'Build confidence, strong portfolio and better career opportunities.' },
+    { icon: '🌟', title: 'Better Future', desc: 'Empowered students create a stronger and better India.' },
+  ];
+
   return (
-    <section className="services" id="services">
-      <div className="container">
-        <div className="section-label">What We Build</div>
-        <h2 className="section-title">Services WeIntern Delivers</h2>
-        <p className="section-sub">Real client projects across modern technology domains — built by passionate intern teams, supervised by experts.</p>
-        <div className="services-grid">
-          {SERVICES.map(s => (
-            <div key={s.title} className="service-card reveal">
-              <div className="sc-glow" />
-              <span className="service-icon">{s.icon}</span>
-              <h3>{s.title}</h3>
-              <p>{s.desc}</p>
-              <div className="service-tags">{s.tags.map(t => <span key={t}>{t}</span>)}</div>
+    <>
+      {/* ── Step Flow ── */}
+      <section className="ecosystem-flow" id="ecosystem">
+        <div className="container">
+          <h2 className="eco-main-title">
+            How the <span className="eco-brand">Weintern</span> Ecosystem Works
+          </h2>
+          <p className="eco-main-sub">From learning to earning — a journey that changes your future.</p>
+
+          <div className="eco-flow-grid">
+            {/* Steps row */}
+            <div className="eco-steps-row">
+              {STEPS.map((s, i) => (
+                <React.Fragment key={s.num}>
+                  <div className="eco-step">
+                    <div className="eco-step-icon">{s.icon}</div>
+                    <div className="eco-step-num">{s.num}. {s.title}</div>
+                    <p className="eco-step-desc">{s.desc}</p>
+                  </div>
+                  {i < STEPS.length - 1 && (
+                    <div className="eco-arrow">→</div>
+                  )}
+                </React.Fragment>
+              ))}
             </div>
-          ))}
-          <div className="service-card service-card-cta reveal">
-            <div className="sc-cta-content">
-              <div style={{ fontSize:'2.5rem', marginBottom:'1rem' }}>💬</div>
-              <h3>Have a project in mind?</h3>
-              <p>Let's build something great together.</p>
-              <a href="#hire" className="btn btn-primary" style={{ marginTop:'1.25rem' }}>Get a Free Quote →</a>
+
+            {/* Mission box */}
+            <div className="eco-mission-box">
+              <h4 className="eco-mission-title">Our Mission</h4>
+              <p className="eco-mission-text">
+                To empower every student with practical skills, real experience and financial independence through meaningful work.
+              </p>
+              <div className="eco-mission-brand">
+                <span className="eco-brand-wi">Weintern</span>
+                <span className="eco-mission-link">⟷</span>
+                <span className="eco-brand-wn">WeNexa</span>
+              </div>
+              <p className="eco-mission-tagline">Stronger Together</p>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* ── Dark Impact Banner ── */}
+      <section className="eco-impact-banner">
+        <div className="container">
+          <div className="eco-impact-inner">
+            {/* Left text */}
+            <div className="eco-impact-left">
+              <h2 className="eco-impact-heading">
+                Real Work. Real Impact.<br />
+                <span className="eco-impact-green">Real Income</span> for Students.
+              </h2>
+              <p className="eco-impact-sub">
+                We believe students deserve to earn for the value they create.
+              </p>
+            </div>
+
+            {/* Donut */}
+            <div className="eco-donut-wrap">
+              <svg className="eco-donut-svg" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="14" />
+                <circle
+                  cx="60" cy="60" r="50"
+                  fill="none"
+                  stroke="url(#donutGrad)"
+                  strokeWidth="14"
+                  strokeDasharray="235 314"
+                  strokeDashoffset="78"
+                  strokeLinecap="round"
+                />
+                <defs>
+                  <linearGradient id="donutGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#4ade80" />
+                    <stop offset="100%" stopColor="#22c55e" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="eco-donut-label">
+                <span className="eco-donut-pct">75%</span>
+                <span className="eco-donut-text">OF PROJECT VALUE<br />GOES TO<br />STUDENTS</span>
+              </div>
+            </div>
+
+            {/* Benefit cards */}
+            <div className="eco-benefits-row">
+              {BENEFITS.map(b => (
+                <div key={b.title} className="eco-benefit-card">
+                  <div className="eco-benefit-icon">{b.icon}</div>
+                  <h4 className="eco-benefit-title">{b.title}</h4>
+                  <p className="eco-benefit-desc">{b.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom note */}
+          <div className="eco-impact-note">
+            <span className="eco-note-icon">🔒</span>
+            When you learn with Weintern, you don't just get a course – you get opportunities that pay.
+          </div>
+        </div>
+      </section>
+    </>
   );
 };
 
