@@ -3,9 +3,12 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
 
+const NAV_ITEMS = [['story','Our Story'],['how','How It Works'],['services','Services'],['courses','Courses'],['testimonials','Stories'],['contact','Contact']];
+
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('story');
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,8 +20,25 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    if (!isHome) return;
+    const sections = NAV_ITEMS.map(([id]) => document.getElementById(id)).filter(Boolean);
+    if (!sections.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter(entry => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible?.target?.id) setActiveSection(visible.target.id);
+    }, { rootMargin: '-28% 0px -55% 0px', threshold: [0.15, 0.35, 0.6] });
+
+    sections.forEach(section => observer.observe(section));
+    return () => observer.disconnect();
+  }, [isHome]);
+
   const scrollTo = (id) => {
     setMenuOpen(false);
+    setActiveSection(id);
     if (!isHome) { navigate('/'); setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300); }
     else document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -32,8 +52,8 @@ const Navbar = () => {
           <img src="/welogo.png" alt="WeIntern" className="nav-logo" />
         </Link>
         <ul className="nav-links">
-          {[['story','Our Story'],['how','How It Works'],['services','Services'],['courses','Courses'],['testimonials','Stories'],['contact','Contact']].map(([id, label]) => (
-            <li key={id}><button className="nav-link" onClick={() => scrollTo(id)}>{label}</button></li>
+          {NAV_ITEMS.map(([id, label]) => (
+            <li key={id}><button className={`nav-link${activeSection === id ? ' active' : ''}`} onClick={() => scrollTo(id)}>{label}</button></li>
           ))}
         </ul>
         <div className="nav-ctas">
@@ -57,8 +77,8 @@ const Navbar = () => {
       </div>
       {menuOpen && (
         <div className="mobile-menu open">
-          {[['story','Our Story'],['how','How It Works'],['services','Services'],['courses','Courses'],['testimonials','Stories']].map(([id, label]) => (
-            <button key={id} className="mobile-nav-link" onClick={() => scrollTo(id)}>{label}</button>
+          {NAV_ITEMS.map(([id, label]) => (
+            <button key={id} className={`mobile-nav-link${activeSection === id ? ' active' : ''}`} onClick={() => scrollTo(id)}>{label}</button>
           ))}
           {user ? (
             <>
