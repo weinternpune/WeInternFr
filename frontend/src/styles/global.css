@@ -25,7 +25,15 @@
   --ease:    .3s cubic-bezier(.4,0,.2,1);
 }
 
-/* ============ UTILS ============ */
+/* ============ RESET ============ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: hidden; }
+*:focus { outline: none !important; box-shadow: none !important; }
+*:focus-visible { outline: 2px solid var(--cyan) !important; outline-offset: 2px !important; }
+input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--cyan) !important;
+  outline-offset: 2px !important;
+}
 .container { max-width: 1160px; margin: 0 auto; padding: 0 1.5rem; }
 
 .btn {
