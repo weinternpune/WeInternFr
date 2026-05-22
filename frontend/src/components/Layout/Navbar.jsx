@@ -52,8 +52,16 @@ const Navbar = () => {
           <img src="/welogo.png" alt="WeIntern" className="nav-logo" />
         </Link>
         <ul className="nav-links">
-          {NAV_ITEMS.map(([id, label]) => (
-            <li key={id}><button className={`nav-link${activeSection === id ? ' active' : ''}`} onClick={() => scrollTo(id)}>{label}</button></li>
+{NAV_ITEMS.map(([id, label]) => (
+  <li key={id}>
+    <button
+      className={`nav-link${activeSection === id ? ' active' : ''}`}
+      onClick={() => scrollTo(id)}
+    >
+      {label}
+    </button>
+  </li>
+))}
           ))}
         </ul>
         <div className="nav-ctas">
@@ -77,8 +85,16 @@ const Navbar = () => {
       </div>
       {menuOpen && (
         <div className="mobile-menu open">
-          {NAV_ITEMS.map(([id, label]) => (
-            <button key={id} className={`mobile-nav-link${activeSection === id ? ' active' : ''}`} onClick={() => scrollTo(id)}>{label}</button>
+{NAV_ITEMS.map(([id, label]) => (
+  <li key={id}>
+    <button
+      className={`nav-link${activeSection === id ? ' active' : ''}`}
+      onClick={() => scrollTo(id)}
+    >
+      {label}
+    </button>
+  </li>
+))}
           ))}
           {user ? (
             <>
