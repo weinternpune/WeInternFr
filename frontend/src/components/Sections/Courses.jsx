@@ -6,14 +6,8 @@ import API from '../../utils/api';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import CourseDetailModal from './CourseDetail';
+import { Icon } from '@iconify/react';
 import './Courses.css';
-
-import {
-  FaCode, FaMobileAlt, FaRobot, FaDatabase, FaBullhorn, FaPalette,
-  FaChalkboardTeacher, FaBriefcase, FaUserTie, FaCertificate,
-  FaInfinity, FaHandshake, FaArrowRight, FaLaptopCode, FaGraduationCap,
-} from 'react-icons/fa';
-import { MdLaptopMac } from 'react-icons/md';
 
 /* ─── Razorpay loader (original, untouched) ─── */
 const loadRazorpaySDK = () =>
@@ -26,43 +20,138 @@ const loadRazorpaySDK = () =>
     document.body.appendChild(s);
   });
 
-/* ─── Course icon / color map ─── */
 const COURSE_META = [
-  { keys: ['web', 'full stack', 'fullstack', 'mern'], icon: <FaCode />,      bg: '#e6f4fb', iconColor: '#1a91c9', border: '#bfdfef' },
-  { keys: ['app', 'mobile', 'flutter', 'android'],    icon: <FaMobileAlt />, bg: '#eceffe', iconColor: '#4f5bd5', border: '#cfd3f8' },
-  { keys: ['ai', 'machine', 'deep learning', 'nlp'],  icon: <FaRobot />,     bg: '#fff8e8', iconColor: '#d97706', border: '#fce6a4' },
-  { keys: ['data', 'python', 'sql', 'analytics'],     icon: <FaDatabase />,  bg: '#eaf7f0', iconColor: '#16a34a', border: '#a8dfc0' },
-  { keys: ['marketing', 'seo', 'digital'],            icon: <FaBullhorn />,  bg: '#fff0f5', iconColor: '#db2777', border: '#f9c0d6' },
-  { keys: ['ui', 'ux', 'design', 'figma'],            icon: <FaPalette />,   bg: '#f3eeff', iconColor: '#7c3aed', border: '#d4c0f8' },
+  {
+    keys: ['web', 'full stack', 'fullstack', 'mern'],
+    icon: 'lucide:code-2',
+    bg: '#eaf7f0',
+    iconColor: '#16a34a',
+    border: '#b6e2cc',
+    dot: '#16a34a',
+  },
+  {
+    keys: ['app', 'mobile', 'flutter', 'android'],
+    icon: 'lucide:smartphone',
+    bg: '#e8f1fe',
+    iconColor: '#2563eb',
+    border: '#bdd3fb',
+    dot: '#2563eb',
+  },
+  {
+    keys: ['ai', 'machine', 'deep learning', 'nlp'],
+    icon: 'lucide:brain-circuit',
+    bg: '#f3eeff',
+    iconColor: '#7c3aed',
+    border: '#d0b8f8',
+    dot: '#7c3aed',
+  },
+  {
+    keys: ['data', 'python', 'sql', 'analytics'],
+    icon: 'lucide:database',
+    bg: '#fff5e6',
+    iconColor: '#d97706',
+    border: '#fbd49a',
+    dot: '#d97706',
+  },
+  {
+    keys: ['marketing', 'seo', 'digital'],
+    icon: 'lucide:megaphone',
+    bg: '#e6faf8',
+    iconColor: '#0d9488',
+    border: '#99e6de',
+    dot: '#0d9488',
+  },
+  {
+    keys: ['ui', 'ux', 'design', 'figma'],
+    icon: 'lucide:pencil-ruler',
+    bg: '#fce7f3',
+    iconColor: '#db2777',
+    border: '#f8a5cc',
+    dot: '#db2777',
+  },
+  {
+  keys: ['video', 'editing', 'content', 'premiere'],
+  icon: 'lucide:clapperboard',
+  bg: '#fff1f2',
+  iconColor: '#e11d48',
+  border: '#fda4af',
+  dot: '#e11d48',
+},
+
+{
+  keys: ['cloud'],
+  icon: 'lucide:cloud',
+  bg: '#eff6ff',
+  iconColor: '#0284c7',
+  border: '#93c5fd',
+  dot: '#0284c7',
+},
+
+{
+  keys: ['devops', 'docker', 'kubernetes'],
+  icon: 'lucide:settings-2',
+  bg: '#f8fafc',
+  iconColor: '#475569',
+  border: '#cbd5e1',
+  dot: '#475569',
+},
+
+{
+  keys: ['game', 'unity'],
+  icon: 'lucide:gamepad-2',
+  bg: '#f5f3ff',
+  iconColor: '#7c3aed',
+  border: '#c4b5fd',
+  dot: '#7c3aed',
+},
+
+{
+  keys: ['business', 'analytics', 'excel', 'power bi'],
+  icon: 'lucide:briefcase-business',
+  bg: '#f0fdf4',
+  iconColor: '#16a34a',
+  border: '#86efac',
+  dot: '#16a34a',
+},
 ];
 
 const getCourseMeta = (title = '') => {
   const t = title.toLowerCase();
   return (
-    COURSE_META.find(({ keys }) => keys.some((k) => t.includes(k))) ||
-    { icon: <FaLaptopCode />, bg: '#e6f4fb', iconColor: '#1a91c9', border: '#bfdfef' }
+    COURSE_META.find(({ keys }) => keys.some((k) => t.includes(k))) || {
+      icon: 'lucide:laptop',
+      bg: '#e8f4fb',
+      iconColor: '#1a91c9',
+      border: '#bfdfef',
+      dot: '#1a91c9',
+    }
   );
 };
 
 const getTools = (tools) => {
   if (Array.isArray(tools)) return tools;
-  if (typeof tools === 'string') return tools.split(',').map((t) => t.trim()).filter(Boolean);
+  if (typeof tools === 'string')
+    return tools
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
   return [];
 };
 
 /* ─── Benefits data ─── */
 const BENEFITS = [
-  { icon: <FaChalkboardTeacher />, label: ['Mentor-Led', 'Training'] },
-  { icon: <MdLaptopMac />,         label: ['Live Client', 'Projects'] },
-  { icon: <FaBriefcase />,         label: ['Stipend', 'Opportunities'] },
-  { icon: <FaGraduationCap />,     label: ['Real Portfolio', 'Building'] },
-  { icon: <FaUserTie />,           label: ['1:1 Career', 'Support'] },
-  { icon: <FaCertificate />,       label: ['Certificate of', 'Completion'] },
-  { icon: <FaInfinity />,          label: ['Lifetime Access', 'to Resources'] },
-  { icon: <FaHandshake />,         label: ['Placement & Job', 'Assistance'] },
+  { icon: 'tabler:user-star',                label: ['Expert-Led',      'Training']       },
+{ icon: 'tabler:clipboard-list',   label: ['Last Exam', 'Practice'] },  { icon: 'tabler:briefcase',                label: ['Scaled',          'Doubt-Solving']  },
+  { icon: 'tabler:presentation-analytics',   label: ['Real-World',      'Projects']       },
+  { icon: 'tabler:rosette-discount-check',   label: ['1:1 Career',      'Support']        },
+  { icon: 'tabler:users',                    label: ['Certificate of',  'Completion']     },
+  { icon: 'tabler:file-description',         label: ['Lifetime Access', 'to Resources']  },
+  { icon: 'tabler:users-group',              label: ['Placement & Job', 'Assistance']     },
 ];
 
-
+/* ══════════════════════════════════════════════════════════════
+   EnrollModal  —  all original logic preserved
+══════════════════════════════════════════════════════════════ */
 const EnrollModal = ({ course, onClose }) => {
   const { user }              = useAuth();
   const navigate              = useNavigate();
@@ -77,88 +166,154 @@ const EnrollModal = ({ course, onClose }) => {
     year:    user?.year    || '',
   });
 
-  const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const handleChange = (e) =>
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) { toast.error('Please login'); navigate('/login'); return; }
-    if (!form.name || !form.email || !form.phone || !form.college || !form.degree || !form.year) {
-      toast.error('Please fill all fields'); return;
+    if (
+      !form.name || !form.email || !form.phone ||
+      !form.college || !form.degree || !form.year
+    ) {
+      toast.error('Please fill all fields');
+      return;
     }
     const RAZORPAY_KEY = process.env.REACT_APP_RAZORPAY_KEY_ID;
-    if (!RAZORPAY_KEY) { toast.error('Payment not configured. Contact support.'); return; }
-    setLoading(true); setStep(2);
+    if (!RAZORPAY_KEY) {
+      toast.error('Payment not configured. Contact support.');
+      return;
+    }
+    setLoading(true);
+    setStep(2);
     try {
       const enrollRes    = await enrollCourse({ ...form, courseName: course.title, coursePrice: course.price });
       const enrollmentId = enrollRes.data.data._id;
       const sdkLoaded    = await loadRazorpaySDK();
-      if (!sdkLoaded) { toast.error('Payment gateway failed.'); setStep(1); setLoading(false); return; }
-      const orderRes = await API.post('/payments/create-order', { amount: course.price, enrollmentId });
-      const order    = orderRes.data.order;
+      if (!sdkLoaded) {
+        toast.error('Payment gateway failed.');
+        setStep(1);
+        setLoading(false);
+        return;
+      }
+      const orderRes = await API.post('/payments/create-order', {
+        amount: course.price,
+        enrollmentId,
+      });
+      const order = orderRes.data.order;
       const rzp = new window.Razorpay({
-        key: RAZORPAY_KEY, amount: order.amount, currency: 'INR',
-        name: 'WeIntern', description: course.title,
-        image: `${window.location.origin}/welogo.png`, order_id: order.id,
+        key:         RAZORPAY_KEY,
+        amount:      order.amount,
+        currency:    'INR',
+        name:        'WeIntern',
+        description: course.title,
+        image:       `${window.location.origin}/welogo.png`,
+        order_id:    order.id,
         handler: async (response) => {
           try {
             await API.post('/payments/verify', { ...response, enrollmentId });
             toast.success('Payment successful! You are now enrolled.');
             onClose();
-          } catch { toast.error('Verification failed. Contact support.'); }
+          } catch {
+            toast.error('Verification failed. Contact support.');
+          }
         },
         prefill: { name: form.name, email: form.email, contact: form.phone },
         theme:   { color: '#E8A820' },
-        modal:   { ondismiss: () => { toast('Cancelled', { icon: 'ℹ️' }); setStep(1); setLoading(false); } },
+        modal:   {
+          ondismiss: () => {
+            toast('Cancelled', { icon: 'ℹ️' });
+            setStep(1);
+            setLoading(false);
+          },
+        },
       });
-      rzp.on('payment.failed', (r) => { toast.error(`Failed: ${r.error.description}`); setStep(1); setLoading(false); });
+      rzp.on('payment.failed', (r) => {
+        toast.error(`Failed: ${r.error.description}`);
+        setStep(1);
+        setLoading(false);
+      });
       rzp.open();
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Error');
-      setStep(1); setLoading(false);
+      setStep(1);
+      setLoading(false);
     }
   };
 
   const meta = getCourseMeta(course.title);
 
   return (
-    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && !loading && onClose()}>
+    <div
+      className="modal-overlay"
+      onClick={(e) => e.target === e.currentTarget && !loading && onClose()}
+    >
       <div className="modal-box" style={{ position: 'relative', maxWidth: '480px' }}>
         <button
           onClick={() => !loading && onClose()}
-          style={{ position:'absolute', top:'1rem', right:'1rem', background:'none', border:'none', fontSize:'1.5rem', cursor:'pointer', color:'var(--muted)', lineHeight:1 }}
-        >×</button>
+          style={{
+            position: 'absolute', top: '1rem', right: '1rem',
+            background: 'none', border: 'none', fontSize: '1.5rem',
+            cursor: 'pointer', color: 'var(--muted)', lineHeight: 1,
+          }}
+        >
+          ×
+        </button>
 
         <div className="enroll-header">
-          <div className="enroll-emoji" style={{ color: meta.iconColor, background: meta.bg }}>
-            {meta.icon}
+          <div
+            className="enroll-emoji"
+            style={{ color: meta.iconColor, background: meta.bg }}
+          >
+            <Icon icon={meta.icon} width={28} height={28} />
           </div>
           <div>
-            <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--navy)' }}>{course.title}</h3>
-            <div className="enroll-price-tag">₹{Number(course.price).toLocaleString('en-IN')}</div>
+            <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--navy)' }}>
+              {course.title}
+            </h3>
+            <div className="enroll-price-tag">
+              ₹{Number(course.price).toLocaleString('en-IN')}
+            </div>
           </div>
         </div>
 
         {step === 1 && (
           <form onSubmit={handleSubmit}>
             <div className="enroll-form-grid">
-              {[['name','Full Name','text'],['email','Email','email'],['phone','Phone','tel'],['college','College','text']].map(([n,p,t]) => (
+              {[
+                ['name',    'Full Name', 'text'],
+                ['email',   'Email',     'email'],
+                ['phone',   'Phone',     'tel'],
+                ['college', 'College',   'text'],
+              ].map(([n, p, t]) => (
                 <div className="form-group" key={n}>
                   <label>{p} *</label>
-                  <input type={t} name={n} placeholder={p} value={form[n]} onChange={handleChange} required />
+                  <input
+                    type={t}
+                    name={n}
+                    placeholder={p}
+                    value={form[n]}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
               ))}
               <div className="form-group">
                 <label>Degree *</label>
                 <select name="degree" value={form.degree} onChange={handleChange} required>
                   <option value="">Select Degree</option>
-                  {['BCA','MCA','B.Tech','M.Tech','BSc','Other'].map((d) => <option key={d}>{d}</option>)}
+                  {['BCA', 'MCA', 'B.Tech', 'M.Tech', 'BSc', 'Other'].map((d) => (
+                    <option key={d}>{d}</option>
+                  ))}
                 </select>
               </div>
               <div className="form-group">
                 <label>Year *</label>
                 <select name="year" value={form.year} onChange={handleChange} required>
                   <option value="">Select Year</option>
-                  {['1st Year','2nd Year','3rd Year','Final Year'].map((y) => <option key={y}>{y}</option>)}
+                  {['1st Year', '2nd Year', '3rd Year', 'Final Year'].map((y) => (
+                    <option key={y}>{y}</option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -176,7 +331,12 @@ const EnrollModal = ({ course, onClose }) => {
             <button type="submit" className="btn btn-primary btn-full enroll-pay-btn">
               🔒 Pay ₹{Number(course.price).toLocaleString('en-IN')} →
             </button>
-            <button type="button" className="btn btn-outline btn-full" onClick={onClose} style={{ marginTop:'.6rem' }}>
+            <button
+              type="button"
+              className="btn btn-outline btn-full"
+              onClick={onClose}
+              style={{ marginTop: '.6rem' }}
+            >
               Cancel
             </button>
           </form>
@@ -194,18 +354,21 @@ const EnrollModal = ({ course, onClose }) => {
   );
 };
 
-/* ══════════════════════════════════════════════════════════════
-   Main Courses Component
-══════════════════════════════════════════════════════════════ */
+// Main Course Component
 const Courses = () => {
-  const [detailCourse, setDetailCourse]           = useState(null);
-  const [enrollCourseData, setEnrollCourseData]   = useState(null);
+  const [detailCourse, setDetailCourse]         = useState(null);
+  const [enrollCourseData, setEnrollCourseData] = useState(null);
+  const [showAllCourses, setShowAllCourses] = useState(false);
   const { activeCourses } = useCourses();
   const { user }          = useAuth();
   const navigate          = useNavigate();
 
   const handleEnroll = (course) => {
-    if (!user) { toast.error('Please login to enroll'); navigate('/login'); return; }
+    if (!user) {
+      toast.error('Please login to enroll');
+      navigate('/login');
+      return;
+    }
     setDetailCourse(null);
     setEnrollCourseData(course);
   };
@@ -213,7 +376,7 @@ const Courses = () => {
   return (
     <section className="courses" id="courses">
 
-      {/* ── Centered header ── */}
+      {/* ── Header ── */}
       <div className="cs-header">
         <div className="cs-header-center">
           <h2 className="cs-main-title">
@@ -221,16 +384,32 @@ const Courses = () => {
             <span className="cs-title-accent">In-Demand</span>{' '}
             <span className="cs-title-serif">Courses</span>
           </h2>
-          <p className="cs-sub">Practical. Industry-Relevant. Outcome-Driven.</p>
+          <p className="cs-sub">Upskill with Job-Ready Programs &amp; Career-Driven Certifications.</p>
         </div>
-        <a href="#all-courses" className="cs-view-all">
-          View All Courses <FaArrowRight className="cs-view-arrow" />
-        </a>
+<button
+  className="cs-view-all"
+  onClick={() => setShowAllCourses((prev) => !prev)}
+>
+  {showAllCourses ? 'View Less' : 'View All Courses'}
+
+  <Icon
+    icon="lucide:arrow-right"
+    className="cs-view-arrow"
+    width={14}
+    height={14}
+  />
+</button>
       </div>
 
-      {/* ── 6-Column card grid ── */}
+      {/* ── 6-column card grid ── */}
       <div className="cs-grid">
-        {activeCourses.map((c) => {
+      {activeCourses
+ .filter((c, index) => {
+  if (showAllCourses) return true;
+
+  return index < 6;
+})
+  .map((c) => {
           const meta  = getCourseMeta(c.title);
           const tools = getTools(c.tools).slice(0, 4);
 
@@ -238,13 +417,17 @@ const Courses = () => {
             <div
               key={c.id || c.title}
               className="cs-card"
-              style={{ '--crd-border': meta.border }}
+              style={{
+  "--card-soft-bg": "#eef7f1",
+  "--enroll-color": "#16a34a",
+  "--crd-border": "#b7e4c7"
+}}
               onClick={() => setDetailCourse(c)}
             >
               {/* Pastel icon zone */}
-              <div className="cs-card-icon-row" style={{ background: meta.bg }}>
-                <div className="cs-card-icon" style={{ color: meta.iconColor }}>
-                  {meta.icon}
+              <div className="cs-card-icon-zone" style={{ background: meta.bg }}>
+                <div className="cs-card-icon-wrap" style={{ color: meta.iconColor }}>
+                  <Icon icon={meta.icon} width={40} height={40} strokeWidth={1.5} />
                 </div>
               </div>
 
@@ -256,19 +439,27 @@ const Courses = () => {
                 <ul className="cs-card-list">
                   {tools.map((t) => (
                     <li key={t}>
-                      <span className="cs-bullet-dot" />
+                      <span className="cs-bullet-dot" style={{ background: meta.dot }} />
                       {t}
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Enroll button — stopPropagation keeps modal from triggering detail */}
+              {/* Enroll button */}
               <button
                 className="cs-enroll"
-                onClick={(e) => { e.stopPropagation(); handleEnroll(c); }}
+                style={{
+                  '--enroll-color':  meta.iconColor,
+                  '--enroll-border': meta.border,
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEnroll(c);
+                }}
               >
-                Enroll Now <FaArrowRight className="cs-enroll-arrow" />
+                Enroll Now
+                <Icon icon="lucide:arrow-right" width={13} height={13} className="cs-enroll-arrow" />
               </button>
             </div>
           );
@@ -286,9 +477,13 @@ const Courses = () => {
           <div className="cs-benefits-row">
             {BENEFITS.map(({ icon, label }) => (
               <div className="cs-benefit" key={label[0]}>
-                <div className="cs-benefit-ico">{icon}</div>
+                <div className="cs-benefit-ico">
+                  <Icon icon={icon} width={28} height={28} />
+                </div>
                 <p className="cs-benefit-lbl">
-                  {label[0]}<br />{label[1]}
+                  {label[0]}
+                  <br />
+                  {label[1]}
                 </p>
               </div>
             ))}
@@ -305,7 +500,10 @@ const Courses = () => {
         />
       )}
       {enrollCourseData && (
-        <EnrollModal course={enrollCourseData} onClose={() => setEnrollCourseData(null)} />
+        <EnrollModal
+          course={enrollCourseData}
+          onClose={() => setEnrollCourseData(null)}
+        />
       )}
     </section>
   );
