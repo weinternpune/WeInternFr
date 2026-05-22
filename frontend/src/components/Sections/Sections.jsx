@@ -1,7 +1,19 @@
 // ===== Problem Section =====
-import React from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import useReveal from '../../hooks/useReveal';
 import './Sections.css';
+
+import ai_chatbot from "../../assets/ai_chatbot.jpg";
+import analytics from "../../assets/analytics.jpg";
+import ecommerce from "../../assets/ecommerce.jpg";
+import edtech from "../../assets/edtech.jpg";
+import fleet_monitoring from "../../assets/fleet_monitoring.jpg";
+import healthcare from "../../assets/healthcare.jpg";
+import platform from "../../assets/platform.jpg";
+import food_delivery from "../../assets/food_delivery.jpg";
+import job_portal from "../../assets/job_portal.jpg";
+import travel_booking from "../../assets/travel_booking.jpg";
 
 export const Problem = () => {
   const q1 = useReveal(); const q2 = useReveal(); const q3 = useReveal(); const q4 = useReveal();
@@ -141,71 +153,328 @@ export const HowItWorks = () => {
   );
 };
 
-// ===== Services =====
-export const Services = () => {
-  const SERVICES = [
-    { icon:'🌐', title:'Website Development', desc:'From landing pages to full-stack web apps. React, Next.js, Node.js, and more.', tags:['React','Next.js','Node.js','MongoDB'] },
-    { icon:'📱', title:'App Development', desc:'Native and cross-platform mobile apps that solve real problems with beautiful UX.', tags:['Flutter','React Native','iOS','Android'] },
-    { icon:'🤖', title:'AI & Automation', desc:'Smart chatbots, workflow automation, AI dashboards, and ML integrations.', tags:['Python','LangChain','OpenAI','n8n'] },
-    { icon:'☁️', title:'Cloud Solutions', desc:'Cloud infrastructure, deployment pipelines, scalable architecture.', tags:['AWS','GCP','Docker','CI/CD'] },
-    { icon:'💎', title:'Digital Products', desc:'SaaS platforms, admin dashboards, CRMs, and custom digital tools.', tags:['SaaS','Dashboard','CRM','API'] }
+// ===== EcosystemSection =====
+export const EcosystemSection = () => {
+
+  const STEP_ICONS = [
+    // 1. Learn — open book
+    <svg viewBox="0 0 48 48" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M24 10C24 10 14 7 8 10v26c6-3 16 0 16 0s10-3 16 0V10c-6-3-16 0-16 0z"/>
+      <line x1="24" y1="10" x2="24" y2="36"/>
+    </svg>,
+    // 2. Build — code brackets
+    <svg viewBox="0 0 48 48" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="18,14 8,24 18,34"/>
+      <polyline points="30,14 40,24 30,34"/>
+      <line x1="28" y1="12" x2="20" y2="36"/>
+    </svg>,
+    // 3. Get Assigned — briefcase
+    <svg viewBox="0 0 48 48" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="8" y="18" width="32" height="22" rx="3"/>
+      <path d="M16 18v-4a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v4"/>
+      <line x1="8" y1="28" x2="40" y2="28"/>
+    </svg>,
+    // 4. Work & Grow — two people / team
+    <svg viewBox="0 0 48 48" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="18" cy="16" r="5"/>
+      <path d="M6 38c0-6.627 5.373-12 12-12"/>
+      <circle cx="32" cy="14" r="4"/>
+      <path d="M28 38c0-5.523 3.582-10 8-10"/>
+      <path d="M18 26c3.5 0 6.5 1.5 8.5 4"/>
+    </svg>,
+    // 5. Earn — rupee coin
+    <svg viewBox="0 0 48 48" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="24" cy="24" r="16"/>
+      <path d="M18 17h12M18 23h12M22 23l-4 8"/>
+      <path d="M18 17c0 0 8 0 8 6s-8 6-8 6"/>
+    </svg>,
   ];
+
+  const STEP_COLORS = [
+    { bg: '#22c55e', border: '#16a34a' },   // green  — Learn
+    { bg: '#3b82f6', border: '#2563eb' },   // blue   — Build
+    { bg: '#8b5cf6', border: '#7c3aed' },   // purple — Get Assigned
+    { bg: '#f97316', border: '#ea580c' },   // orange — Work & Grow
+    { bg: '#ec4899', border: '#db2777' },   // pink   — Earn
+  ];
+
+  const STEP_LABELS = [
+    { num: 1, title: 'Learn',        desc: 'Learn in-demand skills with expert mentors' },
+    { num: 2, title: 'Build',        desc: 'Build real projects and create your portfolio' },
+    { num: 3, title: 'Get Assigned', desc: 'Get assigned to live projects from WeNexa (our IT arm)' },
+    { num: 4, title: 'Work & Grow',  desc: 'Work under mentor supervision and improve your industry skills' },
+    { num: 5, title: 'Earn',         desc: 'Earn stipend and become financially independent while you learn' },
+  ];
+
   return (
-    <section className="services" id="services">
-      <div className="container">
-        <div className="section-label">What We Build</div>
-        <h2 className="section-title">Services WeIntern Delivers</h2>
-        <p className="section-sub">Real client projects across modern technology domains — built by passionate intern teams, supervised by experts.</p>
-        <div className="services-grid">
-          {SERVICES.map(s => (
-            <div key={s.title} className="service-card reveal">
-              <div className="sc-glow" />
-              <span className="service-icon">{s.icon}</span>
-              <h3>{s.title}</h3>
-              <p>{s.desc}</p>
-              <div className="service-tags">{s.tags.map(t => <span key={t}>{t}</span>)}</div>
-            </div>
+    <section className="eco-wrapper" id="ecosystem">
+
+      {/* ── TOP: Step Flow + Mission ── */}
+      <div className="eco-heading-block">
+        <h2 className="eco-title">
+          How the <span className="eco-title-brand">Weintern</span> Ecosystem Works
+        </h2>
+        <p className="eco-subtitle">From learning to earning — a journey that changes your future.</p>
+      </div>
+
+      {/* Steps + Mission side by side */}
+      <div className="eco-top-body">
+        {/* Steps */}
+        <div className="eco-steps">
+          {STEP_LABELS.map((s, i) => (
+            <React.Fragment key={s.num}>
+              <div className="eco-step-card">
+                <div className="eco-step-circle" style={{ background: STEP_COLORS[i].bg, borderColor: STEP_COLORS[i].border }}>
+                  {STEP_ICONS[i]}
+                </div>
+                <div className="eco-step-label">{s.num}. {s.title}</div>
+                <p className="eco-step-desc">{s.desc}</p>
+              </div>
+              {i < STEP_LABELS.length - 1 && (
+                <div className="eco-step-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                    <polyline points="13,6 19,12 13,18"/>
+                  </svg>
+                </div>
+              )}
+            </React.Fragment>
           ))}
-          <div className="service-card service-card-cta reveal">
-            <div className="sc-cta-content">
-              <div style={{ fontSize:'2.5rem', marginBottom:'1rem' }}>💬</div>
-              <h3>Have a project in mind?</h3>
-              <p>Let's build something great together.</p>
-              <a href="#hire" className="btn btn-primary" style={{ marginTop:'1.25rem' }}>Get a Free Quote →</a>
-            </div>
+        </div>
+
+        {/* Mission box */}
+        <div className="eco-mission">
+          <h4 className="eco-mission-head">Our Mission</h4>
+          <p className="eco-mission-body">
+            To empower every student with practical skills, real experience and financial independence through meaningful work.
+          </p>
+          <div className="eco-mission-brands">
+            <span className="eco-mb-wi">Weintern</span>
+            <span className="eco-mb-inf">∞</span>
+            <span className="eco-mb-wn"><span className="eco-mb-we">We</span>Nexa</span>
           </div>
+          <p className="eco-mission-tag">Stronger Together</p>
         </div>
       </div>
+
+      {/* ── BOTTOM: Dark Impact Banner ── */}
+      <div className="eco-bottom">
+        <div className="eco-bottom-inner">
+
+          {/* Left: heading */}
+          <div className="eco-b-left">
+            <h2 className="eco-b-heading">
+              Real Work. Real Impact.<br />
+              <span className="eco-b-green">Real Income</span> for Students.
+            </h2>
+            <p className="eco-b-sub">We believe students deserve to earn for the value they create.</p>
+          </div>
+
+          {/* Donut */}
+          <div className="eco-donut">
+            <svg viewBox="0 0 120 120" className="eco-donut-svg">
+              <defs>
+                <linearGradient id="dg" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#86efac" />
+                  <stop offset="100%" stopColor="#16a34a" />
+                </linearGradient>
+              </defs>
+              {/* Track */}
+              <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="16" />
+              {/* 75% arc: circumference = 2π×46 ≈ 289, 75% = 217 */}
+              <circle cx="60" cy="60" r="46" fill="none" stroke="url(#dg)" strokeWidth="16"
+                strokeDasharray="217 72" strokeDashoffset="0" strokeLinecap="round" />
+            </svg>
+            <div className="eco-donut-center">
+              <span className="eco-donut-pct">75%</span>
+              <span className="eco-donut-lbl">OF PROJECT VALUE<br />GOES TO<br />STUDENTS</span>
+            </div>
+          </div>
+
+          {/* 4 benefit columns */}
+          <div className="eco-b-benefits">
+
+            {/* Financial Independence — purse/wallet with clasp */}
+            <div className="eco-b-card">
+              <div className="eco-b-icon">
+                <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10 16c0-3 2-5 5-5h10c3 0 5 2 5 5v12c0 2-1.5 4-4 4H14c-2.5 0-4-2-4-4V16z"/>
+                  <path d="M15 11c0-2 1-4 5-4s5 2 5 4"/>
+                  <path d="M10 21h20"/>
+                  <circle cx="20" cy="25" r="2" fill="currentColor" stroke="none"/>
+                </svg>
+              </div>
+              <h4 className="eco-b-title">Financial<br/>Independence</h4>
+              <p className="eco-b-desc">Students earn real income through their skills and hard work.</p>
+            </div>
+
+            {/* Industry Experience — briefcase with bar chart */}
+            <div className="eco-b-card">
+              <div className="eco-b-icon">
+                <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="6" y="15" width="28" height="19" rx="2"/>
+                  <path d="M14 15v-3a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/>
+                  <line x1="13" y1="34" x2="13" y2="27"/>
+                  <line x1="20" y1="34" x2="20" y2="24"/>
+                  <line x1="27" y1="34" x2="27" y2="29"/>
+                </svg>
+              </div>
+              <h4 className="eco-b-title">Industry<br/>Experience</h4>
+              <p className="eco-b-desc">Work on real projects and gain experience before graduation.</p>
+            </div>
+
+            {/* Career Growth — upward trending line */}
+            <div className="eco-b-card">
+              <div className="eco-b-icon">
+                <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="5,32 14,21 21,26 30,13 36,8"/>
+                  <polyline points="30,8 36,8 36,14"/>
+                </svg>
+              </div>
+              <h4 className="eco-b-title">Career<br/>Growth</h4>
+              <p className="eco-b-desc">Build confidence, strong portfolio and better career opportunities.</p>
+            </div>
+
+            {/* Better Future — two people silhouettes */}
+            <div className="eco-b-card">
+              <div className="eco-b-icon">
+                <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="14" cy="13" r="4.5"/>
+                  <path d="M4 33c0-5.523 4.477-10 10-10"/>
+                  <path d="M14 23c5.523 0 10 4.477 10 10"/>
+                  <circle cx="28" cy="11" r="3.5"/>
+                  <path d="M24 33c0-4.418 1.79-8 4-8"/>
+                  <path d="M28 25c2.21 0 4 3.582 4 8"/>
+                </svg>
+              </div>
+              <h4 className="eco-b-title">Better<br/>Future</h4>
+              <p className="eco-b-desc">Empowered students create a stronger and better India.</p>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Bottom note */}
+        <div className="eco-b-note">
+          <span>🔒</span>
+          When you learn with Weintern, you don't just get a course – you get opportunities that pay.
+        </div>
+      </div>
+
     </section>
   );
 };
 
-// ===== Testimonials =====
+
+
 export const Testimonials = () => {
-  const TESTI = [
-    { init:'AK', name:'Arjun Kumar', role:'Web Dev Intern → Junior Dev at TechCorp', color:'var(--gold)', quote:'Before WeIntern, I had 12 certificates and zero real projects. Six months later, I had delivered 3 live client websites and received my first salary-based job offer. The difference is night and day.' },
-    { init:'SM', name:'Sneha Mishra', role:'AI Intern → Data Science Analyst', color:'var(--cyan)', quote:'I was terrified of interviews because I had nothing to show. At WeIntern, I worked on a real AI chatbot for a client. That single project got me through 4 interview rounds. I couldn\'t believe it.' },
-    { init:'RP', name:'Rohit Patil', role:'App Intern → Freelancer (₹80k/month)', color:'#e67e22', quote:'The stipend was a bonus, but the experience was priceless. I learned more in 3 months at WeIntern than 2 years of college. Real mentorship, real deadlines, real clients.' },
+const projectData = [
+  { id: 1,  image: ecommerce,       title: "E-Commerce Website",       subtitle: "Built for Retail Brand",     tech: ["React", "Node.js", "MongoDB"] },
+  { id: 2,  image: ai_chatbot,      title: "AI Chatbot Automation",    subtitle: "Built for SaaS Company",     tech: ["Python", "OpenAI", "FastAPI"] },
+  { id: 3,  image: fleet_monitoring,title: "Fintech Dashboard",        subtitle: "Built for Fintech Startup",  tech: ["React", "Node.js", "Chart.js"] },
+  { id: 4,  image: platform,        title: "Real Estate Platform",     subtitle: "Built for Real Estate Firm", tech: ["Next.js", "MongoDB", "Stripe"] },
+  { id: 5,  image: edtech,          title: "EdTech Platform",          subtitle: "Built for Online Learning",  tech: ["Next.js", "Tailwind", "Prisma"] },
+  { id: 6,  image: healthcare,      title: "Healthcare App",           subtitle: "Built for Clinic Network",   tech: ["React", "Firebase", "Stripe"] },
+  { id: 7,  image: analytics,       title: "Analytics Dashboard",      subtitle: "Built for Marketing Agency", tech: ["Vue", "D3.js", "Node.js"] },
+  { id: 8,  image: food_delivery,   title: "Food Delivery App",        subtitle: "Built for Restaurant Chain", tech: ["React", "Node.js", "MongoDB"] },
+  { id: 9,  image: job_portal,      title: "Job Portal Website",       subtitle: "Built for Hiring Platform",  tech: ["Next.js", "Firebase", "Tailwind"] },
+  { id: 10, image: travel_booking,  title: "Travel Booking Platform",  subtitle: "Built for Travel Agency",    tech: ["React", "Express", "Stripe"] },
 ];
+
+const VISIBLE = 5;
+const GAP = 14;
+
+const ProjectCard = ({ image, title, subtitle, tech }) => (
+  <div className="project-card">
+    <div className="project-image-wrapper">
+      <img src={image} alt={title} className="project-image" />
+    </div>
+    <div className="project-content">
+      <h3>{title}</h3>
+      <p>{subtitle}</p>
+      <div className="tech-stack">
+        {tech.map((item, i) => <span key={i}>{item}</span>)}
+      </div>
+    </div>
+  </div>
+);
+
+const StudentProjectsSection = () => {
+  const [start, setStart] = useState(0);
+  const [showAll, setShowAll] = useState(false);
+  const trackRef = useRef(null);
+  const [cardWidth, setCardWidth] = useState(0);
+
+  useEffect(() => {
+    const updateCardWidth = () => {
+      if (trackRef.current) {
+        const totalWidth = trackRef.current.offsetWidth;
+        const width = (totalWidth - GAP * (VISIBLE - 1)) / VISIBLE;
+        setCardWidth(width);
+      }
+    };
+    updateCardWidth();
+    window.addEventListener('resize', updateCardWidth);
+    return () => window.removeEventListener('resize', updateCardWidth);
+  }, [showAll]);
+
   return (
     <section className="testimonials" id="testimonials">
       <div className="container">
-        <div className="section-label">Real Stories</div>
-        <h2 className="section-title">From Students Who Made the Leap</h2>
-        <p className="section-sub">These aren't just success stories — they're proof that the model works.</p>
-        <div className="testi-grid">
-          {TESTI.map(t => (
-            <div key={t.name} className={`testi-card reveal${t.isBiz?' testi-biz':''}`}>
-              {t.isBiz && <span className="testi-biz-label">🏢 Business Testimonial</span>}
-              <div className="testi-top">
-                <div className="testi-avatar" style={{ background: t.color }}>{t.init}</div>
-                <div><strong>{t.name}</strong><span>{t.role}</span></div>
-                <div className="testi-stars">★★★★★</div>
-              </div>
-              <p>"{t.quote}"</p>
-            </div>
-          ))}
+
+        <div className="section-header">
+          <div />
+          <div className="section-content">
+            <h2>Real Projects Done by Our <span>Student Teams</span></h2>
+            <p>Real clients. Real problems. Real impact.</p>
+          </div>
+          <button
+            className="view-more-btn"
+            onClick={() => { setShowAll(s => !s); setStart(0); }}
+          >
+            {showAll ? "← Show Less" : "View More Projects →"}
+          </button>
         </div>
+
+        {!showAll ? (
+          <div className="projects-slider">
+            <button
+              className="slider-btn"
+              onClick={() => setStart(s => Math.max(0, s - 1))}
+              disabled={start === 0}
+            >‹</button>
+
+            <div className="projects-track-wrapper" ref={trackRef}>
+              <div
+                className="projects-track"
+                style={{
+                  transform: `translateX(-${start * (cardWidth + GAP)}px)`,
+                  gap: `${GAP}px`,
+                }}
+              >
+                {projectData.map(p => (
+                  <div
+                    key={p.id}
+                    style={{ minWidth: cardWidth > 0 ? `${cardWidth}px` : `calc((100% - ${GAP * (VISIBLE - 1)}px) / ${VISIBLE})` }}
+                  >
+                    <ProjectCard {...p} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button
+              className="slider-btn"
+              onClick={() => setStart(s => Math.min(projectData.length - VISIBLE, s + 1))}
+              disabled={start + VISIBLE >= projectData.length}
+            >›</button>
+          </div>
+        ) : (
+          <div className="projects-grid-all">
+            {projectData.map(p => <ProjectCard key={p.id} {...p} />)}
+          </div>
+        )}
+
       </div>
     </section>
   );

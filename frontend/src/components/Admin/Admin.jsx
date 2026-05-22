@@ -95,7 +95,8 @@ const Admin = () => {
 
 // ── Overview ──────────────────────────────────────────────
 const AdminOverview = () => {
-  const [data, setData] = useState(null);
+  const [stats, setStats] = useState(null);
+  const [recentApplications, setRecentApplications] = useState([]);
 
   const monthlyData = [
     { month: 'Oct', applications: 12, enrollments: 5, revenue: 24995 },
@@ -137,12 +138,14 @@ const AdminOverview = () => {
 
   useEffect(() => {
     getAdminStats()
-      .then(r => setData(r.data.data))
+      .then(r => setStats(r.data.data))
       .catch(() => toast.error('Failed to load stats'));
+    getAdminApplications({ page: 1, limit: 5 })
+      .then(r => setRecentApplications(r.data.data))
+      .catch(() => {});
   }, []);
 
-  if (!data) return <div className="dash-loading"><div className="dash-spinner" /></div>;
-  const { stats, recentApplications, recentEnrollments } = data;
+  if (!stats) return <div className="dash-loading"><div className="dash-spinner" /></div>;
 
   const totalRevenue = monthlyData.reduce((s, m) => s + m.revenue, 0);
 
@@ -712,13 +715,11 @@ const AdminCourses = () => {
       <div className="admin-courses-grid">
         {filtered.map(c => (
           <div key={c.id} className={`admin-course-card${c.status==='inactive'?' inactive':''}`}>
-            {/* Card Header - same style as home page */}
             <div className="acc-card-header" style={{ background:`linear-gradient(135deg,${c.colors?.h1||'#e76f51'},${c.colors?.h2||'#f4a261'})` }}>
               <span className="acc-card-emoji">{c.emoji}</span>
               <span className="acc-card-badge">{c.level?.charAt(0).toUpperCase()+c.level?.slice(1)}</span>
               {c.status === 'inactive' && <span className="acc-inactive-badge">Inactive</span>}
             </div>
-            {/* Card Body */}
             <div className="acc-card-body">
               <h4>{c.title}</h4>
               <p>{c.desc || c.tagline || c.about || 'No description'}</p>
@@ -754,7 +755,6 @@ const AdminCourses = () => {
             <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
             <h3>{editing ? 'Edit Course' : 'Add New Course'}</h3>
 
-            {/* Live Preview */}
             <div className="course-preview">
               <div className="cp-label">Live Preview</div>
               <div className="cp-card">
@@ -771,7 +771,6 @@ const AdminCourses = () => {
             </div>
 
             <form onSubmit={handleSubmit} style={{ marginTop:'1.25rem' }}>
-              {/* Color Picker */}
               <div className="form-group">
                 <label>Card Color Theme *</label>
                 <div className="color-picker">
@@ -1020,7 +1019,6 @@ const AdminProjects = () => {
   );
 };
 
-export default Admin;
 // ── User Detail Analytics Modal ───────────────────────────
 const UserDetailModal = ({ user: u, onClose }) => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -1083,7 +1081,6 @@ const UserDetailModal = ({ user: u, onClose }) => {
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="ud-modal">
-        {/* Header */}
         <div className="ud-header">
           <button className="ud-close" onClick={onClose}>×</button>
           <div className="ud-profile">
@@ -1100,7 +1097,6 @@ const UserDetailModal = ({ user: u, onClose }) => {
               </div>
             </div>
           </div>
-          {/* Quick stats */}
           <div className="ud-quick-stats">
             {[
               { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M4 19.5A2.5 2.5 0 0 1 6.5 17H20'/><path d='M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'/></svg>, val:'3',    label:'Courses' },
@@ -1119,7 +1115,6 @@ const UserDetailModal = ({ user: u, onClose }) => {
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="ud-tabs">
           {TABS.map(t => (
             <button key={t.id} className={`ud-tab${activeTab === t.id ? ' active' : ''}`}
@@ -1127,14 +1122,10 @@ const UserDetailModal = ({ user: u, onClose }) => {
           ))}
         </div>
 
-        {/* Body */}
         <div className="ud-body">
-
-          {/* Overview Tab */}
           {activeTab === 'overview' && (
             <div className="ud-section">
               <div className="ud-charts-row">
-                {/* Weekly Activity Area Chart */}
                 <div className="ud-chart-card" style={{ flex: 2 }}>
                   <div className="ud-chart-title">Weekly Learning Activity</div>
                   <ResponsiveContainer width="100%" height={220}>
@@ -1165,7 +1156,6 @@ const UserDetailModal = ({ user: u, onClose }) => {
                   </ResponsiveContainer>
                 </div>
 
-                {/* Course Progress Donut */}
                 <div className="ud-chart-card" style={{ flex: 1 }}>
                   <div className="ud-chart-title">Overall Progress</div>
                   <ResponsiveContainer width="100%" height={160}>
@@ -1189,73 +1179,32 @@ const UserDetailModal = ({ user: u, onClose }) => {
                 </div>
               </div>
 
-              {/* Info Cards */}
               <div className="ud-info-grid">
-                <div className="ud-info-card">
-                  <div className="ud-ic-icon">👤</div>
-                  <div className="ud-ic-content">
-                    <div className="ud-ic-label">Full Name</div>
-                    <div className="ud-ic-value">{u.name}</div>
+                {[
+                  { icon:'👤', label:'Full Name',      val: u.name },
+                  { icon:'📧', label:'Email',          val: u.email },
+                  { icon:'🎓', label:'College',        val: u.college || '—' },
+                  { icon:'📅', label:'Year',           val: u.year || '—' },
+                  { icon:'💡', label:'Interest',       val: u.interest || '—' },
+                  { icon:'🔑', label:'Auth Provider',  val: u.authProvider },
+                  { icon:'📅', label:'Joined On',      val: new Date(u.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }) },
+                  { icon:'📱', label:'Phone',          val: u.phone || '—' },
+                ].map(({ icon, label, val }) => (
+                  <div key={label} className="ud-info-card">
+                    <div className="ud-ic-icon">{icon}</div>
+                    <div className="ud-ic-content">
+                      <div className="ud-ic-label">{label}</div>
+                      <div className="ud-ic-value">{val}</div>
+                    </div>
                   </div>
-                </div>
-                <div className="ud-info-card">
-                  <div className="ud-ic-icon">📧</div>
-                  <div className="ud-ic-content">
-                    <div className="ud-ic-label">Email</div>
-                    <div className="ud-ic-value">{u.email}</div>
-                  </div>
-                </div>
-                <div className="ud-info-card">
-                  <div className="ud-ic-icon">🎓</div>
-                  <div className="ud-ic-content">
-                    <div className="ud-ic-label">College</div>
-                    <div className="ud-ic-value">{u.college || '—'}</div>
-                  </div>
-                </div>
-                <div className="ud-info-card">
-                  <div className="ud-ic-icon">📅</div>
-                  <div className="ud-ic-content">
-                    <div className="ud-ic-label">Year</div>
-                    <div className="ud-ic-value">{u.year || '—'}</div>
-                  </div>
-                </div>
-                <div className="ud-info-card">
-                  <div className="ud-ic-icon">💡</div>
-                  <div className="ud-ic-content">
-                    <div className="ud-ic-label">Interest</div>
-                    <div className="ud-ic-value">{u.interest || '—'}</div>
-                  </div>
-                </div>
-                <div className="ud-info-card">
-                  <div className="ud-ic-icon">🔑</div>
-                  <div className="ud-ic-content">
-                    <div className="ud-ic-label">Auth Provider</div>
-                    <div className="ud-ic-value" style={{ textTransform:'capitalize' }}>{u.authProvider}</div>
-                  </div>
-                </div>
-                <div className="ud-info-card">
-                  <div className="ud-ic-icon">📅</div>
-                  <div className="ud-ic-content">
-                    <div className="ud-ic-label">Joined On</div>
-                    <div className="ud-ic-value">{new Date(u.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' })}</div>
-                  </div>
-                </div>
-                <div className="ud-info-card">
-                  <div className="ud-ic-icon">📱</div>
-                  <div className="ud-ic-content">
-                    <div className="ud-ic-label">Phone</div>
-                    <div className="ud-ic-value">{u.phone || '—'}</div>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           )}
 
-          {/* Activity Tab */}
           {activeTab === 'activity' && (
             <div className="ud-section">
               <div className="ud-charts-row">
-                {/* Daily Hours Bar */}
                 <div className="ud-chart-card" style={{ flex: 1 }}>
                   <div className="ud-chart-title">Daily Study Hours (This Week)</div>
                   <ResponsiveContainer width="100%" height={220}>
@@ -1273,7 +1222,6 @@ const UserDetailModal = ({ user: u, onClose }) => {
                   </ResponsiveContainer>
                 </div>
 
-                {/* Skill Breakdown Bar */}
                 <div className="ud-chart-card" style={{ flex: 1 }}>
                   <div className="ud-chart-title">Skill Proficiency (%)</div>
                   <ResponsiveContainer width="100%" height={220}>
@@ -1292,19 +1240,18 @@ const UserDetailModal = ({ user: u, onClose }) => {
                 </div>
               </div>
 
-              {/* Activity Timeline */}
               <div className="ud-chart-card" style={{ marginTop:'1.25rem' }}>
                 <div className="ud-chart-title">Recent Activity Log</div>
                 <div className="activity-timeline">
                   {[
-                    { time:'Today, 10:30 AM',  action:'Completed React Hooks lecture',        type:'lecture',  icon:'video' },
-                    { time:'Today, 9:00 AM',   action:'Submitted Assignment #8 — Todo App',   type:'assignment',icon:'file' },
-                    { time:'Yesterday, 3 PM',  action:'Attended Live Session: Node.js APIs',   type:'session',  icon:'video' },
-                    { time:'Yesterday, 11 AM', action:'Completed practice: JavaScript ES6',    type:'practice', icon:'code' },
-                    { time:'2 days ago',       action:'Started MongoDB module',                type:'lecture',  icon:'book' },
-                    { time:'3 days ago',       action:'Scored 88% in CSS quiz',                type:'quiz',     icon:'target' },
-                    { time:'4 days ago',       action:'Attended Live Session: React Basics',   type:'session',  icon:'video' },
-                    { time:'5 days ago',       action:'Completed HTML5 module — 100%',         type:'complete', icon:'check' },
+                    { time:'Today, 10:30 AM',  action:'Completed React Hooks lecture',        type:'lecture',   icon:'video' },
+                    { time:'Today, 9:00 AM',   action:'Submitted Assignment #8 — Todo App',   type:'assignment',icon:'file'  },
+                    { time:'Yesterday, 3 PM',  action:'Attended Live Session: Node.js APIs',  type:'session',   icon:'video' },
+                    { time:'Yesterday, 11 AM', action:'Completed practice: JavaScript ES6',   type:'practice',  icon:'code'  },
+                    { time:'2 days ago',       action:'Started MongoDB module',               type:'lecture',   icon:'book'  },
+                    { time:'3 days ago',       action:'Scored 88% in CSS quiz',               type:'quiz',      icon:'target'},
+                    { time:'4 days ago',       action:'Attended Live Session: React Basics',  type:'session',   icon:'video' },
+                    { time:'5 days ago',       action:'Completed HTML5 module — 100%',        type:'complete',  icon:'check' },
                   ].map((a, i) => (
                     <div key={i} className="at-item">
                       <div className={`at-dot ${a.type}`} />
@@ -1328,7 +1275,6 @@ const UserDetailModal = ({ user: u, onClose }) => {
             </div>
           )}
 
-          {/* Progress Tab */}
           {activeTab === 'progress' && (
             <div className="ud-section">
               <div className="ud-charts-row">
@@ -1336,12 +1282,12 @@ const UserDetailModal = ({ user: u, onClose }) => {
                   <div className="ud-chart-title">Lectures Attended vs Total</div>
                   <div className="progress-modules">
                     {[
-                      { name:'HTML & CSS',    done:12, total:12, color:'#27ae60' },
-                      { name:'JavaScript',    done:18, total:24, color:'#2196C9' },
-                      { name:'React.js',      done:10, total:20, color:'#6c3483' },
-                      { name:'Node.js',       done:6,  total:16, color:'#e67e22' },
-                      { name:'MongoDB',       done:4,  total:12, color:'#1e8449' },
-                      { name:'Deployment',    done:0,  total:8,  color:'#dc4545' },
+                      { name:'HTML & CSS',  done:12, total:12, color:'#27ae60' },
+                      { name:'JavaScript',  done:18, total:24, color:'#2196C9' },
+                      { name:'React.js',    done:10, total:20, color:'#6c3483' },
+                      { name:'Node.js',     done:6,  total:16, color:'#e67e22' },
+                      { name:'MongoDB',     done:4,  total:12, color:'#1e8449' },
+                      { name:'Deployment',  done:0,  total:8,  color:'#dc4545' },
                     ].map(m => (
                       <div key={m.name} className="pm-item">
                         <div className="pm-header">
@@ -1361,14 +1307,9 @@ const UserDetailModal = ({ user: u, onClose }) => {
                   <div className="ud-chart-title">Assignment Scores</div>
                   <ResponsiveContainer width="100%" height={260}>
                     <LineChart data={[
-                      { num:'A1', score:72 },
-                      { num:'A2', score:78 },
-                      { num:'A3', score:85 },
-                      { num:'A4', score:80 },
-                      { num:'A5', score:88 },
-                      { num:'A6', score:82 },
-                      { num:'A7', score:91 },
-                      { num:'A8', score:88 },
+                      { num:'A1', score:72 },{ num:'A2', score:78 },{ num:'A3', score:85 },
+                      { num:'A4', score:80 },{ num:'A5', score:88 },{ num:'A6', score:82 },
+                      { num:'A7', score:91 },{ num:'A8', score:88 },
                     ]} margin={{ top:10, right:20, left:-20, bottom:0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(27,42,74,0.06)" />
                       <XAxis dataKey="num" tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
@@ -1381,12 +1322,11 @@ const UserDetailModal = ({ user: u, onClose }) => {
                 </div>
               </div>
 
-              {/* Course Cards */}
               <div style={{ marginTop:'1.25rem' }}>
                 <div className="ud-chart-title" style={{ marginBottom:'.85rem' }}>Enrolled Courses</div>
                 <div className="enrolled-courses">
                   {[
-                    { name:'Full Stack Web Development', progress:65, status:'active',    paid:true,  start:'Jan 2024' },
+                    { name:'Full Stack Web Development', progress:65,  status:'active',    paid:true,  start:'Jan 2024' },
                     { name:'UI/UX Design',               progress:100, status:'completed', paid:true,  start:'Nov 2023' },
                     { name:'Digital Marketing',          progress:30,  status:'active',    paid:false, start:'Feb 2024' },
                   ].map((c, i) => (
@@ -1410,7 +1350,6 @@ const UserDetailModal = ({ user: u, onClose }) => {
             </div>
           )}
 
-          {/* Sessions Tab */}
           {activeTab === 'sessions' && (
             <div className="ud-section">
               <div className="ud-charts-row">
@@ -1430,12 +1369,12 @@ const UserDetailModal = ({ user: u, onClose }) => {
                   <div className="ud-chart-title">Session Summary</div>
                   <div className="session-stats">
                     {[
-                      { label:'Total Sessions Scheduled', val:'24',  icon:'📅', color:'#1B2A4A' },
-                      { label:'Sessions Attended',        val:'19',  icon:'✅', color:'#27ae60' },
-                      { label:'Sessions Missed',          val:'5',   icon:'❌', color:'#dc4545' },
-                      { label:'Attendance Rate',          val:'79%', icon:'📊', color:'#2196C9' },
+                      { label:'Total Sessions Scheduled', val:'24',     icon:'📅', color:'#1B2A4A' },
+                      { label:'Sessions Attended',        val:'19',     icon:'✅', color:'#27ae60' },
+                      { label:'Sessions Missed',          val:'5',      icon:'❌', color:'#dc4545' },
+                      { label:'Attendance Rate',          val:'79%',    icon:'📊', color:'#2196C9' },
                       { label:'Avg Session Duration',     val:'55 min', icon:'⏱️', color:'#e67e22' },
-                      { label:'Practice Hours Total',     val:'68h', icon:'💻', color:'#6c3483' },
+                      { label:'Practice Hours Total',     val:'68h',    icon:'💻', color:'#6c3483' },
                     ].map((s, i) => (
                       <div key={i} className="ss-item">
                         <span className="ss-icon">{s.icon}</span>
@@ -1447,7 +1386,6 @@ const UserDetailModal = ({ user: u, onClose }) => {
                 </div>
               </div>
 
-              {/* Upcoming / Past sessions table */}
               <div className="ud-chart-card" style={{ marginTop:'1.25rem' }}>
                 <div className="ud-chart-title">Session History</div>
                 <div className="table-wrap" style={{ marginTop:'.75rem' }}>
@@ -1457,12 +1395,12 @@ const UserDetailModal = ({ user: u, onClose }) => {
                     </thead>
                     <tbody>
                       {[
-                        { name:'Live Session #19', topic:'Node.js REST APIs',    date:'01 May 2024', dur:'60 min', status:'attended', score:'92%' },
-                        { name:'Live Session #18', topic:'React Hooks Deep Dive',date:'28 Apr 2024', dur:'55 min', status:'attended', score:'88%' },
-                        { name:'Live Session #17', topic:'MongoDB Aggregation',  date:'25 Apr 2024', dur:'60 min', status:'missed',   score:'—'  },
-                        { name:'Live Session #16', topic:'Express Middleware',   date:'22 Apr 2024', dur:'50 min', status:'attended', score:'85%' },
-                        { name:'Live Session #15', topic:'JS Async/Await',       date:'19 Apr 2024', dur:'55 min', status:'attended', score:'90%' },
-                        { name:'Live Session #14', topic:'CSS Grid & Flexbox',   date:'16 Apr 2024', dur:'45 min', status:'missed',   score:'—'  },
+                        { name:'Live Session #19', topic:'Node.js REST APIs',     date:'01 May 2024', dur:'60 min', status:'attended', score:'92%' },
+                        { name:'Live Session #18', topic:'React Hooks Deep Dive', date:'28 Apr 2024', dur:'55 min', status:'attended', score:'88%' },
+                        { name:'Live Session #17', topic:'MongoDB Aggregation',   date:'25 Apr 2024', dur:'60 min', status:'missed',   score:'—'   },
+                        { name:'Live Session #16', topic:'Express Middleware',    date:'22 Apr 2024', dur:'50 min', status:'attended', score:'85%' },
+                        { name:'Live Session #15', topic:'JS Async/Await',        date:'19 Apr 2024', dur:'55 min', status:'attended', score:'90%' },
+                        { name:'Live Session #14', topic:'CSS Grid & Flexbox',    date:'16 Apr 2024', dur:'45 min', status:'missed',   score:'—'   },
                       ].map((s, i) => (
                         <tr key={i}>
                           <td><strong>{s.name}</strong></td>
@@ -1479,7 +1417,6 @@ const UserDetailModal = ({ user: u, onClose }) => {
               </div>
             </div>
           )}
-
         </div>
       </div>
     </div>
@@ -1583,7 +1520,7 @@ const AdminsTab = () => {
                 View Details
               </button>
               {a._id !== currentUser?._id && (
-                <button disabled={deleting===a._id} onClick={() => handleDelete(a)} style={{ padding:'.6rem .9rem', background:'rgba(220,69,69,.1)', color:'#dc4545', border:'1px solid rgba(220,69,69,.25)', borderRadius:'var(--rsm)', fontWeight:700, fontSize:'.82rem', cursor:'pointer', fontFamily:"'DM Sans',sans-serif", opacity:deleting===a._id?.5:1 }}>
+                <button disabled={deleting===a._id} onClick={() => handleDelete(a)} style={{ padding:'.6rem .9rem', background:'rgba(220,69,69,.1)', color:'#dc4545', border:'1px solid rgba(220,69,69,.25)', borderRadius:'var(--rsm)', fontWeight:700, fontSize:'.82rem', cursor:'pointer', fontFamily:"'DM Sans',sans-serif", opacity:deleting===a._id ? .5 : 1 }}>
                   {deleting===a._id?'...':'Delete'}
                 </button>
               )}
@@ -1605,12 +1542,12 @@ const AdminsTab = () => {
             </div>
             <div style={{ display:'flex', flexDirection:'column', gap:'.75rem' }}>
               {[
-                ['Email', selected.email],
-                ['Phone', selected.phone||'—'],
-                ['College', selected.college||'—'],
-                ['Joined', new Date(selected.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})],
+                ['Email',         selected.email],
+                ['Phone',         selected.phone||'—'],
+                ['College',       selected.college||'—'],
+                ['Joined',        new Date(selected.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})],
                 ['Auth Provider', selected.authProvider],
-                ['Verified', selected.isVerified?'Yes ✓':'No ✗'],
+                ['Verified',      selected.isVerified?'Yes ✓':'No ✗'],
               ].map(([label, val], i) => (
                 <div key={i} style={{ background:'var(--cream)', borderRadius:10, padding:'.85rem 1rem', border:'1px solid var(--border)' }}>
                   <div style={{ fontSize:'.68rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:'.15rem' }}>{label}</div>
@@ -1619,7 +1556,7 @@ const AdminsTab = () => {
               ))}
             </div>
             {selected._id !== currentUser?._id && (
-              <button disabled={deleting===selected._id} onClick={() => handleDelete(selected)} style={{ width:'100%', marginTop:'1.25rem', padding:'.75rem', background:'#dc4545', color:'white', border:'none', borderRadius:'var(--rsm)', fontWeight:700, fontSize:'.9rem', cursor:'pointer', fontFamily:"'DM Sans',sans-serif", opacity:deleting===selected._id?.5:1 }}>
+              <button disabled={deleting===selected._id} onClick={() => handleDelete(selected)} style={{ width:'100%', marginTop:'1.25rem', padding:'.75rem', background:'#dc4545', color:'white', border:'none', borderRadius:'var(--rsm)', fontWeight:700, fontSize:'.9rem', cursor:'pointer', fontFamily:"'DM Sans',sans-serif", opacity:deleting===selected._id ? .5 : 1 }}>
                 {deleting===selected._id?'Deleting...':'Delete This Admin'}
               </button>
             )}
@@ -1629,3 +1566,5 @@ const AdminsTab = () => {
     </div>
   );
 };
+
+export default Admin;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -15,6 +15,7 @@ import Admin from './components/Admin/Admin';
 
 // Global styles
 import './styles/global.css';
+import { useSanitySEO } from './hooks/useSanity';
 import { CoursesProvider } from './context/CoursesContext';
 
 // WhatsApp float
@@ -80,10 +81,35 @@ function AppRoutes() {
   );
 }
 
+
+const SEOHead = () => {
+  const { seo } = useSanitySEO();
+  useEffect(() => {
+    if (!seo) return;
+    if (seo.siteTitle) document.title = seo.siteTitle;
+    const setMeta = (name, content) => {
+      let el = document.querySelector(`meta[name="${name}"]`);
+      if (!el) { el = document.createElement('meta'); el.name = name; document.head.appendChild(el); }
+      el.content = content;
+    };
+    const setOG = (prop, content) => {
+      let el = document.querySelector(`meta[property="${prop}"]`);
+      if (!el) { el = document.createElement('meta'); el.setAttribute('property', prop); document.head.appendChild(el); }
+      el.content = content;
+    };
+    if (seo.siteDescription) setMeta('description', seo.siteDescription);
+    if (seo.keywords) setMeta('keywords', seo.keywords);
+    if (seo.ogTitle) setOG('og:title', seo.ogTitle);
+    if (seo.ogDescription) setOG('og:description', seo.ogDescription);
+  }, [seo]);
+  return null;
+};
+
 function App() {
   return (
     <BrowserRouter>
       <CoursesProvider>
+      <SEOHead />
         <AuthProvider>
         <AppRoutes />
         <Toaster

@@ -19,7 +19,7 @@ const Footer = () => (
           <h5>Company</h5>
           <a href="#story">Our Story</a>
           <a href="#how">How It Works</a>
-          <a href="#services">Services</a>
+          <a href="#ecosystem">Ecosystem</a>
           <a href="#courses">Courses</a>
           <a href="#testimonials">Intern Stories</a>
         </div>

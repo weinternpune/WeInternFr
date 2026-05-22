@@ -17,7 +17,7 @@ const STATS = [
 ];
 
 // Floating particles background
-const HeroParticles = () => {
+const ParticleBackground = () => {
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -118,6 +118,7 @@ const Hero = () => {
   return (
     <section className="hero" id="home">
       <div className="hero-bg">
+        <ParticleBackground />
         <div className="hero-orb orb-1" /><div className="hero-orb orb-2" />
         <div className="hero-orb orb-3" /><div className="hero-grid" />
       </div>
@@ -200,4 +201,5 @@ const Hero = () => {
     </section>
   );
 };
+
 export default Hero;

@@ -200,7 +200,7 @@ const Dashboard = () => {
 // ── Overview ────────────────────────────────────────────
 const OverviewTab = ({ user, applications, enrollments, setTab }) => {
   const accepted = applications.filter(a => a.status === 'accepted').length;
-  const paid = enrollments.filter(e => e.paymentStatus === 'paid').length;
+
 
   const STATS = [
     { icon: Icons.book,    val: enrollments.length, label: 'Enrolled',      color: '#2196C9', bg: '#e3f2fd' },
@@ -612,8 +612,8 @@ const AllCoursesTab = () => {
   const { activeCourses } = useCourses();
   const [filter, setFilter] = useState('all');
   const [detailCourse, setDetailCourse] = useState(null);
-  const [enrollCourse, setEnrollCourse] = useState(null);
-  const { user } = useAuth();
+
+
   const navigate = useNavigate();
 
   const filtered = activeCourses.filter(c => filter === 'all' || c.level === filter);
