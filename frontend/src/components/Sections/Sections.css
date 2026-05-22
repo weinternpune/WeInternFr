@@ -285,13 +285,13 @@
   .eco-benefits-row { grid-template-columns: 1fr; }
 }
 
-<<<<<<< Updated upstream
+/* <<<<<<< Updated upstream */
 /* ===== sStudents Project_Section ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-=======
+
 /* ===== Student Projects ===== */
 /* * { margin: 0; padding: 0; box-sizing: border-box; } */
->>>>>>> Stashed changes
+/* >>>>>>> Stashed changes */
 
 
 .student-projects-section {
@@ -508,7 +508,10 @@
     align-self: unset;
     order: 3;
   }
-
+.projects-track{
+  transform: translateX(100%);
+    gap: 14px;
+}
 }
 
 @media (max-width: 480px) {
