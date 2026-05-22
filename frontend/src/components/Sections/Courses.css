@@ -1,12 +1,12 @@
 /* ═══════════════════════════════════════════════════════════════════
-   COURSES — FULL REDESIGN
-   Matches screenshot: compact 6-col grid, centered header,
-   no filters / badges, benefits strip, all modal styles intact
+   COURSES  —  Pixel-matched redesign
+   Reference: 6-column card grid, pastel icon headers, outline enroll
+   buttons, benefits strip, all modal styles preserved intact.
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ── Section ── */
 .courses {
-  background: #f4f8ff;
+  background: #f5f7fc;
   padding: 3.5rem 4% 0;
   font-family: 'DM Sans', sans-serif;
 }
@@ -19,8 +19,8 @@
   align-items: flex-start;
   justify-content: center;
   position: relative;
-  margin-bottom: 1.75rem;
-  min-height: 60px;
+  margin-bottom: 2rem;
+  min-height: 64px;
 }
 
 .cs-header-center {
@@ -29,17 +29,18 @@
 
 .cs-main-title {
   font-family: 'DM Sans', sans-serif;
-  font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+  font-size: clamp(1.35rem, 2.5vw, 1.85rem);
   font-weight: 800;
   color: #0d1b3e;
-  margin: 0 0 .3rem;
-  letter-spacing: -.01em;
+  margin: 0 0 .35rem;
+  letter-spacing: -.02em;
   line-height: 1.2;
 }
 
 .cs-title-accent {
-  color: #0ea5e9;
-  font-style: italic;
+  color: #15803d;
+  /* rich green — matches image */
+  font-style: normal;
 }
 
 .cs-title-serif {
@@ -56,15 +57,26 @@
 .cs-view-all {
   position: absolute;
   right: 0;
-  top: .25rem;
+  top: .3rem;
+
   display: inline-flex;
   align-items: center;
   gap: .3rem;
-  font-size: .78rem;
+
+  background: transparent;
+  border: none;
+  outline: none;
+
+  font-size: .79rem;
   font-weight: 700;
+
   color: #0ea5e9;
+
   text-decoration: none;
   white-space: nowrap;
+
+  cursor: pointer;
+
   transition: color .18s;
 }
 
@@ -73,202 +85,203 @@
 }
 
 .cs-view-arrow {
-  font-size: .72rem;
+  flex-shrink: 0;
 }
 
 /* ══════════════════════════════════════════════════
-   4 + 3 CARD GRID — equal card sizes
-   Base: 8 equal columns
-   All cards span 2 cols → identical width everywhere
-   Row 1: cards 1–4 fill cols 1-8 naturally
-   Row 2: cards 5–7 offset 1 col each side
-           → 1 empty | card | card | card | 1 empty
-           → perfectly centred, same width as row 1
+   6-COLUMN CARD GRID
+   Uses 12 equal columns internally so every card
+   spans exactly 2 → identical widths in all rows.
 ══════════════════════════════════════════════════ */
 .cs-grid {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
+
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+
+  gap: 0.75rem;
+
+  margin-bottom: 0;
+
   align-items: stretch;
+
+  max-width: 1220px;
+
+  margin-inline: auto;
 }
 
-/* All cards identical width */
+/* ── Card shell ── */
 .cs-card {
-  grid-column: span 2;
-}
-
-/* Row 2 — place at cols 2, 4, 6 → 1-col margin each side */
-.cs-card:nth-child(5) {
-  grid-column: 2 / span 2;
-}
-
-.cs-card:nth-child(6) {
-  grid-column: 4 / span 2;
-}
-
-.cs-card:nth-child(7) {
-  grid-column: 6 / span 2;
-}
-
-/* ── Card ── */
-.cs-card {
-  background: #fff;
+  background: #fafbfc;
   border-radius: 10px;
   border: 1px solid var(--crd-border, #d4e5f5);
-  box-shadow: 0 1px 6px rgba(13, 27, 62, .06);
+  box-shadow: 0 2px 8px rgba(13, 27, 62, .05);
   display: flex;
   flex-direction: column;
   cursor: pointer;
   overflow: hidden;
-  transition: transform .2s ease, box-shadow .2s ease;
+  transition: transform .22s ease, box-shadow .22s ease;
 }
 
 .cs-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 24px rgba(13, 27, 62, .11);
+  box-shadow: 0 10px 28px rgba(13, 27, 62, .11);
 }
 
-/* Pastel icon row */
-.cs-card-icon-row {
-  padding: .95rem 1rem .7rem;
+/* ── Pastel icon zone (top band) ── */
+.cs-card-icon-zone {
+  padding: 0.95rem 0.95rem 0.8rem;
   display: flex;
   align-items: center;
+  min-height: 68px;
 }
 
-.cs-card-icon {
-  width: 36px;
-  height: 36px;
+.cs-card-icon-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, .7);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, .07);
   flex-shrink: 0;
 }
 
-/* Card text content */
+/* ── Card text content ── */
 .cs-card-content {
-  padding: .75rem 1rem 0;
+  padding: 0.7rem 0.9rem 0;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+
+.cs-card-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .84rem;
+  font-weight: 800;
+  color: #0d1b3e;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.cs-card-dur {
+  font-size: .71rem;
+  font-weight: 500;
+  color: #6b7a99;
+  margin: 0;
+}
+
+/* ── Bullet feature list ── */
+.cs-card-list {
+  list-style: none;
+  padding: 0;
+  margin: .55rem 0 .65rem;
   display: flex;
   flex-direction: column;
   gap: .3rem;
 }
 
-.cs-card-title {
-  font-family: 'DM Sans', sans-serif;
-  font-size: .82rem;
-  font-weight: 800;
-  color: #0d1b3e;
-  line-height: 1.3;
-  margin: 0;
-}
-
-.cs-card-dur {
-  font-size: .7rem;
-  font-weight: 600;
-  color: #0ea5e9;
-  margin: 0;
-}
-
-/* Bullet list */
-.cs-card-list {
-  list-style: none;
-  padding: 0;
-  margin: .4rem 0 .6rem;
-  display: flex;
-  flex-direction: column;
-  gap: .28rem;
-}
-
 .cs-card-list li {
   display: flex;
   align-items: flex-start;
-  gap: .4rem;
+  gap: .42rem;
   font-size: .7rem;
   color: #374151;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .cs-bullet-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #22c55e;
   flex-shrink: 0;
-  margin-top: .32rem;
+  margin-top: .38rem;
+  /* background set inline via style prop to match card accent */
 }
 
-/* Enroll button */
+/* ── Enroll button — outline style matching reference ── */
 .cs-enroll {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: .35rem;
-  width: calc(100% - 2rem);
-  margin: .6rem 1rem 1rem;
-  padding: .5rem .75rem;
-  background: #22c55e;
-  color: #fff;
-  border: none;
-  border-radius: 7px;
+  gap: .38rem;
+  width: calc(100% - 2.2rem);
+margin: 0.5rem 0.9rem 0.9rem;
+padding: 0.42rem 0.65rem;
+  background: transparent;
+  color: var(--enroll-color, #16a34a);
+  border: 1.5px solid var(--enroll-color, #16a34a);
+  border-radius: 8px;
   font-family: 'DM Sans', sans-serif;
-  font-size: .74rem;
+    font-size: 0.68rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background .18s, transform .18s, box-shadow .18s;
+  transition: background .18s, color .18s, box-shadow .18s, transform .18s;
   white-space: nowrap;
   flex-shrink: 0;
+  letter-spacing: .01em;
 }
 
 .cs-enroll:hover {
-  background: #16a34a;
+  background: var(--enroll-color, #16a34a);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .13);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(34, 197, 94, .3);
 }
 
 .cs-enroll-arrow {
-  font-size: .68rem;
+  flex-shrink: 0;
 }
 
 /* ══════════════════════════════════════════════════
    BENEFITS STRIP
 ══════════════════════════════════════════════════ */
 .cs-benefits-wrap {
-  background: #fff;
-  border-top: 1px solid #e2eaf8;
-  margin: 0 -4%;
-  padding: 1.35rem 4%;
+  background: linear-gradient(180deg,
+      #f7fafc 0%,
+      #f2f6fb 100%);
+
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
+  margin: 1.5rem 0 0;
+  padding: 1.4rem 2%;
+
+  box-shadow:
+    0 2px 8px rgba(15, 23, 42, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .cs-benefits-inner {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1.5rem;
   max-width: 100%;
+  background: rgba(255, 255, 255, 0.35);
+    border-radius: 12px;
 }
 
 .cs-benefits-heading {
   display: flex;
   flex-direction: column;
-  font-size: .7rem;
+  font-size: .72rem;
   font-weight: 800;
   color: #0d1b3e;
   text-transform: uppercase;
-  letter-spacing: .04em;
-  line-height: 1.45;
+  letter-spacing: .05em;
+  line-height: 1.5;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .cs-benefits-sep {
   width: 1px;
-  height: 48px;
-  background: #dde3ef;
-  flex-shrink: 0;
+  height: 52px;
+  background: linear-gradient(to bottom,
+      transparent,
+      #d7dee8,
+      transparent);
 }
 
 .cs-benefits-row {
@@ -276,7 +289,7 @@
   align-items: flex-start;
   justify-content: space-between;
   flex: 1;
-  gap: .5rem;
+  gap: .4rem;
   flex-wrap: nowrap;
 }
 
@@ -284,37 +297,33 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: .35rem;
+  gap: .38rem;
   text-align: center;
-  min-width: 60px;
+  min-width: 58px;
   flex: 1;
 }
 
 .cs-benefit-ico {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
-  background: #e8f4fb;
-  color: #1a91c9;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
   flex-shrink: 0;
-  transition: background .2s, color .2s, transform .2s;
+  color: #1e3a8a;
+  transition: color .2s, transform .2s;
 }
 
 .cs-benefit:hover .cs-benefit-ico {
-  background: #0ea5e9;
-  color: #fff;
-  transform: scale(1.1);
+  color: #2563eb;
+  transform: scale(1.12);
 }
 
 .cs-benefit-lbl {
   font-size: .62rem;
   font-weight: 600;
   color: #374151;
-  line-height: 1.35;
+  line-height: 1.4;
   margin: 0;
 }
 
@@ -359,7 +368,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
   flex-shrink: 0;
 }
 
@@ -484,43 +492,39 @@
 
 /* ══════════════════════════════════════════════════
    RESPONSIVE BREAKPOINTS
+   All existing breakpoint logic preserved + extended.
 ══════════════════════════════════════════════════ */
 
-/* ── Large desktop padding ── */
+/* ── Large desktop ── */
 @media (min-width: 1280px) {
   .courses {
     padding: 3.5rem 5% 0;
   }
 
   .cs-benefits-wrap {
-    margin: 0 -5%;
-    padding: 1.35rem 5%;
+    margin: 1.5rem -5% 0;
+    padding: 1.4rem 5%;
   }
 }
 
-/* ── Tablet landscape: 2+2 rows of 6 cols ── */
-@media (max-width: 1024px) {
+/* ── Tablet landscape: 3 + 3 → 6 equal cols ── */
+@media (max-width: 1180px) {
   .cs-grid {
-    grid-template-columns: repeat(6, 1fr);
-    gap: 1rem;
-  }
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.85rem;
+    }
 
-  .cs-card:nth-child(-n+4),
-  .cs-card:nth-child(n+5) {
-    grid-column: span 2;
-  }
+.cs-card-icon-wrap {
+  width: 42px;
+  height: 42px;
+}
 }
 
-/* ── Tablet portrait: 3-col flat grid ── */
+/* ── Tablet portrait: 2 cols ── */
 @media (max-width: 768px) {
   .cs-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: .9rem;
-  }
-
-  .cs-card:nth-child(-n+4),
-  .cs-card:nth-child(n+5) {
-    grid-column: span 1;
+    grid-template-columns: repeat(2, 1fr);
+    gap: .85rem;
   }
 
   .cs-benefits-row {
@@ -530,12 +534,12 @@
   }
 
   .cs-benefit {
-    min-width: 70px;
+    min-width: 72px;
     flex: 0 1 auto;
   }
 }
 
-/* ── Large mobile: 2-col ── */
+/* ── Large mobile: 2 cols ── */
 @media (max-width: 600px) {
   .courses {
     padding: 2.5rem 4% 0;
@@ -543,12 +547,7 @@
 
   .cs-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: .75rem;
-  }
-
-  .cs-card:nth-child(-n+4),
-  .cs-card:nth-child(n+5) {
-    grid-column: span 1;
+    gap: .7rem;
   }
 
   .cs-header {
@@ -557,9 +556,12 @@
     gap: .5rem;
   }
 
-  .cs-view-all {
-    position: static;
-  }
+    .cs-view-all {
+      background: transparent;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
 
   .cs-benefits-inner {
     flex-direction: column;
@@ -586,20 +588,29 @@
   .enroll-form-grid {
     grid-template-columns: 1fr;
   }
+
+  .cs-card-icon-zone {
+    padding: 1rem;
+    min-height: 68px;
+  }
+
+  .cs-card-icon-wrap {
+    width: 44px;
+    height: 44px;
+  }
 }
 
-/* ── Small mobile: 1-col ── */
-@media (max-width: 380px) {
+/* ── Small mobile: 1 col ── */
+@media (max-width: 400px) {
   .cs-grid {
     grid-template-columns: 1fr;
   }
 
-  .cs-card:nth-child(-n+4),
-  .cs-card:nth-child(n+5) {
-    grid-column: span 1;
+  .cs-main-title {
+    font-size: 1.25rem;
   }
 
-  .cs-main-title {
-    font-size: 1.2rem;
+  .cs-card-icon-zone {
+    min-height: 64px;
   }
 }
