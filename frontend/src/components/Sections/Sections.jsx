@@ -278,6 +278,7 @@ export const EcosystemSection = () => {
   );
 };
 
+<<<<<<< Updated upstream
 // ===== Testimonials =====
 
 // export const Testimonials = () => {
@@ -393,6 +394,9 @@ export const EcosystemSection = () => {
 
 // return <StudentProjectsSection />;
 // }
+=======
+// ===== Studets Projects =====
+>>>>>>> Stashed changes
 export const Testimonials = () => {
 const projectData = [
   { id: 1,  image: ecommerce,       title: "E-Commerce Website",       subtitle: "Built for Retail Brand",     tech: ["React", "Node.js", "MongoDB"] },

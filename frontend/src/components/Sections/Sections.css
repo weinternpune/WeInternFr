@@ -285,8 +285,13 @@
   .eco-benefits-row { grid-template-columns: 1fr; }
 }
 
+<<<<<<< Updated upstream
 /* ===== sStudents Project_Section ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
+=======
+/* ===== Student Projects ===== */
+/* * { margin: 0; padding: 0; box-sizing: border-box; } */
+>>>>>>> Stashed changes
 
 
 .student-projects-section {
