@@ -11,6 +11,70 @@ const DEFAULT_COURSES = [
   { id:5, emoji:'🎨', title:'UI/UX Design', desc:'From wireframes to pixel-perfect interfaces. Learn design thinking, user research, and prototyping.', duration:'8 Weeks', level:'beginner', tools:['Figma','Adobe XD','Prototyping','User Research','Design Systems'], price:3999, colors:{h1:'#c0392b',h2:'#e74c3c'}, status:'active' },
   { id:6, emoji:'📢', title:'Digital Marketing', desc:'Master SEO, social media, paid ads, email campaigns, and content strategy. Run real campaigns.', duration:'6 Weeks', level:'beginner', tools:['Google Ads','Meta Ads','SEO','Canva','Analytics'], price:2999, colors:{h1:'#e67e22',h2:'#f39c12'}, status:'active' },
   { id:7, emoji:'📊', title:'Data Science & Analytics', desc:'Turn raw data into business decisions. Data cleaning, visualization, machine learning, and pipelines.', duration:'12 Weeks', level:'intermediate', tools:['Python','Pandas','Scikit-learn','Tableau','SQL'], price:6999, colors:{h1:'#1e8449',h2:'#27ae60'}, status:'active' },
+  {
+  id:8,
+  emoji:'🎬',
+  title:'Video Editing & Content Creation',
+  desc:'Master professional video editing, motion graphics, reels creation, and content production for social media platforms.',
+  duration:'8 Weeks',
+  level:'beginner',
+  tools:['Premiere Pro','After Effects','CapCut','Color Grading','Content Strategy'],
+  price:4499,
+  colors:{h1:'#be185d',h2:'#ec4899'},
+  status:'active'
+},
+
+{
+  id:9,
+  emoji:'☁️',
+  title:'Cloud Computing',
+  desc:'Master cloud platforms, deployment strategies, virtual machines, storage, and scalable infrastructure.',
+  duration:'12 Weeks',
+  level:'intermediate',
+  tools:['AWS','Azure','Docker','Linux','Cloud Deployment'],
+  price:6499,
+  colors:{h1:'#0369a1',h2:'#0ea5e9'},
+  status:'active'
+},
+
+{
+  id:10,
+  emoji:'⚙️',
+  title:'DevOps Engineering',
+  desc:'Build CI/CD pipelines, automate deployments, monitor applications, and manage scalable infrastructure.',
+  duration:'10 Weeks',
+  level:'advanced',
+  tools:['Jenkins','Docker','Kubernetes','Terraform','GitHub Actions'],
+  price:6999,
+  colors:{h1:'#334155',h2:'#64748b'},
+  status:'active'
+},
+
+{
+  id:11,
+  emoji:'🎮',
+  title:'Game Development',
+  desc:'Create interactive 2D and 3D games using modern game engines and publish playable projects.',
+  duration:'14 Weeks',
+  level:'beginner',
+  tools:['Unity','C#','Blender','Game Physics','Animation'],
+  price:7499,
+  colors:{h1:'#4c1d95',h2:'#7c3aed'},
+  status:'active'
+},
+
+{
+  id:12,
+  emoji:'📈',
+  title:'Business Analytics',
+  desc:'Analyze business data, create dashboards, and generate insights for strategic decision-making.',
+  duration:'8 Weeks',
+  level:'beginner',
+  tools:['Excel','Power BI','SQL','Data Visualization','Statistics'],
+  price:4999,
+  colors:{h1:'#166534',h2:'#22c55e'},
+  status:'active'
+},
 ];
 
 const CoursesContext = createContext(null);
@@ -22,13 +86,37 @@ const normTools = (t) => {
 };
 
 export const CoursesProvider = ({ children }) => {
-  const [courses, setCourses] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) { const p = JSON.parse(saved); if (Array.isArray(p) && p.length) return p; }
-    } catch {}
-    return DEFAULT_COURSES;
-  });
+const [courses, setCourses] = useState(() => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (saved) {
+      const parsed = JSON.parse(saved);
+
+      if (Array.isArray(parsed)) {
+
+        // Merge new default courses with old localStorage courses
+        const mergedCourses = [...parsed];
+
+        DEFAULT_COURSES.forEach((defaultCourse) => {
+          const exists = parsed.some(
+            (course) => course.title === defaultCourse.title
+          );
+
+          if (!exists) {
+            mergedCourses.push(defaultCourse);
+          }
+        });
+
+        return mergedCourses;
+      }
+    }
+  } catch (error) {
+    console.error('Course storage parse error:', error);
+  }
+
+  return DEFAULT_COURSES;
+});
 
   // Try fetching from Sanity on mount — merge with local
   useEffect(() => {
