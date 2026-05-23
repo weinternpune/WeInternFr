@@ -67,90 +67,90 @@ export const HowItWorks = () => {
     { num:'03', icon:'🚀', title:'Receive Quality Output', desc:'High-quality, tested, delivered products — cost-effective without compromising standards.' },
     { num:'04', icon:'🔄', title:'Continuous Support', desc:'Post-delivery support included. Long-term partnership, not just a one-time delivery.' }
   ];
-  const ECO_NODES = ['Students','Businesses','Experience','Income','Growth','Partners'];
+  // const ECO_NODES = ['Students','Businesses','Experience','Income','Growth','Partners'];
 
-  return (
-    <section className="how" id="how">
-      <div className="container">
-        <div className="section-label">The Solution</div>
-        <h2 className="section-title">How WeIntern Works</h2>
-        <p className="section-sub">A sustainable ecosystem where everyone wins.</p>
-        <div className="audience-tabs">
-          {[['students','👨‍💻 For Students'],['businesses','🏢 For Businesses'],['partners','🤝 For Partners']].map(([k,l]) => (
-            <button key={k} className={`tab-btn${tab===k?' active':''}`} onClick={() => setTab(k)}>{l}</button>
-          ))}
-        </div>
-        {tab === 'students' && (
-          <div>
-            <div className="steps">
-              {STEPS.map((s,i) => (
-                <React.Fragment key={s.num}>
-                  {i > 0 && <div className="step-connector"><div className="sc-arrow">→</div></div>}
-                  <div className="step reveal">
-                    <div className="step-num">{s.num}</div>
-                    <div className="step-icon">{s.icon}</div>
-                    <h4>{s.title}</h4>
-                    <p>{s.desc}</p>
-                  </div>
-                </React.Fragment>
-              ))}
-            </div>
-            <div className="transformation reveal">
-              <div className="tf-before">
-                <span className="tf-label tf-label-before">Before WeIntern</span>
-                {['"I have completed a course."','"I am looking for experience."','"I hope someone gives me a chance."'].map(t => <div key={t} className="tf-item">{t}</div>)}
-              </div>
-              <div className="tf-arrow"><div className="tf-arrow-line" /><div className="tf-arrow-head">→</div></div>
-              <div className="tf-after">
-                <span className="tf-label tf-label-after">After WeIntern</span>
-                {['"I built 4 live projects for real clients."','"I have verified industry experience."','"I create my own opportunities."'].map(t => <div key={t} className="tf-item tf-item-good">{t}</div>)}
-              </div>
-            </div>
-          </div>
-        )}
-        {tab === 'businesses' && (
-          <div>
-            <div className="biz-grid">
-              {BIZ.map(b => (
-                <div key={b.num} className="biz-card reveal">
-                  <div className="biz-num">{b.num}</div>
-                  <div className="biz-icon">{b.icon}</div>
-                  <h4>{b.title}</h4>
-                  <p>{b.desc}</p>
-                </div>
-              ))}
-            </div>
-            <div className="biz-why reveal">
-              <h3>Why Businesses Choose WeIntern</h3>
-              <div className="why-grid">
-                {['Cost-effective supervised development','Energetic, passionate teams','Modern tech stack expertise','Transparent communication','You\'re also helping a student\'s career','Continuous post-delivery support'].map(w => (
-                  <div key={w} className="why-item"><span className="why-icon">✓</span>{w}</div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-        {tab === 'partners' && (
-          <div className="partner-layout">
-            <div className="partner-text reveal">
-              <h3>Invest in the Future of Work</h3>
-              <p>WeIntern is more than a company — it's a movement. As a partner or investor, you become part of building a generation of professionals who are confident, capable, and career-ready from day one.</p>
-              <p>We're creating a scalable ecosystem where education meets real industry, and the gap between college and career simply doesn't exist.</p>
-              <a href="#contact" className="btn btn-primary" style={{ marginTop: '1.5rem' }}>Connect With Us →</a>
-            </div>
-            <div className="ecosystem reveal">
-              <div className="eco-center">WeIntern</div>
-              <div className="eco-orbit">
-                {ECO_NODES.map((n, i) => (
-                  <div key={n} className="eco-node" style={{ '--deg': `${i * 60}deg` }}>{n}</div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </section>
-  );
+  // return (
+  //   <section className="how" id="how">
+  //     <div className="container">
+  //       <div className="section-label">The Solution</div>
+  //       <h2 className="section-title">How WeIntern Works</h2>
+  //       <p className="section-sub">A sustainable ecosystem where everyone wins.</p>
+  //       <div className="audience-tabs">
+  //         {[['students','👨‍💻 For Students'],['businesses','🏢 For Businesses'],['partners','🤝 For Partners']].map(([k,l]) => (
+  //           <button key={k} className={`tab-btn${tab===k?' active':''}`} onClick={() => setTab(k)}>{l}</button>
+  //         ))}
+  //       </div>
+  //       {tab === 'students' && (
+  //         <div>
+  //           <div className="steps">
+  //             {STEPS.map((s,i) => (
+  //               <React.Fragment key={s.num}>
+  //                 {i > 0 && <div className="step-connector"><div className="sc-arrow">→</div></div>}
+  //                 <div className="step reveal">
+  //                   <div className="step-num">{s.num}</div>
+  //                   <div className="step-icon">{s.icon}</div>
+  //                   <h4>{s.title}</h4>
+  //                   <p>{s.desc}</p>
+  //                 </div>
+  //               </React.Fragment>
+  //             ))}
+  //           </div>
+  //           <div className="transformation reveal">
+  //             <div className="tf-before">
+  //               <span className="tf-label tf-label-before">Before WeIntern</span>
+  //               {['"I have completed a course."','"I am looking for experience."','"I hope someone gives me a chance."'].map(t => <div key={t} className="tf-item">{t}</div>)}
+  //             </div>
+  //             <div className="tf-arrow"><div className="tf-arrow-line" /><div className="tf-arrow-head">→</div></div>
+  //             <div className="tf-after">
+  //               <span className="tf-label tf-label-after">After WeIntern</span>
+  //               {['"I built 4 live projects for real clients."','"I have verified industry experience."','"I create my own opportunities."'].map(t => <div key={t} className="tf-item tf-item-good">{t}</div>)}
+  //             </div>
+  //           </div>
+  //         </div>
+  //       )}
+  //       {tab === 'businesses' && (
+  //         <div>
+  //           <div className="biz-grid">
+  //             {BIZ.map(b => (
+  //               <div key={b.num} className="biz-card reveal">
+  //                 <div className="biz-num">{b.num}</div>
+  //                 <div className="biz-icon">{b.icon}</div>
+  //                 <h4>{b.title}</h4>
+  //                 <p>{b.desc}</p>
+  //               </div>
+  //             ))}
+  //           </div>
+  //           <div className="biz-why reveal">
+  //             <h3>Why Businesses Choose WeIntern</h3>
+  //             <div className="why-grid">
+  //               {['Cost-effective supervised development','Energetic, passionate teams','Modern tech stack expertise','Transparent communication','You\'re also helping a student\'s career','Continuous post-delivery support'].map(w => (
+  //                 <div key={w} className="why-item"><span className="why-icon">✓</span>{w}</div>
+  //               ))}
+  //             </div>
+  //           </div>
+  //         </div>
+  //       )}
+  //       {tab === 'partners' && (
+  //         <div className="partner-layout">
+  //           <div className="partner-text reveal">
+  //             <h3>Invest in the Future of Work</h3>
+  //             <p>WeIntern is more than a company — it's a movement. As a partner or investor, you become part of building a generation of professionals who are confident, capable, and career-ready from day one.</p>
+  //             <p>We're creating a scalable ecosystem where education meets real industry, and the gap between college and career simply doesn't exist.</p>
+  //             <a href="#contact" className="btn btn-primary" style={{ marginTop: '1.5rem' }}>Connect With Us →</a>
+  //           </div>
+  //           <div className="ecosystem reveal">
+  //             <div className="eco-center">WeIntern</div>
+  //             <div className="eco-orbit">
+  //               {ECO_NODES.map((n, i) => (
+  //                 <div key={n} className="eco-node" style={{ '--deg': `${i * 60}deg` }}>{n}</div>
+  //               ))}
+  //             </div>
+  //           </div>
+  //         </div>
+  //       )}
+  //     </div>
+  //   </section>
+  // );
 };
 
 // ===== EcosystemSection =====
@@ -480,6 +480,7 @@ const StudentProjectsSection = () => {
   );
 };
 
+};
 // ===== Vision =====
 export const Vision = () => {
   React.useEffect(() => {
@@ -534,41 +535,41 @@ export const Vision = () => {
       document.head.appendChild(style);
     }
   }, []);
-  return (
-    <section className="vision" id="vision">
-      <style>{`@keyframes particleFloat{0%,100%{transform:translateY(0px) scale(1);opacity:.4}50%{transform:translateY(-30px) scale(1.2);opacity:.8}}`}</style>
-      <div className="vision-particles" id="visionParticles" />
-      <div className="container">
-        <div className="vision-inner">
-          <div className="vision-left reveal">
-            <span className="section-label light">Our Vision</span>
-            <h2 className="section-title light">Building a Generation<br />That's Ready.</h2>
-            <p className="vision-p">To create a generation of professionals who are not afraid of interviews, not confused about skills, and not dependent only on degrees.</p>
-            <div className="vision-flow">
-              {[['📚','Learning'],['💼','Experience'],['💰','Income'],['🚀','Future']].map(([e,l],i) => (
-                <React.Fragment key={l}>
-                  {i>0 && <div className="vf-arr">→</div>}
-                  <div className="vf-item">{e} <span>{l}</span></div>
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
-          <div className="vision-right reveal">
-            <div className="founder-card">
-              <div className="founder-glow" />
-              <div className="founder-top">
-                <div className="founder-av">AW</div>
-                <div className="founder-meta"><strong>Ashwin</strong><span>Founder, WeIntern</span></div>
-              </div>
-              <blockquote className="founder-q">"I started WeIntern because I saw talented students being rejected — not for lack of skill, but lack of opportunity. We're changing that, one intern at a time."</blockquote>
-              <div className="founder-links">
-                <a href="#" className="flink">LinkedIn ↗</a>
-                <a href="#" className="flink">Instagram ↗</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+  // return (
+  //   <section className="vision" id="vision">
+  //     <style>{`@keyframes particleFloat{0%,100%{transform:translateY(0px) scale(1);opacity:.4}50%{transform:translateY(-30px) scale(1.2);opacity:.8}}`}</style>
+  //     <div className="vision-particles" id="visionParticles" />
+  //     <div className="container">
+  //       <div className="vision-inner">
+  //         <div className="vision-left reveal">
+  //           <span className="section-label light">Our Vision</span>
+  //           <h2 className="section-title light">Building a Generation<br />That's Ready.</h2>
+  //           <p className="vision-p">To create a generation of professionals who are not afraid of interviews, not confused about skills, and not dependent only on degrees.</p>
+  //           <div className="vision-flow">
+  //             {[['📚','Learning'],['💼','Experience'],['💰','Income'],['🚀','Future']].map(([e,l],i) => (
+  //               <React.Fragment key={l}>
+  //                 {i>0 && <div className="vf-arr">→</div>}
+  //                 <div className="vf-item">{e} <span>{l}</span></div>
+  //               </React.Fragment>
+  //             ))}
+  //           </div>
+  //         </div>
+  //         <div className="vision-right reveal">
+  //           <div className="founder-card">
+  //             <div className="founder-glow" />
+  //             <div className="founder-top">
+  //               <div className="founder-av">AW</div>
+  //               <div className="founder-meta"><strong>Ashwin</strong><span>Founder, WeIntern</span></div>
+  //             </div>
+  //             <blockquote className="founder-q">"I started WeIntern because I saw talented students being rejected — not for lack of skill, but lack of opportunity. We're changing that, one intern at a time."</blockquote>
+  //             <div className="founder-links">
+  //               <a href="#" className="flink">LinkedIn ↗</a>
+  //               <a href="#" className="flink">Instagram ↗</a>
+  //             </div>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   </section>
+  // );
 };
