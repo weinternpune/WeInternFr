@@ -365,7 +365,7 @@ export const EcosystemSection = () => {
   );
 };
 
-
+// student project
 
 export const Testimonials = () => {
 const projectData = [
@@ -419,7 +419,7 @@ const StudentProjectsSection = () => {
   }, [showAll]);
 
   return (
-    <section className="testimonials" id="testimonials">
+    <section className="student-projects-section">
       <div className="container">
 
         <div className="section-header">
@@ -479,6 +479,10 @@ const StudentProjectsSection = () => {
     </section>
   );
 };
+
+return <StudentProjectsSection />;
+}
+
 
 // ===== Vision =====
 export const Vision = () => {
