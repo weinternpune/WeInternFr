@@ -202,7 +202,7 @@ export const EcosystemSection = () => {
         <h2 className="eco-title">
           How the <span className="eco-title-brand">Weintern</span> Ecosystem Works
         </h2>
-        <p className="eco-subtitle">From learning to earning — a journey that changes your future.</p>
+        <p className="eco-subtitle">From learning to earning — a journey that changes your future it is main goal.</p>
       </div>
 
       {/* Steps + Mission side by side */}
