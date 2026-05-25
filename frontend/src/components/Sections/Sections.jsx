@@ -202,7 +202,7 @@ export const EcosystemSection = () => {
         <h2 className="eco-title">
           How the <span className="eco-title-brand">Weintern</span> Ecosystem Works
         </h2>
-        <p className="eco-subtitle">From learning to earning — a journey that changes your future it is main goal.</p>
+        <p className="eco-subtitle">From learning to earning — a journey that changes your future.</p>
       </div>
 
       {/* Steps + Mission side by side */}
@@ -215,8 +215,10 @@ export const EcosystemSection = () => {
                 <div className="eco-step-circle" style={{ background: STEP_COLORS[i].bg, borderColor: STEP_COLORS[i].border }}>
                   {STEP_ICONS[i]}
                 </div>
-                <div className="eco-step-label">{s.num}. {s.title}</div>
-                <p className="eco-step-desc">{s.desc}</p>
+                <div>
+                  <span className="eco-step-label">{s.num}. {s.title} </span>
+                  <span className="eco-step-desc">{s.desc}</span>
+                </div>
               </div>
               {i < STEP_LABELS.length - 1 && (
                 <div className="eco-step-arrow">
