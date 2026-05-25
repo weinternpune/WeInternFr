@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import './CourseDetail.css';
-import { Icon } from '@iconify/react';
 
 const COURSE_DETAILS = {
   'Full Stack Web Development': {
