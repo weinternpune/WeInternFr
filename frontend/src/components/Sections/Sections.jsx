@@ -141,59 +141,15 @@ export const HowItWorks = () => {
   );
 };
 
-// ===== EcosystemSection =====
-export const EcosystemSection = () => {
-
-  const STEP_ICONS = [
-    // 1. Learn — open book
-    <svg viewBox="0 0 48 48" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M24 10C24 10 14 7 8 10v26c6-3 16 0 16 0s10-3 16 0V10c-6-3-16 0-16 0z"/>
-      <line x1="24" y1="10" x2="24" y2="36"/>
-    </svg>,
-    // 2. Build — code brackets
-    <svg viewBox="0 0 48 48" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="18,14 8,24 18,34"/>
-      <polyline points="30,14 40,24 30,34"/>
-      <line x1="28" y1="12" x2="20" y2="36"/>
-    </svg>,
-    // 3. Get Assigned — briefcase
-    <svg viewBox="0 0 48 48" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="8" y="18" width="32" height="22" rx="3"/>
-      <path d="M16 18v-4a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v4"/>
-      <line x1="8" y1="28" x2="40" y2="28"/>
-    </svg>,
-    // 4. Work & Grow — two people / team
-    <svg viewBox="0 0 48 48" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="18" cy="16" r="5"/>
-      <path d="M6 38c0-6.627 5.373-12 12-12"/>
-      <circle cx="32" cy="14" r="4"/>
-      <path d="M28 38c0-5.523 3.582-10 8-10"/>
-      <path d="M18 26c3.5 0 6.5 1.5 8.5 4"/>
-    </svg>,
-    // 5. Earn — rupee coin
-    <svg viewBox="0 0 48 48" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="24" cy="24" r="16"/>
-      <path d="M18 17h12M18 23h12M22 23l-4 8"/>
-      <path d="M18 17c0 0 8 0 8 6s-8 6-8 6"/>
-    </svg>,
+// ===== Services =====
+export const Services = () => {
+  const SERVICES = [
+    { icon:'🌐', title:'Website Development', desc:'From landing pages to full-stack web apps. React, Next.js, Node.js, and more.', tags:['React','Next.js','Node.js','MongoDB'] },
+    { icon:'📱', title:'App Development', desc:'Native and cross-platform mobile apps that solve real problems with beautiful UX.', tags:['Flutter','React Native','iOS','Android'] },
+    { icon:'🤖', title:'AI & Automation', desc:'Smart chatbots, workflow automation, AI dashboards, and ML integrations.', tags:['Python','LangChain','OpenAI','n8n'] },
+    { icon:'☁️', title:'Cloud Solutions', desc:'Cloud infrastructure, deployment pipelines, scalable architecture.', tags:['AWS','GCP','Docker','CI/CD'] },
+    { icon:'💎', title:'Digital Products', desc:'SaaS platforms, admin dashboards, CRMs, and custom digital tools.', tags:['SaaS','Dashboard','CRM','API'] }
   ];
-
-  const STEP_COLORS = [
-    { bg: '#22c55e', border: '#16a34a' },   // green  — Learn
-    { bg: '#3b82f6', border: '#2563eb' },   // blue   — Build
-    { bg: '#8b5cf6', border: '#7c3aed' },   // purple — Get Assigned
-    { bg: '#f97316', border: '#ea580c' },   // orange — Work & Grow
-    { bg: '#ec4899', border: '#db2777' },   // pink   — Earn
-  ];
-
-  const STEP_LABELS = [
-    { num: 1, title: 'Learn',        desc: 'Learn in-demand skills with expert mentors' },
-    { num: 2, title: 'Build',        desc: 'Build real projects and create your portfolio' },
-    { num: 3, title: 'Get Assigned', desc: 'Get assigned to live projects from WeNexa (our IT arm)' },
-    { num: 4, title: 'Work & Grow',  desc: 'Work under mentor supervision and improve your industry skills' },
-    { num: 5, title: 'Earn',         desc: 'Earn stipend and become financially independent while you learn' },
-  ];
-
   return (
     <section className="eco-wrapper" id="ecosystem">
 
@@ -322,33 +278,17 @@ export const EcosystemSection = () => {
               <h4 className="eco-b-title">Career<br/>Growth</h4>
               <p className="eco-b-desc">Build confidence, strong portfolio and better career opportunities.</p>
             </div>
-
-            {/* Better Future — two people silhouettes */}
-            <div className="eco-b-card">
-              <div className="eco-b-icon">
-                <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="14" cy="13" r="4.5"/>
-                  <path d="M4 33c0-5.523 4.477-10 10-10"/>
-                  <path d="M14 23c5.523 0 10 4.477 10 10"/>
-                  <circle cx="28" cy="11" r="3.5"/>
-                  <path d="M24 33c0-4.418 1.79-8 4-8"/>
-                  <path d="M28 25c2.21 0 4 3.582 4 8"/>
-                </svg>
-              </div>
-              <h4 className="eco-b-title">Better<br/>Future</h4>
-              <p className="eco-b-desc">Empowered students create a stronger and better India.</p>
+          ))}
+          <div className="service-card service-card-cta reveal">
+            <div className="sc-cta-content">
+              <div style={{ fontSize:'2.5rem', marginBottom:'1rem' }}>💬</div>
+              <h3>Have a project in mind?</h3>
+              <p>Let's build something great together.</p>
+              <a href="#hire" className="btn btn-primary" style={{ marginTop:'1.25rem' }}>Get a Free Quote →</a>
             </div>
-
           </div>
         </div>
-
-        {/* Bottom note */}
-        <div className="eco-b-note">
-          <span>🔒</span>
-          When you learn with Weintern, you don't just get a course – you get opportunities that pay.
-        </div>
       </div>
-
     </section>
   );
 };
