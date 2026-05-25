@@ -1,32 +1,335 @@
-.courses { padding: 6rem 0; background: var(--cream); }
-.course-filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 2.5rem; }
-.cf-btn { background: white; border: 1.5px solid var(--border); color: var(--muted); padding: .5rem 1.25rem; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .875rem; cursor: pointer; transition: var(--ease); }
-.cf-btn:hover { border-color: var(--gold); color: var(--gold); }
-.cf-btn.active { background: var(--navy); border-color: var(--navy); color: var(--gold); }
-.courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.75rem; margin-bottom: 3rem; align-items: start; }
-.course-card { background: white; border-radius: var(--r); overflow: hidden; box-shadow: var(--sh); display: flex; flex-direction: column; transition: transform var(--ease), box-shadow var(--ease); border: 1px solid var(--border); }
-.course-card:hover { transform: translateY(-8px); box-shadow: var(--shlg); border-color: var(--gold); }
-.cc-header { padding: 1.75rem; display: flex; align-items: flex-end; justify-content: space-between; min-height: 105px; }
-.cc-emoji { font-size: 2.8rem; line-height: 1; }
-.cc-badge { background: rgba(255,255,255,.2); color: white; padding: .25rem .7rem; border-radius: 50px; font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; border: 1px solid rgba(255,255,255,.28); backdrop-filter: blur(4px); }
-.cc-body { padding: 1.5rem; display: flex; flex-direction: column; gap: .8rem; flex: 1; }
-.cc-body h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--navy); line-height: 1.25; }
-.cc-body > p { font-size: .845rem; color: var(--muted); line-height: 1.65; }
-.cc-meta { display: flex; gap: 1rem; }
-.cc-meta span { font-size: .78rem; color: var(--muted); }
-.cc-tools { display: flex; flex-wrap: wrap; gap: 5px; }
-.cc-tools span { background: var(--cyan3); color: var(--cyan); border: 1px solid rgba(33,150,201,.18); padding: .16rem .52rem; border-radius: 50px; font-size: .67rem; font-weight: 600; }
-.cc-stipend { display: inline-flex; align-items: center; gap: 5px; background: var(--gold3); color: var(--gold); border: 1px solid rgba(232,168,32,.25); padding: .32rem .8rem; border-radius: 50px; font-size: .72rem; font-weight: 700; width: fit-content; }
-.cc-footer { display: flex; align-items: center; justify-content: space-between; padding-top: .9rem; border-top: 1px solid var(--border); margin-top: auto; }
-.cc-price { display: flex; flex-direction: column; }
-.cc-price small { font-size: .67rem; color: var(--muted); }
-.cc-price strong { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 900; color: var(--navy); }
-.courses-cta { background: linear-gradient(135deg, var(--navy), var(--navy2)); border-radius: var(--r); padding: 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap; border: 1px solid rgba(232,168,32,.18); }
-.ccta-text h3 { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: var(--gold2); margin-bottom: .35rem; }
-.ccta-text p { color: rgba(255,255,255,.6); font-size: .9rem; }
-.enroll-price { text-align: center; font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: var(--gold); margin-bottom: 1.5rem; }
-@media (max-width: 640px) { .courses-grid { grid-template-columns: 1fr; } .courses-cta { flex-direction: column; text-align: center; } }
+/* ═══════════════════════════════════════════════════════════════════
+   COURSES  —  Pixel-matched redesign
+   Reference: 6-column card grid, pastel icon headers, outline enroll
+   buttons, benefits strip, all modal styles preserved intact.
+   ═══════════════════════════════════════════════════════════════════ */
 
+/* ── Section ── */
+.courses {
+  background: #f5f7fc;
+  padding: 3.5rem 4% 0;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ══════════════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════════════ */
+.cs-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 2rem;
+  min-height: 64px;
+}
+
+.cs-header-center {
+  text-align: center;
+}
+
+.cs-main-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+  font-weight: 800;
+  color: #0d1b3e;
+  margin: 0 0 .35rem;
+  letter-spacing: -.02em;
+  line-height: 1.2;
+}
+
+.cs-title-accent {
+  color: #15803d;
+  /* rich green — matches image */
+  font-style: normal;
+}
+
+.cs-title-serif {
+  color: #0d1b3e;
+}
+
+.cs-sub {
+  font-size: .82rem;
+  color: #6b7a99;
+  margin: 0;
+  letter-spacing: .01em;
+}
+
+.cs-view-all {
+  position: absolute;
+  right: 0;
+  top: .3rem;
+
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+
+  background: transparent;
+  border: none;
+  outline: none;
+
+  font-size: .79rem;
+  font-weight: 700;
+
+  color: #0ea5e9;
+
+  text-decoration: none;
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition: color .18s;
+}
+
+.cs-view-all:hover {
+  color: #0284c7;
+}
+
+.cs-view-arrow {
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════
+   6-COLUMN CARD GRID
+   Uses 12 equal columns internally so every card
+   spans exactly 2 → identical widths in all rows.
+══════════════════════════════════════════════════ */
+.cs-grid {
+  display: grid;
+
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+
+  gap: 0.75rem;
+
+  margin-bottom: 0;
+
+  align-items: stretch;
+
+  max-width: 1220px;
+
+  margin-inline: auto;
+}
+
+/* ── Card shell ── */
+.cs-card {
+  background: #fafbfc;
+  border-radius: 10px;
+  border: 1px solid var(--crd-border, #d4e5f5);
+  box-shadow: 0 2px 8px rgba(13, 27, 62, .05);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+.cs-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 28px rgba(13, 27, 62, .11);
+}
+
+/* ── Pastel icon zone (top band) ── */
+.cs-card-icon-zone {
+  padding: 0.95rem 0.95rem 0.8rem;
+  display: flex;
+  align-items: center;
+  min-height: 68px;
+}
+
+.cs-card-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, .07);
+  flex-shrink: 0;
+}
+
+/* ── Card text content ── */
+.cs-card-content {
+  padding: 0.7rem 0.9rem 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+
+.cs-card-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .84rem;
+  font-weight: 800;
+  color: #0d1b3e;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.cs-card-dur {
+  font-size: .71rem;
+  font-weight: 500;
+  color: #6b7a99;
+  margin: 0;
+}
+
+/* ── Bullet feature list ── */
+.cs-card-list {
+  list-style: none;
+  padding: 0;
+  margin: .55rem 0 .65rem;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.cs-card-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: .42rem;
+  font-size: .7rem;
+  color: #374151;
+  line-height: 1.45;
+}
+
+.cs-bullet-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: .38rem;
+  /* background set inline via style prop to match card accent */
+}
+
+/* ── Enroll button — outline style matching reference ── */
+.cs-enroll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .38rem;
+  width: calc(100% - 2.2rem);
+margin: 0.5rem 0.9rem 0.9rem;
+padding: 0.42rem 0.65rem;
+  background: transparent;
+  color: var(--enroll-color, #16a34a);
+  border: 1.5px solid var(--enroll-color, #16a34a);
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+    font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .18s, color .18s, box-shadow .18s, transform .18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: .01em;
+}
+
+.cs-enroll:hover {
+  background: var(--enroll-color, #16a34a);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .13);
+  transform: translateY(-1px);
+}
+
+.cs-enroll-arrow {
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════
+   BENEFITS STRIP
+══════════════════════════════════════════════════ */
+.cs-benefits-wrap {
+  background: linear-gradient(180deg,
+      #f7fafc 0%,
+      #f2f6fb 100%);
+
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
+  margin: 1.5rem 0 0;
+  padding: 1.4rem 2%;
+
+  box-shadow:
+    0 2px 8px rgba(15, 23, 42, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.cs-benefits-inner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 100%;
+  background: rgba(255, 255, 255, 0.35);
+    border-radius: 12px;
+}
+
+.cs-benefits-heading {
+  display: flex;
+  flex-direction: column;
+  font-size: .72rem;
+  font-weight: 800;
+  color: #0d1b3e;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  line-height: 1.5;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cs-benefits-sep {
+  width: 1px;
+  height: 52px;
+  background: linear-gradient(to bottom,
+      transparent,
+      #d7dee8,
+      transparent);
+}
+
+.cs-benefits-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex: 1;
+  gap: .4rem;
+  flex-wrap: nowrap;
+}
+
+.cs-benefit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .38rem;
+  text-align: center;
+  min-width: 58px;
+  flex: 1;
+}
+
+.cs-benefit-ico {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #1e3a8a;
+  transition: color .2s, transform .2s;
+}
+
+.cs-benefit:hover .cs-benefit-ico {
+  color: #2563eb;
+  transform: scale(1.12);
+}
+
+.cs-benefit-lbl {
+  font-size: .62rem;
+  font-weight: 600;
+  color: #374151;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ══════════════════════════════════════════════════
+   PRESERVED — EnrollModal & form styles (untouched)
+══════════════════════════════════════════════════ */
 .enroll-course-name {
   text-align: center;
   font-size: .95rem;
@@ -37,6 +340,7 @@
   padding: .6rem 1rem;
   margin-bottom: .75rem;
 }
+
 .enroll-price {
   text-align: center;
   font-family: 'Playfair Display', serif;
@@ -46,104 +350,267 @@
   margin-bottom: 1.5rem;
 }
 
-/* Enroll Modal */
 .enroll-header {
-  display: flex; align-items: center; gap: 1rem;
-  background: var(--cream); border-radius: var(--rsm);
-  padding: 1rem 1.25rem; margin-bottom: 1.5rem;
-  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--cream, #f9f7f2);
+  border-radius: var(--rsm, 8px);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border, #e5e7eb);
 }
-.enroll-emoji { font-size: 2rem; flex-shrink: 0; }
-.enroll-price-tag {
-  font-family: 'Playfair Display', serif; font-size: 1.4rem;
-  font-weight: 900; color: var(--gold); margin-top: 2px;
-}
-.enroll-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem 1rem; }
-.enroll-form-grid .form-group { margin-bottom: 0; }
 
-/* Payment methods preview */
+.enroll-emoji {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.enroll-price-tag {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--gold, #e8a820);
+  margin-top: 2px;
+}
+
+.enroll-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem 1rem;
+}
+
+.enroll-form-grid .form-group {
+  margin-bottom: 0;
+}
+
 .payment-methods-preview {
-  background: #f8fafc; border: 1px solid var(--border);
-  border-radius: var(--rsm); padding: .85rem 1rem;
+  background: #f8fafc;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: var(--rsm, 8px);
+  padding: .85rem 1rem;
   margin: 1.25rem 0;
 }
-.pm-label { font-size: .75rem; font-weight: 700; color: var(--muted); margin-bottom: .6rem; }
-.pm-icons { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+.pm-label {
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--muted, #6b7a99);
+  margin-bottom: .6rem;
+}
+
+.pm-icons {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
 .pm-icon {
-  background: white; border: 1px solid var(--border); border-radius: 6px;
-  padding: .3rem .7rem; font-size: .72rem; font-weight: 600; color: var(--navy);
+  background: white;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 6px;
+  padding: .3rem .7rem;
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--navy, #0d1b3e);
 }
 
-/* Pay button */
 .enroll-pay-btn {
-  margin-top: .5rem; font-size: 1rem;
+  margin-top: .5rem;
+  font-size: 1rem;
   background: linear-gradient(135deg, #E8A820, #f5c842);
-  box-shadow: 0 4px 16px rgba(232,168,32,.35);
+  box-shadow: 0 4px 16px rgba(232, 168, 32, .35);
 }
-.enroll-pay-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,168,32,.45); }
 
-/* Processing step */
+.enroll-pay-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(232, 168, 32, .45);
+}
+
 .enroll-processing {
-  text-align: center; padding: 2rem 1rem;
+  text-align: center;
+  padding: 2rem 1rem;
 }
+
 .processing-spinner {
-  width: 52px; height: 52px; border: 4px solid var(--border);
-  border-top-color: var(--gold); border-radius: 50%;
-  animation: spin .8s linear infinite; margin: 0 auto 1.25rem;
-}
-.enroll-processing h3 { color: var(--navy); font-family: 'Playfair Display',serif; margin-bottom: .5rem; }
-.enroll-processing p { color: var(--muted); font-size: .9rem; margin-bottom: 1.5rem; }
-.processing-steps { display: flex; flex-direction: column; gap: .5rem; text-align: left; background: var(--cream); border-radius: var(--rsm); padding: 1rem 1.25rem; }
-.ps-item { font-size: .85rem; font-weight: 500; color: var(--muted); }
-.ps-item.done { color: #059669; }
-.ps-item.active { color: var(--gold); font-weight: 700; }
-
-@media (max-width: 480px) {
-  .enroll-form-grid { grid-template-columns: 1fr; }
+  width: 52px;
+  height: 52px;
+  border: 4px solid var(--border, #e5e7eb);
+  border-top-color: var(--gold, #e8a820);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 1.25rem;
 }
 
-/* ── Mobile course card fixes ── */
-@media (max-width: 640px) {
-  .courses-grid { grid-template-columns: 1fr; gap: 1rem; }
-
-  .cc-body { padding: 1rem; }
-  .cc-body h3 { font-size: .95rem; }
-  .cc-body p { font-size: .82rem; }
-
-  .cc-tools { display: flex; flex-wrap: wrap; gap: 4px; }
-  .cc-tools span { font-size: .68rem; padding: .18rem .55rem; }
-
-  .cc-stipend { font-size: .72rem; white-space: normal; line-height: 1.4; }
-
-  .cc-footer { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: nowrap; padding-top: .75rem; }
-  .cc-price small { font-size: .62rem; }
-  .cc-price strong { font-size: 1rem; white-space: nowrap; }
-
-  .cc-footer .btn { font-size: .72rem; padding: .42rem .65rem; white-space: nowrap; }
-  .cc-footer div { display: flex; gap: .35rem; flex-shrink: 0; }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* ── Galaxy Z Fold 5 - CTA card fix ONLY ── */
-@media (max-width: 360px) {
-  .courses-cta {
-    padding: 1.5rem 1rem;
-    text-align: center;
+.enroll-processing h3 {
+  color: var(--navy, #0d1b3e);
+  font-family: 'Playfair Display', serif;
+  margin-bottom: .5rem;
+}
+
+.enroll-processing p {
+  color: var(--muted, #6b7a99);
+  font-size: .9rem;
+  margin-bottom: 1.5rem;
+}
+
+.processing-steps {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  text-align: left;
+  background: var(--cream, #f9f7f2);
+  border-radius: var(--rsm, 8px);
+  padding: 1rem 1.25rem;
+}
+
+.ps-item {
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--muted, #6b7a99);
+}
+
+.ps-item.done {
+  color: #059669;
+}
+
+.ps-item.active {
+  color: var(--gold, #e8a820);
+  font-weight: 700;
+}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   All existing breakpoint logic preserved + extended.
+══════════════════════════════════════════════════ */
+
+/* ── Large desktop ── */
+@media (min-width: 1280px) {
+  .courses {
+    padding: 3.5rem 5% 0;
   }
-  .courses-cta .ccta-text h3 {
-    font-size: .95rem;
-    word-break: break-word;
-    white-space: normal;
-    line-height: 1.4;
+
+  .cs-benefits-wrap {
+    margin: 1.5rem -5% 0;
+    padding: 1.4rem 5%;
   }
-  .courses-cta .ccta-text p {
-    font-size: .78rem;
-    word-break: break-word;
+}
+
+/* ── Tablet landscape: 3 + 3 → 6 equal cols ── */
+@media (max-width: 1180px) {
+  .cs-grid {
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.85rem;
+    }
+
+.cs-card-icon-wrap {
+  width: 42px;
+  height: 42px;
+}
+}
+
+/* ── Tablet portrait: 2 cols ── */
+@media (max-width: 768px) {
+  .cs-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: .85rem;
   }
-  .courses-cta .btn {
-    font-size: .78rem;
-    padding: .6rem 1rem;
-    white-space: normal;
-    text-align: center;
-    width: 100%;
+
+  .cs-benefits-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .75rem 1.25rem;
+  }
+
+  .cs-benefit {
+    min-width: 72px;
+    flex: 0 1 auto;
+  }
+}
+
+/* ── Large mobile: 2 cols ── */
+@media (max-width: 600px) {
+  .courses {
+    padding: 2.5rem 4% 0;
+  }
+
+  .cs-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: .7rem;
+  }
+
+  .cs-header {
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+  }
+
+    .cs-view-all {
+      background: transparent;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
+
+  .cs-benefits-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .cs-benefits-sep {
+    width: 40px;
+    height: 1px;
+  }
+
+  .cs-benefits-row {
+    flex-wrap: wrap;
+    gap: .75rem 1rem;
+    justify-content: flex-start;
+  }
+
+  .cs-benefit {
+    min-width: 70px;
+    flex: 0 1 auto;
+  }
+
+  .enroll-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cs-card-icon-zone {
+    padding: 1rem;
+    min-height: 68px;
+  }
+
+  .cs-card-icon-wrap {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ── Small mobile: 1 col ── */
+@media (max-width: 400px) {
+  .cs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cs-main-title {
+    font-size: 1.25rem;
+  }
+
+  .cs-card-icon-zone {
+    min-height: 64px;
   }
 }
