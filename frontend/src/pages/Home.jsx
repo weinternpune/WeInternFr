@@ -1,6 +1,6 @@
 import React from 'react';
 import Hero from '../components/Sections/Hero';
-import { Problem, HowItWorks, Services, Testimonials, Vision } from '../components/Sections/Sections';
+import { Problem, HowItWorks, EcosystemSection, Testimonials, Vision } from '../components/Sections/Sections';
 import Courses from '../components/Sections/Courses';
 import { ApplySection,} from '../components/Sections/Forms';
 import '../components/Sections/Sections.css';
@@ -19,7 +19,7 @@ const Home = () => (
     </div>
     <Problem />
     <HowItWorks />
-    <Services />
+    <EcosystemSection />
     <Courses />
     <Testimonials />
     <Vision />
