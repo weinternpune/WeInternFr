@@ -227,8 +227,10 @@ export const EcosystemSection = () => {
                 <div className="eco-step-circle" style={{ background: STEP_COLORS[i].bg, borderColor: STEP_COLORS[i].border }}>
                   {STEP_ICONS[i]}
                 </div>
-                <div className="eco-step-label">{s.num}. {s.title}</div>
-                <p className="eco-step-desc">{s.desc}</p>
+                <div>
+                  <span className="eco-step-label">{s.num}. {s.title} </span>
+                  <span className="eco-step-desc">{s.desc}</span>
+                </div>
               </div>
               {i < STEP_LABELS.length - 1 && (
                 <div className="eco-step-arrow">
