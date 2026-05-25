@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import heroStudents from "../../assets/hero-students.jpg/WhatsApp Image 2026-05-23 at 09.41.02.jpeg";
+import heroStudents from "../../assets/hero-students.jpg";
 import './Hero.css';
 
 const HeroParticles = () => {
