@@ -129,7 +129,7 @@ const Hero = () => {
             Students Don't<br />Wait for Opportunity.<br />
             <span className="highlight">They Build It.</span>
           </h1>
-          <p className="hero-sub">WeIntern hires students into real teams, working on real client projects — earning real experience, real income, and real confidence.</p>
+          <p className="hero-sub">WeIntern hires students into real teams, working on real client projects — earning real experience, real income, and real confidence in the process.</p>
           <div className="hero-fear">
             <div className="fear-label">Every student fears:</div>
             <div className="fear-rotate">

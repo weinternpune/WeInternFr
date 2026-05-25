@@ -151,19 +151,132 @@ export const Services = () => {
     { icon:'💎', title:'Digital Products', desc:'SaaS platforms, admin dashboards, CRMs, and custom digital tools.', tags:['SaaS','Dashboard','CRM','API'] }
   ];
   return (
-    <section className="services" id="services">
-      <div className="container">
-        <div className="section-label">What We Build</div>
-        <h2 className="section-title">Services WeIntern Delivers</h2>
-        <p className="section-sub">Real client projects across modern technology domains — built by passionate intern teams, supervised by experts.</p>
-        <div className="services-grid">
-          {SERVICES.map(s => (
-            <div key={s.title} className="service-card reveal">
-              <div className="sc-glow" />
-              <span className="service-icon">{s.icon}</span>
-              <h3>{s.title}</h3>
-              <p>{s.desc}</p>
-              <div className="service-tags">{s.tags.map(t => <span key={t}>{t}</span>)}</div>
+    <section className="eco-wrapper" id="ecosystem">
+
+      {/* ── TOP: Step Flow + Mission ── */}
+      <div className="eco-heading-block">
+        <h2 className="eco-title">
+          How the <span className="eco-title-brand">Weintern</span> Ecosystem Works
+        </h2>
+        <p className="eco-subtitle">From learning to earning — a journey that changes your future it is main goal.</p>
+      </div>
+
+      {/* Steps + Mission side by side */}
+      <div className="eco-top-body">
+        {/* Steps */}
+        <div className="eco-steps">
+          {STEP_LABELS.map((s, i) => (
+            <React.Fragment key={s.num}>
+              <div className="eco-step-card">
+                <div className="eco-step-circle" style={{ background: STEP_COLORS[i].bg, borderColor: STEP_COLORS[i].border }}>
+                  {STEP_ICONS[i]}
+                </div>
+                <div className="eco-step-label">{s.num}. {s.title}</div>
+                <p className="eco-step-desc">{s.desc}</p>
+              </div>
+              {i < STEP_LABELS.length - 1 && (
+                <div className="eco-step-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                    <polyline points="13,6 19,12 13,18"/>
+                  </svg>
+                </div>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+
+        {/* Mission box */}
+        <div className="eco-mission">
+          <h4 className="eco-mission-head">Our Mission</h4>
+          <p className="eco-mission-body">
+            To empower every student with practical skills, real experience and financial independence through meaningful work.
+          </p>
+          <div className="eco-mission-brands">
+            <span className="eco-mb-wi">Weintern</span>
+            <span className="eco-mb-inf">∞</span>
+            <span className="eco-mb-wn"><span className="eco-mb-we">We</span>Nexa</span>
+          </div>
+          <p className="eco-mission-tag">Stronger Together</p>
+        </div>
+      </div>
+
+      {/* ── BOTTOM: Dark Impact Banner ── */}
+      <div className="eco-bottom">
+        <div className="eco-bottom-inner">
+
+          {/* Left: heading */}
+          <div className="eco-b-left">
+            <h2 className="eco-b-heading">
+              Real Work. Real Impact.<br />
+              <span className="eco-b-green">Real Income</span> for Students.
+            </h2>
+            <p className="eco-b-sub">We believe students deserve to earn for the value they create.</p>
+          </div>
+
+          {/* Donut */}
+          <div className="eco-donut">
+            <svg viewBox="0 0 120 120" className="eco-donut-svg">
+              <defs>
+                <linearGradient id="dg" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#86efac" />
+                  <stop offset="100%" stopColor="#16a34a" />
+                </linearGradient>
+              </defs>
+              {/* Track */}
+              <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="16" />
+              {/* 75% arc: circumference = 2π×46 ≈ 289, 75% = 217 */}
+              <circle cx="60" cy="60" r="46" fill="none" stroke="url(#dg)" strokeWidth="16"
+                strokeDasharray="217 72" strokeDashoffset="0" strokeLinecap="round" />
+            </svg>
+            <div className="eco-donut-center">
+              <span className="eco-donut-pct">75%</span>
+              <span className="eco-donut-lbl">OF PROJECT VALUE<br />GOES TO<br />STUDENTS</span>
+            </div>
+          </div>
+
+          {/* 4 benefit columns */}
+          <div className="eco-b-benefits">
+
+            {/* Financial Independence — purse/wallet with clasp */}
+            <div className="eco-b-card">
+              <div className="eco-b-icon">
+                <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10 16c0-3 2-5 5-5h10c3 0 5 2 5 5v12c0 2-1.5 4-4 4H14c-2.5 0-4-2-4-4V16z"/>
+                  <path d="M15 11c0-2 1-4 5-4s5 2 5 4"/>
+                  <path d="M10 21h20"/>
+                  <circle cx="20" cy="25" r="2" fill="currentColor" stroke="none"/>
+                </svg>
+              </div>
+              <h4 className="eco-b-title">Financial<br/>Independence</h4>
+              <p className="eco-b-desc">Students earn real income through their skills and hard work.</p>
+            </div>
+
+            {/* Industry Experience — briefcase with bar chart */}
+            <div className="eco-b-card">
+              <div className="eco-b-icon">
+                <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="6" y="15" width="28" height="19" rx="2"/>
+                  <path d="M14 15v-3a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/>
+                  <line x1="13" y1="34" x2="13" y2="27"/>
+                  <line x1="20" y1="34" x2="20" y2="24"/>
+                  <line x1="27" y1="34" x2="27" y2="29"/>
+                </svg>
+              </div>
+              <h4 className="eco-b-title">Industry<br/>Experience</h4>
+              <p className="eco-b-desc">Work on real projects and gain experience before graduation.</p>
+            </div>
+
+            {/* Career Growth — upward trending line */}
+            <div className="eco-b-card">
+              <div className="eco-b-icon">
+                <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="5,32 14,21 21,26 30,13 36,8"/>
+                  <polyline points="30,8 36,8 36,14"/>
+                </svg>
+              </div>
+              <h4 className="eco-b-title">Career<br/>Growth</h4>
+              <p className="eco-b-desc">Build confidence, strong portfolio and better career opportunities.</p>
             </div>
           ))}
           <div className="service-card service-card-cta reveal">
