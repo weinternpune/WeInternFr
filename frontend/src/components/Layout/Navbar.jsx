@@ -32,7 +32,7 @@ const Navbar = () => {
           <img src="/welogo.png" alt="WeIntern" className="nav-logo" />
         </Link>
         <ul className="nav-links">
-          {[['story','Our Story'],['how','How It Works'],['ecosystem','Ecosystem'],['courses','Courses'],['testimonials','Stories'],['contact','Contact']].map(([id, label]) => (
+          {[['story','Our Story'],['how','How It Works'],['services','Services'],['courses','Courses'],['testimonials','Stories'],['contact','Contact']].map(([id, label]) => (
             <li key={id}><button className="nav-link" onClick={() => scrollTo(id)}>{label}</button></li>
           ))}
         </ul>
@@ -57,7 +57,7 @@ const Navbar = () => {
       </div>
       {menuOpen && (
         <div className="mobile-menu open">
-          {[['story','Our Story'],['how','How It Works'],['ecosystem','Ecosystem'],['courses','Courses'],['testimonials','Stories']].map(([id, label]) => (
+          {[['story','Our Story'],['how','How It Works'],['services','Services'],['courses','Courses'],['testimonials','Stories']].map(([id, label]) => (
             <button key={id} className="mobile-nav-link" onClick={() => scrollTo(id)}>{label}</button>
           ))}
           {user ? (
