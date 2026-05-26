@@ -6,7 +6,7 @@
 
 /* ── Section ── */
 .courses {
-  background: #f5f7fc;
+  background: #ffffff;
   padding: 3.5rem 4% 0;
   font-family: 'DM Sans', sans-serif;
 }
@@ -576,11 +576,18 @@ padding: 0.42rem 0.65rem;
     gap: .7rem;
   }
 
-  .cs-header {
-    flex-direction: column;
-    align-items: center;
-    gap: .5rem;
-  }
+    .cs-header {
+      flex-direction: column;
+      align-items: center;
+      gap: .7rem;
+      position: static;
+    }
+  
+    .cs-view-all {
+      position: static;
+      transform: none;
+      margin-top: .2rem;
+    }
 
   .cs-view-all {
     background: transparent;
@@ -599,13 +606,23 @@ padding: 0.42rem 0.65rem;
     gap: 1rem;
   }
 
-  .cs-benefits-heading {
-    border-right: none;
-    border-bottom: 1px solid #d1d5db;
-    padding-right: 0;
-    padding-bottom: 0.75rem;
-    min-width: auto;
-  }
+    .cs-benefits-heading {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+  
+      text-align: center;
+  
+      min-width: 100%;
+      padding-right: 0;
+  
+      border-right: none;
+      border-bottom: 1px solid #d1d5db;
+  
+      padding-bottom: 0.9rem;
+      margin-bottom: 0.8rem;
+    }
 
   .cs-benefits-row {
     flex-wrap: wrap;
