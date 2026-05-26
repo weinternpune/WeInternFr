@@ -1,0 +1,21 @@
+.testimonials-section { padding:6rem 0; background:#f8fafc; }
+.testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:3rem; }
+.testi-card { background:white; border-radius:16px; padding:1.75rem; border:1px solid #e5e7eb; box-shadow:0 2px 12px rgba(0,0,0,.05); transition:all .3s; display:flex; flex-direction:column; gap:1rem; }
+.testi-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(0,0,0,.1); border-color:#18b45b; }
+.testi-top { display:flex; align-items:center; gap:.85rem; }
+.testi-avatar { width:46px; height:46px; border-radius:50%; color:white; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.95rem; flex-shrink:0; }
+.testi-info { flex:1; }
+.testi-info strong { display:block; font-weight:700; color:#111827; font-size:.92rem; }
+.testi-info span { font-size:.75rem; color:#6b7280; line-height:1.4; }
+.testi-stars { display:flex; gap:2px; flex-shrink:0; }
+.testi-text { color:#374151; font-size:.88rem; line-height:1.75; font-style:italic; flex:1; }
+.testi-verified { display:flex; align-items:center; gap:.4rem; font-size:.72rem; color:#18b45b; font-weight:600; }
+.testi-cta { background:linear-gradient(135deg,#0a1628,#0f2340); border-radius:20px; padding:2.5rem 3rem; display:flex; align-items:center; justify-content:space-between; gap:2rem; margin-top:3rem; flex-wrap:wrap; }
+.testi-cta-stats { display:flex; gap:3rem; flex-wrap:wrap; }
+.tcs-item { text-align:center; }
+.tcs-item strong { display:block; font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:900; color:#18b45b; }
+.tcs-item span { font-size:.78rem; color:rgba(255,255,255,.6); }
+.btn-testi-cta { display:inline-flex; align-items:center; background:#18b45b; color:white; border:none; padding:.9rem 2rem; border-radius:50px; font-weight:700; font-size:.95rem; cursor:pointer; text-decoration:none; font-family:'DM Sans',sans-serif; transition:all .3s; white-space:nowrap; }
+.btn-testi-cta:hover { background:#15a050; transform:translateY(-2px); box-shadow:0 8px 24px rgba(24,180,91,.35); }
+@media (max-width:1024px) { .testi-grid { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:640px) { .testi-grid { grid-template-columns:1fr; } .testi-cta { flex-direction:column; text-align:center; padding:2rem 1.5rem; } .testi-cta-stats { justify-content:center; gap:2rem; } }
