@@ -72,7 +72,7 @@ const Hero = () => {
         <div className="hero-grid" />
         <HeroParticles />
       </div>
-      <div className="hero-inner container">
+      <div className="hero-inner">
         <div className="hero-left">
           <div className="hero-badge">
             <span className="badge-dot" />
@@ -100,75 +100,75 @@ const Hero = () => {
               </div>
             ))}
           </div>
-          <div className="hero-btns">
-            <a href="#courses" className="btn-hero-primary">Explore Courses →</a>
-            <a href="#contact" className="btn-hero-outline">Start Your Journey →</a>
+          {/* Desktop buttons — hidden on mobile */}
+          <div className="hero-btns hero-btns-desktop">
+            <a href="#courses" className="btn-hero-primary" onClick={e=>{e.preventDefault();document.getElementById('courses')?.scrollIntoView({behavior:'smooth'})}}>Explore Courses →</a>
+            <a href="#contact" className="btn-hero-outline" onClick={e=>{e.preventDefault();document.getElementById('contact')?.scrollIntoView({behavior:'smooth'})}}>Start Your Journey →</a>
           </div>
         </div>
 
-        <div className="hero-right">
-          <div className="hero-img-wrap">
-            <div className="hero-img-placeholder">
-              <img src={heroStudents} alt="WeIntern Students" style={{width:'100%',borderRadius:20,objectFit:'cover'}} />
-              <div className="hip-inner">
-                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="rgba(24,180,91,0.6)" strokeWidth="1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                <p style={{color:'rgba(255,255,255,0.4)',fontSize:'.85rem',marginTop:'1rem'}}>Add a hero image here</p>
-                <p style={{color:'rgba(255,255,255,0.25)',fontSize:'.75rem'}}>Recommended: 600x500px</p>
-              </div>
+        {/* CENTER — Big Image */}
+        <div className="hero-center">
+          <div className="hero-img-box">
+            <img src="/hero-students.jpg" alt="WeIntern Students" className="hero-main-img" onError={e=>{e.target.style.display='none';e.target.nextSibling.style.display='flex'}}/>
+            <div className="hero-img-fallback" style={{display:'none'}}>
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="rgba(24,180,91,0.5)" strokeWidth="1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <p>Place hero-students.jpg in /public/</p>
             </div>
-            <div className="hero-badge-float hbf-1">
-              <div className="hbf-icon" style={{background:'rgba(24,180,91,0.2)'}}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div><strong>Real skills.</strong><span>Real projects.</span></div>
-            </div>
-            <div className="hero-badge-float hbf-2">
-              <div className="hbf-icon" style={{background:'rgba(24,180,91,0.2)'}}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              </div>
-              <div><strong>Real income.</strong><span>Earn while learning</span></div>
+            {/* Logo badge */}
+            <div className="hero-logo-badge">
+              <img src="/welogo.png" alt="WeIntern" style={{height:24,filter:'brightness(0) invert(1)'}}/>
             </div>
           </div>
+        </div>
 
-          <div className="hero-stats-side">
-            {[
-              { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>, val:'12,500+', label:'Students Trained' },
-              { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>, val:'920+', label:'Live Projects Delivered' },
-              { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>, val:'₹4.5 Cr+', label:'Paid to Students in Stipends' },
-              { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>, val:'200+', label:'College Partners' },
-              { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>, val:'4.8/5', label:'Student Rating' },
-            ].map((s,i) => (
-              <div key={i} className="hss-item">
-                <div className="hss-icon">{s.icon}</div>
-                <div><strong>{s.val}</strong><span>{s.label}</span></div>
+        {/* RIGHT — Stats */}
+        <div className="hero-stats-side">
+          {[
+            { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>, val:'12,500+', label:'Students Trained' },
+            { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>, val:'920+', label:'Live Projects Delivered' },
+            { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>, val:'₹4.5 Cr+', label:'Paid to Students in Stipends' },
+            { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>, val:'200+', label:'College Partners' },
+            { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>, val:'4.8/5', label:'Student Rating' },
+          ].map((s,i) => (
+            <div key={i} className="hss-item">
+              <div className="hss-icon">{s.icon}</div>
+              <div>
+                <strong>{s.val}</strong>
+                <span>{s.label}</span>
+                {s.val === '4.8/5' && <div className="hss-stars">★★★★★</div>}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Mobile-only buttons — shown below image on mobile */}
+        <div className="hero-btns hero-btns-mobile">
+          <a href="#courses" className="btn-hero-primary" onClick={e=>{e.preventDefault();document.getElementById('courses')?.scrollIntoView({behavior:'smooth'})}}>Explore Courses →</a>
+          <a href="#contact" className="btn-hero-outline" onClick={e=>{e.preventDefault();document.getElementById('contact')?.scrollIntoView({behavior:'smooth'})}}>Start Your Journey →</a>
         </div>
       </div>
+      
 
       <div className="hero-stats-bar">
-        <div className="container">
-          <div className="hsb-inner">
-            {[
-              { val: 4.5, suffix: ' Cr+', prefix: '₹', label: 'Paid to Students in Stipends' },
-              { val: 75, suffix: '%', label: 'of Project Value Goes to Students' },
-              { val: 920, suffix: '+', label: 'Live Projects Completed' },
-              { val: 12500, suffix: '+', label: 'Students Impacted' },
-              { val: 200, suffix: '+', label: 'College Partners' },
-              { val: 4.8, suffix: '/5', label: 'Student Rating', stars: true },
-            ].map((s,i) => (
-              <div key={i} className="hsb-item">
-                <div className="hsb-val" style={{color: i===0?'#18b45b': i===1?'#18b45b': i===2?'#2563eb': i===3?'#7c3aed': i===4?'#7c3aed':'#f59e0b'}}>
-                  {s.prefix || ''}<Counter target={s.val} suffix={s.suffix} />
-                </div>
-                <div className="hsb-label">{s.label}</div>
-                {s.stars && <div className="hsb-stars">{'★'.repeat(5)}</div>}
-              </div>
-            ))}
-          </div>
+        <div className="hsb-inner">
+          {[
+            {val:'₹4.5 Cr+', label:'Paid to Students in Stipends', color:'#18b45b'},
+            {val:'75%', label:'of Project Value Goes to Students', color:'#18b45b'},
+            {val:'920+', label:'Live Projects Completed', color:'#2563eb'},
+            {val:'12,500+', label:'Students Impacted', color:'#7c3aed'},
+            {val:'200+', label:'College Partners', color:'#7c3aed'},
+            {val:'4.8/5', label:'Student Rating', color:'#f59e0b', stars:true},
+          ].map((s,i)=>(
+            <div key={i} className="hsb-item">
+              <div className="hsb-val" style={{color:s.color}}>{s.val}</div>
+              <div className="hsb-label">{s.label}</div>
+              {s.stars && <div className="hsb-stars">★★★★★</div>}
+            </div>
+          ))}
         </div>
       </div>
+      
     </section>
   );
 };
