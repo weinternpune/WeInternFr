@@ -79,7 +79,8 @@ const Hero = () => {
               </div>
             ))}
           </div>
-          <div className="hero-btns">
+          {/* Desktop buttons — hidden on mobile */}
+          <div className="hero-btns hero-btns-desktop">
             <a href="#courses" className="btn-hero-primary" onClick={e=>{e.preventDefault();document.getElementById('courses')?.scrollIntoView({behavior:'smooth'})}}>Explore Courses →</a>
             <a href="#contact" className="btn-hero-outline" onClick={e=>{e.preventDefault();document.getElementById('contact')?.scrollIntoView({behavior:'smooth'})}}>Start Your Journey →</a>
           </div>
@@ -93,17 +94,17 @@ const Hero = () => {
               <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="rgba(24,180,91,0.5)" strokeWidth="1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
               <p>Place hero-students.jpg in /public/</p>
             </div>
-            {/* Overlay badge */}
-            {/* <div className="hero-img-badge">
-              <div style={{fontWeight:700,color:'white',fontSize:'1rem'}}>Real skills.</div>
-              <div style={{fontWeight:700,color:'white',fontSize:'1rem'}}>Real projects.</div>
-              <div style={{fontWeight:800,color:'#18b45b',fontSize:'1rem'}}>Real income.</div>
-            </div> */}
             {/* Logo badge */}
             <div className="hero-logo-badge">
               <img src="/welogo.png" alt="WeIntern" style={{height:24,filter:'brightness(0) invert(1)'}}/>
             </div>
           </div>
+        </div>
+
+        {/* Mobile-only buttons — shown below image on mobile */}
+        <div className="hero-btns hero-btns-mobile">
+          <a href="#courses" className="btn-hero-primary" onClick={e=>{e.preventDefault();document.getElementById('courses')?.scrollIntoView({behavior:'smooth'})}}>Explore Courses →</a>
+          <a href="#contact" className="btn-hero-outline" onClick={e=>{e.preventDefault();document.getElementById('contact')?.scrollIntoView({behavior:'smooth'})}}>Start Your Journey →</a>
         </div>
 
         {/* RIGHT — Stats */}
@@ -123,23 +124,21 @@ const Hero = () => {
 
       {/* Stats Bar */}
       <div className="hero-stats-bar">
-        <div className="container">
-          <div className="hsb-inner">
-            {[
-              {val:'₹4.5 Cr+', label:'Paid to Students in Stipends', color:'#18b45b'},
-              {val:'75%', label:'of Project Value Goes to Students', color:'#18b45b'},
-              {val:'920+', label:'Live Projects Completed', color:'#2563eb'},
-              {val:'12,500+', label:'Students Impacted', color:'#7c3aed'},
-              {val:'200+', label:'College Partners', color:'#7c3aed'},
-              {val:'4.8/5', label:'Student Rating', color:'#f59e0b', stars:true},
-            ].map((s,i)=>(
-              <div key={i} className="hsb-item">
-                <div className="hsb-val" style={{color:s.color}}>{s.val}</div>
-                <div className="hsb-label">{s.label}</div>
-                {s.stars && <div className="hsb-stars">★★★★★</div>}
-              </div>
-            ))}
-          </div>
+        <div className="hsb-inner">
+          {[
+            {val:'₹4.5 Cr+', label:'Paid to Students in Stipends', color:'#18b45b'},
+            {val:'75%', label:'of Project Value Goes to Students', color:'#18b45b'},
+            {val:'920+', label:'Live Projects Completed', color:'#2563eb'},
+            {val:'12,500+', label:'Students Impacted', color:'#7c3aed'},
+            {val:'200+', label:'College Partners', color:'#7c3aed'},
+            {val:'4.8/5', label:'Student Rating', color:'#f59e0b', stars:true},
+          ].map((s,i)=>(
+            <div key={i} className="hsb-item">
+              <div className="hsb-val" style={{color:s.color}}>{s.val}</div>
+              <div className="hsb-label">{s.label}</div>
+              {s.stars && <div className="hsb-stars">★★★★★</div>}
+            </div>
+          ))}
         </div>
       </div>
     </section>
