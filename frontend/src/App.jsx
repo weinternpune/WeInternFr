@@ -9,13 +9,13 @@ import Footer from './components/Layout/Footer';
 
 // Pages
 import Home from './pages/Home';
+import AboutUs from './pages/AboutUs';
 import { LoginPage, RegisterPage, OTPPage, ForgotPasswordPage, ResetPasswordPage, AuthCallback } from './components/Auth/AuthPages';
 import Dashboard from './components/Dashboard/Dashboard';
 import Admin from './components/Admin/Admin';
 
 // Global styles
 import './styles/global.css';
-import Testimonials from './components/Sections/Testimonials';
 import StudentProjects from './components/Sections/StudentProjects';
 import { useSanitySEO } from './hooks/useSanity';
 import { CoursesProvider } from './context/CoursesContext';
@@ -48,7 +48,6 @@ const WithLayout = ({ children }) => (
     <Navbar />
     {children}
     <StudentProjects />
-      <Testimonials />
       <Footer />
     <WAFloat />
   </>
@@ -66,6 +65,9 @@ function AppRoutes() {
     <Routes>
       {/* Public with layout */}
       <Route path="/" element={<WithLayout><Home /></WithLayout>} />
+      
+      {/* About Us - standalone page without footer */}
+      <Route path="/about" element={<AboutUs />} />
 
       {/* Auth pages */}
       <Route path="/login" element={<AuthLayout><LoginPage /></AuthLayout>} />

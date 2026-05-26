@@ -24,5 +24,64 @@
 .footer-legal a { color: rgba(255,255,255,.32); text-decoration: none; }
 .footer-legal a:hover { color: rgba(255,255,255,.7); }
 
-@media (max-width: 1024px) { .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; } }
-@media (max-width: 640px) { .footer-top { grid-template-columns: 1fr; } }
+/* Responsive */
+@media (max-width: 1024px) { 
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; } 
+  .footer-inner { padding: 3.5rem 1.5rem 1.75rem; }
+}
+
+@media (max-width: 768px) {
+  .footer-inner { padding: 3rem 1.25rem 1.5rem; }
+  .footer-top { gap: 1.75rem; margin-bottom: 2.5rem; }
+  .footer-brand p { font-size: .82rem; max-width: 100%; }
+  .footer-logo { height: 34px; }
+  .footer-col h5 { font-size: .85rem; }
+  .footer-col a, .footer-col span { font-size: .8rem; }
+  .footer-bottom { font-size: .72rem; padding-top: 1.25rem; }
+  .footer-legal { gap: 1.25rem; }
+}
+
+@media (max-width: 640px) { 
+  .footer-top { grid-template-columns: 1fr; gap: 1.5rem; } 
+  .footer-inner { padding: 2.5rem 1rem 1.25rem; }
+  .footer-brand { margin-bottom: .5rem; }
+  .footer-brand p { font-size: .8rem; margin-top: .6rem; }
+  .footer-logo { height: 32px; }
+  .footer-socials { margin-top: 1rem; gap: .5rem; }
+  .social-btn { width: 32px; height: 32px; }
+  .footer-col { gap: .55rem; }
+  .footer-col h5 { font-size: .82rem; margin-bottom: .15rem; }
+  .footer-col a, .footer-col span { font-size: .78rem; }
+  .footer-bottom { 
+    flex-direction: column; 
+    align-items: flex-start; 
+    gap: .75rem; 
+    font-size: .7rem; 
+    padding-top: 1rem;
+  }
+  .footer-legal { 
+    flex-direction: column; 
+    gap: .5rem; 
+    width: 100%; 
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-inner { padding: 2rem .85rem 1rem; }
+  .footer-top { gap: 1.25rem; margin-bottom: 2rem; }
+  .footer-brand p { font-size: .78rem; }
+  .footer-logo { height: 30px; }
+  .footer-col h5 { font-size: .8rem; }
+  .footer-col a, .footer-col span { font-size: .75rem; }
+  .footer-bottom { font-size: .68rem; }
+}
+
+@media (max-width: 380px) {
+  .footer-inner { padding: 1.75rem .75rem .85rem; }
+  .footer-brand p { font-size: .75rem; }
+  .footer-logo { height: 28px; }
+  .footer-socials { gap: .4rem; }
+  .social-btn { width: 30px; height: 30px; font-size: .75rem; }
+  .footer-col h5 { font-size: .78rem; }
+  .footer-col a, .footer-col span { font-size: .72rem; }
+}

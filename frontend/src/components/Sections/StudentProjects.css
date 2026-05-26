@@ -66,12 +66,63 @@
   box-shadow: 0 4px 14px rgba(24,180,91,0.35); transform: scale(1.05);
 }
 .slider-btn:disabled { opacity: 0.3; cursor: default; box-shadow: none; }
-@media (max-width: 1200px) { .projects-grid-all { grid-template-columns: repeat(3,1fr); } }
+/* Responsive */
+@media (max-width: 1200px) { 
+  .projects-grid-all { grid-template-columns: repeat(3,1fr); } 
+}
+
+@media (max-width: 960px) {
+  .student-projects-section { padding: 50px 24px; }
+  .section-content h2 { font-size: 24px; }
+  .section-content p { font-size: 14px; }
+  .projects-grid-all { grid-template-columns: repeat(3,1fr); gap: 14px; }
+  .slider-btn { width: 44px; height: 44px; font-size: 26px; }
+}
+
 @media (max-width: 768px) {
   .student-projects-section { padding: 40px 16px; }
-  .projects-grid-all { grid-template-columns: repeat(2,1fr); }
+  .section-content h2 { font-size: 22px; }
+  .section-content p { font-size: 13px; }
+  .projects-grid-all { grid-template-columns: repeat(2,1fr); gap: 12px; }
   .slider-btn { width: 38px; height: 38px; font-size: 22px; }
   .section-header { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-  .view-more-btn { justify-self: unset; align-self: unset; order: 3; }
+  .view-more-btn { justify-self: unset; align-self: unset; order: 3; font-size: 14px; }
+  .project-content h3 { font-size: 13px; }
+  .project-content p { font-size: 11px; }
+  .tech-stack span { font-size: 10px; padding: 2px 8px; }
 }
-@media (max-width: 480px) { .projects-grid-all { grid-template-columns: repeat(1,1fr); } }
+
+@media (max-width: 640px) {
+  .student-projects-section { padding: 36px 14px; }
+  .section-content h2 { font-size: 20px; margin-bottom: 6px; }
+  .section-content p { font-size: 12px; }
+  .view-more-btn { font-size: 13px; }
+  .projects-grid-all { gap: 10px; }
+  .project-image-wrapper { height: 90px; }
+  .project-content { padding: 12px; }
+  .project-content h3 { font-size: 12px; }
+  .project-content p { font-size: 10px; margin-bottom: 8px; }
+  .tech-stack { gap: 5px; }
+  .tech-stack span { font-size: 9px; padding: 2px 7px; }
+  .slider-btn { width: 36px; height: 36px; font-size: 20px; }
+}
+
+@media (max-width: 480px) { 
+  .student-projects-section { padding: 32px 12px; }
+  .section-content h2 { font-size: 18px; }
+  .section-content p { font-size: 11px; }
+  .projects-grid-all { grid-template-columns: repeat(1,1fr); gap: 10px; }
+  .project-image-wrapper { height: 85px; }
+  .project-content { padding: 10px; }
+  .slider-btn { width: 34px; height: 34px; font-size: 18px; }
+}
+
+@media (max-width: 380px) {
+  .student-projects-section { padding: 28px 10px; }
+  .section-content h2 { font-size: 17px; }
+  .section-content p { font-size: 10px; }
+  .view-more-btn { font-size: 12px; }
+  .project-image-wrapper { height: 80px; }
+  .project-content h3 { font-size: 11px; }
+  .tech-stack span { font-size: 8px; padding: 2px 6px; }
+}
