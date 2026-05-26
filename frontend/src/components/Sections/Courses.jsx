@@ -8,13 +8,16 @@ import { useNavigate } from 'react-router-dom';
 import CourseDetailModal from './CourseDetail';
 import { Icon } from '@iconify/react';
 import './Courses.css';
-import expertTraining from '../../assets/Expert-Led-Training.png';
-import examPractice from '../../assets/Last-exam-practice.png';
+
+
+// Benifit Icon Section 
+import expertLed from '../../assets/Expert-Led-Training.png';
+import lastExam from '../../assets/Last-exam-practice.png';
 import doubtSolving from '../../assets/Scaled-Doubt-Solving.png';
-import realWorldProjects from '../../assets/Real-World Projects.png';
+import realWorld from '../../assets/Real-World Projects.png';
 import careerSupport from '../../assets/Career Support.png';
 import certificate from '../../assets/Certificate of Completion.jpg';
-import resources from '../../assets/Lifetime Access to Resources.png';
+import lifetime from '../../assets/Lifetime Access to Resources.png';
 import placement from '../../assets/Placement & Job Assistance.png';
 
 /* ─── Razorpay loader (original, untouched) ─── */
@@ -147,47 +150,42 @@ const getTools = (tools) => {
 };
 
 /* ─── Benefits data ─── */
+
 const BENEFITS = [
   {
-    image: expertTraining,
+    image: expertLed,
     label: ['Expert-Led', 'Training']
   },
-
   {
-    image: examPractice,
+    image: lastExam,
     label: ['Last Exam', 'Practice']
   },
-
   {
     image: doubtSolving,
     label: ['Scaled', 'Doubt-Solving']
   },
-
   {
-    image: realWorldProjects,
+    image: realWorld,
     label: ['Real-World', 'Projects']
   },
-
   {
     image: careerSupport,
     label: ['1:1 Career', 'Support']
   },
-
   {
     image: certificate,
     label: ['Certificate of', 'Completion']
   },
-
   {
-    image: resources,
+    image: lifetime,
     label: ['Lifetime Access', 'to Resources']
   },
-
   {
     image: placement,
     label: ['Placement & Job', 'Assistance']
   }
 ];
+
 /* ══════════════════════════════════════════════════════════════
    EnrollModal  —  all original logic preserved
 ══════════════════════════════════════════════════════════════ */
@@ -509,10 +507,9 @@ const Courses = () => {
       <div className="cs-benefits-wrap">
         <div className="cs-benefits-inner">
           <div className="cs-benefits-heading">
-            <span>Benefits of</span>
-            <span>Our Courses</span>
+            <span>BENEFITS OF</span>
+            <span>OUR COURSES</span>
           </div>
-          <div className="cs-benefits-sep" />
           <div className="cs-benefits-row">
 {BENEFITS.map(({ image, label }) => (
   <div className="cs-benefit" key={label[0]}>

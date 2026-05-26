@@ -37,7 +37,7 @@ export const ApplySection = () => {
   };
 
   // return (
-  //   <section className="apply-section" id="contact" id="apply">
+  //   <section className="apply-section" id="apply">
   //     <div className="container">
   //       <div className="section-label">Join Our Internship</div>
   //       <h2 className="section-title">Join as Intern</h2>
