@@ -470,23 +470,29 @@ const Courses = () => {
       <div className="cs-benefits-wrap">
         <div className="cs-benefits-inner">
           <div className="cs-benefits-heading">
-            <span>Benefits of</span>
-            <span>Our Courses</span>
+            <span>BENEFITS OF</span>
+            <span>OUR COURSES</span>
           </div>
-          <div className="cs-benefits-sep" />
           <div className="cs-benefits-row">
-            {BENEFITS.map(({ icon, label }) => (
-              <div className="cs-benefit" key={label[0]}>
-                <div className="cs-benefit-ico">
-                  <Icon icon={icon} width={28} height={28} />
-                </div>
-                <p className="cs-benefit-lbl">
-                  {label[0]}
-                  <br />
-                  {label[1]}
-                </p>
-              </div>
-            ))}
+{BENEFITS.map(({ image, label }) => (
+  <div className="cs-benefit" key={label[0]}>
+
+    <div className="cs-benefit-ico">
+      <img
+        src={image}
+        alt={label[0]}
+        className="cs-benefit-img"
+      />
+    </div>
+
+    <p className="cs-benefit-lbl">
+      {label[0]}
+      <br />
+      {label[1]}
+    </p>
+
+  </div>
+))}
           </div>
         </div>
       </div>
