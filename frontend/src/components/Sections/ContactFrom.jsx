@@ -88,28 +88,28 @@ export default function ContactSection() {
 
               <div className="input-group">
                 <label>Full Name</label>
-                <input type="text" placeholder="Enter your name" />
+                <input type="text" placeholder="Enter your name" required />
               </div>
 
               <div className="input-group">
                 <label>Email Address</label>
-                <input type="email" placeholder="Enter your email" />
+                <input type="email" placeholder="Enter your email" required/>
               </div>
 
               <div className="input-group">
                 <label>Phone Number</label>
-                <input type="text" placeholder="Enter your number" />
+                <input type="text" placeholder="Enter your number" required/>
               </div>
 
               <div className="input-group">
                 <label>Subject</label>
-                <input type="text" placeholder="Enter subject" />
+                <input type="text" placeholder="Enter subject" required/>
               </div>
 
               <div className="input-group full-width">
                 <label>Your Message</label>
 
-                <textarea placeholder="Write your message here..."></textarea>
+                <textarea placeholder="Write your message here..." required></textarea>
               </div>
 
             </div>

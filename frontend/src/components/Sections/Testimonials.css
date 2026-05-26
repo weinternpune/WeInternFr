@@ -1,4 +1,6 @@
 .testimonials-section { padding:6rem 0; background:#f8fafc; }
+.container { width:100%; max-width:1430px; margin:auto; padding:0 20px; }
+
 .testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:3rem; }
 .testi-card { background:white; border-radius:16px; padding:1.75rem; border:1px solid #e5e7eb; box-shadow:0 2px 12px rgba(0,0,0,.05); transition:all .3s; display:flex; flex-direction:column; gap:1rem; }
 .testi-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(0,0,0,.1); border-color:#18b45b; }
