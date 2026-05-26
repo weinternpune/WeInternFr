@@ -199,12 +199,57 @@
 }
 
 @media (max-width:380px) {
-  .hero-title { font-size:1.3rem; }
-  .hero-sub { font-size:.75rem; }
-  .hero-features { flex-direction:column; align-items:stretch; }
-  .hf-item { justify-content:flex-start; }
-  .hero-stats-bar { padding: 0 .5rem .85rem; }
-  .hsb-inner { grid-template-columns:1fr; border-radius: 10px; }
-  .hsb-item { border-right:none; border-bottom:1px solid #e5e7eb; }
-  .hsb-item:last-child { border-bottom:none; }
+  .hero-title {
+    font-size: 1.3rem;
+  }
+
+  .hero-sub {
+    font-size: .75rem;
+  }
+
+  .hero-features {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hf-item {
+    justify-content: flex-start;
+  }
+
+  .hero-stats-bar {
+    padding: 0 .5rem .85rem;
+  }
+
+  /* Keep 2-column grid — DO NOT collapse to 1 column */
+  .hsb-inner {
+    grid-template-columns: repeat(2, 1fr);
+    border-radius: 10px;
+  }
+
+  /* Restore right border — only remove on right column items */
+  .hsb-item {
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+    padding: .5rem .3rem;
+  }
+
+  .hsb-item:nth-child(2n) {
+    border-right: none;
+  }
+
+  .hsb-item:nth-last-child(-n+2) {
+    border-bottom: none;
+  }
+
+  .hsb-item:last-child {
+    border-bottom: none;
+  }
+
+  .hsb-val {
+    font-size: .9rem;
+  }
+
+  .hsb-label {
+    font-size: .54rem;
+  }
 }

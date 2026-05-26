@@ -9,6 +9,17 @@ import CourseDetailModal from "./CourseDetail";
 import { Icon } from "@iconify/react";
 import "./Courses.css";
 
+
+// Benifit Icon Section 
+import expertLed from '../../assets/Expert-Led-Training.png';
+import lastExam from '../../assets/Last-exam-practice.png';
+import doubtSolving from '../../assets/Scaled-Doubt-Solving.png';
+import realWorld from '../../assets/Real-World Projects.png';
+import careerSupport from '../../assets/Career Support.png';
+import certificate from '../../assets/Certificate of Completion.jpg';
+import lifetime from '../../assets/Lifetime Access to Resources.png';
+import placement from '../../assets/Placement & Job Assistance.png';
+
 /* ─── Razorpay loader (original, untouched) ─── */
 const loadRazorpaySDK = () =>
   new Promise((resolve) => {
@@ -142,6 +153,7 @@ const getTools = (tools) => {
 };
 
 /* ─── Benefits data ─── */
+
 const BENEFITS = [
   { icon: "tabler:user-star", label: ["Expert-Led", "Training"] },
   { icon: "tabler:clipboard-list", label: ["Last Exam", "Practice"] },
