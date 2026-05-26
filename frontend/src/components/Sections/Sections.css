@@ -613,24 +613,192 @@
 .flink:hover { color: var(--gold); }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 860px) {
-  .gap-visual { grid-template-columns: 1fr; }
-  .gap-bridge { flex-direction: row; align-items: center; }
-  .vision-inner { grid-template-columns: 1fr; gap: 2.5rem; }
-  .partner-layout { grid-template-columns: 1fr; }
-  .transformation { grid-template-columns: 1fr; }
-  .tf-arrow { display: none; }
+
+/* Tablet landscape (≤1100px) */
+@media (max-width: 1100px) {
+  .problem, .how, .testimonials, .vision { padding: 4.5rem 0; }
+  .section-title { font-size: clamp(1.6rem, 3.5vw, 2rem); }
+  .section-sub { font-size: .88rem; }
+  .gap-visual { gap: 1.25rem; }
+  .gap-side { padding: 1.5rem; }
+  .gap-side h3 { font-size: 1rem; }
+  .gap-side li { font-size: .82rem; }
+}
+
+/* Tablet portrait (≤960px) */
+@media (max-width: 960px) {
+  .problem, .how, .testimonials, .vision { padding: 4rem 0; }
+  .container { padding: 0 1.5rem; }
+  .section-title { font-size: clamp(1.5rem, 4vw, 1.9rem); }
+  .gap-visual { grid-template-columns: 1fr; gap: 1rem; }
+  .gap-bridge { flex-direction: row; align-items: center; gap: .75rem; }
+  .gap-chasm { padding: 1rem; }
+  .chasm-label { font-size: .9rem; }
+  .chasm-sub { font-size: .72rem; }
+  .bridge-connector { flex-direction: row; }
+  .bc-line { height: 2px; width: auto; }
+  .problem-quote blockquote { font-size: clamp(1.1rem, 2.2vw, 1.5rem); }
+  
+  /* How section */
   .steps { flex-direction: column; }
-  .step { border-right: none; border-bottom: 1px solid var(--border); }
+  .step { border-right: none; border-bottom: 1px solid var(--border); padding: 1.5rem; }
   .step:last-child { border-bottom: none; }
   .step-connector { display: none; }
+  .transformation { grid-template-columns: 1fr; gap: 1.5rem; }
+  .tf-arrow { display: none; }
   .audience-tabs { flex-wrap: wrap; border-radius: var(--r); width: 100%; }
-  .tab-btn { border-radius: var(--rsm); flex: 1; text-align: center; }
+  .tab-btn { border-radius: var(--rsm); flex: 1; text-align: center; min-width: 140px; }
+  
+  /* Vision */
+  .vision-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+  .partner-layout { grid-template-columns: 1fr; gap: 2rem; }
 }
-@media (max-width: 640px) {
-  .biz-grid { grid-template-columns: 1fr; }
+
+/* Tablet small (≤768px) */
+@media (max-width: 768px) {
+  .problem, .how, .testimonials, .vision { padding: 3.5rem 0; }
+  .container { padding: 0 1.25rem; }
+  .section-label { font-size: .7rem; margin-bottom: .6rem; }
+  .section-title { font-size: clamp(1.4rem, 4.5vw, 1.8rem); margin-bottom: .75rem; }
+  .section-sub { font-size: .85rem; }
+  
+  .gap-side { padding: 1.25rem; }
+  .gap-icon { font-size: 2rem; }
+  .gap-side h3 { font-size: .95rem; }
+  .gap-side li { font-size: .8rem; }
+  .problem-quote { padding-top: 2rem; }
+  
+  .biz-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .biz-card { padding: 1.25rem; }
+  .testi-grid { grid-template-columns: 1fr; gap: 1.25rem; }
+  .testi-card { padding: 1.5rem; }
   .testi-stars { display: none; }
-  .vision-flow { justify-content: center; }
+  
+  .vision-p { font-size: .95rem; margin-bottom: 1.5rem; }
+  .vision-flow { justify-content: center; flex-wrap: wrap; }
+  .vf-item { font-size: .8rem; padding: .45rem .8rem; }
+  .founder-card { padding: 1.5rem; }
+  .founder-q { font-size: .88rem; padding: .85rem 1rem; }
+}
+
+/* Mobile (≤640px) */
+@media (max-width: 640px) {
+  .problem, .how, .testimonials, .vision { padding: 3rem 0; }
+  .container { padding: 0 1rem; }
+  .section-label { font-size: .68rem; padding: .25rem .65rem; }
+  .section-title { font-size: clamp(1.3rem, 5vw, 1.7rem); margin-bottom: .65rem; }
+  .section-sub { font-size: .82rem; margin-bottom: 1.5rem; }
+  
+  .gap-side { padding: 1rem; }
+  .gap-icon { font-size: 1.8rem; margin-bottom: .6rem; }
+  .gap-side h3 { font-size: .9rem; margin-bottom: .7rem; }
+  .gap-side li { font-size: .78rem; padding: .2rem 0; }
+  .gap-chasm { padding: .85rem; }
+  .chasm-label { font-size: .85rem; }
+  .chasm-sub { font-size: .7rem; }
+  .bc-badge { font-size: .7rem; padding: .25rem .5rem; }
+  .problem-quote { padding-top: 1.75rem; }
+  .problem-quote blockquote { font-size: clamp(1rem, 4vw, 1.4rem); }
+  
+  .audience-tabs { padding: 4px; gap: .25rem; }
+  .tab-btn { padding: .5rem 1rem; font-size: .8rem; min-width: auto; }
+  .step { padding: 1.25rem; }
+  .step-num { font-size: 1.8rem; }
+  .step-icon { font-size: 1.5rem; margin-bottom: .6rem; }
+  .step h4 { font-size: .88rem; margin-bottom: .45rem; }
+  .step p { font-size: .8rem; }
+  .transformation { padding: 1.5rem; gap: 1.25rem; }
+  .tf-label { font-size: .65rem; margin-bottom: .7rem; }
+  .tf-item { font-size: .82rem; padding: .35rem 0; }
+  
+  .biz-card { padding: 1.1rem; }
+  .biz-num { font-size: 1.5rem; top: .6rem; right: .85rem; }
+  .biz-icon { font-size: 1.6rem; margin-bottom: .6rem; }
+  .biz-card h4 { font-size: .88rem; margin-bottom: .35rem; }
+  .biz-card p { font-size: .8rem; }
+  .biz-why { padding: 1.5rem; }
+  .biz-why h3 { font-size: 1.15rem; margin-bottom: .85rem; }
+  .why-grid { grid-template-columns: 1fr; gap: .5rem; }
+  .why-item { font-size: .82rem; }
+  
+  .testi-card { padding: 1.25rem; }
+  .testi-top { gap: .7rem; margin-bottom: .85rem; }
+  .testi-avatar { width: 38px; height: 38px; font-size: .78rem; }
+  .testi-top div strong { font-size: .85rem; }
+  .testi-top div span { font-size: .72rem; }
+  .testi-card p { font-size: .82rem; }
+  
+  .vision-p { font-size: .88rem; margin-bottom: 1.25rem; }
+  .vision-flow { gap: .5rem; }
+  .vf-item { font-size: .78rem; padding: .4rem .75rem; }
+  .vf-arr { font-size: .9rem; }
+  .founder-card { padding: 1.25rem; }
+  .founder-av { width: 50px; height: 50px; font-size: 1rem; }
+  .founder-meta strong { font-size: .95rem; }
+  .founder-meta span { font-size: .78rem; }
+  .founder-q { font-size: .85rem; padding: .75rem .95rem; margin-bottom: 1rem; }
+  .founder-links { gap: .85rem; }
+  .flink { font-size: .8rem; }
+  
+  .ecosystem { width: 240px; height: 240px; }
+  .eco-center { width: 72px; height: 72px; font-size: .68rem; }
+  .eco-node { font-size: .68rem; padding: .25rem .55rem; transform: rotate(var(--deg)) translateX(90px) rotate(calc(-1 * var(--deg))) translate(-50%,-50%); }
+}
+
+/* Small mobile (≤480px) */
+@media (max-width: 480px) {
+  .problem, .how, .testimonials, .vision { padding: 2.5rem 0; }
+  .section-title { font-size: 1.25rem; }
+  .section-sub { font-size: .8rem; }
+  
+  .gap-side { padding: .85rem; }
+  .gap-icon { font-size: 1.6rem; }
+  .gap-side h3 { font-size: .85rem; }
+  .gap-side li { font-size: .75rem; }
+  .problem-quote blockquote { font-size: 1.1rem; }
+  
+  .tab-btn { padding: .45rem .85rem; font-size: .78rem; }
+  .step { padding: 1rem; }
+  .transformation { padding: 1.25rem; }
+  
+  .biz-card { padding: 1rem; }
+  .biz-why { padding: 1.25rem; }
+  .biz-why h3 { font-size: 1.05rem; }
+  
+  .testi-card { padding: 1.1rem; }
+  .testi-avatar { width: 36px; height: 36px; font-size: .75rem; }
+  
+  .vision-flow { flex-direction: column; align-items: stretch; }
+  .vf-item { justify-content: flex-start; }
+  .vf-arr { display: none; }
+  .founder-card { padding: 1.1rem; }
+  .founder-av { width: 46px; height: 46px; font-size: .95rem; }
+  
+  .ecosystem { width: 200px; height: 200px; }
+  .eco-center { width: 64px; height: 64px; font-size: .62rem; }
+  .eco-node { font-size: .65rem; padding: .22rem .5rem; transform: rotate(var(--deg)) translateX(75px) rotate(calc(-1 * var(--deg))) translate(-50%,-50%); }
+}
+
+/* Extra small mobile (≤380px) */
+@media (max-width: 380px) {
+  .problem, .how, .testimonials, .vision { padding: 2rem 0; }
+  .section-title { font-size: 1.15rem; }
+  .section-label { font-size: .65rem; }
+  
+  .gap-side { padding: .75rem; }
+  .gap-icon { font-size: 1.5rem; }
+  .problem-quote blockquote { font-size: 1rem; }
+  
+  .tab-btn { padding: .4rem .7rem; font-size: .75rem; }
+  .audience-tabs { flex-direction: column; width: 100%; }
+  .tab-btn { width: 100%; }
+  
+  .founder-card { padding: 1rem; }
+  .founder-top { flex-direction: column; align-items: flex-start; }
+  
+  .ecosystem { width: 180px; height: 180px; }
+  .eco-center { width: 58px; height: 58px; font-size: .58rem; }
+  .eco-node { font-size: .62rem; transform: rotate(var(--deg)) translateX(68px) rotate(calc(-1 * var(--deg))) translate(-50%,-50%); }
 }
 .how { background: linear-gradient(135deg,#0d1b2e 0%,#1B2A4A 50%,#0f2340 100%) !important; position: relative; overflow: hidden; }
 .how .section-label { color: #E8A820 !important; }
