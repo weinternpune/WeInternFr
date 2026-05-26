@@ -70,7 +70,7 @@ export const HowItWorks = () => {
   // const ECO_NODES = ['Students','Businesses','Experience','Income','Growth','Partners'];
 
   // return (
-  //   <section className="how" id="how" id="how">
+  //   <section className="how" id="how">
   //     <div className="container">
   //       <div className="section-label">The Solution</div>
   //       <h2 className="section-title">How WeIntern Works</h2>
@@ -227,10 +227,8 @@ export const EcosystemSection = () => {
                 <div className="eco-step-circle" style={{ background: STEP_COLORS[i].bg, borderColor: STEP_COLORS[i].border }}>
                   {STEP_ICONS[i]}
                 </div>
-                <div>
-                  <span className="eco-step-label">{s.num}. {s.title} </span>
-                  <span className="eco-step-desc">{s.desc}</span>
-                </div>
+                <div className="eco-step-label">{s.num}. {s.title}</div>
+                <p className="eco-step-desc">{s.desc}</p>
               </div>
               {i < STEP_LABELS.length - 1 && (
                 <div className="eco-step-arrow">
@@ -538,7 +536,7 @@ export const Vision = () => {
     }
   }, []);
   // return (
-  //   <section className="vision" id="vision" id="vision">
+  //   <section className="vision" id="vision">
   //     <style>{`@keyframes particleFloat{0%,100%{transform:translateY(0px) scale(1);opacity:.4}50%{transform:translateY(-30px) scale(1.2);opacity:.8}}`}</style>
   //     <div className="vision-particles" id="visionParticles" />
   //     <div className="container">
