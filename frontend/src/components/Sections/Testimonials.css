@@ -1,5 +1,5 @@
 .testimonials-section { padding:6rem 0; background:#f8fafc; }
-.container { width:100%; max-width:1430px; margin:auto; padding:0 20px; }
+.container { width:100%; max-width:1430px; margin:auto; padding:0 65px; }
 
 .testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:3rem; }
 .testi-card { background:white; border-radius:16px; padding:1.75rem; border:1px solid #e5e7eb; box-shadow:0 2px 12px rgba(0,0,0,.05); transition:all .3s; display:flex; flex-direction:column; gap:1rem; }
@@ -84,4 +84,132 @@
   .tcs-item strong { font-size: 1.25rem; }
   .tcs-item span { font-size: .68rem; }
   .btn-testi-cta { padding: .65rem 1.2rem; font-size: .82rem; }
+}
+
+/* POPUP */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.popup-container {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 35px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+}
+
+.popup-close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  z-index: 10;
+  background: rgba(0,0,0,0.2);
+  border: none;
+  color: white;
+  font-size: 28px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.popup-close:hover {
+  background: rgba(0,0,0,0.5);
+}
+
+/* POPUP SMALL OVERRIDE */
+.popup-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px) !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
+}
+
+.popup-container {
+  position: relative !important;
+  width: 90% !important;
+  max-width: 560px !important;
+  max-height: 85vh !important;
+  overflow-y: auto !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4) !important;
+}
+
+.popup-container .contact-section {
+  padding: 0 !important;
+}
+
+.popup-container .contact-wrapper {
+  flex-direction: column !important;
+  border-radius: 16px !important;
+}
+
+.popup-container .contact-left {
+  display: none !important;
+}
+
+.popup-container .contact-right {
+  width: 100% !important;
+  padding: 30px 28px !important;
+}
+
+.popup-container .contact-right h2 {
+  font-size: 24px !important;
+  margin-bottom: 10px !important;
+}
+
+.popup-container .title-line {
+  margin-bottom: 20px !important;
+}
+
+.popup-container .form-grid {
+  gap: 14px !important;
+}
+
+.popup-container .input-group label {
+  font-size: 13px !important;
+  margin-bottom: 5px !important;
+}
+
+.popup-container .input-group input,
+.popup-container .input-group textarea {
+  padding: 10px 12px !important;
+  font-size: 13px !important;
+  border-radius: 8px !important;
+}
+
+.popup-container .input-group textarea {
+  min-height: 90px !important;
+}
+
+.popup-container .send-btn {
+  height: 44px !important;
+  font-size: 15px !important;
+  border-radius: 8px !important;
+  margin-top: 16px !important;
+}
+
+.popup-container .privacy {
+  font-size: 11px !important;
+  margin-top: 10px !important;
 }
