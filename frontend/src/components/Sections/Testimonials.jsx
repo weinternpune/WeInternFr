@@ -7,9 +7,6 @@ const TESTIMONIALS = [
   { initials:'AK', color:'#E8A820', name:'Arjun Kumar', role:'Web Dev Intern → Junior Dev at TechCorp', stars:5, text:'"Before WeIntern, I had 12 certificates and zero real projects. Six months later, I had delivered 3 live client websites and received my first salary-based job offer. The difference is night and day."' },
   { initials:'SM', color:'#2196C9', name:'Sneha Mishra', role:'AI Intern → Data Science Analyst', stars:5, text:'"I was terrified of interviews because I had nothing to show. At WeIntern, I worked on a real AI chatbot for a client. That single project got me through 4 interview rounds. I couldn\'t believe it."' },
   { initials:'RP', color:'#e67e22', name:'Rohit Patil', role:'App Intern → Freelancer (₹80k/month)', stars:5, text:'"The stipend was a bonus, but the experience was priceless. I learned more in 3 months at WeIntern than 2 years of college. Real mentorship, real deadlines, real clients — this is the education we needed."' },
-  { initials:'PG', color:'#27ae60', name:'Priya Gupta', role:'UI/UX Intern → Product Designer at Startup', stars:5, text:'"WeIntern gave me something no bootcamp could — a real client project in my portfolio. Within weeks of completing my internship, I had 3 job offers. I owe my career start to this program."' },
-  { initials:'VS', color:'#6c3483', name:'Vikram Singh', role:'Cloud Intern → DevOps Engineer', stars:5, text:'"I joined as a fresher with no industry experience. In 4 months, I deployed 2 production apps on AWS for real clients. My resume went from generic to outstanding. Best decision of my life."' },
-  { initials:'NK', color:'#c0392b', name:'Neha Kapoor', role:'Marketing Intern → Growth Manager', stars:5, text:'"Running real paid campaigns with actual client budgets taught me more than any course. I made mistakes, learned fast, and now manage ₹15L/month in ad spend. WeIntern made it possible."' },
 ];
 
 const StarRating = ({ count }) => (
