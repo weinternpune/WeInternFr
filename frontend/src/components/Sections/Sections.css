@@ -15,7 +15,7 @@
 .chasm-sub { font-size: .75rem; opacity: .85; line-height: 1.5; }
 .bridge-connector { display: flex; align-items: center; gap: .35rem; width: 100%; }
 .bc-line { flex: 1; height: 2px; background: linear-gradient(90deg,transparent,var(--gold),transparent); }
-.bc-badge { font-family: 'Playfair Display', serif; font-weight: 900; font-size: .75rem; color: var(--navy); background: var(--gold); padding: .3rem .6rem; border-radius: 50px; white-space: nowrap; }
+.bc-badge { font-family: 'Playfair Display', serif; font-weight: 900; font-size: .75r   em; color: var(--navy); background: var(--gold); padding: .3rem .6rem; border-radius: 50px; white-space: nowrap; }
 .problem-quote { text-align: center; padding-top: 2.5rem; border-top: 2px solid var(--border); }
 .problem-quote blockquote { font-family: 'Playfair Display', serif; font-size: clamp(1.2rem,2.5vw,1.85rem); font-style: italic; color: var(--navy); max-width: 660px; margin: 0 auto; line-height: 1.4; }
 
