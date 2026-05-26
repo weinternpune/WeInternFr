@@ -34,23 +34,30 @@ const Navbar = () => {
   const handleLogout = () => { logout(); navigate('/'); };
 
   const NAV_LINKS = [
-    { label: 'Courses',         id: 'courses' },
-    { label: 'How It Works',    id: 'ecosystem' },
-    { label: 'Internships',     id: 'contact' },
-    { label: 'For Colleges',    id: 'story' },
-    { label: 'Success Stories', id: 'testimonials' },
-    { label: 'About Us',        id: 'ecosystem' },
+    { label: 'Courses',         id: 'courses', scrollTo: true },
+    { label: 'How It Works',    id: 'ecosystem', scrollTo: true },
+    { label: 'For Colleges',    id: 'story', scrollTo: true },
+    { label: 'Success Stories', id: 'testimonials', scrollTo: true },
+    { label: 'About Us',        id: 'about', isRoute: true },
   ];
 
   return (
     <nav className={`nav${scrolled ? ' scrolled' : ''}`} id="nav">
-      <div className="nav-inner container">
+      <div className="nav-inner">
         <Link to="/" className="logo-link">
           <img src="/welogo.png" alt="WeIntern" className="nav-logo" />
         </Link>
         <ul className="nav-links">
           {NAV_LINKS.map(l => (
-            <li key={l.id}><button className="nav-link" onClick={() => scrollTo(l.id)}>{l.label}</button></li>
+            <li key={l.id}>
+              {l.isRoute ? (
+                <Link to={`/${l.id}`} className="nav-link">
+                  {l.label}
+                </Link>
+              ) : (
+                <button className="nav-link" onClick={() => scrollTo(l.id)}>{l.label}</button>
+              )}
+            </li>
           ))}
         </ul>
         <div className="nav-ctas">
@@ -83,7 +90,13 @@ const Navbar = () => {
       {menuOpen && (
         <div className="mobile-menu">
           {NAV_LINKS.map(l => (
-            <button key={l.id} className="mobile-nav-link" onClick={() => scrollTo(l.id)}>{l.label}</button>
+            l.isRoute ? (
+              <Link key={l.id} to={`/${l.id}`} className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
+                {l.label}
+              </Link>
+            ) : (
+              <button key={l.id} className="mobile-nav-link" onClick={() => scrollTo(l.id)}>{l.label}</button>
+            )
           ))}
           {user ? (
             <>
