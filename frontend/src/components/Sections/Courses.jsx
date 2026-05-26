@@ -9,17 +9,6 @@ import CourseDetailModal from './CourseDetail';
 import { Icon } from '@iconify/react';
 import './Courses.css';
 
-
-// Benifit Icon Section 
-import expertLed from '../../assets/Expert-Led-Training.png';
-import lastExam from '../../assets/Last-exam-practice.png';
-import doubtSolving from '../../assets/Scaled-Doubt-Solving.png';
-import realWorld from '../../assets/Real-World Projects.png';
-import careerSupport from '../../assets/Career Support.png';
-import certificate from '../../assets/Certificate of Completion.jpg';
-import lifetime from '../../assets/Lifetime Access to Resources.png';
-import placement from '../../assets/Placement & Job Assistance.png';
-
 /* ─── Razorpay loader (original, untouched) ─── */
 const loadRazorpaySDK = () =>
   new Promise((resolve) => {
@@ -81,49 +70,45 @@ const COURSE_META = [
     dot: '#db2777',
   },
   {
-  keys: ['video', 'editing', 'content', 'premiere'],
-  icon: 'lucide:clapperboard',
-  bg: '#fff1f2',
-  iconColor: '#e11d48',
-  border: '#fda4af',
-  dot: '#e11d48',
-},
-
-{
-  keys: ['cloud'],
-  icon: 'lucide:cloud',
-  bg: '#eff6ff',
-  iconColor: '#0284c7',
-  border: '#93c5fd',
-  dot: '#0284c7',
-},
-
-{
-  keys: ['devops', 'docker', 'kubernetes'],
-  icon: 'lucide:settings-2',
-  bg: '#f8fafc',
-  iconColor: '#475569',
-  border: '#cbd5e1',
-  dot: '#475569',
-},
-
-{
-  keys: ['game', 'unity'],
-  icon: 'lucide:gamepad-2',
-  bg: '#f5f3ff',
-  iconColor: '#7c3aed',
-  border: '#c4b5fd',
-  dot: '#7c3aed',
-},
-
-{
-  keys: ['business', 'analytics', 'excel', 'power bi'],
-  icon: 'lucide:briefcase-business',
-  bg: '#f0fdf4',
-  iconColor: '#16a34a',
-  border: '#86efac',
-  dot: '#16a34a',
-},
+    keys: ['video', 'editing', 'content', 'premiere'],
+    icon: 'lucide:clapperboard',
+    bg: '#fff1f2',
+    iconColor: '#e11d48',
+    border: '#fda4af',
+    dot: '#e11d48',
+  },
+  {
+    keys: ['cloud'],
+    icon: 'lucide:cloud',
+    bg: '#eff6ff',
+    iconColor: '#0284c7',
+    border: '#93c5fd',
+    dot: '#0284c7',
+  },
+  {
+    keys: ['devops', 'docker', 'kubernetes'],
+    icon: 'lucide:settings-2',
+    bg: '#f8fafc',
+    iconColor: '#475569',
+    border: '#cbd5e1',
+    dot: '#475569',
+  },
+  {
+    keys: ['game', 'unity'],
+    icon: 'lucide:gamepad-2',
+    bg: '#f5f3ff',
+    iconColor: '#7c3aed',
+    border: '#c4b5fd',
+    dot: '#7c3aed',
+  },
+  {
+    keys: ['business', 'analytics', 'excel', 'power bi'],
+    icon: 'lucide:briefcase-business',
+    bg: '#f0fdf4',
+    iconColor: '#16a34a',
+    border: '#86efac',
+    dot: '#16a34a',
+  },
 ];
 
 const getCourseMeta = (title = '') => {
@@ -149,41 +134,56 @@ const getTools = (tools) => {
   return [];
 };
 
-/* ─── Benefits data ─── */
-
+/* ─── Benefits data — real icons ─── */
 const BENEFITS = [
   {
-    image: expertLed,
-    label: ['Expert-Led', 'Training']
+    icon: 'lucide:graduation-cap',
+    color: '#2563eb',
+    bg: '#e8f1fe',
+    label: ['Expert-Led', 'Training'],
   },
   {
-    image: lastExam,
-    label: ['Last Exam', 'Practice']
+    icon: 'lucide:clipboard-check',
+    color: '#0d9488',
+    bg: '#e6faf8',
+    label: ['Last Exam', 'Practice'],
   },
   {
-    image: doubtSolving,
-    label: ['Scaled', 'Doubt-Solving']
+    icon: 'lucide:message-circle-question',
+    color: '#d97706',
+    bg: '#fff5e6',
+    label: ['Scaled', 'Doubt-Solving'],
   },
   {
-    image: realWorld,
-    label: ['Real-World', 'Projects']
+    icon: 'lucide:rocket',
+    color: '#7c3aed',
+    bg: '#f3eeff',
+    label: ['Real-World', 'Projects'],
   },
   {
-    image: careerSupport,
-    label: ['1:1 Career', 'Support']
+    icon: 'lucide:handshake',
+    color: '#db2777',
+    bg: '#fce7f3',
+    label: ['1:1 Career', 'Support'],
   },
   {
-    image: certificate,
-    label: ['Certificate of', 'Completion']
+    icon: 'lucide:badge-check',
+    color: '#16a34a',
+    bg: '#eaf7f0',
+    label: ['Certificate of', 'Completion'],
   },
   {
-    image: lifetime,
-    label: ['Lifetime Access', 'to Resources']
+    icon: 'lucide:infinity',
+    color: '#0284c7',
+    bg: '#eff6ff',
+    label: ['Lifetime Access', 'to Resources'],
   },
   {
-    image: placement,
-    label: ['Placement & Job', 'Assistance']
-  }
+    icon: 'lucide:briefcase-business',
+    color: '#e11d48',
+    bg: '#fff1f2',
+    label: ['Placement & Job', 'Assistance'],
+  },
 ];
 
 /* ══════════════════════════════════════════════════════════════
@@ -391,11 +391,13 @@ const EnrollModal = ({ course, onClose }) => {
   );
 };
 
-// Main Course Component
+/* ══════════════════════════════════════════════════════════════
+   Main Course Component
+══════════════════════════════════════════════════════════════ */
 const Courses = () => {
   const [detailCourse, setDetailCourse]         = useState(null);
   const [enrollCourseData, setEnrollCourseData] = useState(null);
-  const [showAllCourses, setShowAllCourses] = useState(false);
+  const [showAllCourses, setShowAllCourses]     = useState(false);
   const { activeCourses } = useCourses();
   const { user }          = useAuth();
   const navigate          = useNavigate();
@@ -423,84 +425,79 @@ const Courses = () => {
           </h2>
           <p className="cs-sub">Upskill with Job-Ready Programs &amp; Career-Driven Certifications.</p>
         </div>
-<button
-  className="cs-view-all"
-  onClick={() => setShowAllCourses((prev) => !prev)}
->
-  {showAllCourses ? 'View Less' : 'View All Courses'}
-
-  <Icon
-    icon="lucide:arrow-right"
-    className="cs-view-arrow"
-    width={14}
-    height={14}
-  />
-</button>
+        <button
+          className="cs-view-all"
+          onClick={() => setShowAllCourses((prev) => !prev)}
+        >
+          {showAllCourses ? 'View Less' : 'View All Courses'}
+          <Icon
+            icon="lucide:arrow-right"
+            className="cs-view-arrow"
+            width={14}
+            height={14}
+          />
+        </button>
       </div>
 
       {/* ── 6-column card grid ── */}
       <div className="cs-grid">
-      {activeCourses
- .filter((c, index) => {
-  if (showAllCourses) return true;
+        {activeCourses
+          .filter((c, index) => showAllCourses || index < 6)
+          .map((c) => {
+            const meta  = getCourseMeta(c.title);
+            const tools = getTools(c.tools).slice(0, 4);
 
-  return index < 6;
-})
-  .map((c) => {
-          const meta  = getCourseMeta(c.title);
-          const tools = getTools(c.tools).slice(0, 4);
-
-          return (
-            <div
-              key={c.id || c.title}
-              className="cs-card"
-              style={{
-  "--card-soft-bg": "#eef7f1",
-  "--enroll-color": "#16a34a",
-  "--crd-border": "#b7e4c7"
-}}
-              onClick={() => setDetailCourse(c)}
-            >
-              {/* Pastel icon zone */}
-              <div className="cs-card-icon-zone" style={{ background: meta.bg }}>
-                <div className="cs-card-icon-wrap" style={{ color: meta.iconColor }}>
-                  <Icon icon={meta.icon} width={40} height={40} strokeWidth={1.5} />
-                </div>
-              </div>
-
-              {/* Text content */}
-              <div className="cs-card-content">
-                <h3 className="cs-card-title">{c.title}</h3>
-                <p className="cs-card-dur">{c.duration}</p>
-
-                <ul className="cs-card-list">
-                  {tools.map((t) => (
-                    <li key={t}>
-                      <span className="cs-bullet-dot" style={{ background: meta.dot }} />
-                      {t}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Enroll button */}
-              <button
-                className="cs-enroll"
+            return (
+              <div
+                key={c.id || c.title}
+                className="cs-card"
                 style={{
-                  '--enroll-color':  meta.iconColor,
-                  '--enroll-border': meta.border,
+                  '--card-soft-bg': '#eef7f1',
+                  '--enroll-color': '#16a34a',
+                  '--crd-border':   '#b7e4c7',
                 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEnroll(c);
-                }}
+                onClick={() => setDetailCourse(c)}
               >
-                Enroll Now
-                <Icon icon="lucide:arrow-right" width={13} height={13} className="cs-enroll-arrow" />
-              </button>
-            </div>
-          );
-        })}
+                {/* Pastel icon zone */}
+                <div className="cs-card-icon-zone" style={{ background: meta.bg }}>
+                  <div className="cs-card-icon-wrap" style={{ color: meta.iconColor }}>
+                    <Icon icon={meta.icon} width={40} height={40} strokeWidth={1.5} />
+                  </div>
+                </div>
+
+                {/* Text content */}
+                <div className="cs-card-content">
+                  <h3 className="cs-card-title">{c.title}</h3>
+                  <p className="cs-card-dur">{c.duration}</p>
+
+                  <ul className="cs-card-list">
+                    {tools.map((t) => (
+                      <li key={t}>
+                        <span className="cs-bullet-dot" style={{ background: meta.dot }} />
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Enroll button */}
+                <button
+                  className="cs-enroll"
+                  style={{
+                    '--enroll-color':  meta.iconColor,
+                    '--enroll-border': meta.border,
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEnroll(c);
+                  }}
+                >
+                  Enroll Now
+                  <Icon icon="lucide:arrow-right" width={13} height={13} className="cs-enroll-arrow" />
+                </button>
+              </div>
+            );
+          })}
       </div>
 
       {/* ── Benefits strip ── */}
@@ -511,25 +508,29 @@ const Courses = () => {
             <span>OUR COURSES</span>
           </div>
           <div className="cs-benefits-row">
-{BENEFITS.map(({ image, label }) => (
-  <div className="cs-benefit" key={label[0]}>
-
-    <div className="cs-benefit-ico">
-      <img
-        src={image}
-        alt={label[0]}
-        className="cs-benefit-img"
-      />
-    </div>
-
-    <p className="cs-benefit-lbl">
-      {label[0]}
-      <br />
-      {label[1]}
-    </p>
-
-  </div>
-))}
+            {BENEFITS.map(({ icon, color, bg, label }) => (
+              <div className="cs-benefit" key={label[0]}>
+                <div
+                  className="cs-benefit-ico"
+                  style={{
+                    background: bg,
+                    borderRadius: '10px',
+                    width: '40px',
+                    height: '40px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Icon icon={icon} width={22} height={22} color={color} />
+                </div>
+                <p className="cs-benefit-lbl">
+                  {label[0]}
+                  <br />
+                  {label[1]}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
