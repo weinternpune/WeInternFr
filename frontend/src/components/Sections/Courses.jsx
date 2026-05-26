@@ -8,14 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import CourseDetailModal from './CourseDetail';
 import { Icon } from '@iconify/react';
 import './Courses.css';
-import expertTraining from '../../assets/Expert-Led-Training.png';
-import examPractice from '../../assets/Last-exam-practice.png';
-import doubtSolving from '../../assets/Scaled-Doubt-Solving.png';
-import realWorldProjects from '../../assets/Real-World Projects.png';
-import careerSupport from '../../assets/Career Support.png';
-import certificate from '../../assets/Certificate of Completion.jpg';
-import resources from '../../assets/Lifetime Access to Resources.png';
-import placement from '../../assets/Placement & Job Assistance.png';
 
 /* ─── Razorpay loader (original, untouched) ─── */
 const loadRazorpaySDK = () =>
@@ -148,46 +140,15 @@ const getTools = (tools) => {
 
 /* ─── Benefits data ─── */
 const BENEFITS = [
-  {
-    image: expertTraining,
-    label: ['Expert-Led', 'Training']
-  },
-
-  {
-    image: examPractice,
-    label: ['Last Exam', 'Practice']
-  },
-
-  {
-    image: doubtSolving,
-    label: ['Scaled', 'Doubt-Solving']
-  },
-
-  {
-    image: realWorldProjects,
-    label: ['Real-World', 'Projects']
-  },
-
-  {
-    image: careerSupport,
-    label: ['1:1 Career', 'Support']
-  },
-
-  {
-    image: certificate,
-    label: ['Certificate of', 'Completion']
-  },
-
-  {
-    image: resources,
-    label: ['Lifetime Access', 'to Resources']
-  },
-
-  {
-    image: placement,
-    label: ['Placement & Job', 'Assistance']
-  }
+  { icon: 'tabler:user-star',                label: ['Expert-Led',      'Training']       },
+{ icon: 'tabler:clipboard-list',   label: ['Last Exam', 'Practice'] },  { icon: 'tabler:briefcase',                label: ['Scaled',          'Doubt-Solving']  },
+  { icon: 'tabler:presentation-analytics',   label: ['Real-World',      'Projects']       },
+  { icon: 'tabler:rosette-discount-check',   label: ['1:1 Career',      'Support']        },
+  { icon: 'tabler:users',                    label: ['Certificate of',  'Completion']     },
+  { icon: 'tabler:file-description',         label: ['Lifetime Access', 'to Resources']  },
+  { icon: 'tabler:users-group',              label: ['Placement & Job', 'Assistance']     },
 ];
+
 /* ══════════════════════════════════════════════════════════════
    EnrollModal  —  all original logic preserved
 ══════════════════════════════════════════════════════════════ */
@@ -514,25 +475,18 @@ const Courses = () => {
           </div>
           <div className="cs-benefits-sep" />
           <div className="cs-benefits-row">
-{BENEFITS.map(({ image, label }) => (
-  <div className="cs-benefit" key={label[0]}>
-
-    <div className="cs-benefit-ico">
-      <img
-        src={image}
-        alt={label[0]}
-        className="cs-benefit-img"
-      />
-    </div>
-
-    <p className="cs-benefit-lbl">
-      {label[0]}
-      <br />
-      {label[1]}
-    </p>
-
-  </div>
-))}
+            {BENEFITS.map(({ icon, label }) => (
+              <div className="cs-benefit" key={label[0]}>
+                <div className="cs-benefit-ico">
+                  <Icon icon={icon} width={28} height={28} />
+                </div>
+                <p className="cs-benefit-lbl">
+                  {label[0]}
+                  <br />
+                  {label[1]}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
