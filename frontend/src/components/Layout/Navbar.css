@@ -35,10 +35,7 @@
   display: flex; 
   gap: 1.5rem; 
   list-style: none;
-  margin: 0 auto; 
   padding: 0;
-  flex: 1;
-  justify-content: center;
   align-items: center;
 }
 .nav-link {
@@ -104,33 +101,151 @@
   font-size: .95rem; cursor: pointer; font-family: 'DM Sans',sans-serif;
   text-align: center; margin-top: .5rem; text-decoration: none; display: block;
 }
-/* Tablet and below - hide nav links */
-@media (max-width: 960px) { 
-  .nav-links { display: none; } 
-  .nav-students-count, .nav-for-biz { display: none; } 
+/* ── Replace your existing responsive blocks with these ── */
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: .75rem 2rem;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
-/* Mobile - show hamburger, hide desktop CTAs */
-@media (max-width: 640px) { 
-  .nav-inner { padding: .65rem 1rem; }
-  .nav-logo { height: 32px; }
-  .nav-ctas { display: none; } 
-  .hamburger { display: flex; } 
+/* Logo always left */
+.logo-link {
+  margin-right: auto;
 }
 
-/* Desktop - hide mobile menu and hamburger */
-@media (min-width: 641px) { 
-  .mobile-menu { display: none !important; } 
-  .hamburger { display: none; } 
-  .sidebar-toggle { display: none !important; } 
+/* pushes everything else right */
+
+/* Nav links centered — only on wide screens */
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-/* Tablet landscape (641px - 960px) - show hamburger but keep some CTAs */
+/* CTAs always pinned to the right */
+.nav-ctas {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  flex-shrink: 0;
+  margin-left: auto;
+  /* always push to far right */
+}
+
+/* ── Tablet (641px – 960px): hide links, keep login btn ── */
+@media (max-width: 960px) {
+  .nav-links {
+    display: none;
+  }
+
+  .nav-students-count,
+  .nav-for-biz {
+    display: none;
+  }
+}
+
+/* iPad Pro (1024px) — hide space-wasting elements, keep login btn */
+@media (min-width: 961px) and (max-width: 1100px) {
+
+  .nav-students-count,
+  .nav-for-biz {
+    display: none;
+  }
+
+  .nav-links {
+    gap: 1rem;
+  }
+
+  .nav-link {
+    font-size: .8rem;
+    padding: .4rem .6rem;
+  }
+
+  .btn-nav-login {
+    padding: .5rem 1rem;
+    font-size: .8rem;
+  }
+}
+
+/* ── Tablet landscape (641px – 960px) ─────────────────── */
 @media (min-width: 641px) and (max-width: 960px) {
-  .hamburger { display: flex; }
-  .nav-inner { padding: .75rem 1.5rem; }
-  .nav-ctas { gap: .5rem; }
-  .btn-nav-login { padding: .5rem 1rem; font-size: .8rem; }
-  .btn.btn-outline { font-size: .78rem !important; padding: .45rem .85rem !important; }
-  .nav-avatar { width: 28px; height: 28px; font-size: .75rem; }
+  .hamburger {
+    display: flex;
+  }
+
+  .nav-inner {
+    padding: .75rem 1.5rem;
+    gap: 1rem;
+  }
+
+  .nav-ctas {
+    display: flex;
+  }
+
+  /* keep login btn visible */
+  .btn-nav-login {
+    padding: .5rem 1.1rem;
+    font-size: .82rem;
+  }
+
+  .btn.btn-outline {
+    font-size: .78rem !important;
+    padding: .45rem .85rem !important;
+  }
+
+  .nav-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: .75rem;
+  }
+
+  .nav-user-type {
+    display: none;
+  }
+
+  /* save space */
+}
+
+/* ── Mobile (≤640px): hamburger only, login in mobile menu ─ */
+@media (max-width: 640px) {
+  .nav-inner {
+    padding: .65rem 1rem;
+  }
+
+  .nav-logo {
+    height: 32px;
+  }
+
+  .nav-ctas {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+}
+
+/* ── Desktop (≥961px): hide hamburger & mobile menu ─────── */
+@media (min-width: 641px) {
+  .mobile-menu {
+    display: none !important;
+  }
+
+  .hamburger {
+    display: none;
+  }
+
+  .sidebar-toggle {
+    display: none !important;
+  }
 }
