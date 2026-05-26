@@ -17,9 +17,20 @@ const Navbar = () => {
 
   const scrollTo = (id) => {
     setMenuOpen(false);
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-    else navigate('/');
+    const NAV_H = 74;
+    const doScroll = () => {
+      const el = document.getElementById(id);
+      if (el) {
+        const top = el.getBoundingClientRect().top + window.scrollY - NAV_H;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    };
+    if (window.location.pathname !== '/') {
+      navigate('/');
+      setTimeout(doScroll, 400);
+    } else {
+      doScroll();
+    }
   };
 
   const handleLogout = () => { logout(); navigate('/'); };

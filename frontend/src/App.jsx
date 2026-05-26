@@ -17,6 +17,7 @@ import Admin from './components/Admin/Admin';
 // Global styles
 import './styles/global.css';
 import StudentProjects from './components/Sections/StudentProjects';
+import TestimonialsSection from './components/Sections/Testimonials';
 import { useSanitySEO } from './hooks/useSanity';
 import { CoursesProvider } from './context/CoursesContext';
 
@@ -48,7 +49,8 @@ const WithLayout = ({ children }) => (
     <Navbar />
     {children}
     <StudentProjects />
-      <Footer />
+    <TestimonialsSection />
+    <Footer />
     <WAFloat />
   </>
 );
