@@ -6,7 +6,7 @@
 
 /* ── Section ── */
 .courses {
-background: #ffffff;
+  background: #f5f7fc;
   padding: 3.5rem 4% 0;
   font-family: 'DM Sans', sans-serif;
 }
@@ -238,12 +238,21 @@ padding: 0.42rem 0.65rem;
    BENEFITS STRIP
 ══════════════════════════════════════════════════ */
 .cs-benefits-wrap {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  margin: 2rem 0 0;
-  padding: 1.2rem 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(180deg,
+      #f7faf7 0%,
+      #eef6ef 100%);
+
+  border: 1px solid #dfe9df;
+
+  border-radius: 14px;
+
+  margin: 1.5rem 0 0;
+
+  padding: 1.4rem 2%;
+
+  box-shadow:
+    0 2px 8px rgba(15, 23, 42, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .cs-benefits-inner {
@@ -251,6 +260,8 @@ padding: 0.42rem 0.65rem;
   align-items: center;
   gap: 2rem;
   max-width: 100%;
+  background: rgba(248, 252, 248, 0.8);
+    border-radius: 12px;
 }
 
 .cs-benefits-heading {
@@ -280,10 +291,14 @@ padding: 0.42rem 0.65rem;
 
 .cs-benefit {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.7rem;
+
   text-align: left;
+
   min-width: auto;
+
   flex: 1;
 }
 
@@ -294,22 +309,25 @@ padding: 0.42rem 0.65rem;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: transform 0.2s ease;
 }
 
 .cs-benefit-img {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
+
   object-fit: contain;
+
   display: block;
 }
 
 .cs-benefit:hover .cs-benefit-ico {
-  transform: translateY(-2px);
+  color: #2563eb;
+  transform: scale(1.12);
 }
 
 .cs-benefit-lbl {
-  font-size: 0.65rem;
+  font-size: 0.68rem;
+
   font-weight: 600;
   color: #374151;
   line-height: 1.4;

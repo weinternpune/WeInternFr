@@ -1,0 +1,39 @@
+
+1.When the admin added the courses then that course should be visible for the all user or students. 
+
+======================================================
+
+uttamkumar@UTTAMs-MacBook-Air src % ls context/
+AuthContext.jsx         CoursesContext.jsx
+uttamkumar@UTTAMs-MacBook-Air src % grep -n "CoursesProvider" ../App.jsx
+grep: ../App.jsx: No such file or directory
+uttamkumar@UTTAMs-MacBook-Air src % python3 << 'EOF'
+with open('../App.jsx', 'r') as f:
+    c = f.read()
+
+if 'CoursesProvider' not in c:
+    c = c.replace(
+        "import './styles/global.css';",
+        "import './styles/global.css';\nimport { CoursesProvider } from './context/CoursesContext';"
+    )
+    # Find the outermost wrapper and wrap with CoursesProvider
+    c = c.replace('<AuthProvider>', '<CoursesProvider>\n        <AuthProvider>')
+    c = c.replace('</AuthProvider>', '</AuthProvider>\n        </CoursesProvider>')
+    with open('../App.jsx', 'w') as f:
+        f.write(c)
+    print('CoursesProvider added to App.jsx!')
+else:
+    print('CoursesProvider already in App.jsx')
+EOF
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '../App.jsx'
+uttamkumar@UTTAMs-MacBook-Air src % grep -n "useCourses\|CoursesContext" components/Sections/Courses.jsx
+3:import { useCourses } from '../../context/CoursesContext';
+137:  const { activeCourses } = useCourses();
+uttamkumar@UTTAMs-MacBook-Air src % grep -n "useCourses" components/Dashboard/Dashboard.jsx | head -5
+4:import { useCourses } from '../../context/CoursesContext';
+612:  const { activeCourses } = useCourses();
+uttamkumar@UTTAMs-MacBook-Air src % grep -n "useCourses" components/Admin/Admin.jsx | head -3
+16:import { useCourses } from '../../context/CoursesContext';
+646:  const { courses, addCourse, updateCourse, deleteCourse, toggleStatus } = useCourses();

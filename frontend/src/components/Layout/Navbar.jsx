@@ -28,7 +28,9 @@ const Navbar = () => {
     if (window.location.pathname !== '/') {
       navigate('/');
       setTimeout(doScroll, 400);
-    } else { doScroll(); }
+    } else {
+      doScroll();
+    }
   };
 
   const handleLogout = () => { logout(); navigate('/'); };
@@ -47,6 +49,7 @@ const Navbar = () => {
         <Link to="/" className="logo-link">
           <img src="/welogo.png" alt="WeIntern" className="nav-logo" />
         </Link>
+
         <ul className="nav-links">
           {NAV_LINKS.map(l => (
             <li key={l.id}>
@@ -60,13 +63,20 @@ const Navbar = () => {
             </li>
           ))}
         </ul>
+
         <div className="nav-ctas">
           {user ? (
             <>
-              <div className="nav-avatar">{user.name?.[0]?.toUpperCase()}</div>
+              <div className="nav-user-info">
+                <div className="nav-avatar">{user.name?.[0]?.toUpperCase()}</div>
+                <span className="nav-user-type">
+                  {user.role === 'admin' ? 'Admin' : 'Student'}
+                </span>
+              </div>
               {user.role === 'admin'
                 ? <Link to="/admin" className="btn btn-outline" style={{fontSize:'.82rem',padding:'.5rem 1rem'}}>⚙️ Admin</Link>
-                : <Link to="/dashboard" className="btn btn-outline" style={{fontSize:'.82rem',padding:'.5rem 1rem'}}>Dashboard</Link>}
+                : <Link to="/dashboard" className="btn btn-outline" style={{fontSize:'.82rem',padding:'.5rem 1rem'}}>Dashboard</Link>
+              }
               <button onClick={handleLogout} className="btn btn-outline" style={{fontSize:'.82rem',padding:'.5rem 1rem'}}>Logout</button>
             </>
           ) : (
@@ -76,17 +86,19 @@ const Navbar = () => {
                 <span>4k+ Students</span>
               </div>
               <div className="nav-for-biz">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
                 <span>For Businesses</span>
               </div>
               <Link to="/login" className="btn-nav-login">Login / Sign Up</Link>
             </>
           )}
         </div>
-        <button className={`hamburger${menuOpen?' open':''}`} onClick={() => setMenuOpen(!menuOpen)}>
-          <span/><span/><span/>
+
+        <button className={`hamburger${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(!menuOpen)}>
+          <span /><span /><span />
         </button>
       </div>
+
       {menuOpen && (
         <div className="mobile-menu">
           {NAV_LINKS.map(l => (
@@ -100,17 +112,19 @@ const Navbar = () => {
           ))}
           {user ? (
             <>
-              {user.role==='admin'
-                ? <Link to="/admin" onClick={()=>setMenuOpen(false)} className="mobile-nav-link">Admin Panel</Link>
-                : <Link to="/dashboard" onClick={()=>setMenuOpen(false)} className="mobile-nav-link">Dashboard</Link>}
-              <button onClick={()=>{handleLogout();setMenuOpen(false);}} className="mobile-cta-btn">Logout</button>
+              {user.role === 'admin'
+                ? <Link to="/admin" onClick={() => setMenuOpen(false)} className="mobile-nav-link">Admin Panel</Link>
+                : <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="mobile-nav-link">Dashboard</Link>
+              }
+              <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="mobile-cta-btn">Logout</button>
             </>
           ) : (
-            <Link to="/login" onClick={()=>setMenuOpen(false)} className="mobile-cta-btn">Login / Sign Up</Link>
+            <Link to="/login" onClick={() => setMenuOpen(false)} className="mobile-cta-btn">Login / Sign Up</Link>
           )}
         </div>
       )}
     </nav>
   );
 };
+
 export default Navbar;
