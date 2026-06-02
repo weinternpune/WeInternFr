@@ -69,6 +69,7 @@
   .tcs-item strong { font-size: 1.35rem; }
   .tcs-item span { font-size: .7rem; }
   .btn-testi-cta { padding: .7rem 1.35rem; font-size: .85rem; }
+  .container{margin: 0; padding: 20px;}
 }
 
 @media (max-width:380px) {

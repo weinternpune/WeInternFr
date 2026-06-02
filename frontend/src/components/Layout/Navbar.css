@@ -119,18 +119,94 @@
 }
 
 /* Desktop - hide mobile menu and hamburger */
-@media (min-width: 641px) { 
-  .mobile-menu { display: none !important; } 
-  .hamburger { display: none; } 
-  .sidebar-toggle { display: none !important; } 
+@media (min-width: 1025px) {
+
+  .mobile-menu {
+    display: none !important;
+  }
+
+  .hamburger {
+    display: none;
+  }
+
+  .sidebar-toggle {
+    display: none !important;
+  }
 }
 
-/* Tablet landscape (641px - 960px) - show hamburger but keep some CTAs */
-@media (min-width: 641px) and (max-width: 960px) {
-  .hamburger { display: flex; }
-  .nav-inner { padding: .75rem 1.5rem; }
-  .nav-ctas { gap: .5rem; }
-  .btn-nav-login { padding: .5rem 1rem; font-size: .8rem; }
-  .btn.btn-outline { font-size: .78rem !important; padding: .45rem .85rem !important; }
-  .nav-avatar { width: 28px; height: 28px; font-size: .75rem; }
+/* =========================
+   TABLET / IPAD FIX
+========================= */
+
+@media (min-width: 641px) and (max-width: 1024px) {
+
+  .nav-inner {
+    padding: 0.75rem 1rem;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  /* Hide desktop navigation */
+  .nav-links {
+    display: none;
+  }
+
+  /* Hide all desktop CTA buttons */
+  .nav-ctas {
+    display: none !important;
+  }
+
+  /* Show hamburger only */
+  .hamburger {
+    display: flex;
+    margin-left: auto;
+    z-index: 1201;
+  }
+
+  /* Proper dropdown menu */
+  .mobile-menu {
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    background: rgba(10,22,40,0.98);
+    backdrop-filter: blur(20px);
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    z-index: 1200;
+    box-sizing: border-box;
+    animation: slideDown 0.25s ease;
+  }
+
+  .mobile-nav-link {
+    width: 100%;
+    display: block;
+    text-align: left;
+    padding: 0.9rem 0;
+    font-size: 1rem;
+    color: rgba(255,255,255,0.85);
+    background: none;
+    border: none;
+    text-decoration: none;
+  }
+
+  .mobile-cta-btn {
+    width: 100%;
+    margin-top: 1rem;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

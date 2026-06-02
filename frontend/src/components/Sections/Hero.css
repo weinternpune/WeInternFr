@@ -212,6 +212,7 @@
 /* ── Stats bar responsive (phone/tablet only) ── */
 @media (max-width: 1024px) {
   .hsb-inner { grid-template-columns: repeat(3, 1fr); }
+  .hero-inner{min-height: 0vh;}
 }
 @media (max-width: 768px) {
   .hero-stats-bar { padding: 0; }

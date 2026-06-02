@@ -1033,10 +1033,11 @@
 @media (max-width: 768px) {
   .problem {
     padding: 4rem 0 3.75rem;
+    align-items: center;
+        text-align: center;
   }
   .problem .container {
-    width: calc(100% - 2rem);
-    max-width: 560px;
+    width: calc(100%);
   }
   .problem .section-label {
     margin-bottom: .45rem;
@@ -1045,7 +1046,7 @@
     margin-bottom: 1.25rem;
   }
   .gap-visual {
-    max-width: 520px;
+    /* max-width: 520px; */
     margin: 1rem auto 2.1rem;
     gap: .95rem;
   }
@@ -1167,3 +1168,50 @@
   .gap-side ul li { font-size: .8rem; }
   .problem-quote blockquote { font-size: 1rem; }
 }
+
+/* ===== iPad Mini / Tablet Fix ===== */
+@media (min-width: 641px) and (max-width: 820px) {
+
+  .gap-visual {
+    display: grid !important;
+    grid-template-columns: 1fr 120px 1fr !important;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .gap-side {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100%;
+    padding: 1.25rem 1rem;
+  }
+
+  .gap-bridge {
+    width: 100% !important;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .gap-chasm {
+    width: 100% !important;
+    max-width: 120px !important;
+    padding: 1rem 0.7rem;
+  }
+
+  .bridge-connector {
+    width: 100%;
+    max-width: 100px;
+  }
+
+  .gap-side h3 {
+    font-size: 0.95rem;
+  }
+
+  .gap-side li {
+    font-size: 0.76rem;
+    line-height: 1.4;
+  }
+}
+
