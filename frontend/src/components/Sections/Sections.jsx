@@ -229,6 +229,7 @@ export const EcosystemSection = () => {
                 </div>
                 <div>
                   <span className="eco-step-label">{s.num}. {s.title} </span>
+                  <br />
                   <span className="eco-step-desc">{s.desc}</span>
                 </div>
               </div>
