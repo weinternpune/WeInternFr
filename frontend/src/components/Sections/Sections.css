@@ -1002,30 +1002,221 @@
   
   .gap-side { padding: .85rem; }
   .gap-icon { font-size: 1.6rem; }
-  .gap-side h3 { font-size: .85rem; }
-  .gap-side li { font-size: .75rem; }
-  .problem-quote blockquote { font-size: 1.1rem; }
+}
+
+/* ===== DEVICE-SPECIFIC RESPONSIVE STYLES ===== */
+/* iPhone SE, Samsung Galaxy S8+, Galaxy Z Fold 5, iPhone 14 Pro Max */
+
+/* Galaxy Z Fold 5 (344px - smallest) */
+@media (max-width: 344px) {
+  /* Ecosystem Section */
+  .eco-wrapper { padding: 1.5rem 3% 0; }
+  .eco-title { font-size: 1.1rem; }
+  .eco-subtitle { font-size: .75rem; }
   
-  .tab-btn { padding: .45rem .85rem; font-size: .78rem; }
-  .step { padding: 1rem; }
-  .transformation { padding: 1.25rem; }
+  .eco-top-body { gap: 1rem; min-height: auto; }
+  .eco-steps { gap: .5rem; padding: 0; }
+  .eco-step-card { padding: 0 .1rem; }
+  .eco-step-circle { width: 50px; height: 50px; border-width: 2px; margin-bottom: .5rem; }
+  .eco-step-circle svg { width: 24px; height: 24px; }
+  .eco-step-label { font-size: .7rem; margin-bottom: .15rem; }
+  .eco-step-desc { font-size: .65rem; max-width: 80px; }
+  .eco-step-arrow { font-size: 1.2rem; margin-top: 0; }
   
-  .biz-card { padding: 1rem; }
-  .biz-why { padding: 1.25rem; }
-  .biz-why h3 { font-size: 1.05rem; }
+  .eco-mission { padding: 1rem .9rem; }
+  .eco-mission-head { font-size: .9rem; margin-bottom: .5rem; }
+  .eco-mission-body { font-size: .7rem; margin-bottom: .75rem; }
+  .eco-mb-wi, .eco-mb-wn { font-size: .75rem; }
+  .eco-mb-inf { font-size: 1.1rem; }
+  .eco-mission-tag { font-size: .65rem; }
   
-  .testi-card { padding: 1.1rem; }
-  .testi-avatar { width: 36px; height: 36px; font-size: .75rem; }
+  .eco-bottom-inner { padding: 1.5rem 1.25rem; gap: 1.25rem; }
+  .eco-b-heading { font-size: .95rem; white-space: normal; }
+  .eco-b-sub { font-size: .7rem; max-width: 100%; }
   
-  .vision-flow { flex-direction: column; align-items: stretch; }
-  .vf-item { justify-content: flex-start; }
-  .vf-arr { display: none; }
-  .founder-card { padding: 1.1rem; }
-  .founder-av { width: 46px; height: 46px; font-size: .95rem; }
+  .eco-donut { width: 110px; height: 110px; }
+  .eco-donut-svg { width: 110px; height: 110px; }
+  .eco-donut-pct { font-size: 1.4rem; }
+  .eco-donut-lbl { font-size: .4rem; line-height: 1.4; }
   
-  .ecosystem { width: 200px; height: 200px; }
-  .eco-center { width: 64px; height: 64px; font-size: .62rem; }
-  .eco-node { font-size: .65rem; padding: .22rem .5rem; transform: rotate(var(--deg)) translateX(75px) rotate(calc(-1 * var(--deg))) translate(-50%,-50%); }
+  .eco-b-benefits { gap: .75rem 0; grid-template-columns: 1fr 1fr; }
+  .eco-b-card { padding: .5rem .75rem; }
+  .eco-b-icon { width: 28px; height: 28px; margin-bottom: .4rem; }
+  .eco-b-icon svg { width: 28px; height: 28px; }
+  .eco-b-title { font-size: .7rem; margin-bottom: .3rem; }
+  .eco-b-desc { font-size: .62rem; line-height: 1.5; }
+  
+  .eco-b-note { padding: .7rem 1.25rem; font-size: .7rem; flex-wrap: wrap; gap: .4rem; }
+  
+  /* Student Projects Section */
+  .student-projects-section { padding: 30px 12px; }
+  .section-content h2 { font-size: 18px; }
+  .section-content p { font-size: 12px; }
+  .view-more-btn { font-size: 13px; }
+  
+  .project-card { border-radius: 12px; }
+  .project-image-wrapper { height: 85px; }
+  .project-content { padding: 10px; }
+  .project-content h3 { font-size: 12px; }
+  .project-content p { font-size: 10px; }
+  .tech-stack { gap: 5px; }
+  .tech-stack span { padding: 2px 7px; font-size: 9px; }
+  
+  .slider-btn { width: 34px; height: 34px; font-size: 20px; }
+}
+
+/* Samsung Galaxy S8+ (360px) */
+@media (min-width: 345px) and (max-width: 360px) {
+  /* Ecosystem Section */
+  .eco-wrapper { padding: 1.75rem 3% 0; }
+  .eco-title { font-size: 1.15rem; }
+  .eco-subtitle { font-size: .78rem; }
+  
+  .eco-top-body { gap: 1rem; }
+  .eco-steps { gap: .6rem; }
+  .eco-step-card { padding: 0 .15rem; }
+  .eco-step-circle { width: 52px; height: 52px; border-width: 2px; }
+  .eco-step-circle svg { width: 26px; height: 26px; }
+  .eco-step-label { font-size: .72rem; }
+  .eco-step-desc { font-size: .68rem; max-width: 85px; }
+  .eco-step-arrow { font-size: 1.3rem; }
+  
+  .eco-mission { padding: 1.1rem 1rem; }
+  .eco-mission-head { font-size: .95rem; }
+  .eco-mission-body { font-size: .72rem; }
+  .eco-mb-wi, .eco-mb-wn { font-size: .78rem; }
+  .eco-mb-inf { font-size: 1.15rem; }
+  
+  .eco-bottom-inner { padding: 1.75rem 1.5rem; }
+  .eco-b-heading { font-size: 1rem; }
+  .eco-b-sub { font-size: .72rem; }
+  
+  .eco-donut { width: 115px; height: 115px; }
+  .eco-donut-svg { width: 115px; height: 115px; }
+  .eco-donut-pct { font-size: 1.5rem; }
+  .eco-donut-lbl { font-size: .42rem; }
+  
+  .eco-b-card { padding: .5rem .85rem; }
+  .eco-b-icon { width: 30px; height: 30px; }
+  .eco-b-icon svg { width: 30px; height: 30px; }
+  .eco-b-title { font-size: .72rem; }
+  .eco-b-desc { font-size: .64rem; }
+  
+  /* Student Projects Section */
+  .student-projects-section { padding: 32px 14px; }
+  .section-content h2 { font-size: 19px; }
+  .section-content p { font-size: 12px; }
+  
+  .project-image-wrapper { height: 88px; }
+  .project-content { padding: 11px; }
+  .project-content h3 { font-size: 12px; }
+  .project-content p { font-size: 10px; }
+  .tech-stack span { padding: 2px 8px; font-size: 9px; }
+  
+  .slider-btn { width: 35px; height: 35px; font-size: 21px; }
+}
+
+/* iPhone SE (375px) */
+@media (min-width: 361px) and (max-width: 375px) {
+  /* Ecosystem Section */
+  .eco-wrapper { padding: 1.85rem 3.5% 0; }
+  .eco-title { font-size: 1.2rem; }
+  .eco-subtitle { font-size: .8rem; }
+  
+  .eco-top-body { gap: 1.1rem; }
+  .eco-steps { gap: .7rem; }
+  .eco-step-card { padding: 0 .2rem; }
+  .eco-step-circle { width: 55px; height: 55px; border-width: 2.5px; }
+  .eco-step-circle svg { width: 28px; height: 28px; }
+  .eco-step-label { font-size: .75rem; }
+  .eco-step-desc { font-size: .7rem; max-width: 90px; }
+  .eco-step-arrow { font-size: 1.4rem; }
+  
+  .eco-mission { padding: 1.15rem 1.05rem; }
+  .eco-mission-head { font-size: .98rem; }
+  .eco-mission-body { font-size: .74rem; }
+  .eco-mb-wi, .eco-mb-wn { font-size: .8rem; }
+  .eco-mb-inf { font-size: 1.2rem; }
+  
+  .eco-bottom-inner { padding: 1.85rem 1.75rem; }
+  .eco-b-heading { font-size: 1.05rem; }
+  .eco-b-sub { font-size: .74rem; }
+  
+  .eco-donut { width: 120px; height: 120px; }
+  .eco-donut-svg { width: 120px; height: 120px; }
+  .eco-donut-pct { font-size: 1.6rem; }
+  .eco-donut-lbl { font-size: .44rem; }
+  
+  .eco-b-card { padding: .5rem .9rem; }
+  .eco-b-icon { width: 32px; height: 32px; }
+  .eco-b-icon svg { width: 32px; height: 32px; }
+  .eco-b-title { font-size: .75rem; }
+  .eco-b-desc { font-size: .66rem; }
+  
+  /* Student Projects Section */
+  .student-projects-section { padding: 34px 15px; }
+  .section-content h2 { font-size: 20px; }
+  .section-content p { font-size: 13px; }
+  
+  .project-image-wrapper { height: 90px; }
+  .project-content { padding: 12px; }
+  .project-content h3 { font-size: 13px; }
+  .project-content p { font-size: 11px; }
+  .tech-stack span { padding: 2.5px 8px; font-size: 10px; }
+  
+  .slider-btn { width: 36px; height: 36px; font-size: 22px; }
+}
+
+/* iPhone 14 Pro Max (430px) */
+@media (min-width: 376px) and (max-width: 430px) {
+  /* Ecosystem Section */
+  .eco-wrapper { padding: 2rem 4% 0; }
+  .eco-title { font-size: 1.3rem; }
+  .eco-subtitle { font-size: .85rem; }
+  
+  .eco-top-body { gap: 1.15rem; }
+  .eco-steps { gap: .75rem; }
+  .eco-step-card { padding: 0 .22rem; }
+  .eco-step-circle { width: 58px; height: 58px; }
+  .eco-step-circle svg { width: 30px; height: 30px; }
+  .eco-step-label { font-size: .8rem; }
+  .eco-step-desc { font-size: .75rem; max-width: 95px; }
+  .eco-step-arrow { font-size: 1.5rem; }
+  
+  .eco-mission { padding: 1.2rem 1.1rem; }
+  .eco-mission-head { font-size: 1rem; }
+  .eco-mission-body { font-size: .76rem; }
+  .eco-mb-wi, .eco-mb-wn { font-size: .85rem; }
+  .eco-mb-inf { font-size: 1.25rem; }
+  
+  .eco-bottom-inner { padding: 2rem 2rem; }
+  .eco-b-heading { font-size: 1.1rem; }
+  .eco-b-sub { font-size: .76rem; }
+  
+  .eco-donut { width: 125px; height: 125px; }
+  .eco-donut-svg { width: 125px; height: 125px; }
+  .eco-donut-pct { font-size: 1.7rem; }
+  .eco-donut-lbl { font-size: .45rem; }
+  
+  .eco-b-card { padding: .5rem 1rem; }
+  .eco-b-icon { width: 33px; height: 33px; }
+  .eco-b-icon svg { width: 33px; height: 33px; }
+  .eco-b-title { font-size: .78rem; }
+  .eco-b-desc { font-size: .68rem; }
+  
+  /* Student Projects Section */
+  .student-projects-section { padding: 36px 16px; }
+  .section-content h2 { font-size: 22px; }
+  .section-content p { font-size: 14px; }
+  
+  .project-image-wrapper { height: 92px; }
+  .project-content { padding: 12px; }
+  .project-content h3 { font-size: 13px; }
+  .project-content p { font-size: 11px; }
+  .tech-stack { gap: 6px; }
+  .tech-stack span { padding: 3px 9px; font-size: 10px; }
+  
+  .slider-btn { width: 37px; height: 37px; font-size: 22px; }
 }
 
 /* Extra small mobile (≤380px) */
