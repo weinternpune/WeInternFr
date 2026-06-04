@@ -43,7 +43,6 @@ const Testimonials = () => {
       <section className="testimonials-section" id="testimonials">
 
         <div className="container">
-
           <div className="section-label">
             Real Stories
           </div>

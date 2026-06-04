@@ -6,7 +6,7 @@
 
 /* ── Section ── */
 .courses {
-  background: #ffffff;
+  background: #f5f7fc;
   padding: 3.5rem 4% 0;
   font-family: 'DM Sans', sans-serif;
 }
@@ -285,7 +285,7 @@ padding: 0.42rem 0.65rem;
   align-items: center;
   justify-content: space-between;
   flex: 1;
-  gap: 1rem;
+  gap: 0.4rem;
   flex-wrap: nowrap;
 }
 
@@ -552,7 +552,6 @@ padding: 0.42rem 0.65rem;
   .cs-benefits-row {
     flex-wrap: wrap;
     justify-content: flex-start;
-    gap: 1rem;
   }
 
   .cs-benefit {
@@ -576,24 +575,19 @@ padding: 0.42rem 0.65rem;
     gap: .7rem;
   }
 
-    .cs-header {
-      flex-direction: column;
-      align-items: center;
-      gap: .7rem;
-      position: static;
-    }
-  
-    .cs-view-all {
-      position: static;
-      transform: none;
-      margin-top: .2rem;
-    }
+  .cs-header {
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+  }
 
   .cs-view-all {
     background: transparent;
     border: none;
     outline: none;
     cursor: pointer;
+    margin: 4rem;
+    right: 4rem;
   }
 
   .cs-benefits-wrap {
@@ -606,23 +600,13 @@ padding: 0.42rem 0.65rem;
     gap: 1rem;
   }
 
-    .cs-benefits-heading {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-  
-      text-align: center;
-  
-      min-width: 100%;
-      padding-right: 0;
-  
-      border-right: none;
-      border-bottom: 1px solid #d1d5db;
-  
-      padding-bottom: 0.9rem;
-      margin-bottom: 0.8rem;
-    }
+  .cs-benefits-heading {
+    border-right: none;
+    border-bottom: 1px solid #d1d5db;
+    padding-right: 0;
+    padding-bottom: 0.75rem;
+    min-width: auto;
+  }
 
   .cs-benefits-row {
     flex-wrap: wrap;
@@ -686,7 +670,8 @@ padding: 0.42rem 0.65rem;
 
   .cs-benefit {
     min-width: 100px;
-    flex: 0 1 100%;
+    /* flex: 0 1 100%; */
+    flex-direction: row;
   }
 
   .cs-benefit-lbl {

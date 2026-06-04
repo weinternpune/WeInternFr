@@ -1,0 +1,19 @@
+
+@media (max-width: 768px) {
+  .problem { padding: 2rem 1rem; }
+  .problem .container { padding: 0 0.5rem; max-width: 100%; }
+  .gap-visual { flex-direction: column; gap: 1.5rem; padding: 0; }
+  .gap-side { width: 100%; padding: 1rem; }
+  .gap-bridge { width: 100%; padding: 0 1rem; }
+  .gap-chasm { padding: 1rem; margin: 0; }
+  .problem-quote { padding: 0 0.5rem; margin-top: 1.5rem; }
+  .problem-quote blockquote { font-size: 1rem; padding: 0 0.5rem; }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .problem { padding: 3rem 1.5rem; }
+  .problem .container { padding: 0 1rem; }
+  .gap-visual { flex-direction: column; gap: 2rem; }
+  .gap-side { width: 100%; }
+  .gap-bridge { width: 100%; }
+}

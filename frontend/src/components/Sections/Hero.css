@@ -199,57 +199,33 @@
 }
 
 @media (max-width:380px) {
-  .hero-title {
-    font-size: 1.3rem;
-  }
+  .hero-title { font-size:1.3rem; }
+  .hero-sub { font-size:.75rem; }
+  .hero-features { flex-direction:column; align-items:stretch; }
+  .hf-item { justify-content:flex-start; }
+  .hero-stats-bar { padding: 0 .5rem .85rem; }
+  .hsb-inner { grid-template-columns:1fr; border-radius: 10px; }
+  .hsb-item { border-right:none; border-bottom:1px solid #e5e7eb; }
+  .hsb-item:last-child { border-bottom:none; }
+}
 
-  .hero-sub {
-    font-size: .75rem;
-  }
-
-  .hero-features {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .hf-item {
-    justify-content: flex-start;
-  }
-
-  .hero-stats-bar {
-    padding: 0 .5rem .85rem;
-  }
-
-  /* Keep 2-column grid — DO NOT collapse to 1 column */
-  .hsb-inner {
-    grid-template-columns: repeat(2, 1fr);
-    border-radius: 10px;
-  }
-
-  /* Restore right border — only remove on right column items */
-  .hsb-item {
-    border-right: 1px solid #e5e7eb;
-    border-bottom: 1px solid #e5e7eb;
-    padding: .5rem .3rem;
-  }
-
-  .hsb-item:nth-child(2n) {
-    border-right: none;
-  }
-
-  .hsb-item:nth-last-child(-n+2) {
-    border-bottom: none;
-  }
-
-  .hsb-item:last-child {
-    border-bottom: none;
-  }
-
-  .hsb-val {
-    font-size: .9rem;
-  }
-
-  .hsb-label {
-    font-size: .54rem;
-  }
+/* ── Stats bar responsive (phone/tablet only) ── */
+@media (max-width: 1024px) {
+  .hsb-inner { grid-template-columns: repeat(3, 1fr); }
+  .hero-inner{min-height: 0vh;}
+}
+@media (max-width: 768px) {
+  .hero-stats-bar { padding: 0; }
+  .hsb-inner { grid-template-columns: repeat(2, 1fr); padding: 0 1rem; }
+  .hsb-item { padding: 1rem .5rem; border-right: none; border-bottom: 1px solid #e5e7eb; }
+  .hsb-item:nth-child(odd) { border-right: 1px solid #e5e7eb; }
+  .hsb-item:nth-last-child(-n+2) { border-bottom: none; }
+  .hsb-val { font-size: 1.2rem; }
+  .hsb-label { font-size: .65rem; }
+}
+@media (max-width: 480px) {
+  .hsb-inner { grid-template-columns: repeat(2, 1fr); padding: 0 .5rem; }
+  .hsb-item { padding: .85rem .4rem; }
+  .hsb-val { font-size: 1.1rem; }
+  .hsb-label { font-size: .62rem; }
 }
