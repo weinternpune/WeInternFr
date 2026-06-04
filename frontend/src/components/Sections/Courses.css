@@ -285,7 +285,7 @@ padding: 0.42rem 0.65rem;
   align-items: center;
   justify-content: space-between;
   flex: 1;
-  gap: 1rem;
+  gap: 0.4rem;
   flex-wrap: nowrap;
 }
 
@@ -552,7 +552,6 @@ padding: 0.42rem 0.65rem;
   .cs-benefits-row {
     flex-wrap: wrap;
     justify-content: flex-start;
-    gap: 1rem;
   }
 
   .cs-benefit {
@@ -587,6 +586,8 @@ padding: 0.42rem 0.65rem;
     border: none;
     outline: none;
     cursor: pointer;
+    margin: 4rem;
+    right: 4rem;
   }
 
   .cs-benefits-wrap {
@@ -669,7 +670,8 @@ padding: 0.42rem 0.65rem;
 
   .cs-benefit {
     min-width: 100px;
-    flex: 0 1 100%;
+    /* flex: 0 1 100%; */
+    flex-direction: row;
   }
 
   .cs-benefit-lbl {
