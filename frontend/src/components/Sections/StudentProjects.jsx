@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import ai_chatbot from "../../assets/ai_chatbot.jpg";
 import analytics from "../../assets/analytics.jpg";
@@ -24,7 +25,6 @@ const projectData = [
   { id:10, image:travel_booking,   title:"Travel Booking Platform", subtitle:"Built for Travel Agency",    tech:["React","Express","Stripe"] },
 ];
 
-const VISIBLE = 5;
 const GAP = 14;
 
 const ProjectCard = ({ image, title, subtitle, tech }) => (
@@ -45,17 +45,30 @@ const ProjectCard = ({ image, title, subtitle, tech }) => (
 const StudentProjects = () => {
   const [start, setStart] = useState(0);
   const [showAll, setShowAll] = useState(false);
+  const [visible, setVisible] = useState(5);
   const trackRef = useRef(null);
   const [cardWidth, setCardWidth] = useState(0);
+
+  // Calculate VISIBLE based on screen width
+  const getVisibleCards = () => {
+    const width = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    if (width < 480) return 1;
+    if (width < 768) return 2;
+    if (width < 1200) return 3;
+    return 5;
+  };
 
   useEffect(() => {
     const updateCardWidth = () => {
       if (trackRef.current) {
         const totalWidth = trackRef.current.offsetWidth;
-        const width = (totalWidth - GAP * (VISIBLE - 1)) / VISIBLE;
+        const visibleCards = getVisibleCards();
+        const width = (totalWidth - GAP * (visibleCards - 1)) / visibleCards;
         setCardWidth(width);
+        setVisible(visibleCards);
       }
     };
+
     updateCardWidth();
     window.addEventListener('resize', updateCardWidth);
     return () => window.removeEventListener('resize', updateCardWidth);
@@ -87,15 +100,15 @@ const StudentProjects = () => {
                 style={{ transform:`translateX(-${start * (cardWidth + GAP)}px)`, gap:`${GAP}px` }}>
                 {projectData.map(p => (
                   <div key={p.id}
-                    style={{ minWidth: cardWidth > 0 ? `${cardWidth}px` : `calc((100% - ${GAP*(VISIBLE-1)}px) / ${VISIBLE})` }}>
+                    style={{ minWidth: cardWidth > 0 ? `${cardWidth}px` : `calc((100% - ${GAP*(visible-1)}px) / ${visible})` }}>
                     <ProjectCard {...p} />
                   </div>
                 ))}
               </div>
             </div>
             <button className="slider-btn"
-              onClick={() => setStart(s => Math.min(projectData.length - VISIBLE, s + 1))}
-              disabled={start + VISIBLE >= projectData.length}>›</button>
+              onClick={() => setStart(s => Math.min(projectData.length - visible, s + 1))}
+              disabled={start + visible >= projectData.length}>›</button>
           </div>
         ) : (
           <div className="projects-grid-all">

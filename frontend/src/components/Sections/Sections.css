@@ -547,12 +547,32 @@
   .eco-bottom-inner { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
   .eco-b-left { flex: none; }
   .eco-b-benefits { grid-template-columns: repeat(2, 1fr); width: 100%; }
+  .eco-bottom-inner {
+    align-items: center;        
+  }
+  .eco-b-left {
+    text-align: center;      
+    width: 100%;
+  }
+  .eco-donut {
+    align-self: center;
+    margin: 0 auto;            
+  }
+  .eco-b-benefits {
+    justify-items: center;      
+  }
 }
 @media (max-width: 640px) {
   .eco-wrapper { padding: 2rem 4% 0; }
   .eco-steps { flex-direction: column; align-items: center; gap: 1rem; }
   .eco-step-arrow { transform: rotate(90deg); padding-top: 0; }
   .eco-b-benefits { grid-template-columns: 1fr 1fr; }
+    .eco-bottom-inner {
+    align-items: center;
+  }
+  .eco-donut {
+    margin: 0 auto;
+  }
 }
 
 /* <<<<<<< Updated upstream */
