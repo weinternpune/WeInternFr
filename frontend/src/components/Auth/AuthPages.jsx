@@ -7,7 +7,7 @@ import './Auth.css';
 
 const BACKEND = process.env.REACT_APP_API_URL
   ? process.env.REACT_APP_API_URL.replace('/api', '')
-  : 'http://localhost:5000';
+  : 'https://we-intern.in';
 
 const AuthLayout = ({ title, subtitle, children }) => (
   <div className="auth-page">
