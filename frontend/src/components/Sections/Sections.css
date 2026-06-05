@@ -544,76 +544,69 @@
   .eco-b-benefits { grid-template-columns: repeat(2, 1fr); }
 }
 
-
 @media (max-width: 860px) {
   .eco-wrapper { padding: 2.5rem 3% 0; }
   .eco-top-body { flex-direction: column; }
   .eco-mission { width: 100%; }
 
-  /* Fix: heading must NOT be nowrap on tablet */
   .eco-b-heading {
     white-space: normal;
     font-size: 1.1rem;
   }
 
+  /* ✅ Keep the 3-column layout: text | donut | benefits */
   .eco-bottom-inner {
-    flex-direction: column;       
-    align-items: flex-start;
-    gap: 1.25rem;
-    padding: 1.75rem 1.5rem;
+    flex-direction: row;          /* Stay horizontal on tablet */
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    padding: 1.75rem 1.25rem;
   }
 
-  /* Heading takes full width on top */
+  /* Text block on the LEFT */
   .eco-b-left {
-    flex: none;
-    width: 100%;
+    flex: 1.2;
+    min-width: 0;
     text-align: left;
   }
 
-  /* Donut + benefits sit side by side below the heading */
-  .eco-bottom-inner {
-    display: flex;
-    flex-wrap: wrap;
-  }
-
+  /* Donut in the CENTER */
   .eco-donut {
     flex-shrink: 0;
-    align-self: flex-start;
     margin: 0;
-    width: 130px;
-    height: 130px;
+    width: 140px;
+    height: 140px;
   }
   .eco-donut-svg {
-    width: 130px;
-    height: 130px;
+    width: 140px;
+    height: 140px;
   }
 
-  /* Benefits: single column to the right of donut */
+  /* Benefits on the RIGHT — 2 column grid */
   .eco-b-benefits {
-    flex: 1;
-    grid-template-columns: 1fr;
-    gap: .5rem;
+    flex: 1.5;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
     min-width: 0;
     justify-items: flex-start;
   }
 
   .eco-b-card {
-    padding: .2rem .9rem;
+    padding: .2rem .6rem;
     border-top: none;
     border-left: 1px solid rgba(255,255,255,.12);
   }
 
-  .eco-b-title { font-size: .8rem; margin-bottom: .2rem; }
-  .eco-b-desc  { font-size: .68rem; }
-  .eco-b-icon  { width: 28px; height: 28px; margin-bottom: .4rem; }
-  .eco-b-icon svg { width: 28px; height: 28px; }
+  .eco-b-title { font-size: .75rem; margin-bottom: .2rem; }
+  .eco-b-desc  { font-size: .65rem; }
+  .eco-b-icon  { width: 24px; height: 24px; margin-bottom: .3rem; }
+  .eco-b-icon svg { width: 24px; height: 24px; }
 }
 
-/* ── MOBILE ── */
+/* ── MOBILE (640px and below) — stays vertical ── */
 @media (max-width: 640px) {
   .eco-wrapper { padding: 2rem 4% 0; }
 
-  /* Steps go vertical */
   .eco-steps { flex-direction: column; align-items: center; gap: 1rem; }
   .eco-step-arrow { transform: rotate(90deg); }
 
@@ -642,7 +635,6 @@
   }
   .eco-donut-svg { width: 130px; height: 130px; }
 
-  /* 2-col grid on mobile */
   .eco-b-benefits {
     grid-template-columns: 1fr 1fr;
     width: 100%;
@@ -656,6 +648,7 @@
     padding: .25rem .75rem;
   }
 }
+
 
 /* ── VERY SMALL MOBILE (< 400px) ── */
 @media (max-width: 400px) {
