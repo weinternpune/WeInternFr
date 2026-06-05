@@ -27,6 +27,35 @@
 .hero-features { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1.75rem; }
 .hf-item { display:flex; align-items:center; gap:.4rem; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); color:rgba(255,255,255,.75); padding:.3rem .75rem; border-radius:50px; font-size:.75rem; font-weight:500; }
 .hf-icon { color:#18b45b; display:flex; }
+
+/* Mobile override for vertical layout */
+@media (max-width: 960px) {
+  .hero-features { 
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    gap: .5rem !important;
+    align-items: stretch !important;
+  }
+  .hf-item { 
+    display: flex !important;
+    width: 100% !important;
+    padding: .5rem .7rem !important;
+    font-size: .75rem !important;
+    border-radius: 8px !important;
+    background: rgba(24,180,91,0.08) !important;
+    border: 1px solid rgba(24,180,91,0.2) !important;
+    justify-content: flex-start !important;
+  }
+  .hf-icon { 
+    margin-right: .4rem !important;
+    flex-shrink: 0 !important;
+  }
+  .hf-icon svg { 
+    width: 17px !important; 
+    height: 17px !important; 
+  }
+}
 .hero-btns { display:flex; gap:.85rem; flex-wrap:wrap; }
 
 /* Desktop: show desktop buttons, hide mobile buttons */
@@ -126,16 +155,49 @@
   .hero-left { padding-right:0; order:0; }
   .hero-title { font-size:clamp(1.7rem,5vw,2.3rem); }
   .hero-sub { font-size:.88rem; }
+  
+  /* Features - Vertical Stack for mobile */
+  .hero-features { 
+    display: flex;
+    flex-direction: column;
+    gap: .5rem; 
+    margin-bottom: 1.2rem;
+    align-items: stretch;
+  }
+  .hf-item { 
+    padding: .5rem .7rem; 
+    font-size: .75rem; 
+    border-radius: 8px;
+    background: rgba(24,180,91,0.08);
+    border: 1px solid rgba(24,180,91,0.2);
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+  }
+  .hf-icon { 
+    color: #18b45b;
+    display: flex;
+    margin-right: .4rem;
+    flex-shrink: 0;
+  }
+  .hf-icon svg { width: 17px; height: 17px; }
+  
   /* Hide desktop buttons, show mobile buttons below image */
   .hero-btns-desktop { display: none; }
   .hero-btns-mobile {
     display: flex;
-    gap: .85rem;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: .65rem;
     order: 1;
     width: 100%;
     margin-bottom: 0;
   }
+  .btn-hero-primary, .btn-hero-outline {
+    width: 100%;
+    justify-content: center;
+    border-radius: 8px;
+  }
+  
   .hero-stats-bar { padding: 0 1.5rem .75rem; }
   .hsb-inner { grid-template-columns:repeat(3,1fr); }
   .hsb-item { padding:.65rem .5rem; }
@@ -147,9 +209,36 @@
   .hero-inner { padding:2rem 1rem 1rem; gap:.75rem; }
   .hero-title { font-size:clamp(1.6rem,6vw,2.2rem); }
   .hero-sub { font-size:.85rem; margin-bottom:1.25rem; }
-  .hero-features { gap:.35rem; }
-  .hf-item { padding:.28rem .65rem; font-size:.72rem; }
+  
+  /* Features - Vertical Stack */
+  .hero-features { 
+    gap: .48rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hf-item { 
+    padding: .48rem .68rem; 
+    font-size: .72rem;
+    border-radius: 8px;
+    background: rgba(24,180,91,0.08);
+    border: 1px solid rgba(24,180,91,0.2);
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .hf-icon { 
+    color: #18b45b;
+    display: flex;
+    margin-right: .38rem;
+  }
+  .hf-icon svg { width: 16px; height: 16px; }
+  
+  /* Buttons */
   .hero-btns { gap:.65rem; }
+  .hero-btns-mobile { gap: .65rem; }
+  .btn-hero-primary, .btn-hero-outline {
+    border-radius: 8px;
+  }
+  
   .hero-stats-bar { padding: 0 1rem .6rem; }
   .hsb-inner { grid-template-columns:repeat(2,1fr); border-radius: 12px; }
   .hsb-item:nth-child(n+5) { border-bottom:none; }
@@ -160,17 +249,47 @@
   .hero-badge { font-size:.68rem; padding:.3rem .75rem; margin-bottom:1rem; }
   .hero-title { font-size:clamp(1.5rem,7vw,2rem); margin-bottom:.85rem; }
   .hero-sub { font-size:.82rem; margin-bottom:1rem; }
-  .hero-features { gap:.3rem; margin-bottom:1.25rem; }
-  .hf-item { padding:.25rem .6rem; font-size:.7rem; }
-  .hf-icon svg { width:14px; height:14px; }
+  
+  /* Features - Vertical Stack for ALL mobile devices */
+  .hero-features { 
+    display: flex;
+    flex-direction: column;
+    gap: .5rem; 
+    margin-bottom: 1.25rem;
+    align-items: stretch;
+  }
+  .hf-item { 
+    padding: .5rem .7rem; 
+    font-size: .74rem; 
+    border-radius: 8px;
+    background: rgba(24,180,91,0.08);
+    border: 1px solid rgba(24,180,91,0.2);
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .hf-icon { 
+    color: #18b45b;
+    display: flex;
+    margin-right: .4rem;
+  }
+  .hf-icon svg { width:17px; height:17px; }
+  
+  /* Buttons - Full width stacked */
   .hero-btns { flex-direction:column; gap:.6rem; }
-  .hero-btns-mobile { flex-direction:column; gap:.6rem; }
+  .hero-btns-mobile { 
+    display: flex;
+    flex-direction:column; 
+    gap:.65rem;
+    width: 100%;
+  }
   .btn-hero-primary, .btn-hero-outline { 
     width:100%; 
     justify-content:center; 
     padding:.75rem 1.25rem; 
-    font-size:.85rem; 
+    font-size:.85rem;
+    border-radius: 8px;
   }
+  
   .hero-img-box { max-width:100%; }
   .hero-main-img { min-height:280px; max-height:380px; }
   .hero-img-badge { bottom:1rem; left:1rem; padding:.6rem .85rem; }
@@ -189,9 +308,37 @@
   .hero-badge { font-size:.65rem; padding:.28rem .7rem; }
   .hero-title { font-size:1.4rem; }
   .hero-sub { font-size:.78rem; }
-  .hero-features { gap:.25rem; }
-  .hf-item { padding:.22rem .55rem; font-size:.68rem; }
-  .btn-hero-primary, .btn-hero-outline { padding:.7rem 1.1rem; font-size:.82rem; }
+  
+  /* Features - Vertical Stack */
+  .hero-features { 
+    gap: .45rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hf-item { 
+    padding: .45rem .65rem; 
+    font-size: .7rem;
+    border-radius: 8px;
+    background: rgba(24,180,91,0.08);
+    border: 1px solid rgba(24,180,91,0.2);
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .hf-icon { 
+    color: #18b45b;
+    display: flex;
+    margin-right: .35rem;
+  }
+  .hf-icon svg { width: 16px; height: 16px; }
+  
+  /* Buttons - Full width */
+  .btn-hero-primary, .btn-hero-outline { 
+    padding:.7rem 1.1rem; 
+    font-size:.82rem;
+    border-radius: 8px;
+    width: 100%;
+  }
+  
   .hero-main-img { min-height:240px; max-height:320px; }
   .hsb-item { padding:.5rem .3rem; }
   .hsb-val { font-size:.95rem; }
@@ -201,8 +348,22 @@
 @media (max-width:380px) {
   .hero-title { font-size:1.3rem; }
   .hero-sub { font-size:.75rem; }
-  .hero-features { flex-direction:column; align-items:stretch; }
-  .hf-item { justify-content:flex-start; }
+  
+  /* Features - Already vertical from parent, just adjust sizing */
+  .hero-features { 
+    flex-direction: column; 
+    align-items: stretch;
+    gap: .42rem;
+  }
+  .hf-item { 
+    justify-content: flex-start;
+    padding: .42rem .6rem;
+    font-size: .68rem;
+    width: 100%;
+  }
+  .hf-icon { margin-right: .32rem; }
+  .hf-icon svg { width: 15px; height: 15px; }
+  
   .hero-stats-bar { padding: 0 .5rem .85rem; }
   .hsb-inner { grid-template-columns:1fr; border-radius: 10px; }
   .hsb-item { border-right:none; border-bottom:1px solid #e5e7eb; }
@@ -228,4 +389,399 @@
   .hsb-item { padding: .85rem .4rem; }
   .hsb-val { font-size: 1.1rem; }
   .hsb-label { font-size: .62rem; }
+}
+
+/* ===== DEVICE-SPECIFIC RESPONSIVE STYLES ===== */
+/* Galaxy Z Fold 5, Samsung Galaxy S8+, iPhone SE, iPhone 14 Pro Max */
+
+/* Galaxy Z Fold 5 (≤344px) */
+@media (max-width: 344px) {
+  .hero { padding-top: 70px; }
+  .hero-inner { padding: 1.25rem .75rem .85rem; gap: .65rem; }
+  
+  /* Badge */
+  .hero-badge { 
+    font-size: .62rem; 
+    padding: .25rem .65rem; 
+    margin-bottom: .85rem; 
+    gap: 6px;
+    display: inline-flex;
+    width: auto;
+  }
+  .badge-dot { width: 6px; height: 6px; }
+  
+  /* Title */
+  .hero-title { 
+    font-size: 1.25rem; 
+    margin-bottom: .75rem; 
+    line-height: 1.2;
+  }
+  
+  /* Subtitle */
+  .hero-sub { 
+    font-size: .74rem; 
+    margin-bottom: .85rem; 
+    line-height: 1.6;
+  }
+  
+  /* Features - Vertical Stack */
+  .hero-features { 
+    display: flex;
+    flex-direction: column;
+    gap: .45rem; 
+    margin-bottom: 1rem;
+    align-items: stretch;
+  }
+  .hf-item { 
+    padding: .45rem .65rem; 
+    font-size: .7rem; 
+    border-radius: 8px;
+    background: rgba(24,180,91,0.08);
+    border: 1px solid rgba(24,180,91,0.2);
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .hf-icon { 
+    color: #18b45b;
+    display: flex;
+    margin-right: .35rem;
+  }
+  .hf-icon svg { width: 16px; height: 16px; }
+  
+  /* Buttons - Full width stacked */
+  .hero-btns-mobile { 
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  .btn-hero-primary, .btn-hero-outline { 
+    width: 100%;
+    padding: .7rem 1.2rem; 
+    font-size: .8rem;
+    border-radius: 8px;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  /* Image */
+  .hero-img-box { border-radius: 12px; }
+  .hero-main-img { 
+    min-height: 220px; 
+    max-height: 300px; 
+    border-radius: 12px;
+  }
+  .hero-logo-badge { 
+    bottom: .85rem; 
+    right: .85rem; 
+    padding: .35rem .6rem; 
+    border-radius: 8px;
+  }
+  .hero-logo-badge img { height: 18px !important; }
+  
+  /* Stats Bar */
+  .hero-stats-bar { padding: 0 .75rem .85rem; }
+  .hsb-inner { 
+    grid-template-columns: repeat(2, 1fr); 
+    border-radius: 10px;
+  }
+  .hsb-item { padding: .75rem .3rem; }
+  .hsb-val { font-size: 1rem; }
+  .hsb-label { font-size: .54rem; line-height: 1.35; }
+  .hsb-stars { font-size: .7rem; margin-top: .12rem; }
+}
+
+/* Samsung Galaxy S8+ (345px - 360px) */
+@media (min-width: 345px) and (max-width: 360px) {
+  .hero { padding-top: 72px; }
+  .hero-inner { padding: 1.35rem .85rem .9rem; gap: .7rem; }
+  
+  /* Badge */
+  .hero-badge { 
+    font-size: .64rem; 
+    padding: .26rem .68rem; 
+    margin-bottom: .9rem; 
+    gap: 6px;
+    display: inline-flex;
+    width: auto;
+  }
+  .badge-dot { width: 6px; height: 6px; }
+  
+  /* Title */
+  .hero-title { 
+    font-size: 1.3rem; 
+    margin-bottom: .8rem;
+    line-height: 1.2;
+  }
+  
+  /* Subtitle */
+  .hero-sub { 
+    font-size: .76rem; 
+    margin-bottom: .9rem;
+    line-height: 1.6;
+  }
+  
+  /* Features - Vertical Stack */
+  .hero-features { 
+    display: flex;
+    flex-direction: column;
+    gap: .48rem; 
+    margin-bottom: 1.05rem;
+    align-items: stretch;
+  }
+  .hf-item { 
+    padding: .48rem .68rem; 
+    font-size: .72rem; 
+    border-radius: 8px;
+    background: rgba(24,180,91,0.08);
+    border: 1px solid rgba(24,180,91,0.2);
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .hf-icon { 
+    color: #18b45b;
+    display: flex;
+    margin-right: .38rem;
+  }
+  .hf-icon svg { width: 16px; height: 16px; }
+  
+  /* Buttons - Full width stacked */
+  .hero-btns-mobile { 
+    display: flex;
+    flex-direction: column;
+    gap: .62rem;
+    width: 100%;
+    margin-bottom: 1.05rem;
+  }
+  .btn-hero-primary, .btn-hero-outline { 
+    width: 100%;
+    padding: .72rem 1.25rem; 
+    font-size: .82rem;
+    border-radius: 8px;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  /* Image */
+  .hero-img-box { border-radius: 13px; }
+  .hero-main-img { 
+    min-height: 230px; 
+    max-height: 310px;
+    border-radius: 13px;
+  }
+  .hero-logo-badge { 
+    bottom: .9rem; 
+    right: .9rem; 
+    padding: .36rem .62rem;
+    border-radius: 8px;
+  }
+  .hero-logo-badge img { height: 19px !important; }
+  
+  /* Stats Bar */
+  .hero-stats-bar { padding: 0 .8rem .88rem; }
+  .hsb-inner { 
+    grid-template-columns: repeat(2, 1fr);
+    border-radius: 10px;
+  }
+  .hsb-item { padding: .78rem .32rem; }
+  .hsb-val { font-size: 1.02rem; }
+  .hsb-label { font-size: .56rem; line-height: 1.36; }
+  .hsb-stars { font-size: .72rem; margin-top: .13rem; }
+}
+
+/* iPhone SE (361px - 375px) */
+@media (min-width: 361px) and (max-width: 375px) {
+  .hero { padding-top: 74px; }
+  .hero-inner { padding: 1.4rem .9rem .95rem; gap: .72rem; }
+  
+  /* Badge */
+  .hero-badge { 
+    font-size: .66rem; 
+    padding: .27rem .7rem; 
+    margin-bottom: .95rem; 
+    gap: 7px;
+    display: inline-flex;
+    width: auto;
+  }
+  .badge-dot { width: 6.5px; height: 6.5px; }
+  
+  /* Title */
+  .hero-title { 
+    font-size: 1.35rem; 
+    margin-bottom: .82rem;
+    line-height: 1.2;
+  }
+  
+  /* Subtitle */
+  .hero-sub { 
+    font-size: .78rem; 
+    margin-bottom: .95rem;
+    line-height: 1.65;
+  }
+  
+  /* Features - Vertical Stack */
+  .hero-features { 
+    display: flex;
+    flex-direction: column;
+    gap: .5rem; 
+    margin-bottom: 1.1rem;
+    align-items: stretch;
+  }
+  .hf-item { 
+    padding: .5rem .7rem; 
+    font-size: .74rem; 
+    border-radius: 8px;
+    background: rgba(24,180,91,0.08);
+    border: 1px solid rgba(24,180,91,0.2);
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .hf-icon { 
+    color: #18b45b;
+    display: flex;
+    margin-right: .4rem;
+  }
+  .hf-icon svg { width: 17px; height: 17px; }
+  
+  /* Buttons - Full width stacked */
+  .hero-btns-mobile { 
+    display: flex;
+    flex-direction: column;
+    gap: .65rem;
+    width: 100%;
+    margin-bottom: 1.1rem;
+  }
+  .btn-hero-primary, .btn-hero-outline { 
+    width: 100%;
+    padding: .75rem 1.3rem; 
+    font-size: .84rem;
+    border-radius: 8px;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  /* Image */
+  .hero-img-box { border-radius: 14px; }
+  .hero-main-img { 
+    min-height: 240px; 
+    max-height: 320px;
+    border-radius: 14px;
+  }
+  .hero-logo-badge { 
+    bottom: .95rem; 
+    right: .95rem; 
+    padding: .38rem .65rem;
+    border-radius: 9px;
+  }
+  .hero-logo-badge img { height: 20px !important; }
+  
+  /* Stats Bar */
+  .hero-stats-bar { padding: 0 .85rem .9rem; }
+  .hsb-inner { 
+    grid-template-columns: repeat(2, 1fr);
+    border-radius: 11px;
+  }
+  .hsb-item { padding: .8rem .34rem; }
+  .hsb-val { font-size: 1.05rem; }
+  .hsb-label { font-size: .58rem; line-height: 1.37; }
+  .hsb-stars { font-size: .74rem; margin-top: .14rem; }
+}
+
+/* iPhone 14 Pro Max (376px - 430px) */
+@media (min-width: 376px) and (max-width: 430px) {
+  .hero { padding-top: 74px; }
+  .hero-inner { padding: 1.5rem 1rem 1rem; gap: .75rem; }
+  
+  /* Badge */
+  .hero-badge { 
+    font-size: .68rem; 
+    padding: .28rem .72rem; 
+    margin-bottom: 1rem; 
+    gap: 7px;
+    display: inline-flex;
+    width: auto;
+  }
+  .badge-dot { width: 7px; height: 7px; }
+  
+  /* Title */
+  .hero-title { 
+    font-size: 1.45rem; 
+    margin-bottom: .85rem;
+    line-height: 1.22;
+  }
+  
+  /* Subtitle */
+  .hero-sub { 
+    font-size: .8rem; 
+    margin-bottom: 1rem;
+    line-height: 1.65;
+  }
+  
+  /* Features - Vertical Stack */
+  .hero-features { 
+    display: flex;
+    flex-direction: column;
+    gap: .52rem; 
+    margin-bottom: 1.15rem;
+    align-items: stretch;
+  }
+  .hf-item { 
+    padding: .52rem .72rem; 
+    font-size: .76rem; 
+    border-radius: 8px;
+    background: rgba(24,180,91,0.08);
+    border: 1px solid rgba(24,180,91,0.2);
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .hf-icon { 
+    color: #18b45b;
+    display: flex;
+    margin-right: .42rem;
+  }
+  .hf-icon svg { width: 17px; height: 17px; }
+  
+  /* Buttons - Full width stacked */
+  .hero-btns-mobile { 
+    display: flex;
+    flex-direction: column;
+    gap: .68rem;
+    width: 100%;
+    margin-bottom: 1.15rem;
+  }
+  .btn-hero-primary, .btn-hero-outline { 
+    width: 100%;
+    padding: .78rem 1.35rem; 
+    font-size: .86rem;
+    border-radius: 8px;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  /* Image */
+  .hero-img-box { border-radius: 14px; }
+  .hero-main-img { 
+    min-height: 250px; 
+    max-height: 340px;
+    border-radius: 14px;
+  }
+  .hero-logo-badge { 
+    bottom: 1rem; 
+    right: 1rem; 
+    padding: .4rem .68rem;
+    border-radius: 9px;
+  }
+  .hero-logo-badge img { height: 20px !important; }
+  
+  /* Stats Bar */
+  .hero-stats-bar { padding: 0 .9rem .92rem; }
+  .hsb-inner { 
+    grid-template-columns: repeat(2, 1fr);
+    border-radius: 11px;
+  }
+  .hsb-item { padding: .82rem .36rem; }
+  .hsb-val { font-size: 1.08rem; }
+  .hsb-label { font-size: .6rem; line-height: 1.38; }
+  .hsb-stars { font-size: .76rem; margin-top: .15rem; }
 }
