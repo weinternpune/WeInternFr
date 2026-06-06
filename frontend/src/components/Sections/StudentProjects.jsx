@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import ai_chatbot from "../../assets/ai_chatbot.jpg";
 import analytics from "../../assets/analytics.jpg";
@@ -24,8 +25,15 @@ const projectData = [
   { id:10, image:travel_booking,   title:"Travel Booking Platform", subtitle:"Built for Travel Agency",    tech:["React","Express","Stripe"] },
 ];
 
-const VISIBLE = 5;
 const GAP = 14;
+
+const getVisibleCards = (width) => {
+  if (width >= 1200) return 5;
+  if (width >= 992) return 4;
+  if (width >= 768) return 3;
+  if (width >= 481) return 2;
+  return 1;
+};
 
 const ProjectCard = ({ image, title, subtitle, tech }) => (
   <div className="project-card">
@@ -45,21 +53,47 @@ const ProjectCard = ({ image, title, subtitle, tech }) => (
 const StudentProjects = () => {
   const [start, setStart] = useState(0);
   const [showAll, setShowAll] = useState(false);
+  const [visible, setVisible] = useState(5);
   const trackRef = useRef(null);
   const [cardWidth, setCardWidth] = useState(0);
+  const [visibleCards, setVisibleCards] = useState(5);
+
+  // Calculate VISIBLE based on screen width
+  const getVisibleCards = () => {
+    const width = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    if (width < 480) return 1;
+    if (width < 768) return 2;
+    if (width < 1200) return 3;
+    return 5;
+  };
 
   useEffect(() => {
-    const updateCardWidth = () => {
+    const updateLayout = () => {
+      const windowWidth = window.innerWidth;
+      const newVisibleCards = getVisibleCards(windowWidth);
+      setVisibleCards(newVisibleCards);
+
       if (trackRef.current) {
-        const totalWidth = trackRef.current.offsetWidth;
-        const width = (totalWidth - GAP * (VISIBLE - 1)) / VISIBLE;
-        setCardWidth(width);
+        const totalWidth = trackRef.current.clientWidth;
+        if (totalWidth > 0) {
+          const gapTotal = GAP * Math.max(0, newVisibleCards - 1);
+          const newCardWidth = (totalWidth - gapTotal) / newVisibleCards;
+          setCardWidth(newCardWidth);
+        }
       }
     };
-    updateCardWidth();
-    window.addEventListener('resize', updateCardWidth);
-    return () => window.removeEventListener('resize', updateCardWidth);
+    updateLayout();
+    window.addEventListener('resize', updateLayout);
+    return () => window.removeEventListener('resize', updateLayout);
   }, [showAll]);
+
+  // Adjust start position if it exceeds bounds when visibleCards changes
+  useEffect(() => {
+    const maxStart = Math.max(0, projectData.length - visibleCards);
+    if (start > maxStart) {
+      setStart(maxStart);
+    }
+  }, [visibleCards]);
 
   return (
     <section className="student-projects-section">
@@ -84,18 +118,18 @@ const StudentProjects = () => {
               disabled={start === 0}>‹</button>
             <div className="projects-track-wrapper" ref={trackRef}>
               <div className="projects-track"
-                style={{ transform:`translateX(-${start * (cardWidth + GAP)}px)`, gap:`${GAP}px` }}>
+                style={{ transform:`translateX(-${start * (cardWidth + GAP)}px)` }}>
                 {projectData.map(p => (
                   <div key={p.id}
-                    style={{ minWidth: cardWidth > 0 ? `${cardWidth}px` : `calc((100% - ${GAP*(VISIBLE-1)}px) / ${VISIBLE})` }}>
+                    style={{ width: cardWidth > 0 ? `${cardWidth}px` : `calc((100% - ${GAP*(visibleCards-1)}px) / ${visibleCards})` }}>
                     <ProjectCard {...p} />
                   </div>
                 ))}
               </div>
             </div>
             <button className="slider-btn"
-              onClick={() => setStart(s => Math.min(projectData.length - VISIBLE, s + 1))}
-              disabled={start + VISIBLE >= projectData.length}>›</button>
+              onClick={() => setStart(s => Math.min(projectData.length - visibleCards, s + 1))}
+              disabled={start + visibleCards >= projectData.length}>›</button>
           </div>
         ) : (
           <div className="projects-grid-all">
