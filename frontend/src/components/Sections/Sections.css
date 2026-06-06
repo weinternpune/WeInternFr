@@ -539,40 +539,121 @@
 }
 
 /* ── RESPONSIVE ── */
-@media (max-width: 1024px) { .eco-b-benefits { grid-template-columns: repeat(2, 1fr); } }
+/* ── TABLET (820px - 1024px) ── */
+@media (max-width: 1024px) {
+  .eco-b-benefits { grid-template-columns: repeat(2, 1fr); }
+}
+
 @media (max-width: 860px) {
   .eco-wrapper { padding: 2.5rem 3% 0; }
   .eco-top-body { flex-direction: column; }
   .eco-mission { width: 100%; }
-  .eco-bottom-inner { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
-  .eco-b-left { flex: none; }
-  .eco-b-benefits { grid-template-columns: repeat(2, 1fr); width: 100%; }
+
+  .eco-b-heading {
+    white-space: normal;
+    font-size: 1.1rem;
+  }
+
+  /* ✅ Keep the 3-column layout: text | donut | benefits */
   .eco-bottom-inner {
-    align-items: center;        
+    flex-direction: row;          /* Stay horizontal on tablet */
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    padding: 1.75rem 1.25rem;
   }
+
+  /* Text block on the LEFT */
   .eco-b-left {
-    text-align: center;      
-    width: 100%;
+    flex: 1.2;
+    min-width: 0;
+    text-align: left;
   }
+
+  /* Donut in the CENTER */
   .eco-donut {
-    align-self: center;
-    margin: 0 auto;            
+    flex-shrink: 0;
+    margin: 0;
+    width: 140px;
+    height: 140px;
   }
+  .eco-donut-svg {
+    width: 140px;
+    height: 140px;
+  }
+
+  /* Benefits on the RIGHT — 2 column grid */
   .eco-b-benefits {
-    justify-items: center;      
+    flex: 1.5;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    min-width: 0;
+    justify-items: flex-start;
   }
+
+  .eco-b-card {
+    padding: .2rem .6rem;
+    border-top: none;
+    border-left: 1px solid rgba(255,255,255,.12);
+  }
+
+  .eco-b-title { font-size: .75rem; margin-bottom: .2rem; }
+  .eco-b-desc  { font-size: .65rem; }
+  .eco-b-icon  { width: 24px; height: 24px; margin-bottom: .3rem; }
+  .eco-b-icon svg { width: 24px; height: 24px; }
 }
+
+/* ── MOBILE (640px and below) — stays vertical ── */
 @media (max-width: 640px) {
   .eco-wrapper { padding: 2rem 4% 0; }
+
   .eco-steps { flex-direction: column; align-items: center; gap: 1rem; }
-  .eco-step-arrow { transform: rotate(90deg); padding-top: 0; }
-  .eco-b-benefits { grid-template-columns: 1fr 1fr; }
-    .eco-bottom-inner {
-    align-items: center;
+  .eco-step-arrow { transform: rotate(90deg); }
+
+  .eco-b-heading {
+    white-space: normal;
+    font-size: 1rem;
   }
+
+  .eco-bottom-inner {
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1.25rem;
+    gap: 1.25rem;
+  }
+
+  .eco-b-left {
+    width: 100%;
+    text-align: center;
+  }
+  .eco-b-sub { max-width: 100%; }
+
   .eco-donut {
     margin: 0 auto;
+    width: 130px;
+    height: 130px;
   }
+  .eco-donut-svg { width: 130px; height: 130px; }
+
+  .eco-b-benefits {
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    justify-items: flex-start;
+    gap: 1rem;
+  }
+
+  .eco-b-card {
+    border-left: 1px solid rgba(255,255,255,.12);
+    border-top: none;
+    padding: .25rem .75rem;
+  }
+}
+
+
+/* ── VERY SMALL MOBILE (< 400px) ── */
+@media (max-width: 400px) {
+  .eco-b-benefits { grid-template-columns: 1fr; }
+  .eco-b-heading { font-size: .95rem; }
 }
 
 /* <<<<<<< Updated upstream */
