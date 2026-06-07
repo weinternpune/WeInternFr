@@ -429,7 +429,7 @@
 }
 
 /* Left heading */
-.eco-b-left { flex: 0 0 240px; }
+/* .eco-b-left { flex: 0 0 240px; } */
 .eco-b-heading {
   font-family: 'DM Sans', sans-serif;
   font-size: 1.25rem;
