@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import ai_chatbot from "../../assets/ai_chatbot.jpg";
 import analytics from "../../assets/analytics.jpg";
@@ -52,9 +53,19 @@ const ProjectCard = ({ image, title, subtitle, tech }) => (
 const StudentProjects = () => {
   const [start, setStart] = useState(0);
   const [showAll, setShowAll] = useState(false);
+  const [visible, setVisible] = useState(5);
   const trackRef = useRef(null);
   const [cardWidth, setCardWidth] = useState(0);
   const [visibleCards, setVisibleCards] = useState(5);
+
+  // Calculate VISIBLE based on screen width
+  const getVisibleCards = () => {
+    const width = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    if (width < 480) return 1;
+    if (width < 768) return 2;
+    if (width < 1200) return 3;
+    return 5;
+  };
 
   useEffect(() => {
     const updateLayout = () => {
