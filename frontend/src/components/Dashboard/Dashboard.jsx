@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCourses } from '../../context/CoursesContext';
-import { getMyApplications, getMyEnrollments, updateProfile } from '../../utils/api';
+import { getMyApplications, getMyEnrollments, updateProfile, getDashboardStats, trackActivity } from '../../utils/api';
 import API from '../../utils/api';
 import toast from 'react-hot-toast';
 import {
@@ -60,15 +60,29 @@ const Dashboard = () => {
   const [tab, setTab] = useState('overview');
   const [applications, setApplications] = useState([]);
   const [enrollments, setEnrollments] = useState([]);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalStudyHours: 0,
+    currentStreak: 0,
+    sessionsAttended: 0,
+    attendanceRate: 0,
+    assignmentsCompleted: 0,
+    averageScore: 0,
+    practiceProblems: { solved: 0, total: 6 }
+  });
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!user) { navigate('/login'); return; }
-    Promise.all([getMyApplications(), getMyEnrollments()])
-      .then(([appsRes, enrollRes]) => {
+    Promise.all([
+      getMyApplications(), 
+      getMyEnrollments(),
+      getDashboardStats()
+    ])
+      .then(([appsRes, enrollRes, statsRes]) => {
         setApplications(appsRes.data.data);
         setEnrollments(enrollRes.data.data);
+        setDashboardStats(statsRes.data.data);
       })
       .catch(() => toast.error('Failed to load data'))
       .finally(() => setLoading(false));
@@ -79,6 +93,18 @@ const Dashboard = () => {
   const refreshEnrollments = () => {
     getMyEnrollments().then(r => setEnrollments(r.data.data)).catch(() => {});
   };
+
+  // Track login activity when dashboard loads
+  useEffect(() => {
+    if (user && !loading) {
+      trackActivity({ 
+        activityType: 'login',
+        details: { duration: 0 }
+      }).catch(() => {
+        // Silently fail - don't show error for activity tracking
+      });
+    }
+  }, [user, loading]);
 
   if (!user) return null;
   if (loading) return (
@@ -116,49 +142,53 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="dash-nav-section">
-          <div className="dns-label">Main</div>
-          {TABS.slice(0,2).map(t => (
-            <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
-              onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
-              <span className="dni-icon">{t.icon}</span>
-              <span>{t.label}</span>
-            </button>
-          ))}
-        </div>
+        <div className="dash-sidebar-content">
+          <div>
+            <div className="dash-nav-section">
+              <div className="dns-label">Main</div>
+              {TABS.slice(0,2).map(t => (
+                <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
+                  onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
+                  <span className="dni-icon">{t.icon}</span>
+                  <span>{t.label}</span>
+                </button>
+              ))}
+            </div>
 
-        <div className="dash-nav-section">
-          <div className="dns-label">Learning</div>
-          {TABS.slice(2,8).map(t => (
-            <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
-              onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
-              <span className="dni-icon">{t.icon}</span>
-              <span>{t.label}</span>
-              {t.id === 'mycourses' && enrollments.length > 0 && (
-                <span className="dns-badge">{enrollments.length}</span>
-              )}
-              {t.id === 'applications' && applications.length > 0 && (
-                <span className="dns-badge">{applications.length}</span>
-              )}
-            </button>
-          ))}
-        </div>
+            <div className="dash-nav-section">
+              <div className="dns-label">Learning</div>
+              {TABS.slice(2,8).map(t => (
+                <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
+                  onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
+                  <span className="dni-icon">{t.icon}</span>
+                  <span>{t.label}</span>
+                  {t.id === 'mycourses' && enrollments.length > 0 && (
+                    <span className="dns-badge">{enrollments.length}</span>
+                  )}
+                  {t.id === 'applications' && applications.length > 0 && (
+                    <span className="dns-badge">{applications.length}</span>
+                  )}
+                </button>
+              ))}
+            </div>
 
-        <div className="dash-nav-section">
-          <div className="dns-label">Account</div>
-          {TABS.slice(8).map(t => (
-            <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
-              onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
-              <span className="dni-icon">{t.icon}</span>
-              <span>{t.label}</span>
-            </button>
-          ))}
-        </div>
+            <div className="dash-nav-section">
+              <div className="dns-label">Account</div>
+              {TABS.slice(8).map(t => (
+                <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
+                  onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
+                  <span className="dni-icon">{t.icon}</span>
+                  <span>{t.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
-        <button onClick={handleLogout} className="dash-logout">
-          <span className="dni-icon">{Icons.logout}</span>
-          Logout
-        </button>
+          <button onClick={handleLogout} className="dash-logout">
+            <span className="dni-icon">{Icons.logout}</span>
+            Logout
+          </button>
+        </div>
       </aside>
 
       <main className="dash-main">
@@ -182,13 +212,13 @@ const Dashboard = () => {
         </header>
 
         <div className="dash-content">
-          {tab === 'overview'      && <OverviewTab user={user} applications={applications} enrollments={enrollments} setTab={setTab} />}
-          {tab === 'analytics'     && <AnalyticsTab enrollments={enrollments} applications={applications} />}
+          {tab === 'overview'      && <OverviewTab user={user} applications={applications} enrollments={enrollments} dashboardStats={dashboardStats} setTab={setTab} />}
+          {tab === 'analytics'     && <AnalyticsTab enrollments={enrollments} applications={applications} dashboardStats={dashboardStats} />}
           {tab === 'applications'  && <ApplicationsTab applications={applications} />}
           {tab === 'mycourses'     && <MyCoursesTab enrollments={enrollments} refresh={refreshEnrollments} />}
           {tab === 'allcourses'    && <AllCoursesTab />}
-          {tab === 'sessions'      && <LiveSessionsTab />}
-          {tab === 'practice'      && <PracticeTab />}
+          {tab === 'sessions'      && <LiveSessionsTab dashboardStats={dashboardStats} />}
+          {tab === 'practice'      && <PracticeTab dashboardStats={dashboardStats} />}
           {tab === 'certificates'  && <CertificatesTab enrollments={enrollments} />}
           {tab === 'profile'       && <ProfileTab user={user} setUser={setUser} />}
         </div>
@@ -198,17 +228,16 @@ const Dashboard = () => {
 };
 
 // ── Overview ────────────────────────────────────────────
-const OverviewTab = ({ user, applications, enrollments, setTab }) => {
+const OverviewTab = ({ user, applications, enrollments, dashboardStats, setTab }) => {
   const accepted = applications.filter(a => a.status === 'accepted').length;
-
 
   const STATS = [
     { icon: Icons.book,    val: enrollments.length, label: 'Enrolled',      color: '#2196C9', bg: '#e3f2fd' },
     { icon: Icons.trophy,  val: accepted,            label: 'Accepted',      color: '#27ae60', bg: '#e8f5e9' },
-    { icon: Icons.clock,   val: '142h',              label: 'Hours Logged',  color: '#E8A820', bg: '#fff8e1' },
-    { icon: Icons.target,  val: '89%',               label: 'Attendance',    color: '#6c3483', bg: '#f3e5f5' },
-    { icon: Icons.flame,   val: '18',                label: 'Day Streak',    color: '#e67e22', bg: '#fff3e0' },
-    { icon: Icons.video,   val: '19',                label: 'Sessions Done', color: '#1e8449', bg: '#e8f5e9' },
+    { icon: Icons.clock,   val: `${dashboardStats.totalStudyHours}h`,              label: 'Hours Logged',  color: '#E8A820', bg: '#fff8e1' },
+    { icon: Icons.target,  val: `${dashboardStats.attendanceRate}%`,               label: 'Attendance',    color: '#6c3483', bg: '#f3e5f5' },
+    { icon: Icons.flame,   val: dashboardStats.currentStreak,                label: 'Day Streak',    color: '#e67e22', bg: '#fff3e0' },
+    { icon: Icons.video,   val: dashboardStats.sessionsAttended,                label: 'Sessions Done', color: '#1e8449', bg: '#e8f5e9' },
   ];
 
   return (
@@ -229,10 +258,10 @@ const OverviewTab = ({ user, applications, enrollments, setTab }) => {
             <svg viewBox="0 0 120 120" width="120" height="120">
               <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="10"/>
               <circle cx="60" cy="60" r="50" fill="none" stroke="white" strokeWidth="10"
-                strokeDasharray={`${(65/100)*314} 314`} strokeLinecap="round"
+                strokeDasharray={`${(Math.min(dashboardStats.totalStudyHours, 100)/100)*314} 314`} strokeLinecap="round"
                 transform="rotate(-90 60 60)" />
             </svg>
-            <div className="wb-ring-text"><strong>65%</strong><small>Overall Progress</small></div>
+            <div className="wb-ring-text"><strong>{Math.min(Math.round(dashboardStats.totalStudyHours), 100)}%</strong><small>Study Progress</small></div>
           </div>
         </div>
       </div>
@@ -330,7 +359,7 @@ const OverviewTab = ({ user, applications, enrollments, setTab }) => {
 };
 
 // ── Analytics ────────────────────────────────────────────
-const AnalyticsTab = ({ enrollments, applications }) => {
+const AnalyticsTab = ({ enrollments, applications, dashboardStats }) => {
   const weeklyActivity = [
     { week:'W1', lectures:8,  practice:5,  sessions:2 },
     { week:'W2', lectures:12, practice:8,  sessions:3 },
@@ -382,10 +411,10 @@ const AnalyticsTab = ({ enrollments, applications }) => {
     <div className="analytics-wrap">
       <div className="an-kpi-row">
         {[
-          { label:'Total Study Hours', val:'142h',   icon: Icons.clock,   color:'#E8A820', bg:'#fff8e1', trend:'+12h this week' },
-          { label:'Avg Score',         val:'84.5%',  icon: Icons.target,  color:'#2196C9', bg:'#e3f2fd', trend:'+3.2% vs last month' },
-          { label:'Attendance Rate',   val:'89%',    icon: Icons.video,   color:'#27ae60', bg:'#e8f5e9', trend:'19/22 sessions' },
-          { label:'Current Streak',    val:'18 days',icon: Icons.flame,   color:'#e67e22', bg:'#fff3e0', trend:'Personal best!' },
+          { label:'Total Study Hours', val:`${dashboardStats.totalStudyHours}h`,   icon: Icons.clock,   color:'#E8A820', bg:'#fff8e1', trend:'+0h this week' },
+          { label:'Avg Score',         val:`${dashboardStats.averageScore}%`,  icon: Icons.target,  color:'#2196C9', bg:'#e3f2fd', trend:`${dashboardStats.assignmentsCompleted} assignments` },
+          { label:'Attendance Rate',   val:`${dashboardStats.attendanceRate}%`,    icon: Icons.video,   color:'#27ae60', bg:'#e8f5e9', trend:`${dashboardStats.sessionsAttended} sessions attended` },
+          { label:'Current Streak',    val:`${dashboardStats.currentStreak} days`,icon: Icons.flame,   color:'#e67e22', bg:'#fff3e0', trend:dashboardStats.currentStreak > 0 ? 'Keep going!' : 'Start your streak!' },
         ].map(k => (
           <div key={k.label} className="an-kpi-card" style={{ '--kc': k.color, '--kb': k.bg }}>
             <div className="an-kpi-icon" style={{ background: k.bg, color: k.color }}>{k.icon}</div>
@@ -533,6 +562,29 @@ const ApplicationsTab = ({ applications }) => (
 
 // ── My Courses ────────────────────────────────────────────
 const MyCoursesTab = ({ enrollments, refresh }) => {
+  const handleCourseProgress = async (enrollment) => {
+    try {
+      // Simulate course study session
+      const duration = Math.floor(Math.random() * 60) + 30; // 30-90 minutes
+      
+      await trackActivity({ 
+        activityType: 'course_progress',
+        details: { 
+          duration,
+          courseName: enrollment.courseName,
+          progressPercentage: Math.min(45 + Math.floor(Math.random() * 20), 100) // Simulate progress
+        }
+      });
+      
+      toast.success(`Studied ${enrollment.courseName} for ${duration} minutes!`);
+      
+      // Refresh page to show updated stats
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (error) {
+      toast.error('Failed to track course progress');
+    }
+  };
+
   const deleteEnrollment = async (id, paymentStatus) => {
     if (paymentStatus === 'paid') { toast.error('Cannot delete a paid enrollment. Contact support.'); return; }
     if (!window.confirm('Delete this pending enrollment?')) return;
@@ -588,7 +640,7 @@ const MyCoursesTab = ({ enrollments, refresh }) => {
                 <span className="mcc-date">Enrolled: {new Date(e.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</span>
                 <div className="mcc-actions">
                   {e.paymentStatus === 'paid' ? (
-                    <button className="mcc-btn-continue">Continue Learning</button>
+                    <button className="mcc-btn-continue" onClick={() => handleCourseProgress(e)}>Continue Learning</button>
                   ) : (
                     <>
                       <button className="mcc-btn-pay">Complete Payment</button>
@@ -691,7 +743,28 @@ const AllCoursesTab = () => {
 };
 
 // ── Live Sessions ─────────────────────────────────────────
-const LiveSessionsTab = () => {
+const LiveSessionsTab = ({ dashboardStats }) => {
+  
+  const handleSessionJoin = async (session) => {
+    try {
+      // Simulate attending a session
+      await trackActivity({ 
+        activityType: 'session_attended',
+        details: { 
+          duration: parseInt(session.duration.split(' ')[0]), // Extract minutes
+          sessionTopic: session.topic,
+          instructor: session.instructor
+        }
+      });
+      
+      toast.success(`Joined ${session.topic} session!`);
+      
+      // Refresh page to show updated stats
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (error) {
+      toast.error('Failed to track session attendance');
+    }
+  };
   const UPCOMING = [
     { topic:'React Hooks & Context API', instructor:'Ashwin Kumar', date:'Today', time:'4:00 PM', duration:'60 min', status:'live', attendees:42 },
     { topic:'Node.js REST API Design', instructor:'Priya Sharma', date:'Tomorrow', time:'3:00 PM', duration:'55 min', status:'upcoming', attendees:38 },
@@ -713,9 +786,9 @@ const LiveSessionsTab = () => {
       <div className="tab-hdr">
         <div><h2>Live Sessions</h2><p>Interactive sessions with expert mentors</p></div>
         <div className="session-stats-mini">
-          <span><strong>19</strong> attended</span>
-          <span><strong>5</strong> missed</span>
-          <span><strong>79%</strong> attendance</span>
+          <span><strong>{dashboardStats.sessionsAttended}</strong> attended</span>
+          <span><strong>0</strong> missed</span>
+          <span><strong>{dashboardStats.attendanceRate}%</strong> attendance</span>
         </div>
       </div>
 
@@ -745,7 +818,7 @@ const LiveSessionsTab = () => {
                 {s.attendees} attending
               </div>
             </div>
-            <button className={`sc-join-btn${s.status === 'live' ? ' live' : ''}`}>
+            <button className={`sc-join-btn${s.status === 'live' ? ' live' : ''}`} onClick={() => handleSessionJoin(s)}>
               {s.status === 'live' ? 'Join Now →' : 'Set Reminder'}
             </button>
           </div>
@@ -770,14 +843,39 @@ const LiveSessionsTab = () => {
 };
 
 // ── Practice ──────────────────────────────────────────────
-const PracticeTab = () => {
+const PracticeTab = ({ dashboardStats }) => {
+  
+  const handlePracticeComplete = async (challenge) => {
+    try {
+      // Simulate completing a practice problem
+      const duration = parseInt(challenge.time.split(' ')[0]); // Extract minutes from "15 min" format
+      const score = Math.floor(Math.random() * 20) + 80; // Random score between 80-100
+      
+      await trackActivity({ 
+        activityType: 'practice_completed',
+        details: { 
+          duration,
+          score,
+          challengeName: challenge.title,
+          difficulty: challenge.difficulty
+        }
+      });
+      
+      toast.success(`Completed ${challenge.title}! Score: ${score}%`);
+      
+      // Refresh page to show updated stats
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (error) {
+      toast.error('Failed to track practice completion');
+    }
+  };
   const CHALLENGES = [
-    { title:'Reverse a String',        difficulty:'Easy',   topic:'JavaScript', time:'15 min', solved:true,  score:'100%' },
-    { title:'Fibonacci Sequence',      difficulty:'Easy',   topic:'JavaScript', time:'20 min', solved:true,  score:'90%'  },
-    { title:'Binary Search',           difficulty:'Medium', topic:'Algorithms', time:'30 min', solved:true,  score:'85%'  },
-    { title:'Build a REST API',        difficulty:'Medium', topic:'Node.js',    time:'45 min', solved:false, score:'—'    },
-    { title:'React Todo App',          difficulty:'Medium', topic:'React',      time:'60 min', solved:false, score:'—'    },
-    { title:'Database Schema Design',  difficulty:'Hard',   topic:'MongoDB',    time:'45 min', solved:false, score:'—'    },
+    { title:'Reverse a String',        difficulty:'Easy',   topic:'JavaScript', time:'15 min', solved: dashboardStats.practiceProblems.solved >= 1,  score: dashboardStats.practiceProblems.solved >= 1 ? '100%' : '—' },
+    { title:'Fibonacci Sequence',      difficulty:'Easy',   topic:'JavaScript', time:'20 min', solved: dashboardStats.practiceProblems.solved >= 2,  score: dashboardStats.practiceProblems.solved >= 2 ? '90%' : '—'  },
+    { title:'Binary Search',           difficulty:'Medium', topic:'Algorithms', time:'30 min', solved: dashboardStats.practiceProblems.solved >= 3,  score: dashboardStats.practiceProblems.solved >= 3 ? '85%' : '—'  },
+    { title:'Build a REST API',        difficulty:'Medium', topic:'Node.js',    time:'45 min', solved: dashboardStats.practiceProblems.solved >= 4, score: dashboardStats.practiceProblems.solved >= 4 ? '88%' : '—'    },
+    { title:'React Todo App',          difficulty:'Medium', topic:'React',      time:'60 min', solved: dashboardStats.practiceProblems.solved >= 5, score: dashboardStats.practiceProblems.solved >= 5 ? '92%' : '—'    },
+    { title:'Database Schema Design',  difficulty:'Hard',   topic:'MongoDB',    time:'45 min', solved: dashboardStats.practiceProblems.solved >= 6, score: dashboardStats.practiceProblems.solved >= 6 ? '94%' : '—'    },
   ];
 
   const DIFF_COLOR = { Easy:'#27ae60', Medium:'#e67e22', Hard:'#dc4545' };
@@ -787,17 +885,17 @@ const PracticeTab = () => {
       <div className="tab-hdr">
         <div><h2>Practice Sessions</h2><p>Sharpen your skills with coding challenges</p></div>
         <div className="practice-stats-mini">
-          <span><strong>3</strong> solved</span>
-          <span><strong>3</strong> pending</span>
-          <span><strong>50%</strong> completion</span>
+          <span><strong>{dashboardStats.practiceProblems.solved}</strong> solved</span>
+          <span><strong>{dashboardStats.practiceProblems.total - dashboardStats.practiceProblems.solved}</strong> pending</span>
+          <span><strong>{Math.round((dashboardStats.practiceProblems.solved / dashboardStats.practiceProblems.total) * 100)}%</strong> completion</span>
         </div>
       </div>
 
       <div className="practice-summary">
         {[
-          { label:'Problems Solved', val:'3/6', color:'#27ae60', w:'50%' },
-          { label:'Avg Score',       val:'91%', color:'#2196C9', w:'91%' },
-          { label:'Practice Hours',  val:'8h',  color:'#E8A820', w:'40%' },
+          { label:'Problems Solved', val:`${dashboardStats.practiceProblems.solved}/${dashboardStats.practiceProblems.total}`, color:'#27ae60', w:`${(dashboardStats.practiceProblems.solved/dashboardStats.practiceProblems.total)*100}%` },
+          { label:'Avg Score',       val:`${dashboardStats.averageScore}%`, color:'#2196C9', w:`${dashboardStats.averageScore}%` },
+          { label:'Practice Hours',  val:`${Math.round(dashboardStats.totalStudyHours * 0.3)}h`,  color:'#E8A820', w:'30%' },
         ].map(s => (
           <div key={s.label} className="ps-card">
             <div className="ps-val" style={{ color: s.color }}>{s.val}</div>
@@ -824,7 +922,7 @@ const PracticeTab = () => {
               </span>
               {c.solved
                 ? <span className="cc-score">{c.score}</span>
-                : <button className="cc-solve-btn">Solve Now</button>
+                : <button className="cc-solve-btn" onClick={() => handlePracticeComplete(c)}>Solve Now</button>
               }
             </div>
           </div>
