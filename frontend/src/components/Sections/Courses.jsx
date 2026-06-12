@@ -237,6 +237,26 @@ const EnrollModal = ({ course, onClose }) => {
             toast.error("Verification failed. Contact support.");
           }
         },
+        config: {
+          display: {
+            blocks: {
+              upi: {
+                name: "Pay via UPI (Scan QR)",
+                instruments: [{ method: "upi" }],
+              },
+              other: {
+                name: "Other Payment Methods",
+                instruments: [
+                  { method: "card" },
+                  { method: "netbanking" },
+                  { method: "wallet" },
+                ],
+              },
+            },
+            sequence: ["block.upi", "block.other"],
+            preferences: { show_default_blocks: false },
+          },
+        },
         prefill: { name: form.name, email: form.email, contact: form.phone },
         theme: { color: "#E8A820" },
         modal: {
