@@ -262,7 +262,7 @@
 .dcf-emoji { font-size: 2.5rem; line-height: 1; }
 .dcf-badge { background: rgba(255,255,255,.2); color: white; padding: .22rem .65rem; border-radius: 50px; font-size: .68rem; font-weight: 700; text-transform: uppercase; border: 1px solid rgba(255,255,255,.28); }
 .dcf-body { padding: 1.25rem; display: flex; flex-direction: column; gap: .65rem; flex: 1; }
-.dcf-body h4 { font-family: 'Poppins',sans-serif; font-size: 1rem; font-weight: 700; color: #1B2A4A; margin: 0; line-height: 1.3; }
+.dcf-body h4 { font-family: 'Playfair Display',serif; font-size: 1rem; font-weight: 700; color: #1B2A4A; margin: 0; line-height: 1.3; }
 .dcf-body p { font-size: .8rem; color: #5a6a82; line-height: 1.6; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .dcf-meta { display: flex; gap: 1rem; }
 .dcf-meta span { font-size: .75rem; color: #5a6a82; }

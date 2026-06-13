@@ -595,5 +595,4 @@ const Courses = () => {
   );
 };
 
-export { EnrollModal };
 export default Courses;
