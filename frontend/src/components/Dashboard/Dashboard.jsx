@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCourses } from '../../context/CoursesContext';
-import { getMyApplications, getMyEnrollments, updateProfile, getDashboardStats, trackActivity } from '../../utils/api';
+import { EnrollModal } from '../Sections/Courses';
+import { getMyApplications, getMyEnrollments, updateProfile } from '../../utils/api';
 import API from '../../utils/api';
 import toast from 'react-hot-toast';
 import {
@@ -664,6 +665,7 @@ const AllCoursesTab = () => {
   const { activeCourses } = useCourses();
   const [filter, setFilter] = useState('all');
   const [detailCourse, setDetailCourse] = useState(null);
+  const [enrollCourseData, setEnrollCourseData] = useState(null);
 
 
   const navigate = useNavigate();
@@ -677,8 +679,7 @@ const AllCoursesTab = () => {
 
   const handleEnrollClick = (c) => {
     setDetailCourse(null);
-    navigate('/');
-    setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior:'smooth' }), 300);
+    setEnrollCourseData(c);
   };
 
   return (
@@ -738,6 +739,12 @@ const AllCoursesTab = () => {
           />
         );
       })()}
+      {enrollCourseData && (
+        <EnrollModal
+          course={enrollCourseData}
+          onClose={() => setEnrollCourseData(null)}
+        />
+      )}
     </div>
   );
 };

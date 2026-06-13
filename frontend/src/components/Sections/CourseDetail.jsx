@@ -229,7 +229,7 @@ const CourseDetailModal = ({ course, onClose, onEnroll }) => {
                 <div className="cd-learn-grid">
                   {details.whatYouLearn.map((l, i) => (
                     <div key={i} className="cd-learn-item">
-                      <span className="cd-check">checkmark</span>
+                      <span className="cd-check" aria-hidden="true" />
                       <span>{l}</span>
                     </div>
                   ))}
