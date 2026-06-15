@@ -21,12 +21,67 @@ router.get('/stats', async (req, res) => {
       Enrollment.countDocuments({ paymentStatus: 'paid' }),
       User.countDocuments({ role: 'admin' })
     ]);
+
+    // Calculate real revenue from paid enrollments
+    const paidEnrollmentsData = await Enrollment.find({ paymentStatus: 'paid' }).select('coursePrice createdAt');
+    const totalRevenue = paidEnrollmentsData.reduce((sum, enrollment) => sum + (enrollment.coursePrice || 0), 0);
+
+    // Calculate monthly data for the last 8 months
+    const monthlyData = [];
+    const currentDate = new Date();
+    
+    for (let i = 7; i >= 0; i--) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const nextDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i + 1, 1);
+      
+      const monthApplications = await Application.countDocuments({
+        createdAt: { $gte: date, $lt: nextDate }
+      });
+      
+      const monthEnrollments = await Enrollment.countDocuments({
+        createdAt: { $gte: date, $lt: nextDate }
+      });
+      
+      const monthRevenue = await Enrollment.aggregate([
+        {
+          $match: {
+            paymentStatus: 'paid',
+            createdAt: { $gte: date, $lt: nextDate }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: '$coursePrice' }
+          }
+        }
+      ]);
+
+      monthlyData.push({
+        month: date.toLocaleDateString('en-US', { month: 'short' }),
+        applications: monthApplications,
+        enrollments: monthEnrollments,
+        revenue: monthRevenue[0]?.total || 0
+      });
+    }
+
     const recentApplications = await Application.find().sort('-createdAt').limit(5);
     const recentEnrollments = await Enrollment.find().sort('-createdAt').limit(5).populate('user', 'name email');
+    
     res.json({
       success: true,
       data: {
-        stats: { totalUsers, totalApplications, totalEnrollments, totalHireRequests, pendingApplications, paidEnrollments, totalAdmins },
+        stats: { 
+          totalUsers, 
+          totalApplications, 
+          totalEnrollments, 
+          totalHireRequests, 
+          pendingApplications, 
+          paidEnrollments, 
+          totalAdmins,
+          totalRevenue 
+        },
+        monthlyData,
         recentApplications,
         recentEnrollments
       }
