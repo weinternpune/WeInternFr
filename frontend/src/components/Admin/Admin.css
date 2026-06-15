@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 .admin-panel .dash-sidebar { background: #0f1d33; }
 .admin-panel .dash-nav-item.active { background: rgba(220,69,69,.2); color: #ff6b6b; }
 .admin-badge-row { padding: 0 .5rem 1rem; }
@@ -804,3 +805,8 @@
 .admin-project-card:nth-child(6) .apc-top { border-bottom: 1px solid rgba(232,168,32,.15); padding-bottom:.75rem; margin-bottom:.75rem; }
 .admin-project-card { transition: transform .25s, box-shadow .25s; }
 .admin-project-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.12); }
+/* Admin Course Cards - Poppins Font */
+.admin-course-card,
+.admin-course-card * {
+  font-family: 'Poppins', sans-serif !important;
+}
