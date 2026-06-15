@@ -695,7 +695,9 @@ const AllCoursesTab = () => {
         {filtered.map(c => (
           <div key={c.id||c.title} className="dash-course-card-full" onClick={() => setDetailCourse(c)} style={{cursor:'pointer'}}>
             <div className="dcf-header" style={{ background:`linear-gradient(135deg,${c.colors?.h1||'#e76f51'},${c.colors?.h2||'#f4a261'})` }}>
-              <span className="dcf-emoji">{c.emoji}</span>
+              <span className="dcf-emoji">
+  <Icon icon={c.icon} width={40} height={40} />
+</span>
               <span className="dcf-badge">{(c.level||'').charAt(0).toUpperCase()+(c.level||'').slice(1)}</span>
             </div>
             <div className="dcf-body">

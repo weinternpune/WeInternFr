@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 /* ===== DASHBOARD LAYOUT ===== */
 .dashboard { display: flex; min-height: 100vh; background: #f0f4f8; }
 
@@ -458,3 +459,8 @@
   transition: all .2s;
 }
 .dcf-enroll-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(232,168,32,.3); }
+
+.admin-course-card,
+.admin-course-card * {
+  font-family: 'Poppins', sans-serif !important;
+}
