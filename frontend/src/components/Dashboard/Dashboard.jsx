@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Home, User, Settings, Bell } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCourses } from '../../context/CoursesContext';
@@ -696,7 +697,7 @@ const AllCoursesTab = () => {
           <div key={c.id||c.title} className="dash-course-card-full" onClick={() => setDetailCourse(c)} style={{cursor:'pointer'}}>
             <div className="dcf-header" style={{ background:`linear-gradient(135deg,${c.colors?.h1||'#e76f51'},${c.colors?.h2||'#f4a261'})` }}>
               <span className="dcf-emoji">
-  <Icon icon={c.icon} width={40} height={40} />
+  <User className="w-5 h-5" />
 </span>
               <span className="dcf-badge">{(c.level||'').charAt(0).toUpperCase()+(c.level||'').slice(1)}</span>
             </div>
