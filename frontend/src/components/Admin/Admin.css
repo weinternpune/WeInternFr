@@ -64,6 +64,21 @@
   width: 100% !important;
 }
 
+/* Add proper spacing between chart rows */
+.admin-panel .charts-row {
+  margin-bottom: 2rem !important; /* Gap between chart rows */
+}
+
+/* Add extra spacing for first stats grid */
+.admin-panel .stats-grid {
+  margin-bottom: 2.5rem !important; /* Gap after stats cards */
+}
+
+/* Add spacing between overview sections */
+.admin-panel .overview-welcome {
+  margin-bottom: 2rem !important; /* Gap after welcome section */
+}
+
 /* Navigation active state */
 .admin-panel .dash-nav-item.active { 
   background: rgba(220,69,69,.15) !important; 
