@@ -20,6 +20,7 @@ const contactRoutes = require("./routes/contact");
 require("./config/passport");
 
 const app = express();
+app.set('trust proxy', 1);
 
 // Connect Database
 connectDB();
