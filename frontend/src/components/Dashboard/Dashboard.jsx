@@ -99,10 +99,8 @@ const Dashboard = () => {
     if (user && !loading) {
       trackActivity({ 
         activityType: 'login',
-        details: { duration: 0 }
-      }).catch(() => {
-        // Silently fail - don't show error for activity tracking
-      });
+        details: { duration: 0 }  // Just a login ping
+      }).catch(err => console.warn('Activity tracking failed:', err));
     }
   }, [user, loading]);
 
