@@ -460,8 +460,9 @@
 }
 .dcf-enroll-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(232,168,32,.3); }
 
-.admin-course-card,
-.admin-course-card * {
+/* Browse Course Cards - Poppins Font */
+.dash-course-card-full,
+.dash-course-card-full * {
   font-family: 'Poppins', sans-serif !important;
 }
 
