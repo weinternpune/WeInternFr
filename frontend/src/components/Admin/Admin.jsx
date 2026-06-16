@@ -74,11 +74,7 @@ const Admin = () => {
           </div>
           <div className="dash-user-details">
             <div className="dash-user-name">{user.name}</div>
-            <div className="dash-user-email">{user.email}</div>
-            <div className="dash-user-badge" style={{ background: 'rgba(220,69,69,.2)', color: '#ff6b6b', border: '1px solid rgba(220,69,69,.3)' }}>
-              <span className="dub-dot" style={{ background: '#ff6b6b' }} />
-              Admin
-            </div>
+            <div className="dash-user-role" style={{ color: '#ff6b6b' }}>Administrator</div>
           </div>
         </div>
 
