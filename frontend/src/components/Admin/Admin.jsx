@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useAdmin } from '../../context/AdminContext';
 import {
-  getAdminStats, getAdminApplications, updateApplicationStatus,
-  getAdminEnrollments, getAdminHireRequests, updateHireRequest, getAdminUsers
+  getAdminApplications, updateApplicationStatus,
+  getAdminEnrollments, getAdminHireRequests, updateHireRequest, getAdminUsers, getUserActivity
 } from '../../utils/api';
 import API from '../../utils/api';
 import toast from 'react-hot-toast';
@@ -1099,39 +1099,70 @@ const AdminProjects = () => {
 // ── User Detail Analytics Modal ───────────────────────────
 const UserDetailModal = ({ user: u, onClose }) => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [activityData, setActivityData] = useState({
+    courses: 0,
+    hoursLogged: 0,
+    attendance: 0,
+    assignments: 0,
+    averageScore: 0,
+    dayStreak: 0,
+    sessionsAttended: 0,
+    recentActivities: []
+  });
+  const [loading, setLoading] = useState(true);
 
-  const activityData = [
-    { week: 'Week 1', lectures: 8,  practice: 5,  sessions: 2 },
-    { week: 'Week 2', lectures: 12, practice: 8,  sessions: 3 },
-    { week: 'Week 3', lectures: 10, practice: 12, sessions: 2 },
-    { week: 'Week 4', lectures: 15, practice: 10, sessions: 4 },
-    { week: 'Week 5', lectures: 11, practice: 15, sessions: 3 },
-    { week: 'Week 6', lectures: 18, practice: 18, sessions: 5 },
+  // Fetch user activity data when modal opens
+  useEffect(() => {
+    const fetchUserActivity = async () => {
+      try {
+        setLoading(true);
+        const response = await API.get(`/admin/users/${u._id}/activity`);
+        setActivityData(response.data.data);
+      } catch (error) {
+        console.error('Failed to fetch user activity:', error);
+        toast.error('Failed to load user activity data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (u._id) {
+      fetchUserActivity();
+    }
+  }, [u._id]);
+
+  const mockActivityData = [
+    { week: 'Week 1', lectures: 0,  practice: 0,  sessions: 0 },
+    { week: 'Week 2', lectures: 0, practice: 0,  sessions: 0 },
+    { week: 'Week 3', lectures: 0, practice: 0, sessions: 0 },
+    { week: 'Week 4', lectures: 0, practice: 0, sessions: 0 },
+    { week: 'Week 5', lectures: 0, practice: 0, sessions: 0 },
+    { week: 'Week 6', lectures: 0, practice: 0, sessions: 0 },
   ];
 
   const skillData = [
-    { subject: 'HTML/CSS',     A: 85 },
-    { subject: 'JavaScript',   A: 72 },
-    { subject: 'React',        A: 68 },
-    { subject: 'Node.js',      A: 60 },
-    { subject: 'Database',     A: 55 },
-    { subject: 'Deployment',   A: 45 },
+    { subject: 'HTML/CSS',     A: 0 },
+    { subject: 'JavaScript',   A: 0 },
+    { subject: 'React',        A: 0 },
+    { subject: 'Node.js',      A: 0 },
+    { subject: 'Database',     A: 0 },
+    { subject: 'Deployment',   A: 0 },
   ];
 
   const dailyLogin = [
-    { day: 'Mon', hours: 2.5 },
-    { day: 'Tue', hours: 1.8 },
-    { day: 'Wed', hours: 3.2 },
-    { day: 'Thu', hours: 2.0 },
-    { day: 'Fri', hours: 4.1 },
-    { day: 'Sat', hours: 5.5 },
-    { day: 'Sun', hours: 3.8 },
+    { day: 'Mon', hours: 0 },
+    { day: 'Tue', hours: 0 },
+    { day: 'Wed', hours: 0 },
+    { day: 'Thu', hours: 0 },
+    { day: 'Fri', hours: 0 },
+    { day: 'Sat', hours: 0 },
+    { day: 'Sun', hours: 0 },
   ];
 
   const progressData = [
-    { name: 'Completed', value: 65, color: '#27ae60' },
-    { name: 'In Progress', value: 25, color: '#2196C9' },
-    { name: 'Pending', value: 10, color: '#E8A820' },
+    { name: 'Completed', value: 0, color: '#27ae60' },
+    { name: 'In Progress', value: 0, color: '#2196C9' },
+    { name: 'Pending', value: 100, color: '#E8A820' },
   ];
 
   const TABS = [
@@ -1176,16 +1207,16 @@ const UserDetailModal = ({ user: u, onClose }) => {
           </div>
           <div className="ud-quick-stats">
             {[
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M4 19.5A2.5 2.5 0 0 1 6.5 17H20'/><path d='M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'/></svg>, val:'3',    label:'Courses' },
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg>, val:'142h', label:'Hours Logged' },
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><circle cx='12' cy='12' r='10'/><circle cx='12' cy='12' r='6'/><circle cx='12' cy='12' r='2'/></svg>, val:'89%',  label:'Attendance' },
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M6 9H4.5a2.5 2.5 0 0 1 0-5H6'/><path d='M18 9h1.5a2.5 2.5 0 0 0 0-5H18'/><path d='M4 22h16'/><path d='M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22'/><path d='M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22'/><path d='M18 2H6v7a6 6 0 0 0 12 0V2z'/></svg>, val:'12',   label:'Assignments' },
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='currentColor'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg>, val:'4.2',  label:'Avg Score' },
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z'/></svg>, val:'18',   label:'Day Streak' },
+              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M4 19.5A2.5 2.5 0 0 1 6.5 17H20'/><path d='M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'/></svg>, val: loading ? '...' : activityData.courses,    label:'Courses', color:'#2196C9', bgColor:'rgba(33,150,201,.15)' },
+              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg>, val: loading ? '...' : `${activityData.hoursLogged}h`, label:'Hours Logged', color:'#27ae60', bgColor:'rgba(39,174,96,.15)' },
+              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><circle cx='12' cy='12' r='10'/><circle cx='12' cy='12' r='6'/><circle cx='12' cy='12' r='2'/></svg>, val: loading ? '...' : `${activityData.attendance}%`,  label:'Attendance', color:'#6c3483', bgColor:'rgba(108,52,131,.15)' },
+              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M6 9H4.5a2.5 2.5 0 0 1 0-5H6'/><path d='M18 9h1.5a2.5 2.5 0 0 0 0-5H18'/><path d='M4 22h16'/><path d='M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22'/><path d='M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22'/><path d='M18 2H6v7a6 6 0 0 0 12 0V2z'/></svg>, val: loading ? '...' : activityData.assignments,   label:'Assignments', color:'#E8A820', bgColor:'rgba(232,168,32,.15)' },
+              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='currentColor'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg>, val: loading ? '...' : activityData.averageScore,  label:'Avg Score', color:'#e67e22', bgColor:'rgba(230,126,34,.15)' },
+              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z'/></svg>, val: loading ? '...' : activityData.dayStreak,   label:'Day Streak', color:'#dc4545', bgColor:'rgba(220,69,69,.15)' },
             ].map(s => (
               <div key={s.label} className="ud-qs">
-                <span>{s.icon}</span>
-                <strong>{s.val}</strong>
+                <span style={{ color: s.color, background: s.bgColor, boxShadow: `0 2px 8px ${s.color}33` }}>{s.icon}</span>
+                <strong style={{ color: s.color }}>{s.val}</strong>
                 <small>{s.label}</small>
               </div>
             ))}
@@ -1206,7 +1237,7 @@ const UserDetailModal = ({ user: u, onClose }) => {
                 <div className="ud-chart-card" style={{ flex: 2 }}>
                   <div className="ud-chart-title">Weekly Learning Activity</div>
                   <ResponsiveContainer width="100%" height={220}>
-                    <AreaChart data={activityData} margin={{ top:10, right:10, left:-20, bottom:0 }}>
+                    <AreaChart data={mockActivityData} margin={{ top:10, right:10, left:-20, bottom:0 }}>
                       <defs>
                         <linearGradient id="lgGrad" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#2196C9" stopOpacity={0.3}/>
@@ -1320,33 +1351,33 @@ const UserDetailModal = ({ user: u, onClose }) => {
               <div className="ud-chart-card" style={{ marginTop:'1.25rem' }}>
                 <div className="ud-chart-title">Recent Activity Log</div>
                 <div className="activity-timeline">
-                  {[
-                    { time:'Today, 10:30 AM',  action:'Completed React Hooks lecture',        type:'lecture',   icon:'video' },
-                    { time:'Today, 9:00 AM',   action:'Submitted Assignment #8 — Todo App',   type:'assignment',icon:'file'  },
-                    { time:'Yesterday, 3 PM',  action:'Attended Live Session: Node.js APIs',  type:'session',   icon:'video' },
-                    { time:'Yesterday, 11 AM', action:'Completed practice: JavaScript ES6',   type:'practice',  icon:'code'  },
-                    { time:'2 days ago',       action:'Started MongoDB module',               type:'lecture',   icon:'book'  },
-                    { time:'3 days ago',       action:'Scored 88% in CSS quiz',               type:'quiz',      icon:'target'},
-                    { time:'4 days ago',       action:'Attended Live Session: React Basics',  type:'session',   icon:'video' },
-                    { time:'5 days ago',       action:'Completed HTML5 module — 100%',        type:'complete',  icon:'check' },
-                  ].map((a, i) => (
-                    <div key={i} className="at-item">
-                      <div className={`at-dot ${a.type}`} />
-                      <div className="at-icon">
-                        {a.icon === 'video'  && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>}
-                        {a.icon === 'file'   && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>}
-                        {a.icon === 'code'   && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>}
-                        {a.icon === 'book'   && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>}
-                        {a.icon === 'target' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>}
-                        {a.icon === 'check'  && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>}
-                      </div>
-                      <div className="at-content">
-                        <div className="at-action">{a.action}</div>
-                        <div className="at-time">{a.time}</div>
-                      </div>
-                      <span className={`at-badge ${a.type}`}>{a.type}</span>
+                  {loading ? (
+                    <div className="dash-loading" style={{ padding: '2rem' }}>
+                      <div className="dash-spinner" />
+                      <p>Loading activities...</p>
                     </div>
-                  ))}
+                  ) : activityData.recentActivities.length > 0 ? (
+                    activityData.recentActivities.map((activity, i) => (
+                      <div key={i} className="at-item">
+                        <div className={`at-dot ${activity.activityType || 'default'}`} />
+                        <div className="at-icon">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                          </svg>
+                        </div>
+                        <div className="at-content">
+                          <div className="at-action">{activity.activityType?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Activity'}</div>
+                          <div className="at-time">{new Date(activity.createdAt).toLocaleDateString()}</div>
+                        </div>
+                        <span className={`at-badge ${activity.activityType || 'default'}`}>{activity.activityType || 'activity'}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--muted)' }}>
+                      <p>No recent activities found</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1433,7 +1464,7 @@ const UserDetailModal = ({ user: u, onClose }) => {
                 <div className="ud-chart-card" style={{ flex:1 }}>
                   <div className="ud-chart-title">Live Sessions Attendance</div>
                   <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={activityData} margin={{ top:10, right:10, left:-20, bottom:0 }}>
+                    <BarChart data={mockActivityData} margin={{ top:10, right:10, left:-20, bottom:0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(27,42,74,0.06)" vertical={false} />
                       <XAxis dataKey="week" tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
                       <YAxis tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} />

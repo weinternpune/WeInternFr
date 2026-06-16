@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Home, User, Settings, Bell } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCourses } from '../../context/CoursesContext';
@@ -696,9 +695,7 @@ const AllCoursesTab = () => {
         {filtered.map(c => (
           <div key={c.id||c.title} className="dash-course-card-full" onClick={() => setDetailCourse(c)} style={{cursor:'pointer'}}>
             <div className="dcf-header" style={{ background:`linear-gradient(135deg,${c.colors?.h1||'#e76f51'},${c.colors?.h2||'#f4a261'})` }}>
-              <span className="dcf-emoji">
-  <User className="w-5 h-5" />
-</span>
+              <span className="dcf-emoji">{c.emoji || '📚'}</span>
               <span className="dcf-badge">{(c.level||'').charAt(0).toUpperCase()+(c.level||'').slice(1)}</span>
             </div>
             <div className="dcf-body">
@@ -766,6 +763,7 @@ const LiveSessionsTab = ({ dashboardStats }) => {
       toast.error('Failed to track session attendance');
     }
   };
+  
   const UPCOMING = [
     { topic:'React Hooks & Context API', instructor:'Ashwin Kumar', date:'Today', time:'4:00 PM', duration:'60 min', status:'live', attendees:42 },
     { topic:'Node.js REST API Design', instructor:'Priya Sharma', date:'Tomorrow', time:'3:00 PM', duration:'55 min', status:'upcoming', attendees:38 },
@@ -773,23 +771,16 @@ const LiveSessionsTab = ({ dashboardStats }) => {
     { topic:'Docker & Container Basics', instructor:'Sneha Patel', date:'Thu, 9 May', time:'4:30 PM', duration:'50 min', status:'upcoming', attendees:33 },
   ];
 
-  const PAST = [
-    { topic:'JavaScript ES6+ Features', date:'30 Apr 2024', duration:'55 min', attended:true,  score:'92%' },
-    { topic:'CSS Grid & Flexbox Mastery', date:'28 Apr 2024', duration:'45 min', attended:false, score:'—'   },
-    { topic:'React Component Patterns', date:'26 Apr 2024', duration:'60 min', attended:true,  score:'88%' },
-    { topic:'Express Middleware Deep Dive', date:'24 Apr 2024', duration:'50 min', attended:true, score:'85%' },
-    { topic:'Git & GitHub Workflow', date:'22 Apr 2024', duration:'45 min', attended:true,  score:'90%' },
-    { topic:'HTML5 Semantic Elements', date:'20 Apr 2024', duration:'40 min', attended:true,  score:'95%' },
-  ];
+  const PAST = [];
 
   return (
     <div>
       <div className="tab-hdr">
         <div><h2>Live Sessions</h2><p>Interactive sessions with expert mentors</p></div>
         <div className="session-stats-mini">
-          <span><strong>{dashboardStats.sessionsAttended}</strong> attended</span>
+          <span><strong>{dashboardStats.sessionsAttended || 0}</strong> attended</span>
           <span><strong>0</strong> missed</span>
-          <span><strong>{dashboardStats.attendanceRate}%</strong> attendance</span>
+          <span><strong>{dashboardStats.attendanceRate || 0}%</strong> attendance</span>
         </div>
       </div>
 
@@ -828,7 +819,7 @@ const LiveSessionsTab = ({ dashboardStats }) => {
 
       <h3 className="section-sub-title" style={{ marginTop:'2rem' }}>Session History</h3>
       <div className="sessions-history">
-        {PAST.map((s, i) => (
+        {PAST.length > 0 ? PAST.map((s, i) => (
           <div key={i} className="sh-row">
             <div className="sh-icon" style={{ background: s.attended ? '#e8f5e9' : '#fdecea', color: s.attended ? '#27ae60' : '#dc4545' }}>
               {s.attended ? Icons.check : Icons.trash}
@@ -837,7 +828,13 @@ const LiveSessionsTab = ({ dashboardStats }) => {
             <span className={`sh-status ${s.attended ? 'attended' : 'missed'}`}>{s.attended ? 'Attended' : 'Missed'}</span>
             <strong className="sh-score" style={{ color: s.attended ? '#27ae60' : '#dc4545' }}>{s.score}</strong>
           </div>
-        ))}
+        )) : (
+          <div className="empty-sessions-history">
+            <div className="empty-sessions-icon" style={{ opacity: 0.5 }}>{Icons.sessions}</div>
+            <h4>No Session History</h4>
+            <p>Your session attendance history will appear here once you start attending sessions for your enrolled courses.</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ const { protect, adminOnly } = require('../middleware/auth');
 const Application = require('../models/Application');
 const { Enrollment, HireRequest } = require('../models/Enrollment');
 const User = require('../models/User');
+const { UserActivity, UserProgress } = require('../models/UserActivity');
 
 // All admin routes require auth + admin role
 router.use(protect, adminOnly);
@@ -200,16 +201,41 @@ router.get('/admins', async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-module.exports = router;
-
-// Delete user
-router.delete('/users/:id', async (req, res) => {
+// Get user activity data for admin view
+router.get('/users/:id/activity', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-    if (user.role === 'admin') return res.status(403).json({ success: false, message: 'Cannot delete admin' });
-    await User.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: 'User deleted successfully' });
+    const userId = req.params.id;
+    
+    // Get user enrollments count
+    const enrollmentCount = await Enrollment.countDocuments({ user: userId });
+    
+    // Get user progress data
+    const userProgress = await UserProgress.findOne({ user: userId });
+    
+    // Get recent user activities
+    const recentActivities = await UserActivity.find({ user: userId })
+      .sort('-createdAt')
+      .limit(20)
+      .populate('user', 'name');
+    
+    // Calculate stats based on actual data
+    const totalHours = userProgress ? Math.floor(userProgress.totalStudyHours / 60) : 0; // Convert minutes to hours
+    const attendanceRate = userProgress && userProgress.sessionsTotal > 0 
+      ? Math.round((userProgress.sessionsAttended / userProgress.sessionsTotal) * 100) 
+      : 0;
+    
+    const activityData = {
+      courses: enrollmentCount,
+      hoursLogged: totalHours,
+      attendance: attendanceRate,
+      assignments: userProgress ? userProgress.assignmentsCompleted : 0,
+      averageScore: userProgress ? userProgress.averageScore : 0,
+      dayStreak: userProgress ? userProgress.currentStreak : 0,
+      sessionsAttended: userProgress ? userProgress.sessionsAttended : 0,
+      recentActivities: recentActivities
+    };
+    
+    res.json({ success: true, data: activityData });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -268,44 +294,4 @@ router.patch('/users/:id/reset-password', async (req, res) => {
   }
 });
 
-// Delete user
-router.delete('/users/:id', async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-    if (user.role === 'admin') return res.status(403).json({ success: false, message: 'Cannot delete admin' });
-    await User.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: 'User deleted' });
-  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
-});
-
-// Block / Unblock user
-router.patch('/users/:id/block', async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-    if (user.role === 'admin') return res.status(403).json({ success: false, message: 'Cannot block admin' });
-    user.isBlocked = !user.isBlocked;
-    await user.save();
-    res.json({ success: true, message: user.isBlocked ? 'Blocked' : 'Unblocked', data: user });
-  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
-});
-
-// Change role
-router.patch('/users/:id/role', async (req, res) => {
-  try {
-    const user = await User.findByIdAndUpdate(req.params.id, { role: req.body.role }, { new: true });
-    res.json({ success: true, data: user });
-  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
-});
-
-// Reset password
-router.patch('/users/:id/reset-password', async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-    user.password = req.body.password;
-    await user.save();
-    res.json({ success: true, message: 'Password reset' });
-  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
-});
+module.exports = router;

@@ -66,3 +66,4 @@ export const getAdminEnrollments = (params) => API.get('/admin/enrollments', { p
 export const getAdminHireRequests = () => API.get('/admin/hire-requests');
 export const updateHireRequest = (id, data) => API.patch(`/admin/hire-requests/${id}`, data);
 export const getAdminUsers = (params) => API.get('/admin/users', { params });
+export const getUserActivity = (userId) => API.get(`/admin/users/${userId}/activity`);
