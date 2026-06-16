@@ -460,68 +460,8 @@
 }
 .dcf-enroll-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(232,168,32,.3); }
 
-.admin-course-card,
-.admin-course-card * {
+/* Browse Course Cards - Poppins Font */
+.dash-course-card-full,
+.dash-course-card-full * {
   font-family: 'Poppins', sans-serif !important;
-}
-
-/* ===== EMPTY SESSION STATES ===== */
-.empty-sessions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 2rem;
-  background: white;
-  border-radius: 16px;
-  border: 2px dashed #e0e4ef;
-  text-align: center;
-  min-height: 200px;
-}
-
-.empty-sessions-history {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  text-align: center;
-  background: #fafbfc;
-  border-radius: 12px;
-}
-
-.empty-sessions-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #c0c8d8;
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.empty-sessions h4,
-.empty-sessions-history h4 {
-  font-family: 'Playfair Display', serif;
-  color: #1B2A4A;
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.empty-sessions p,
-.empty-sessions-history p {
-  color: #5a6a82;
-  font-size: 0.9rem;
-  line-height: 1.6;
-  margin: 0;
-  max-width: 300px;
-}
-
-/* Add grid layout for empty sessions */
-.sessions-grid:has(.empty-sessions) {
-  grid-template-columns: 1fr;
-}
-
-.sessions-grid .empty-sessions {
-  grid-column: 1 / -1;
 }

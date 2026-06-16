@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Icon } from '@iconify/react';
+import {
+  FaChartBar,
+  FaFileAlt,
+  FaBook,
+  FaBuilding,
+  FaUsers,
+  FaGraduationCap,
+  FaRocket,
+  FaUserShield,
+   FaSignOutAlt,
+} from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { useAdmin } from '../../context/AdminContext';
 import {
@@ -21,14 +33,14 @@ const statusBadge = (s) => (
 );
 
 const ADMIN_TABS = [
-  { id: 'overview',      icon: '📊', label: 'Overview' },
-  { id: 'applications',  icon: '📝', label: 'Applications' },
-  { id: 'enrollments',   icon: '📚', label: 'Enrollments' },
-  { id: 'hire',          icon: '🏢', label: 'Hire Requests' },
-  { id: 'users',         icon: '👥', label: 'Users' },
-  { id: 'courses',       icon: '🎓', label: 'Courses' },
-  { id: 'projects',      icon: '🚀', label: 'Projects' },
-  { id: 'admins',         icon: '🛡️', label: 'Admins' },
+  { id: 'overview',     icon: <FaChartBar />,      label: 'Overview' },
+  { id: 'applications', icon: <FaFileAlt />,       label: 'Applications' },
+  { id: 'enrollments',  icon: <FaBook />,          label: 'Enrollments' },
+  { id: 'hire',         icon: <FaBuilding />,      label: 'Hire Requests' },
+  { id: 'users',        icon: <FaUsers />,         label: 'Users' },
+  { id: 'courses',      icon: <FaGraduationCap />, label: 'Courses' },
+  { id: 'projects',     icon: <FaRocket />,        label: 'Projects' },
+  { id: 'admins',       icon: <FaUserShield />,    label: 'Admins' },
 ];
 
 const Admin = () => {
@@ -55,62 +67,23 @@ const Admin = () => {
           </Link>
           <button className="sidebar-close" onClick={() => setSidebarOpen(false)}>×</button>
         </div>
-
-        <div className="dash-user-card">
-          <div className="dash-avatar-lg" style={{ background: '#dc4545' }}>
-            {user.avatar ? <img src={user.avatar} alt={user.name} /> : user.name?.[0]?.toUpperCase()}
-          </div>
-          <div className="dash-user-details">
-            <div className="dash-user-name">{user.name}</div>
-            <div className="dash-user-email">{user.email}</div>
-            <div className="dash-user-badge" style={{ background: 'rgba(220,69,69,.2)', color: '#ff6b6b', border: '1px solid rgba(220,69,69,.3)' }}>
-              <span className="dub-dot" style={{ background: '#ff6b6b' }} />
-              Admin
-            </div>
-          </div>
-        </div>
-
-        <div className="dash-sidebar-content">
+        <div className="admin-badge-row"><span className="admin-badge"><FaUserShield /> Admin Panel</span></div>
+        <div className="dash-user-info">
+          <div className="dash-avatar" style={{ background: '#dc4545' }}>{user.name?.[0]?.toUpperCase()}</div>
           <div>
-            <div className="dash-nav-section">
-              <div className="dns-label">Main</div>
-              {ADMIN_TABS.slice(0,1).map(t => (
-                <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
-                  onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
-                  <span className="dni-icon">{t.icon}</span>
-                  <span>{t.label}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="dash-nav-section">
-              <div className="dns-label">Management</div>
-              {ADMIN_TABS.slice(1,5).map(t => (
-                <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
-                  onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
-                  <span className="dni-icon">{t.icon}</span>
-                  <span>{t.label}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="dash-nav-section">
-              <div className="dns-label">System</div>
-              {ADMIN_TABS.slice(5).map(t => (
-                <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
-                  onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
-                  <span className="dni-icon">{t.icon}</span>
-                  <span>{t.label}</span>
-                </button>
-              ))}
-            </div>
+            <div className="dash-user-name">{user.name}</div>
+            <div className="dash-user-role" style={{ color: '#ff6b6b' }}>Administrator</div>
           </div>
-
-          <button onClick={() => { logout(); navigate('/'); }} className="dash-logout">
-            <span className="dni-icon">🚪</span>
-            <span>Logout</span>
-          </button>
         </div>
+        <nav className="dash-nav">
+          {ADMIN_TABS.map(t => (
+            <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
+              onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
+              <span>{t.icon}</span>{t.label}
+            </button>
+          ))}
+        </nav>
+        <button onClick={() => { logout(); navigate('/'); }} className="dash-logout"><FaSignOutAlt /> Logout</button>
       </aside>
 
       <main className="dash-main">
@@ -706,8 +679,17 @@ const AdminUsers = () => {
 
 // ── Courses Management ────────────────────────────────────
 const DEFAULT_COURSE_FORM = {
-  emoji:'🌐', title:'', tagline:'', desc:'', price:'', duration:'',
-  level:'beginner', language:'English + Hindi', about:'', tools:'', category:'beginner',
+  icon:'mdi:web',
+  title:'',
+  tagline:'',
+  desc:'',
+  price:'',
+  duration:'',
+  level:'beginner',
+  language:'English + Hindi',
+  about:'',
+  tools:'',
+  category:'beginner',
   colors:null
 };
 
@@ -722,6 +704,64 @@ const COLOR_PRESETS = [
   {h1:'#2c3e50',h2:'#3498db',label:'Navy'},
 ];
 
+const COURSE_ICONS = [
+  // Development
+  { label: 'Web Development', icon: 'mdi:web' },
+  { label: 'Frontend Development', icon: 'mdi:monitor-dashboard' },
+  { label: 'Backend Development', icon: 'mdi:server' },
+  { label: 'Full Stack Development', icon: 'mdi:layers-triple' },
+  { label: 'Mobile App Development', icon: 'mdi:cellphone' },
+  { label: 'Software Engineering', icon: 'mdi:code-braces' },
+
+  // AI & Data
+  { label: 'Artificial Intelligence', icon: 'mdi:robot-outline' },
+  { label: 'Machine Learning', icon: 'mdi:brain' },
+  { label: 'Data Science', icon: 'mdi:chart-bar' },
+  { label: 'Data Analytics', icon: 'mdi:chart-line' },
+  { label: 'Business Analytics', icon: 'mdi:trending-up' },
+
+  // Cloud & DevOps
+  { label: 'Cloud Computing', icon: 'mdi:cloud-outline' },
+  { label: 'DevOps', icon: 'mdi:cog-transfer-outline' },
+  { label: 'Cyber Security', icon: 'mdi:shield-lock-outline' },
+  { label: 'Networking', icon: 'mdi:lan' },
+
+  // Design & Creative
+  { label: 'UI/UX Design', icon: 'mdi:palette-outline' },
+  { label: 'Graphic Design', icon: 'mdi:image-outline' },
+  { label: 'Video Editing', icon: 'mdi:video-outline' },
+  { label: 'Animation', icon: 'mdi:movie-open-outline' },
+  { label: 'Content Creation', icon: 'mdi:camera-outline' },
+
+  // Marketing & Business
+  { label: 'Digital Marketing', icon: 'mdi:bullhorn-outline' },
+  { label: 'SEO', icon: 'mdi:magnify' },
+  { label: 'Sales', icon: 'mdi:cash-multiple' },
+  { label: 'Finance', icon: 'mdi:currency-inr' },
+  { label: 'Business Management', icon: 'mdi:briefcase-outline' },
+
+  // Engineering
+  { label: 'Mechanical Engineering', icon: 'mdi:cog-outline' },
+  { label: 'Electrical Engineering', icon: 'mdi:flash-outline' },
+  { label: 'Civil Engineering', icon: 'mdi:home-city-outline' },
+  { label: 'Automobile Engineering', icon: 'mdi:car-outline' },
+
+  // Emerging Tech
+  { label: 'Blockchain', icon: 'mdi:link-variant' },
+  { label: 'Web3', icon: 'mdi:hexagon-multiple-outline' },
+  { label: 'Internet of Things', icon: 'mdi:access-point-network' },
+  { label: 'AR / VR', icon: 'mdi:virtual-reality' },
+
+  // General
+  { label: 'Research', icon: 'mdi:book-search-outline' },
+  { label: 'Project Management', icon: 'mdi:clipboard-check-outline' },
+  { label: 'Entrepreneurship', icon: 'mdi:rocket-launch-outline' },
+  { label: 'Communication Skills', icon: 'mdi:account-voice' },
+  { label: 'Leadership', icon: 'mdi:account-tie' },
+
+  // Default
+  { label: 'General Course', icon: 'mdi:school-outline' },
+];
 const AdminCourses = () => {
   const { courses, addCourse, updateCourse, deleteCourse, toggleStatus } = useCourses();
   const [showModal, setShowModal] = useState(false);
@@ -734,11 +774,11 @@ const AdminCourses = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const courseData = {
-      ...form,
-      colors: COLOR_PRESETS[selectedColor],
-      desc: form.desc || form.tagline || form.about,
-    };
+   const courseData = {
+  ...form,
+  icon: form.icon,
+  colors: COLOR_PRESETS[selectedColor],
+};
     if (editing) {
       updateCourse(editing.id, courseData);
       toast.success('Course updated!');
@@ -752,7 +792,7 @@ const AdminCourses = () => {
   const openEdit = (c) => {
     setEditing(c);
     setForm({
-      emoji: c.emoji, title: c.title, tagline: c.tagline||'',
+      icon: c.icon, title: c.title, tagline: c.tagline||'',
       desc: c.desc || c.tagline || '', price: c.price,
       duration: c.duration, level: c.level, language: c.language||'English + Hindi',
       about: c.about||'', tools: Array.isArray(c.tools) ? c.tools.join(', ') : (c.tools||''),
@@ -791,9 +831,12 @@ const AdminCourses = () => {
 
       <div className="admin-courses-grid">
         {filtered.map(c => (
+         
           <div key={c.id} className={`admin-course-card${c.status==='inactive'?' inactive':''}`}>
             <div className="acc-card-header" style={{ background:`linear-gradient(135deg,${c.colors?.h1||'#e76f51'},${c.colors?.h2||'#f4a261'})` }}>
-              <span className="acc-card-emoji">{c.emoji}</span>
+            <div className="acc-card-emoji">
+  <Icon icon={c.icon || 'mdi:school-outline'} />
+</div>
               <span className="acc-card-badge">{c.level?.charAt(0).toUpperCase()+c.level?.slice(1)}</span>
               {c.status === 'inactive' && <span className="acc-inactive-badge">Inactive</span>}
             </div>
@@ -836,7 +879,11 @@ const AdminCourses = () => {
               <div className="cp-label">Live Preview</div>
               <div className="cp-card">
                 <div className="cp-header" style={{ background:`linear-gradient(135deg,${COLOR_PRESETS[selectedColor].h1},${COLOR_PRESETS[selectedColor].h2})` }}>
-                  <span style={{ fontSize:'1.8rem' }}>{form.emoji||'🎓'}</span>
+                  <Icon
+  icon={form.icon || 'mdi:school-outline'}
+  width={34}
+  height={34}
+/>
                   <span className="cc-badge">{form.level?.charAt(0).toUpperCase()+form.level?.slice(1)||'Beginner'}</span>
                 </div>
                 <div className="cp-body">
@@ -865,9 +912,23 @@ const AdminCourses = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Emoji *</label>
-                  <input value={form.emoji} onChange={e => set('emoji',e.target.value)} placeholder="e.g. 🌐" required />
-                </div>
+  <label>Course Icon *</label>
+
+  <select
+    value={form.icon}
+    onChange={(e) => set('icon', e.target.value)}
+    required
+  >
+    {COURSE_ICONS.map(item => (
+      <option
+        key={item.icon}
+        value={item.icon}
+      >
+        {item.label}
+      </option>
+    ))}
+  </select>
+</div>
                 <div className="form-group">
                   <label>Level *</label>
                   <select value={form.level} onChange={e => set('level',e.target.value)}>
