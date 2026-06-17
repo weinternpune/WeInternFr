@@ -23,97 +23,113 @@ const loadRazorpaySDK = () =>
     document.body.appendChild(s);
   });
 
+/* ─── Header gradients for the icon zone (matches reference) ───
+   CHANGED: previously each category had a flat pastel "bg". Now each
+   category points at a diagonal gradient (vivid → white) so the icon
+   zone matches the reference screenshot. */
+const HEADER_GRADIENTS = {
+  green: "linear-gradient(135deg, #4ade80 0%, #bbf7d0 50%, #ffffff 100%)",
+  blue: "linear-gradient(135deg, #60a5fa 0%, #bfdbfe 50%, #ffffff 100%)",
+  purple: "linear-gradient(135deg, #a78bfa 0%, #ddd6fe 50%, #ffffff 100%)",
+  amber: "linear-gradient(135deg, #fbbf24 0%, #fde68a 50%, #ffffff 100%)",
+  teal: "linear-gradient(135deg, #2dd4bf 0%, #99f6e4 50%, #ffffff 100%)",
+  pink: "linear-gradient(135deg, #f472b6 0%, #fbcfe8 50%, #ffffff 100%)",
+  rose: "linear-gradient(135deg, #fb7185 0%, #fecdd3 50%, #ffffff 100%)",
+  sky: "linear-gradient(135deg, #38bdf8 0%, #bae6fd 50%, #ffffff 100%)",
+  slate: "linear-gradient(135deg, #94a3b8 0%, #e2e8f0 50%, #ffffff 100%)",
+};
+
 const COURSE_META = [
   {
     keys: ["web", "full stack", "fullstack", "mern"],
     icon: "lucide:code-2",
-    bg: "#eaf7f0",
+    bg: HEADER_GRADIENTS.green,
     iconColor: "#16a34a",
-    border: "#b6e2cc",
+    border: "#bbf7d0",
     dot: "#16a34a",
   },
   {
     keys: ["app", "mobile", "flutter", "android"],
     icon: "lucide:smartphone",
-    bg: "#e8f1fe",
+    bg: HEADER_GRADIENTS.blue,
     iconColor: "#2563eb",
-    border: "#bdd3fb",
+    border: "#bfdbfe",
     dot: "#2563eb",
   },
   {
     keys: ["ai", "machine", "deep learning", "nlp"],
     icon: "lucide:brain-circuit",
-    bg: "#f3eeff",
+    bg: HEADER_GRADIENTS.purple,
     iconColor: "#7c3aed",
-    border: "#d0b8f8",
+    border: "#ddd6fe",
     dot: "#7c3aed",
   },
   {
     keys: ["data", "python", "sql", "analytics"],
     icon: "lucide:database",
-    bg: "#fff5e6",
+    bg: HEADER_GRADIENTS.amber,
     iconColor: "#d97706",
-    border: "#fbd49a",
+    border: "#fde68a",
     dot: "#d97706",
   },
   {
     keys: ["marketing", "seo", "digital"],
     icon: "lucide:megaphone",
-    bg: "#e6faf8",
+    bg: HEADER_GRADIENTS.teal,
     iconColor: "#0d9488",
-    border: "#99e6de",
+    border: "#99f6e4",
     dot: "#0d9488",
   },
   {
     keys: ["ui", "ux", "design", "figma"],
     icon: "lucide:pencil-ruler",
-    bg: "#fce7f3",
-    iconColor: "#db2777",
-    border: "#f8a5cc",
-    dot: "#db2777",
+    bg: HEADER_GRADIENTS.pink,
+    iconColor: "#ec4899",
+    border: "#fbcfe8",
+    dot: "#ec4899",
   },
   {
     keys: ["video", "editing", "content", "premiere"],
     icon: "lucide:clapperboard",
-    bg: "#fff1f2",
+    bg: HEADER_GRADIENTS.rose,
     iconColor: "#e11d48",
-    border: "#fda4af",
+    border: "#fecdd3",
     dot: "#e11d48",
   },
 
   {
     keys: ["cloud"],
     icon: "lucide:cloud",
-    bg: "#eff6ff",
-    iconColor: "#0284c7",
-    border: "#93c5fd",
-    dot: "#0284c7",
+    bg: HEADER_GRADIENTS.sky,
+    iconColor: "#0ea5e9",
+    border: "#bae6fd",
+    dot: "#0ea5e9",
   },
 
   {
     keys: ["devops", "docker", "kubernetes"],
     icon: "lucide:settings-2",
-    bg: "#f8fafc",
+    bg: HEADER_GRADIENTS.slate,
     iconColor: "#475569",
-    border: "#cbd5e1",
+    border: "#e2e8f0",
     dot: "#475569",
   },
 
   {
     keys: ["game", "unity"],
     icon: "lucide:gamepad-2",
-    bg: "#f5f3ff",
+    bg: HEADER_GRADIENTS.purple,
     iconColor: "#7c3aed",
-    border: "#c4b5fd",
+    border: "#ddd6fe",
     dot: "#7c3aed",
   },
 
   {
     keys: ["business", "analytics", "excel", "power bi"],
     icon: "lucide:briefcase-business",
-    bg: "#f0fdf4",
+    bg: HEADER_GRADIENTS.green,
     iconColor: "#16a34a",
-    border: "#86efac",
+    border: "#bbf7d0",
     dot: "#16a34a",
   },
 ];
@@ -123,7 +139,7 @@ const getCourseMeta = (title = "") => {
   return (
     COURSE_META.find(({ keys }) => keys.some((k) => t.includes(k))) || {
       icon: "lucide:laptop",
-      bg: "#e8f4fb",
+      bg: HEADER_GRADIENTS.sky,
       iconColor: "#1a91c9",
       border: "#bfdfef",
       dot: "#1a91c9",
@@ -485,13 +501,13 @@ const Courses = () => {
                 key={c.id || c.title}
                 className="cs-card"
                 style={{
-                  "--card-soft-bg": "#eef7f1",
-                  "--enroll-color": "#16a34a",
-                  "--crd-border": "#b7e4c7",
+                  /* CHANGED: border now tracks each course's own category
+                     color instead of a hard-coded green for every card */
+                  "--crd-border": meta.border,
                 }}
                 onClick={() => setDetailCourse(c)}
               >
-                {/* Pastel icon zone */}
+                {/* Gradient icon zone (CHANGED: flat pastel → diagonal gradient) */}
                 <div
                   className="cs-card-icon-zone"
                   style={{ background: meta.bg }}
@@ -502,9 +518,9 @@ const Courses = () => {
                   >
                     <Icon
                       icon={meta.icon}
-                      width={40}
-                      height={40}
-                      strokeWidth={1.5}
+                      width={28}
+                      height={28}
+                      strokeWidth={1.8}
                     />
                   </div>
                 </div>
@@ -512,27 +528,45 @@ const Courses = () => {
                 {/* Text content */}
                 <div className="cs-card-content">
                   <h3 className="cs-card-title">{c.title}</h3>
-                  <p className="cs-card-dur">{c.duration}</p>
+
+                  {/* CHANGED: duration now shows a clock glyph */}
+                  <p className="cs-card-dur">
+                    <Icon
+                      icon="lucide:clock"
+                      width={12}
+                      height={12}
+                      className="cs-dur-icon"
+                    />
+                    {c.duration}
+                  </p>
 
                   <ul className="cs-card-list">
                     {tools.map((t) => (
                       <li key={t}>
+                        {/* CHANGED: plain dot → colored circle with check icon */}
                         <span
-                          className="cs-bullet-dot"
+                          className="cs-bullet-check"
                           style={{ background: meta.dot }}
-                        />
+                        >
+                          <Icon
+                            icon="lucide:check"
+                            width={8}
+                            height={8}
+                            color="#fff"
+                            strokeWidth={3}
+                          />
+                        </span>
                         {t}
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                {/* Enroll button */}
+                {/* Enroll button (CHANGED: outline → solid fill via CSS) */}
                 <button
                   className="cs-enroll"
                   style={{
                     "--enroll-color": meta.iconColor,
-                    "--enroll-border": meta.border,
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
