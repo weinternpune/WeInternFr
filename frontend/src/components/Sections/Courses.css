@@ -1,8 +1,3 @@
-/* ═══════════════════════════════════════════════════════════════════
-   COURSES  —  Pixel-matched redesign (reference: WeIntern screenshot)
-   Card aspect ratio: ~248×380 ≈ 1:1.53 (5 cards visible in carousel)
-   ═══════════════════════════════════════════════════════════════════ */
-
 /* ── Section ── */
 .courses {
   background: #f0f2f8;
@@ -151,6 +146,9 @@
   flex: 1;
   overflow: hidden;
   padding: 0.5rem 0.4rem 0.8rem;
+  /* Let the browser treat horizontal drag as a slide gesture,
+     while vertical page scroll still works normally on touch. */
+  touch-action: pan-y;
 }
 
 /* ── Track (sliding strip of all cards) ── */
@@ -158,7 +156,12 @@
   display: flex;
   gap: 0.85rem;
   transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
-  /* Each card takes exactly 1/5 of the viewport */
+  /* Each card takes exactly 1/visible-count of the viewport.
+     NOTE: the per-breakpoint flex-basis below must always equal
+     (100% - (visibleCount - 1) * gap) / visibleCount — this is the
+     same formula the JS translateX step uses in Courses.jsx. Keeping
+     these two in lockstep is what prevents the carousel drifting /
+     clipping cards as you slide. */
   width: 100%;
 }
 
@@ -168,7 +171,8 @@
    Icon zone: 130px | Content: flex-1 | Footer ~40px
 ══════════════════════════════════════════════════ */
 .cs-card {
-  /* Each card = (viewport - 4 gaps) / 5 */
+  /* Desktop default (>=1200px): 5 visible cards.
+     Each card = (viewport - 4 gaps) / 5 */
   flex: 0 0 calc((100% - 4 * 0.85rem) / 5);
   min-width: 0;
 
@@ -263,6 +267,7 @@
   color: #0d1b3e;
   line-height: 1.3;
   margin: 0 0 0.2rem;
+  word-break: break-word;
 }
 
 .cs-card-dur {
@@ -683,6 +688,21 @@
 
 /* ══════════════════════════════════════════════════
    RESPONSIVE BREAKPOINTS
+
+   Visible-card tiers (kept in sync with getVisible() in Courses.jsx):
+     >=1200px      → 5 cards  (desktop — default rule above, unchanged)
+     992px–1199px  → 4 cards  (laptop)
+     768px–991px   → 3 cards  (tablet landscape)
+     576px–767px   → 2 cards  (tablet portrait)
+     <576px        → 1 card   (mobile)
+
+   Each tier's .cs-card flex-basis MUST equal
+   (100% - (visibleCount - 1) * 0.85rem) / visibleCount,
+   because that is exactly what the JS translateX step computes.
+   This was the source of the original drift/clipping bug — the old
+   480px tier used `100% - 0.85rem` instead of `100%`, so the slide
+   step (matched to 1 card) overshot the actual card width by one
+   gap on every advance.
 ══════════════════════════════════════════════════ */
 
 @media (min-width: 1280px) {
@@ -691,28 +711,35 @@
   }
 }
 
-/* Tablet landscape: 4 cards */
-@media (max-width: 1100px) {
+/* ── Laptop: 4 cards ── */
+@media (max-width: 1199.98px) {
   .cs-card {
     flex: 0 0 calc((100% - 3 * 0.85rem) / 4);
   }
-
-  .cs-carousel-track {
-    /* recalculate translate unit via JS or use CSS custom property fallback */
-  }
 }
 
-/* iPad Air: 3 cards */
-@media (max-width: 820px) {
+/* ── Tablet landscape: 3 cards ── */
+@media (max-width: 991.98px) {
   .cs-card {
     flex: 0 0 calc((100% - 2 * 0.85rem) / 3);
   }
+
+  /* Smaller arrows on tablet, as required */
+  .cs-arrow {
+    width: 34px;
+    height: 34px;
+  }
 }
 
-/* Tablet portrait: 2 cards */
-@media (max-width: 640px) {
+/* ── Tablet portrait: 2 cards ── */
+@media (max-width: 767.98px) {
   .cs-card {
     flex: 0 0 calc((100% - 1 * 0.85rem) / 2);
+  }
+
+  .cs-arrow {
+    width: 30px;
+    height: 30px;
   }
 
   .cs-tabs {
@@ -724,7 +751,7 @@
     font-size: 0.78rem;
   }
 
-  /* Benefits responsive (UNTOUCHED logic, kept from original) */
+  /* Benefits responsive (logic preserved verbatim from original) */
   .cs-benefits-inner {
     flex-direction: column;
     align-items: center;
@@ -768,8 +795,8 @@
   }
 }
 
-/* Mobile */
-@media (max-width: 480px) {
+/* ── Mobile: exactly 1 card, 100% width, no horizontal scroll ── */
+@media (max-width: 575.98px) {
   .courses {
     padding: 2rem 0 0;
   }
@@ -778,19 +805,57 @@
     font-size: 1.5rem;
   }
 
-  .cs-card {
-    flex: 0 0 calc(100% - 0.85rem);
-  }
-
-  .cs-arrow {
-    width: 32px;
-    height: 32px;
-  }
-
+  /* Carousel */
   .cs-carousel-root {
-    padding: 0 1%;
+    position: relative;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
   }
 
+  .cs-carousel-viewport {
+    flex: 1;
+    overflow: hidden;
+    padding: 0.5rem 0.4rem 0.9rem;
+  }
+
+  .cs-card {
+    flex: 0 0 100%;
+  }
+
+  /* Mobile arrows */
+  .cs-arrow {
+    display: flex;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 3px 10px rgba(13, 27, 62, 0.12);
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+  }
+
+  .cs-arrow--left {
+    left: -6px;
+  }
+
+  .cs-arrow--right {
+    right: -6px;
+  }
+
+  .cs-dots {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 4%;
+    margin-top: 0.8rem;
+  }
+
+  /* Tabs */
   .cs-tabs {
     gap: 0.3rem;
     flex-wrap: wrap;
@@ -803,11 +868,12 @@
     padding: 0.38rem 0.75rem;
   }
 
+  /* Modal Form */
   .enroll-form-grid {
     grid-template-columns: 1fr;
   }
 
-  /* Benefits 2-col on mobile */
+  /* Benefits Section (unchanged) */
   .cs-benefits-wrap {
     padding: 1rem;
   }
@@ -837,12 +903,10 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem 0.5rem;
     width: 100%;
-    flex: unset;
     justify-items: center;
   }
 
   .cs-benefit {
-    flex: unset;
     width: 100%;
     min-width: unset;
     align-items: center;
@@ -866,7 +930,6 @@
     text-align: center;
   }
 }
-
 /* Tiny phones */
 @media (max-width: 400px) {
   .cs-main-title {
