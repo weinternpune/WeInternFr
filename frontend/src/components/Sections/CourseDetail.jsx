@@ -4,7 +4,7 @@ import { Icon } from '@iconify/react';
 
 const COURSE_DETAILS = {
   'Full Stack Web Development': {
-    emoji:'🌐',tagline:'Master the complete web stack and build production-grade applications',price:4999,duration:'12 Weeks',level:'Beginner',language:'English + Hindi',certificate:true,stipend:true,colors:{h1:'#e76f51',h2:'#f4a261'},
+    icon:'mdi:web',tagline:'Master the complete web stack and build production-grade applications',price:4999,duration:'12 Weeks',level:'Beginner',language:'English + Hindi',certificate:true,stipend:true,colors:{h1:'#e76f51',h2:'#f4a261'},
     about:'This comprehensive course takes you from zero to full-stack developer. You will build 4 real client projects that go live — not toy apps. You will work with actual client requirements, real deadlines, and a supervised team just like a professional work environment.',
     whatYouLearn:['Build complete websites from scratch using HTML, CSS, JavaScript','Master React.js for dynamic frontends','Build REST APIs with Node.js and Express','Design and manage MongoDB databases','Deploy applications on cloud platforms','Work with Git and version control','Understand client communication and project delivery','Build a portfolio of 4 live production projects'],
     tools:['HTML5','CSS3','JavaScript ES6+','React.js','Node.js','Express.js','MongoDB','Git','GitHub','Vercel','Postman'],
@@ -21,7 +21,7 @@ const COURSE_DETAILS = {
     faqs:[{q:'Do I need prior coding experience?',a:'No! This course starts from absolute basics. All you need is a laptop and willingness to learn.'},{q:'Will I get a certificate?',a:'Yes, you will receive a WeIntern verified certificate upon successful completion.'},{q:'Is the stipend guaranteed?',a:'Stipend is performance-based and given upon completing real client projects.'}]
   },
   'Mobile App Development': {
-    emoji:'📱',tagline:'Build and ship cross-platform mobile apps to Play Store and App Store',price:5999,duration:'10 Weeks',level:'Intermediate',language:'English + Hindi',certificate:true,stipend:true,colors:{h1:'#2a9d8f',h2:'#264653'},
+    icon:'mdi:cellphone',tagline:'Build and ship cross-platform mobile apps to Play Store and App Store',price:5999,duration:'10 Weeks',level:'Intermediate',language:'English + Hindi',certificate:true,stipend:true,colors:{h1:'#2a9d8f',h2:'#264653'},
     about:'Learn to build beautiful, performant mobile apps using Flutter. You will design real UIs, integrate APIs, and publish apps that users can download from the Play Store and App Store.',
     whatYouLearn:['Build cross-platform apps with Flutter','Master Dart programming language','Design stunning mobile UIs','Integrate REST APIs in mobile apps','Use Firebase for backend','Implement app navigation and state management','Publish apps to Play Store and App Store','Work on 3 real client app projects'],
     tools:['Flutter','Dart','Firebase','REST APIs','Android Studio','Xcode','Git','Figma','Play Console'],
@@ -37,7 +37,7 @@ const COURSE_DETAILS = {
     faqs:[{q:'Do I need a Mac for iOS development?',a:'A Mac is recommended for iOS publishing, but the entire course can be done on Windows for Android.'},{q:'What phone do I need?',a:'Any Android phone works for testing.'}]
   },
   'AI & Automation': {
-    emoji:'🤖',tagline:'Master AI tools, LLMs, and workflow automation for real businesses',price:6499,duration:'8 Weeks',level:'Intermediate',language:'English + Hindi',certificate:true,stipend:true,colors:{h1:'#6c3483',h2:'#a569bd'},
+    icon:'mdi:robot',tagline:'Master AI tools, LLMs, and workflow automation for real businesses',price:6499,duration:'8 Weeks',level:'Intermediate',language:'English + Hindi',certificate:true,stipend:true,colors:{h1:'#6c3483',h2:'#a569bd'},
     about:'Learn to build AI-powered applications, automate business workflows, and integrate LLMs into real products. This is the most in-demand skill set of 2024 and beyond.',
     whatYouLearn:['Build AI chatbots with OpenAI API','Create workflow automations with n8n and Make','Integrate LangChain for AI pipelines','Build AI-powered web apps','Automate repetitive business tasks','Work with vector databases','Deploy AI solutions for real clients','Create 3 live AI projects'],
     tools:['Python','OpenAI API','LangChain','n8n','Make.com','Pinecone','FastAPI','Docker'],
@@ -52,7 +52,7 @@ const COURSE_DETAILS = {
     faqs:[{q:'Do I need ML knowledge?',a:'No. This course focuses on using existing AI APIs and tools, not building ML models from scratch.'},{q:'Is Python experience required?',a:'Basic Python helps but we cover everything from week 1.'}]
   },
   'Cloud Solutions & DevOps': {
-    emoji:'☁️',tagline:'Learn cloud infrastructure, DevOps, and deploy scalable systems',price:5499,duration:'10 Weeks',level:'Intermediate',language:'English + Hindi',certificate:true,stipend:true,colors:{h1:'#1a6b8a',h2:'#2196f3'},
+    icon:'mdi:cloud',tagline:'Learn cloud infrastructure, DevOps, and deploy scalable systems',price:5499,duration:'10 Weeks',level:'Intermediate',language:'English + Hindi',certificate:true,stipend:true,colors:{h1:'#1a6b8a',h2:'#2196f3'},
     about:'Master cloud platforms and DevOps practices used in every modern tech company. Learn to deploy, scale, and manage applications on AWS and build CI/CD pipelines.',
     whatYouLearn:['Set up cloud infrastructure on AWS','Containerize apps with Docker','Orchestrate with Kubernetes','Build CI/CD pipelines','Manage Linux servers','Configure load balancers','Monitor applications in production','Work on real client infrastructure projects'],
     tools:['AWS','Docker','Kubernetes','GitHub Actions','Jenkins','Linux','Terraform','Nginx','CloudWatch'],
@@ -68,7 +68,7 @@ const COURSE_DETAILS = {
     faqs:[{q:'Do I need AWS account?',a:'Yes, a free-tier AWS account is sufficient for the entire course.'},{q:'Is this for beginners?',a:'Basic programming knowledge is helpful but we start from Linux fundamentals.'}]
   },
   'UI/UX Design': {
-    emoji:'🎨',tagline:'Design pixel-perfect interfaces that users love using real-world methods',price:3999,duration:'8 Weeks',level:'Beginner',language:'English + Hindi',certificate:true,stipend:true,colors:{h1:'#c0392b',h2:'#e74c3c'},
+    icon:'mdi:palette',tagline:'Design pixel-perfect interfaces that users love using real-world methods',price:3999,duration:'8 Weeks',level:'Beginner',language:'English + Hindi',certificate:true,stipend:true,colors:{h1:'#c0392b',h2:'#e74c3c'},
     about:'Learn the complete UI/UX design process from user research to high-fidelity prototypes. Work on real client design projects and build a professional design portfolio.',
     whatYouLearn:['Master Figma from scratch','Apply design thinking principles','Conduct user research','Create wireframes and prototypes','Build complete design systems','Design for mobile and web','Present designs to clients','Complete 3 real client design projects'],
     tools:['Figma','Adobe XD','FigJam','Maze','Notion','Zeplin','InVision'],
@@ -83,7 +83,7 @@ const COURSE_DETAILS = {
     faqs:[{q:'Do I need design tools experience?',a:'No. We start from absolute basics in Figma.'},{q:'Will I build a portfolio?',a:'Yes, you will complete 3 real client projects for your portfolio.'}]
   },
   'Digital Marketing': {
-    emoji:'📢',tagline:'Run real campaigns for real businesses and master digital growth',price:2999,duration:'6 Weeks',level:'Beginner',language:'English + Hindi',certificate:true,stipend:true,colors:{h1:'#e67e22',h2:'#f39c12'},
+    icon:'mdi:bullhorn',tagline:'Run real campaigns for real businesses and master digital growth',price:2999,duration:'6 Weeks',level:'Beginner',language:'English + Hindi',certificate:true,stipend:true,colors:{h1:'#e67e22',h2:'#f39c12'},
     about:'Learn modern digital marketing by actually running campaigns for real businesses. Master SEO, paid ads, social media, and analytics with hands-on practice.',
     whatYouLearn:['Master SEO and rank on Google','Run Google Ads campaigns','Manage Meta Ads','Create content strategies','Build email marketing funnels','Analyze data with Google Analytics','Manage social media accounts','Run real campaigns for client businesses'],
     tools:['Google Ads','Meta Ads Manager','Google Analytics','SEMrush','Canva','Mailchimp','Hootsuite','Search Console'],
@@ -100,7 +100,7 @@ const COURSE_DETAILS = {
     faqs:[{q:'Do I need a marketing background?',a:'Absolutely not. Designed for complete beginners.'},{q:'Will I run real campaigns?',a:'Yes, we use small budgets on real client accounts for actual experience.'}]
   },
   'Data Science & Analytics': {
-    emoji:'📊',tagline:'Turn raw data into business decisions with Python and machine learning',price:6999,duration:'12 Weeks',level:'Intermediate',language:'English + Hindi',certificate:true,stipend:true,colors:{h1:'#1e8449',h2:'#27ae60'},
+    icon:'mdi:chart-bar',tagline:'Turn raw data into business decisions with Python and machine learning',price:6999,duration:'12 Weeks',level:'Intermediate',language:'English + Hindi',certificate:true,stipend:true,colors:{h1:'#1e8449',h2:'#27ae60'},
     about:'Master data science from data cleaning to machine learning. Work on real business datasets and build end-to-end data pipelines that deliver actual business value.',
     whatYouLearn:['Master Python for data analysis','Clean and process messy real-world data','Create compelling visualizations','Build machine learning models','Work with SQL databases','Use Tableau for business dashboards','Build end-to-end ML pipelines','Complete 3 real data projects'],
     tools:['Python','Pandas','NumPy','Scikit-learn','Matplotlib','Seaborn','Tableau','SQL','Jupyter','Git'],
@@ -124,7 +124,7 @@ const FAQItem = ({ q, a }) => {
     <div className={`cd-faq${open ? ' open' : ''}`}>
       <button className="cd-faq-q" onClick={() => setOpen(!open)}>
         <span>{q}</span>
-        <span className="cd-faq-icon">{open ? '-' : '+'}</span>
+        <span className="cd-faq-icon">{open ? <Icon icon="mdi:minus" /> : <Icon icon="mdi:plus" />}</span>
       </button>
       {open && <div className="cd-faq-a">{a}</div>}
     </div>
@@ -134,7 +134,7 @@ const FAQItem = ({ q, a }) => {
 const CourseDetailModal = ({ course, onClose, onEnroll }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const details = COURSE_DETAILS[course.title] || {
-    emoji: course.emoji || '🎓',
+    icon: course.icon || 'mdi:school',
     tagline: course.tagline || course.desc || 'Professional course by WeIntern',
     price: course.price || 0,
     duration: course.duration || 'Flexible',
@@ -182,7 +182,7 @@ const CourseDetailModal = ({ course, onClose, onEnroll }) => {
         <div className="cd-header" style={{ background: `linear-gradient(135deg,${details.colors.h1},${details.colors.h2})` }}>
           <button className="cd-close" onClick={onClose}>x</button>
           <div className="cd-header-content">
-            <div className="cd-emoji">{details.emoji}</div>
+            <div className="cd-emoji"><Icon icon={details.icon} width="48" height="48" /></div>
             <div>
               <div className="cd-badge-row">
                 <span className="cd-badge">{details.level}</span>
@@ -204,7 +204,7 @@ const CourseDetailModal = ({ course, onClose, onEnroll }) => {
             </div>
             <div className="cd-header-btns">
               <button onClick={onEnroll} className="cd-enroll-btn">Enroll Now</button>
-              <button onClick={downloadCurriculum} className="cd-download-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:4}}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download PDF</button>
+              <button onClick={downloadCurriculum} className="cd-download-btn"><Icon icon="mdi:download" width="14" height="14" style={{marginRight:4}} />Download PDF</button>
             </div>
           </div>
         </div>
@@ -229,7 +229,7 @@ const CourseDetailModal = ({ course, onClose, onEnroll }) => {
                 <div className="cd-learn-grid">
                   {details.whatYouLearn.map((l, i) => (
                     <div key={i} className="cd-learn-item">
-                      <span className="cd-check" aria-hidden="true" />
+                      <span className="cd-check"><Icon icon="mdi:check-bold" /></span>
                       <span>{l}</span>
                     </div>
                   ))}
@@ -244,16 +244,16 @@ const CourseDetailModal = ({ course, onClose, onEnroll }) => {
               <div className="cd-who">
                 <h3>Who This Course Is For</h3>
                 {details.whoFor.map((w, i) => (
-                  <div key={i} className="cd-who-item"><span>target</span><span>{w}</span></div>
+                  <div key={i} className="cd-who-item"><span><Icon icon="mdi:target" /></span><span>{w}</span></div>
                 ))}
               </div>
               <div className="cd-highlights">
-                <div className="cd-hl"><span></span><div><strong>{details.duration}</strong><small>Duration</small></div></div>
-                <div className="cd-hl"><span></span><div><strong>{details.level}</strong><small>Level</small></div></div>
-                <div className="cd-hl"><span></span><div><strong>{details.language}</strong><small>Language</small></div></div>
-                <div className="cd-hl"><span></span><div><strong>Yes</strong><small>Certificate</small></div></div>
-                <div className="cd-hl"><span></span><div><strong>Available</strong><small>Stipend</small></div></div>
-                <div className="cd-hl"><span></span><div><strong>{details.projects.length} Projects</strong><small>Live Projects</small></div></div>
+                <div className="cd-hl"><span><Icon icon="mdi:clock-outline" /></span><div><strong>{details.duration}</strong><small>Duration</small></div></div>
+                <div className="cd-hl"><span><Icon icon="mdi:signal-cellular-2" /></span><div><strong>{details.level}</strong><small>Level</small></div></div>
+                <div className="cd-hl"><span><Icon icon="mdi:translate" /></span><div><strong>{details.language}</strong><small>Language</small></div></div>
+                <div className="cd-hl"><span><Icon icon="mdi:certificate-outline" /></span><div><strong>Yes</strong><small>Certificate</small></div></div>
+                <div className="cd-hl"><span><Icon icon="mdi:currency-inr" /></span><div><strong>Available</strong><small>Stipend</small></div></div>
+                <div className="cd-hl"><span><Icon icon="mdi:briefcase-outline" /></span><div><strong>{details.projects.length} Projects</strong><small>Live Projects</small></div></div>
               </div>
             </div>
           )}
@@ -262,7 +262,7 @@ const CourseDetailModal = ({ course, onClose, onEnroll }) => {
             <div className="cd-section">
               <div className="cd-curriculum-header">
                 <h3>Week-by-Week Curriculum</h3>
-                <button onClick={downloadCurriculum} className="cd-dl-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:4}}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download PDF</button>
+                <button onClick={downloadCurriculum} className="cd-dl-btn"><Icon icon="mdi:download" width="14" height="14" style={{marginRight:4}} />Download PDF</button>
               </div>
               <div className="cd-curriculum">
                 {details.curriculum.map((w, i) => (
@@ -329,7 +329,7 @@ const CourseDetailModal = ({ course, onClose, onEnroll }) => {
             <strong>Rs.{details.price.toLocaleString('en-IN')}</strong>
           </div>
           <div className="cd-footer-btns">
-            <button onClick={downloadCurriculum} className="cd-dl-btn-sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:4}}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download PDF</button>
+            <button onClick={downloadCurriculum} className="cd-dl-btn-sm"><Icon icon="mdi:download" width="14" height="14" style={{marginRight:4}} />Download PDF</button>
             <button onClick={onEnroll} className="cd-enroll-btn-sm">Enroll Now</button>
           </div>
         </div>
@@ -362,7 +362,7 @@ function buildPDFHTML(details, course) {
     return '<div class="faq"><div class="faq-q">Q: ' + f.q + '</div><div class="faq-a">A: ' + f.a + '</div></div>';
   }).join('');
 
-  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>WeIntern - ' + course.title + ' Curriculum</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;padding:40px;color:#1B2A4A;background:white}.header{background:linear-gradient(135deg,#1B2A4A,#243659);color:white;padding:32px 40px;border-radius:12px;margin-bottom:28px;text-align:center}.header h1{font-size:26px;font-weight:900;margin-bottom:6px}.header .emoji{font-size:36px;margin-bottom:10px;display:block}.header p{color:rgba(255,255,255,0.7);font-size:13px}.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}.meta-card{background:#f4f6fb;border-radius:8px;padding:12px;text-align:center;border:1px solid #e0e4ef}.meta-card strong{display:block;color:#1B2A4A;font-size:14px;font-weight:700}.meta-card small{color:#5a6a82;font-size:11px}.section{margin-bottom:24px}.section-title{font-size:14px;font-weight:800;color:#1B2A4A;border-left:4px solid #E8A820;padding-left:10px;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px}.about-text{color:#5a6a82;line-height:1.8;font-size:13px;background:#f8fafc;padding:14px;border-radius:8px}.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.learn-item{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:#1B2A4A;background:#f4f6fb;padding:7px 10px;border-radius:6px}.check{color:#27ae60;font-weight:700;flex-shrink:0}.tools{display:flex;flex-wrap:wrap;gap:5px}.tool-tag{background:rgba(33,150,201,0.1);color:#2196C9;border:1px solid rgba(33,150,201,0.2);padding:3px 8px;border-radius:50px;font-size:11px;font-weight:600}.week{background:#f4f6fb;border-radius:8px;padding:12px 14px;margin-bottom:8px;border-left:4px solid #E8A820}.week-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}.week-num{width:26px;height:26px;background:#1B2A4A;color:#E8A820;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}.week-title{font-weight:700;color:#1B2A4A;font-size:13px}.week-period{font-size:10px;color:#5a6a82}.topic-tags{display:flex;flex-wrap:wrap;gap:4px}.topic-tag{background:white;border:1px solid #e0e4ef;color:#1B2A4A;padding:2px 7px;border-radius:50px;font-size:10px}.project-card{background:#f4f6fb;border-radius:8px;padding:12px 14px;margin-bottom:7px;display:flex;align-items:center;gap:12px;border:1px solid #e0e4ef}.project-num{font-size:20px;font-weight:900;color:rgba(232,168,32,0.3);flex-shrink:0}.project-name{font-weight:700;color:#1B2A4A;font-size:13px;margin-bottom:3px}.project-tech{background:rgba(33,150,201,0.1);color:#2196C9;display:inline-block;padding:2px 7px;border-radius:50px;font-size:10px;font-weight:600}.project-badge{margin-left:auto;background:rgba(39,174,96,0.1);color:#27ae60;border:1px solid rgba(39,174,96,0.25);padding:3px 8px;border-radius:50px;font-size:10px;font-weight:700;flex-shrink:0}.faq{margin-bottom:10px;background:#f8fafc;border-radius:8px;padding:12px 14px;border:1px solid #e0e4ef}.faq-q{font-weight:700;color:#1B2A4A;font-size:12px;margin-bottom:5px}.faq-a{color:#5a6a82;font-size:12px;line-height:1.6}.footer{margin-top:28px;background:#1B2A4A;color:white;padding:18px 28px;border-radius:12px;text-align:center}.footer p{font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:3px}.footer .contact{color:#E8A820;font-size:12px;font-weight:600}@media print{body{padding:15px}}</style></head><body><div class="header"><span class="emoji">' + details.emoji + '</span><h1>' + course.title + '</h1><p>' + details.tagline + '</p></div><div class="meta-grid"><div class="meta-card"><strong>' + details.duration + '</strong><small>Duration</small></div><div class="meta-card"><strong>' + details.level + '</strong><small>Level</small></div><div class="meta-card"><strong style="color:#E8A820">Rs.' + details.price.toLocaleString('en-IN') + '</strong><small>Course Fee</small></div><div class="meta-card"><strong>' + details.language + '</strong><small>Language</small></div><div class="meta-card"><strong style="color:#27ae60">Yes</strong><small>Certificate</small></div><div class="meta-card"><strong style="color:#27ae60">Available</strong><small>Stipend</small></div></div><div class="section"><div class="section-title">About This Course</div><div class="about-text">' + details.about + '</div></div><div class="section"><div class="section-title">What You Will Learn</div><div class="learn-grid">' + learnItems + '</div></div><div class="section"><div class="section-title">Tools and Technologies</div><div class="tools">' + toolTags + '</div></div><div class="section"><div class="section-title">Week-by-Week Curriculum</div>' + weekItems + '</div><div class="section"><div class="section-title">Projects You Will Build</div>' + projectItems + '</div><div class="section"><div class="section-title">Frequently Asked Questions</div>' + faqItems + '</div><div class="footer"><p class="contact">weintern.in | contact.weintern@gmail.com | +91 74149 74582</p><p>2024 WeIntern - Where Students Build Opportunity</p></div><script>window.onload=function(){window.print();}<\/script></body></html>';
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>WeIntern - ' + course.title + ' Curriculum</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;padding:40px;color:#1B2A4A;background:white}.header{background:linear-gradient(135deg,#1B2A4A,#243659);color:white;padding:32px 40px;border-radius:12px;margin-bottom:28px;text-align:center}.header h1{font-size:26px;font-weight:900;margin-bottom:6px}.header .emoji{font-size:36px;margin-bottom:10px;display:block}.header p{color:rgba(255,255,255,0.7);font-size:13px}.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}.meta-card{background:#f4f6fb;border-radius:8px;padding:12px;text-align:center;border:1px solid #e0e4ef}.meta-card strong{display:block;color:#1B2A4A;font-size:14px;font-weight:700}.meta-card small{color:#5a6a82;font-size:11px}.section{margin-bottom:24px}.section-title{font-size:14px;font-weight:800;color:#1B2A4A;border-left:4px solid #E8A820;padding-left:10px;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px}.about-text{color:#5a6a82;line-height:1.8;font-size:13px;background:#f8fafc;padding:14px;border-radius:8px}.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.learn-item{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:#1B2A4A;background:#f4f6fb;padding:7px 10px;border-radius:6px}.check{color:#27ae60;font-weight:700;flex-shrink:0}.tools{display:flex;flex-wrap:wrap;gap:5px}.tool-tag{background:rgba(33,150,201,0.1);color:#2196C9;border:1px solid rgba(33,150,201,0.2);padding:3px 8px;border-radius:50px;font-size:11px;font-weight:600}.week{background:#f4f6fb;border-radius:8px;padding:12px 14px;margin-bottom:8px;border-left:4px solid #E8A820}.week-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}.week-num{width:26px;height:26px;background:#1B2A4A;color:#E8A820;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}.week-title{font-weight:700;color:#1B2A4A;font-size:13px}.week-period{font-size:10px;color:#5a6a82}.topic-tags{display:flex;flex-wrap:wrap;gap:4px}.topic-tag{background:white;border:1px solid #e0e4ef;color:#1B2A4A;padding:2px 7px;border-radius:50px;font-size:10px}.project-card{background:#f4f6fb;border-radius:8px;padding:12px 14px;margin-bottom:7px;display:flex;align-items:center;gap:12px;border:1px solid #e0e4ef}.project-num{font-size:20px;font-weight:900;color:rgba(232,168,32,0.3);flex-shrink:0}.project-name{font-weight:700;color:#1B2A4A;font-size:13px;margin-bottom:3px}.project-tech{background:rgba(33,150,201,0.1);color:#2196C9;display:inline-block;padding:2px 7px;border-radius:50px;font-size:10px;font-weight:600}.project-badge{margin-left:auto;background:rgba(39,174,96,0.1);color:#27ae60;border:1px solid rgba(39,174,96,0.25);padding:3px 8px;border-radius:50px;font-size:10px;font-weight:700;flex-shrink:0}.faq{margin-bottom:10px;background:#f8fafc;border-radius:8px;padding:12px 14px;border:1px solid #e0e4ef}.faq-q{font-weight:700;color:#1B2A4A;font-size:12px;margin-bottom:5px}.faq-a{color:#5a6a82;font-size:12px;line-height:1.6}.footer{margin-top:28px;background:#1B2A4A;color:white;padding:18px 28px;border-radius:12px;text-align:center}.footer p{font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:3px}.footer .contact{color:#E8A820;font-size:12px;font-weight:600}@media print{body{padding:15px}}</style></head><body><div class="header"><span class="emoji">&#127891;</span><h1>' + course.title + '</h1><p>' + details.tagline + '</p></div><div class="meta-grid"><div class="meta-card"><strong>' + details.duration + '</strong><small>Duration</small></div><div class="meta-card"><strong>' + details.level + '</strong><small>Level</small></div><div class="meta-card"><strong style="color:#E8A820">Rs.' + details.price.toLocaleString('en-IN') + '</strong><small>Course Fee</small></div><div class="meta-card"><strong>' + details.language + '</strong><small>Language</small></div><div class="meta-card"><strong style="color:#27ae60">Yes</strong><small>Certificate</small></div><div class="meta-card"><strong style="color:#27ae60">Available</strong><small>Stipend</small></div></div><div class="section"><div class="section-title">About This Course</div><div class="about-text">' + details.about + '</div></div><div class="section"><div class="section-title">What You Will Learn</div><div class="learn-grid">' + learnItems + '</div></div><div class="section"><div class="section-title">Tools and Technologies</div><div class="tools">' + toolTags + '</div></div><div class="section"><div class="section-title">Week-by-Week Curriculum</div>' + weekItems + '</div><div class="section"><div class="section-title">Projects You Will Build</div>' + projectItems + '</div><div class="section"><div class="section-title">Frequently Asked Questions</div>' + faqItems + '</div><div class="footer"><p class="contact">weintern.in | contact.weintern@gmail.com | +91 74149 74582</p><p>2024 WeIntern - Where Students Build Opportunity</p></div><script>window.onload=function(){window.print();}<\/script></body></html>';
 }
 
 export default CourseDetailModal;

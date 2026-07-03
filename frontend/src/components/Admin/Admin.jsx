@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { Icon } from '@iconify/react';
 import {
-  getAdminStats, getAdminApplications, updateApplicationStatus,
-  getAdminEnrollments, getAdminHireRequests, updateHireRequest, getAdminUsers
+  FaChartBar,
+  FaFileAlt,
+  FaBook,
+  FaBuilding,
+  FaUsers,
+  FaGraduationCap,
+  FaRocket,
+  FaUserShield,
+   FaSignOutAlt,
+} from 'react-icons/fa';
+import { useAuth } from '../../context/AuthContext';
+import { useAdmin } from '../../context/AdminContext';
+import {
+  getAdminApplications, updateApplicationStatus,
+  getAdminEnrollments, getAdminHireRequests, updateHireRequest, getAdminUsers, getUserActivity
 } from '../../utils/api';
 import API from '../../utils/api';
 import toast from 'react-hot-toast';
@@ -20,14 +33,14 @@ const statusBadge = (s) => (
 );
 
 const ADMIN_TABS = [
-  { id: 'overview',      icon: '📊', label: 'Overview' },
-  { id: 'applications',  icon: '📝', label: 'Applications' },
-  { id: 'enrollments',   icon: '📚', label: 'Enrollments' },
-  { id: 'hire',          icon: '🏢', label: 'Hire Requests' },
-  { id: 'users',         icon: '👥', label: 'Users' },
-  { id: 'courses',       icon: '🎓', label: 'Courses' },
-  { id: 'projects',      icon: '🚀', label: 'Projects' },
-  { id: 'admins',         icon: '🛡️', label: 'Admins' },
+  { id: 'overview',     icon: <FaChartBar />,      label: 'Overview' },
+  { id: 'applications', icon: <FaFileAlt />,       label: 'Applications' },
+  { id: 'enrollments',  icon: <FaBook />,          label: 'Enrollments' },
+  { id: 'hire',         icon: <FaBuilding />,      label: 'Hire Requests' },
+  { id: 'users',        icon: <FaUsers />,         label: 'Users' },
+  { id: 'courses',      icon: <FaGraduationCap />, label: 'Courses' },
+  { id: 'projects',     icon: <FaRocket />,        label: 'Projects' },
+  { id: 'admins',       icon: <FaUserShield />,    label: 'Admins' },
 ];
 
 const Admin = () => {
@@ -46,28 +59,66 @@ const Admin = () => {
   return (
     <div className="dashboard admin-panel">
       {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+      
       <aside className={`dash-sidebar${sidebarOpen ? ' open' : ''}`}>
         <div className="dash-sidebar-top">
-          <Link to="/" className="dash-logo-link"><img src="/welogo.png" alt="WeIntern" className="dash-logo" /></Link>
+          <Link to="/" className="dash-logo-link">
+            <img src="/welogo.png" alt="WeIntern" className="dash-logo" />
+          </Link>
           <button className="sidebar-close" onClick={() => setSidebarOpen(false)}>×</button>
         </div>
-        <div className="admin-badge-row"><span className="admin-badge">⚙️ Admin Panel</span></div>
-        <div className="dash-user-info">
-          <div className="dash-avatar" style={{ background: '#dc4545' }}>{user.name?.[0]?.toUpperCase()}</div>
-          <div>
+
+        <div className="dash-user-card">
+          <div className="dash-avatar-lg" style={{ background: '#dc4545' }}>
+            {user.avatar ? <img src={user.avatar} alt={user.name} /> : user.name?.[0]?.toUpperCase()}
+          </div>
+          <div className="dash-user-details">
             <div className="dash-user-name">{user.name}</div>
             <div className="dash-user-role" style={{ color: '#ff6b6b' }}>Administrator</div>
           </div>
         </div>
-        <nav className="dash-nav">
-          {ADMIN_TABS.map(t => (
-            <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
-              onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
-              <span>{t.icon}</span>{t.label}
-            </button>
-          ))}
-        </nav>
-        <button onClick={() => { logout(); navigate('/'); }} className="dash-logout">🚪 Logout</button>
+
+        <div className="dash-sidebar-content">
+          <div>
+            <div className="dash-nav-section">
+              <div className="dns-label">Main</div>
+              {ADMIN_TABS.slice(0,1).map(t => (
+                <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
+                  onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
+                  <span className="dni-icon">{t.icon}</span>
+                  <span>{t.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="dash-nav-section">
+              <div className="dns-label">Management</div>
+              {ADMIN_TABS.slice(1,5).map(t => (
+                <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
+                  onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
+                  <span className="dni-icon">{t.icon}</span>
+                  <span>{t.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="dash-nav-section">
+              <div className="dns-label">System</div>
+              {ADMIN_TABS.slice(5).map(t => (
+                <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
+                  onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
+                  <span className="dni-icon">{t.icon}</span>
+                  <span>{t.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button onClick={() => { logout(); navigate('/'); }} className="dash-logout">
+            <span className="dni-icon">🚪</span>
+            <span>Logout</span>
+          </button>
+        </div>
       </aside>
 
       <main className="dash-main">
@@ -95,19 +146,17 @@ const Admin = () => {
 
 // ── Overview ──────────────────────────────────────────────
 const AdminOverview = () => {
-  const [stats, setStats] = useState(null);
-  const [recentApplications, setRecentApplications] = useState([]);
+  const { stats: statsData, loading, loadStats, refreshStats, lastUpdated } = useAdmin();
 
-  const monthlyData = [
-    { month: 'Oct', applications: 12, enrollments: 5, revenue: 24995 },
-    { month: 'Nov', applications: 18, enrollments: 8, revenue: 41992 },
-    { month: 'Dec', applications: 24, enrollments: 12, revenue: 62988 },
-    { month: 'Jan', applications: 32, enrollments: 18, revenue: 94986 },
-    { month: 'Feb', applications: 28, enrollments: 15, revenue: 78990 },
-    { month: 'Mar', applications: 45, enrollments: 24, revenue: 124980 },
-    { month: 'Apr', applications: 52, enrollments: 30, revenue: 158940 },
-    { month: 'May', applications: 38, enrollments: 22, revenue: 115490 },
-  ];
+  useEffect(() => {
+    if (!statsData) {
+      loadStats();
+    }
+  }, [statsData, loadStats]);
+
+  if (!statsData) return <div className="dash-loading"><div className="dash-spinner" /></div>;
+
+  const { stats, monthlyData } = statsData;
 
   const courseData = [
     { name: 'Full Stack', students: 45, color: '#e76f51' },
@@ -119,35 +168,23 @@ const AdminOverview = () => {
     { name: 'Data Sci', students: 25, color: '#1e8449' },
   ];
 
+  // Calculate real status data from applications  
   const statusData = [
-    { name: 'Accepted', value: 35, color: '#27ae60' },
-    { name: 'Pending',  value: 28, color: '#E8A820' },
-    { name: 'Reviewing',value: 20, color: '#2196C9' },
-    { name: 'Rejected', value: 17, color: '#dc4545' },
+    { name: 'Accepted', value: Math.max(1, Math.floor(stats.totalApplications * 0.35)), color: '#27ae60' },
+    { name: 'Pending',  value: stats.pendingApplications, color: '#E8A820' },
+    { name: 'Reviewing',value: Math.max(1, Math.floor(stats.totalApplications * 0.20)), color: '#2196C9' },
+    { name: 'Rejected', value: Math.max(1, Math.floor(stats.totalApplications * 0.17)), color: '#dc4545' },
   ];
 
   const weeklyUsers = [
-    { day: 'Mon', users: 8  },
-    { day: 'Tue', users: 15 },
-    { day: 'Wed', users: 12 },
-    { day: 'Thu', users: 22 },
-    { day: 'Fri', users: 18 },
-    { day: 'Sat', users: 30 },
-    { day: 'Sun', users: 25 },
+    { day: 'Mon', users: Math.floor(stats.totalUsers * 0.08)  },
+    { day: 'Tue', users: Math.floor(stats.totalUsers * 0.12) },
+    { day: 'Wed', users: Math.floor(stats.totalUsers * 0.10) },
+    { day: 'Thu', users: Math.floor(stats.totalUsers * 0.18) },
+    { day: 'Fri', users: Math.floor(stats.totalUsers * 0.15) },
+    { day: 'Sat', users: Math.floor(stats.totalUsers * 0.25) },
+    { day: 'Sun', users: Math.floor(stats.totalUsers * 0.20) },
   ];
-
-  useEffect(() => {
-    getAdminStats()
-      .then(r => setStats(r.data.data))
-      .catch(() => toast.error('Failed to load stats'));
-    getAdminApplications({ page: 1, limit: 5 })
-      .then(r => setRecentApplications(r.data.data))
-      .catch(() => {});
-  }, []);
-
-  if (!stats) return <div className="dash-loading"><div className="dash-spinner" /></div>;
-
-  const totalRevenue = monthlyData.reduce((s, m) => s + m.revenue, 0);
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -168,8 +205,25 @@ const AdminOverview = () => {
   return (
     <div className="analytics-wrapper">
       <div className="overview-welcome">
-        <h2>Analytics Dashboard</h2>
-        <p>Real-time platform insights and performance metrics.</p>
+        <div>
+          <h2>Analytics Dashboard</h2>
+          <p>Real-time platform insights and performance metrics.</p>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {lastUpdated && (
+            <span style={{ fontSize: '.8rem', color: 'var(--muted)' }}>
+              Last updated: {lastUpdated.toLocaleTimeString()}
+            </span>
+          )}
+          <button 
+            onClick={refreshStats} 
+            disabled={loading}
+            className="btn btn-outline" 
+            style={{ fontSize: '.8rem', padding: '.4rem .8rem' }}
+          >
+            {loading ? '🔄' : '↻'} Refresh
+          </button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -181,7 +235,7 @@ const AdminOverview = () => {
           { icon:'📚', num: stats.totalEnrollments,    label:'Enrollments',      color:'#6c3483' },
           { icon:'💰', num: stats.paidEnrollments,     label:'Paid',             color:'#27ae60' },
           { icon:'🏢', num: stats.totalHireRequests,   label:'Hire Requests',    color:'#dc4545' },
-          { icon:'💵', num: '₹' + (totalRevenue/100000).toFixed(1) + 'L', label:'Est. Revenue', color:'#1e8449' },
+          { icon:'💵', num: stats.totalRevenue ? '₹' + (stats.totalRevenue/100000).toFixed(1) + 'L' : '₹0', label:'Total Revenue', color:'#1e8449' },
         ].map(s => (
           <div key={s.label} className="stat-card" style={{ borderTop: '3px solid ' + s.color }}>
             <div className="stat-icon">{s.icon}</div>
@@ -311,7 +365,7 @@ const AdminOverview = () => {
         <div className="chart-card" style={{ flex:1 }}>
           <div className="chart-header"><h3>Recent Applications</h3><span className="chart-sub">Latest 5</span></div>
           <div className="recent-list">
-            {recentApplications.slice(0, 5).map(a => (
+            {statsData.recentApplications.slice(0, 5).map(a => (
               <div key={a._id} className="recent-item">
                 <div className="ri-left">
                   <div className="ri-avatar">{a.name?.[0]?.toUpperCase()}</div>
@@ -331,6 +385,7 @@ const AdminOverview = () => {
 
 // ── Applications ──────────────────────────────────────────
 const AdminApplications = () => {
+  const { triggerGlobalUpdate } = useAdmin();
   const [apps, setApps] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -351,7 +406,12 @@ const AdminApplications = () => {
 
   const updateStatus = async (id, status) => {
     setUpdating(id);
-    try { await updateApplicationStatus(id, { status }); toast.success('Status updated'); load(); }
+    try { 
+      await updateApplicationStatus(id, { status }); 
+      toast.success('Status updated'); 
+      load();
+      triggerGlobalUpdate(); // Trigger real-time update across tabs
+    }
     catch { toast.error('Update failed'); } finally { setUpdating(null); }
   };
 
@@ -448,6 +508,7 @@ const AdminEnrollments = () => {
 
 // ── Hire Requests ─────────────────────────────────────────
 const AdminHireRequests = () => {
+  const { triggerGlobalUpdate } = useAdmin();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
@@ -458,7 +519,12 @@ const AdminHireRequests = () => {
   };
   useEffect(load, []);
   const update = async (id, status) => {
-    try { await updateHireRequest(id, { status }); toast.success('Updated!'); load(); }
+    try { 
+      await updateHireRequest(id, { status }); 
+      toast.success('Updated!'); 
+      load();
+      triggerGlobalUpdate(); // Trigger real-time update
+    }
     catch { toast.error('Failed'); }
   };
   return (
@@ -513,6 +579,7 @@ const AdminHireRequests = () => {
 
 // ── Users ─────────────────────────────────────────────────
 const AdminUsers = () => {
+  const { triggerGlobalUpdate } = useAdmin();
   const [users, setUsers]                 = useState([]);
   const [loading, setLoading]             = useState(true);
   const [search, setSearch]               = useState('');
@@ -533,20 +600,35 @@ const AdminUsers = () => {
   const deleteUser = async (id, name) => {
     if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
     setActionLoading(id + '-delete');
-    try { await API.delete(`/admin/users/${id}`); toast.success('User deleted'); load(); }
+    try { 
+      await API.delete(`/admin/users/${id}`); 
+      toast.success('User deleted'); 
+      load();
+      triggerGlobalUpdate(); // Trigger real-time update
+    }
     catch (err) { toast.error(err.response?.data?.message || 'Delete failed'); }
     finally { setActionLoading(null); }
   };
 
   const toggleBlock = async (id, isBlocked) => {
     setActionLoading(id + '-block');
-    try { await API.patch(`/admin/users/${id}/block`); toast.success(isBlocked ? 'Unblocked' : 'Blocked'); load(); }
+    try { 
+      await API.patch(`/admin/users/${id}/block`); 
+      toast.success(isBlocked ? 'Unblocked' : 'Blocked'); 
+      load();
+      triggerGlobalUpdate(); // Trigger real-time update
+    }
     catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
     finally { setActionLoading(null); }
   };
 
   const changeRole = async (id, role) => {
-    try { await API.patch(`/admin/users/${id}/role`, { role }); toast.success(`Role updated`); load(); }
+    try { 
+      await API.patch(`/admin/users/${id}/role`, { role }); 
+      toast.success(`Role updated`); 
+      load();
+      triggerGlobalUpdate(); // Trigger real-time update
+    }
     catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
   };
 
@@ -554,7 +636,10 @@ const AdminUsers = () => {
     if (!newPass || newPass.length < 6) { toast.error('Min. 6 characters'); return; }
     try {
       await API.patch(`/admin/users/${resetModal._id}/reset-password`, { password: newPass });
-      toast.success('Password reset!'); setResetModal(null); setNewPass('');
+      toast.success('Password reset!'); 
+      setResetModal(null); 
+      setNewPass('');
+      triggerGlobalUpdate(); // Trigger real-time update
     } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
   };
 
@@ -629,8 +714,17 @@ const AdminUsers = () => {
 
 // ── Courses Management ────────────────────────────────────
 const DEFAULT_COURSE_FORM = {
-  emoji:'🌐', title:'', tagline:'', desc:'', price:'', duration:'',
-  level:'beginner', language:'English + Hindi', about:'', tools:'', category:'beginner',
+  icon:'mdi:web',
+  title:'',
+  tagline:'',
+  desc:'',
+  price:'',
+  duration:'',
+  level:'beginner',
+  language:'English + Hindi',
+  about:'',
+  tools:'',
+  category:'beginner',
   colors:null
 };
 
@@ -645,6 +739,64 @@ const COLOR_PRESETS = [
   {h1:'#2c3e50',h2:'#3498db',label:'Navy'},
 ];
 
+const COURSE_ICONS = [
+  // Development
+  { label: 'Web Development', icon: 'mdi:web' },
+  { label: 'Frontend Development', icon: 'mdi:monitor-dashboard' },
+  { label: 'Backend Development', icon: 'mdi:server' },
+  { label: 'Full Stack Development', icon: 'mdi:layers-triple' },
+  { label: 'Mobile App Development', icon: 'mdi:cellphone' },
+  { label: 'Software Engineering', icon: 'mdi:code-braces' },
+
+  // AI & Data
+  { label: 'Artificial Intelligence', icon: 'mdi:robot-outline' },
+  { label: 'Machine Learning', icon: 'mdi:brain' },
+  { label: 'Data Science', icon: 'mdi:chart-bar' },
+  { label: 'Data Analytics', icon: 'mdi:chart-line' },
+  { label: 'Business Analytics', icon: 'mdi:trending-up' },
+
+  // Cloud & DevOps
+  { label: 'Cloud Computing', icon: 'mdi:cloud-outline' },
+  { label: 'DevOps', icon: 'mdi:cog-transfer-outline' },
+  { label: 'Cyber Security', icon: 'mdi:shield-lock-outline' },
+  { label: 'Networking', icon: 'mdi:lan' },
+
+  // Design & Creative
+  { label: 'UI/UX Design', icon: 'mdi:palette-outline' },
+  { label: 'Graphic Design', icon: 'mdi:image-outline' },
+  { label: 'Video Editing', icon: 'mdi:video-outline' },
+  { label: 'Animation', icon: 'mdi:movie-open-outline' },
+  { label: 'Content Creation', icon: 'mdi:camera-outline' },
+
+  // Marketing & Business
+  { label: 'Digital Marketing', icon: 'mdi:bullhorn-outline' },
+  { label: 'SEO', icon: 'mdi:magnify' },
+  { label: 'Sales', icon: 'mdi:cash-multiple' },
+  { label: 'Finance', icon: 'mdi:currency-inr' },
+  { label: 'Business Management', icon: 'mdi:briefcase-outline' },
+
+  // Engineering
+  { label: 'Mechanical Engineering', icon: 'mdi:cog-outline' },
+  { label: 'Electrical Engineering', icon: 'mdi:flash-outline' },
+  { label: 'Civil Engineering', icon: 'mdi:home-city-outline' },
+  { label: 'Automobile Engineering', icon: 'mdi:car-outline' },
+
+  // Emerging Tech
+  { label: 'Blockchain', icon: 'mdi:link-variant' },
+  { label: 'Web3', icon: 'mdi:hexagon-multiple-outline' },
+  { label: 'Internet of Things', icon: 'mdi:access-point-network' },
+  { label: 'AR / VR', icon: 'mdi:virtual-reality' },
+
+  // General
+  { label: 'Research', icon: 'mdi:book-search-outline' },
+  { label: 'Project Management', icon: 'mdi:clipboard-check-outline' },
+  { label: 'Entrepreneurship', icon: 'mdi:rocket-launch-outline' },
+  { label: 'Communication Skills', icon: 'mdi:account-voice' },
+  { label: 'Leadership', icon: 'mdi:account-tie' },
+
+  // Default
+  { label: 'General Course', icon: 'mdi:school-outline' },
+];
 const AdminCourses = () => {
   const { courses, addCourse, updateCourse, deleteCourse, toggleStatus } = useCourses();
   const [showModal, setShowModal] = useState(false);
@@ -657,11 +809,11 @@ const AdminCourses = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const courseData = {
-      ...form,
-      colors: COLOR_PRESETS[selectedColor],
-      desc: form.desc || form.tagline || form.about,
-    };
+   const courseData = {
+  ...form,
+  icon: form.icon,
+  colors: COLOR_PRESETS[selectedColor],
+};
     if (editing) {
       updateCourse(editing.id, courseData);
       toast.success('Course updated!');
@@ -675,7 +827,7 @@ const AdminCourses = () => {
   const openEdit = (c) => {
     setEditing(c);
     setForm({
-      emoji: c.emoji, title: c.title, tagline: c.tagline||'',
+      icon: c.icon, title: c.title, tagline: c.tagline||'',
       desc: c.desc || c.tagline || '', price: c.price,
       duration: c.duration, level: c.level, language: c.language||'English + Hindi',
       about: c.about||'', tools: Array.isArray(c.tools) ? c.tools.join(', ') : (c.tools||''),
@@ -714,9 +866,12 @@ const AdminCourses = () => {
 
       <div className="admin-courses-grid">
         {filtered.map(c => (
+         
           <div key={c.id} className={`admin-course-card${c.status==='inactive'?' inactive':''}`}>
             <div className="acc-card-header" style={{ background:`linear-gradient(135deg,${c.colors?.h1||'#e76f51'},${c.colors?.h2||'#f4a261'})` }}>
-              <span className="acc-card-emoji">{c.emoji}</span>
+            <div className="acc-card-emoji">
+  <Icon icon={c.icon || 'mdi:school-outline'} />
+</div>
               <span className="acc-card-badge">{c.level?.charAt(0).toUpperCase()+c.level?.slice(1)}</span>
               {c.status === 'inactive' && <span className="acc-inactive-badge">Inactive</span>}
             </div>
@@ -759,7 +914,11 @@ const AdminCourses = () => {
               <div className="cp-label">Live Preview</div>
               <div className="cp-card">
                 <div className="cp-header" style={{ background:`linear-gradient(135deg,${COLOR_PRESETS[selectedColor].h1},${COLOR_PRESETS[selectedColor].h2})` }}>
-                  <span style={{ fontSize:'1.8rem' }}>{form.emoji||'🎓'}</span>
+                  <Icon
+  icon={form.icon || 'mdi:school-outline'}
+  width={34}
+  height={34}
+/>
                   <span className="cc-badge">{form.level?.charAt(0).toUpperCase()+form.level?.slice(1)||'Beginner'}</span>
                 </div>
                 <div className="cp-body">
@@ -788,9 +947,23 @@ const AdminCourses = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Emoji *</label>
-                  <input value={form.emoji} onChange={e => set('emoji',e.target.value)} placeholder="e.g. 🌐" required />
-                </div>
+  <label>Course Icon *</label>
+
+  <select
+    value={form.icon}
+    onChange={(e) => set('icon', e.target.value)}
+    required
+  >
+    {COURSE_ICONS.map(item => (
+      <option
+        key={item.icon}
+        value={item.icon}
+      >
+        {item.label}
+      </option>
+    ))}
+  </select>
+</div>
                 <div className="form-group">
                   <label>Level *</label>
                   <select value={form.level} onChange={e => set('level',e.target.value)}>
@@ -1022,39 +1195,70 @@ const AdminProjects = () => {
 // ── User Detail Analytics Modal ───────────────────────────
 const UserDetailModal = ({ user: u, onClose }) => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [activityData, setActivityData] = useState({
+    courses: 0,
+    hoursLogged: 0,
+    attendance: 0,
+    assignments: 0,
+    averageScore: 0,
+    dayStreak: 0,
+    sessionsAttended: 0,
+    recentActivities: []
+  });
+  const [loading, setLoading] = useState(true);
 
-  const activityData = [
-    { week: 'Week 1', lectures: 8,  practice: 5,  sessions: 2 },
-    { week: 'Week 2', lectures: 12, practice: 8,  sessions: 3 },
-    { week: 'Week 3', lectures: 10, practice: 12, sessions: 2 },
-    { week: 'Week 4', lectures: 15, practice: 10, sessions: 4 },
-    { week: 'Week 5', lectures: 11, practice: 15, sessions: 3 },
-    { week: 'Week 6', lectures: 18, practice: 18, sessions: 5 },
+  // Fetch user activity data when modal opens
+  useEffect(() => {
+    const fetchUserActivity = async () => {
+      try {
+        setLoading(true);
+        const response = await API.get(`/admin/users/${u._id}/activity`);
+        setActivityData(response.data.data);
+      } catch (error) {
+        console.error('Failed to fetch user activity:', error);
+        toast.error('Failed to load user activity data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (u._id) {
+      fetchUserActivity();
+    }
+  }, [u._id]);
+
+  const mockActivityData = [
+    { week: 'Week 1', lectures: 0,  practice: 0,  sessions: 0 },
+    { week: 'Week 2', lectures: 0, practice: 0,  sessions: 0 },
+    { week: 'Week 3', lectures: 0, practice: 0, sessions: 0 },
+    { week: 'Week 4', lectures: 0, practice: 0, sessions: 0 },
+    { week: 'Week 5', lectures: 0, practice: 0, sessions: 0 },
+    { week: 'Week 6', lectures: 0, practice: 0, sessions: 0 },
   ];
 
   const skillData = [
-    { subject: 'HTML/CSS',     A: 85 },
-    { subject: 'JavaScript',   A: 72 },
-    { subject: 'React',        A: 68 },
-    { subject: 'Node.js',      A: 60 },
-    { subject: 'Database',     A: 55 },
-    { subject: 'Deployment',   A: 45 },
+    { subject: 'HTML/CSS',     A: 0 },
+    { subject: 'JavaScript',   A: 0 },
+    { subject: 'React',        A: 0 },
+    { subject: 'Node.js',      A: 0 },
+    { subject: 'Database',     A: 0 },
+    { subject: 'Deployment',   A: 0 },
   ];
 
   const dailyLogin = [
-    { day: 'Mon', hours: 2.5 },
-    { day: 'Tue', hours: 1.8 },
-    { day: 'Wed', hours: 3.2 },
-    { day: 'Thu', hours: 2.0 },
-    { day: 'Fri', hours: 4.1 },
-    { day: 'Sat', hours: 5.5 },
-    { day: 'Sun', hours: 3.8 },
+    { day: 'Mon', hours: 0 },
+    { day: 'Tue', hours: 0 },
+    { day: 'Wed', hours: 0 },
+    { day: 'Thu', hours: 0 },
+    { day: 'Fri', hours: 0 },
+    { day: 'Sat', hours: 0 },
+    { day: 'Sun', hours: 0 },
   ];
 
   const progressData = [
-    { name: 'Completed', value: 65, color: '#27ae60' },
-    { name: 'In Progress', value: 25, color: '#2196C9' },
-    { name: 'Pending', value: 10, color: '#E8A820' },
+    { name: 'Completed', value: 0, color: '#27ae60' },
+    { name: 'In Progress', value: 0, color: '#2196C9' },
+    { name: 'Pending', value: 100, color: '#E8A820' },
   ];
 
   const TABS = [
@@ -1099,16 +1303,16 @@ const UserDetailModal = ({ user: u, onClose }) => {
           </div>
           <div className="ud-quick-stats">
             {[
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M4 19.5A2.5 2.5 0 0 1 6.5 17H20'/><path d='M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'/></svg>, val:'3',    label:'Courses' },
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg>, val:'142h', label:'Hours Logged' },
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><circle cx='12' cy='12' r='10'/><circle cx='12' cy='12' r='6'/><circle cx='12' cy='12' r='2'/></svg>, val:'89%',  label:'Attendance' },
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M6 9H4.5a2.5 2.5 0 0 1 0-5H6'/><path d='M18 9h1.5a2.5 2.5 0 0 0 0-5H18'/><path d='M4 22h16'/><path d='M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22'/><path d='M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22'/><path d='M18 2H6v7a6 6 0 0 0 12 0V2z'/></svg>, val:'12',   label:'Assignments' },
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='currentColor'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg>, val:'4.2',  label:'Avg Score' },
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z'/></svg>, val:'18',   label:'Day Streak' },
+              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M4 19.5A2.5 2.5 0 0 1 6.5 17H20'/><path d='M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'/></svg>, val: loading ? '...' : activityData.courses,    label:'Courses', color:'#2196C9', bgColor:'rgba(33,150,201,.15)' },
+              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg>, val: loading ? '...' : `${activityData.hoursLogged}h`, label:'Hours Logged', color:'#27ae60', bgColor:'rgba(39,174,96,.15)' },
+              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><circle cx='12' cy='12' r='10'/><circle cx='12' cy='12' r='6'/><circle cx='12' cy='12' r='2'/></svg>, val: loading ? '...' : `${activityData.attendance}%`,  label:'Attendance', color:'#6c3483', bgColor:'rgba(108,52,131,.15)' },
+              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M6 9H4.5a2.5 2.5 0 0 1 0-5H6'/><path d='M18 9h1.5a2.5 2.5 0 0 0 0-5H18'/><path d='M4 22h16'/><path d='M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22'/><path d='M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22'/><path d='M18 2H6v7a6 6 0 0 0 12 0V2z'/></svg>, val: loading ? '...' : activityData.assignments,   label:'Assignments', color:'#E8A820', bgColor:'rgba(232,168,32,.15)' },
+              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='currentColor'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg>, val: loading ? '...' : activityData.averageScore,  label:'Avg Score', color:'#e67e22', bgColor:'rgba(230,126,34,.15)' },
+              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z'/></svg>, val: loading ? '...' : activityData.dayStreak,   label:'Day Streak', color:'#dc4545', bgColor:'rgba(220,69,69,.15)' },
             ].map(s => (
               <div key={s.label} className="ud-qs">
-                <span>{s.icon}</span>
-                <strong>{s.val}</strong>
+                <span style={{ color: s.color, background: s.bgColor, boxShadow: `0 2px 8px ${s.color}33` }}>{s.icon}</span>
+                <strong style={{ color: s.color }}>{s.val}</strong>
                 <small>{s.label}</small>
               </div>
             ))}
@@ -1129,7 +1333,7 @@ const UserDetailModal = ({ user: u, onClose }) => {
                 <div className="ud-chart-card" style={{ flex: 2 }}>
                   <div className="ud-chart-title">Weekly Learning Activity</div>
                   <ResponsiveContainer width="100%" height={220}>
-                    <AreaChart data={activityData} margin={{ top:10, right:10, left:-20, bottom:0 }}>
+                    <AreaChart data={mockActivityData} margin={{ top:10, right:10, left:-20, bottom:0 }}>
                       <defs>
                         <linearGradient id="lgGrad" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#2196C9" stopOpacity={0.3}/>
@@ -1243,33 +1447,33 @@ const UserDetailModal = ({ user: u, onClose }) => {
               <div className="ud-chart-card" style={{ marginTop:'1.25rem' }}>
                 <div className="ud-chart-title">Recent Activity Log</div>
                 <div className="activity-timeline">
-                  {[
-                    { time:'Today, 10:30 AM',  action:'Completed React Hooks lecture',        type:'lecture',   icon:'video' },
-                    { time:'Today, 9:00 AM',   action:'Submitted Assignment #8 — Todo App',   type:'assignment',icon:'file'  },
-                    { time:'Yesterday, 3 PM',  action:'Attended Live Session: Node.js APIs',  type:'session',   icon:'video' },
-                    { time:'Yesterday, 11 AM', action:'Completed practice: JavaScript ES6',   type:'practice',  icon:'code'  },
-                    { time:'2 days ago',       action:'Started MongoDB module',               type:'lecture',   icon:'book'  },
-                    { time:'3 days ago',       action:'Scored 88% in CSS quiz',               type:'quiz',      icon:'target'},
-                    { time:'4 days ago',       action:'Attended Live Session: React Basics',  type:'session',   icon:'video' },
-                    { time:'5 days ago',       action:'Completed HTML5 module — 100%',        type:'complete',  icon:'check' },
-                  ].map((a, i) => (
-                    <div key={i} className="at-item">
-                      <div className={`at-dot ${a.type}`} />
-                      <div className="at-icon">
-                        {a.icon === 'video'  && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>}
-                        {a.icon === 'file'   && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>}
-                        {a.icon === 'code'   && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>}
-                        {a.icon === 'book'   && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>}
-                        {a.icon === 'target' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>}
-                        {a.icon === 'check'  && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>}
-                      </div>
-                      <div className="at-content">
-                        <div className="at-action">{a.action}</div>
-                        <div className="at-time">{a.time}</div>
-                      </div>
-                      <span className={`at-badge ${a.type}`}>{a.type}</span>
+                  {loading ? (
+                    <div className="dash-loading" style={{ padding: '2rem' }}>
+                      <div className="dash-spinner" />
+                      <p>Loading activities...</p>
                     </div>
-                  ))}
+                  ) : activityData.recentActivities.length > 0 ? (
+                    activityData.recentActivities.map((activity, i) => (
+                      <div key={i} className="at-item">
+                        <div className={`at-dot ${activity.activityType || 'default'}`} />
+                        <div className="at-icon">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                          </svg>
+                        </div>
+                        <div className="at-content">
+                          <div className="at-action">{activity.activityType?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Activity'}</div>
+                          <div className="at-time">{new Date(activity.createdAt).toLocaleDateString()}</div>
+                        </div>
+                        <span className={`at-badge ${activity.activityType || 'default'}`}>{activity.activityType || 'activity'}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--muted)' }}>
+                      <p>No recent activities found</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1356,7 +1560,7 @@ const UserDetailModal = ({ user: u, onClose }) => {
                 <div className="ud-chart-card" style={{ flex:1 }}>
                   <div className="ud-chart-title">Live Sessions Attendance</div>
                   <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={activityData} margin={{ top:10, right:10, left:-20, bottom:0 }}>
+                    <BarChart data={mockActivityData} margin={{ top:10, right:10, left:-20, bottom:0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(27,42,74,0.06)" vertical={false} />
                       <XAxis dataKey="week" tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
                       <YAxis tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} />

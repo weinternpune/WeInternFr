@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { AdminProvider } from './context/AdminContext';
 
 // Layout
 import Navbar from './components/Layout/Navbar';
@@ -119,17 +120,19 @@ function App() {
       <CoursesProvider>
       <SEOHead />
         <AuthProvider>
-        <AppRoutes />
-        <Toaster
-          position="bottom-right"
-          toastOptions={{
-            duration: 4000,
-            style: { fontFamily: "'DM Sans', sans-serif", fontWeight: 600, borderRadius: 10, fontSize: '.9rem' },
-            success: { iconTheme: { primary: '#E8A820', secondary: '#1B2A4A' } }
-          }}
-        />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </AuthProvider>
+          <AdminProvider>
+            <AppRoutes />
+            <Toaster
+              position="bottom-right"
+              toastOptions={{
+                duration: 4000,
+                style: { fontFamily: "'DM Sans', sans-serif", fontWeight: 600, borderRadius: 10, fontSize: '.9rem' },
+                success: { iconTheme: { primary: '#E8A820', secondary: '#1B2A4A' } }
+              }}
+            />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          </AdminProvider>
+        </AuthProvider>
         </CoursesProvider>
     </BrowserRouter>
   );
