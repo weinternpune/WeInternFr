@@ -1,10 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 /* ===== DASHBOARD LAYOUT ===== */
 .dashboard { display: flex; min-height: 100vh; background: #f0f4f8; }
 
 /* ===== SIDEBAR ===== */
 .dash-sidebar {
   width: 268px; background: #1B2A4A; flex-shrink: 0; display: flex;
-  flex-direction: column; padding: 0; position: sticky; top: 0;
+  flex-direction: column; padding: 0; position: fixed; top: 0; left: 0;
   height: 100vh; overflow-y: auto; z-index: 100;
   scrollbar-width: none;
 }
@@ -53,17 +54,28 @@
 .dash-nav-item.active .dni-icon { color: #E8A820; }
 .dni-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: rgba(255,255,255,.4); }
 .dash-nav-item.active .dni-icon { color: #E8A820; }
+
+/* Sidebar content with proper spacing */
+.dash-sidebar-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 0;
+}
+
 .dash-logout {
   display: flex; align-items: center; gap: .7rem; padding: .65rem .85rem;
-  margin: auto 1rem 1.25rem; border-radius: 10px; background: none;
+  margin: 1rem 1rem 1.25rem; border-radius: 10px; background: none;
   border: 1px solid rgba(220,69,69,.25); cursor: pointer;
   color: rgba(255,100,100,.6); font-family: 'DM Sans',sans-serif;
   font-size: .845rem; transition: all .2s; width: calc(100% - 2rem);
+  margin-top: auto;
 }
 .dash-logout:hover { background: rgba(220,69,69,.1); color: #ff6b6b; border-color: rgba(220,69,69,.4); }
 
 /* ===== MAIN ===== */
-.dash-main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.dash-main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; margin-left: 268px; }
 .dash-header {
   background: white; border-bottom: 1px solid #e8ecf0; padding: .85rem 1.75rem;
   display: flex; align-items: center; gap: 1rem; position: sticky; top: 0; z-index: 50;
@@ -373,6 +385,7 @@
   .profile-wrap { grid-template-columns: 1fr; }
 }
 @media (max-width: 860px) {
+  .dash-main { margin-left: 0; }
   .dash-sidebar { position: fixed; left: -268px; transition: left .3s ease; height: 100vh; }
   .dash-sidebar.open { left: 0; }
   .sidebar-close { display: block; }
@@ -446,3 +459,70 @@
   transition: all .2s;
 }
 .dcf-enroll-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(232,168,32,.3); }
+
+/* Browse Course Cards - Poppins Font */
+.dash-course-card-full,
+.dash-course-card-full * {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+/* ===== EMPTY SESSION STATES ===== */
+.empty-sessions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  background: white;
+  border-radius: 16px;
+  border: 2px dashed #e0e4ef;
+  text-align: center;
+  min-height: 200px;
+}
+
+.empty-sessions-history {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  background: #fafbfc;
+  border-radius: 12px;
+}
+
+.empty-sessions-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c0c8d8;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.empty-sessions h4,
+.empty-sessions-history h4 {
+  font-family: 'Playfair Display', serif;
+  color: #1B2A4A;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.empty-sessions p,
+.empty-sessions-history p {
+  color: #5a6a82;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 300px;
+}
+
+/* Add grid layout for empty sessions */
+.sessions-grid:has(.empty-sessions) {
+  grid-template-columns: 1fr;
+}
+
+.sessions-grid .empty-sessions {
+  grid-column: 1 / -1;
+}

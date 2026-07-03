@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { AdminProvider } from './context/AdminContext';
 
 // Layout
 import Navbar from './components/Layout/Navbar';
@@ -9,12 +10,15 @@ import Footer from './components/Layout/Footer';
 
 // Pages
 import Home from './pages/Home';
+import AboutUs from './pages/AboutUs';
 import { LoginPage, RegisterPage, OTPPage, ForgotPasswordPage, ResetPasswordPage, AuthCallback } from './components/Auth/AuthPages';
 import Dashboard from './components/Dashboard/Dashboard';
 import Admin from './components/Admin/Admin';
 
 // Global styles
 import './styles/global.css';
+import StudentProjects from './components/Sections/StudentProjects';
+import TestimonialsSection from './components/Sections/Testimonials';
 import { useSanitySEO } from './hooks/useSanity';
 import { CoursesProvider } from './context/CoursesContext';
 
@@ -45,6 +49,8 @@ const WithLayout = ({ children }) => (
   <>
     <Navbar />
     {children}
+    <StudentProjects />
+    <TestimonialsSection />
     <Footer />
     <WAFloat />
   </>
@@ -62,6 +68,9 @@ function AppRoutes() {
     <Routes>
       {/* Public with layout */}
       <Route path="/" element={<WithLayout><Home /></WithLayout>} />
+      
+      {/* About Us - standalone page without footer */}
+      <Route path="/about" element={<AboutUs />} />
 
       {/* Auth pages */}
       <Route path="/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
@@ -111,17 +120,19 @@ function App() {
       <CoursesProvider>
       <SEOHead />
         <AuthProvider>
-        <AppRoutes />
-        <Toaster
-          position="bottom-right"
-          toastOptions={{
-            duration: 4000,
-            style: { fontFamily: "'DM Sans', sans-serif", fontWeight: 600, borderRadius: 10, fontSize: '.9rem' },
-            success: { iconTheme: { primary: '#E8A820', secondary: '#1B2A4A' } }
-          }}
-        />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </AuthProvider>
+          <AdminProvider>
+            <AppRoutes />
+            <Toaster
+              position="bottom-right"
+              toastOptions={{
+                duration: 4000,
+                style: { fontFamily: "'DM Sans', sans-serif", fontWeight: 600, borderRadius: 10, fontSize: '.9rem' },
+                success: { iconTheme: { primary: '#E8A820', secondary: '#1B2A4A' } }
+              }}
+            />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          </AdminProvider>
+        </AuthProvider>
         </CoursesProvider>
     </BrowserRouter>
   );

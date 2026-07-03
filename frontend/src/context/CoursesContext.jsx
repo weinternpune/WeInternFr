@@ -1,16 +1,80 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { client, QUERIES } from '../utils/sanityClient';
-
+import { Icon } from '@iconify/react';
 const STORAGE_KEY = 'weintern_courses_v2';
 
 const DEFAULT_COURSES = [
-  { id:1, emoji:'🌐', title:'Full Stack Web Development', desc:'Build production-grade websites from scratch. HTML to React, Node.js to deployment — 4 real client projects included.', duration:'12 Weeks', level:'beginner', tools:['HTML/CSS','JavaScript','React','Node.js','MongoDB'], price:4999, colors:{h1:'#e76f51',h2:'#f4a261'}, status:'active' },
-  { id:2, emoji:'📱', title:'Mobile App Development', desc:'Design and ship cross-platform apps. Learn Flutter and build apps that go live on the Play Store and App Store.', duration:'10 Weeks', level:'intermediate', tools:['Flutter','Dart','Firebase','REST APIs','Android/iOS'], price:5999, colors:{h1:'#2a9d8f',h2:'#264653'}, status:'active' },
-  { id:3, emoji:'🤖', title:'AI & Automation', desc:'Master AI tools, LLMs, and workflow automation. Build chatbots, AI pipelines, and smart automations for real businesses.', duration:'8 Weeks', level:'intermediate', tools:['Python','OpenAI API','LangChain','n8n','Make'], price:6499, colors:{h1:'#6c3483',h2:'#a569bd'}, status:'active' },
-  { id:4, emoji:'☁️', title:'Cloud Solutions & DevOps', desc:'Learn cloud infrastructure, containerization, CI/CD pipelines, and deploy scalable systems.', duration:'10 Weeks', level:'intermediate', tools:['AWS','Docker','Kubernetes','CI/CD','Linux'], price:5499, colors:{h1:'#1a6b8a',h2:'#2196f3'}, status:'active' },
-  { id:5, emoji:'🎨', title:'UI/UX Design', desc:'From wireframes to pixel-perfect interfaces. Learn design thinking, user research, and prototyping.', duration:'8 Weeks', level:'beginner', tools:['Figma','Adobe XD','Prototyping','User Research','Design Systems'], price:3999, colors:{h1:'#c0392b',h2:'#e74c3c'}, status:'active' },
-  { id:6, emoji:'📢', title:'Digital Marketing', desc:'Master SEO, social media, paid ads, email campaigns, and content strategy. Run real campaigns.', duration:'6 Weeks', level:'beginner', tools:['Google Ads','Meta Ads','SEO','Canva','Analytics'], price:2999, colors:{h1:'#e67e22',h2:'#f39c12'}, status:'active' },
-  { id:7, emoji:'📊', title:'Data Science & Analytics', desc:'Turn raw data into business decisions. Data cleaning, visualization, machine learning, and pipelines.', duration:'12 Weeks', level:'intermediate', tools:['Python','Pandas','Scikit-learn','Tableau','SQL'], price:6999, colors:{h1:'#1e8449',h2:'#27ae60'}, status:'active' },
+  { id:1, icon:'mdi:web', title:'Full Stack Web Development', desc:'Build production-grade websites from scratch. HTML to React, Node.js to deployment — 4 real client projects included.', duration:'12 Weeks', level:'beginner', tools:['HTML/CSS','JavaScript','React','Node.js','MongoDB'], price:4999, colors:{h1:'#e76f51',h2:'#f4a261'}, status:'active' },
+  { id:2, icon:'mdi:cellphone', title:'Mobile App Development', desc:'Design and ship cross-platform apps. Learn Flutter and build apps that go live on the Play Store and App Store.', duration:'10 Weeks', level:'intermediate', tools:['Flutter','Dart','Firebase','REST APIs','Android/iOS'], price:5999, colors:{h1:'#2a9d8f',h2:'#264653'}, status:'active' },
+  { id:3, icon:'mdi:robot-outline', title:'AI & Automation', desc:'Master AI tools, LLMs, and workflow automation. Build chatbots, AI pipelines, and smart automations for real businesses.', duration:'8 Weeks', level:'intermediate', tools:['Python','OpenAI API','LangChain','n8n','Make'], price:6499, colors:{h1:'#6c3483',h2:'#a569bd'}, status:'active' },
+  { id:4, icon:'mdi:cloud-cog-outline', title:'Cloud Solutions & DevOps', desc:'Learn cloud infrastructure, containerization, CI/CD pipelines, and deploy scalable systems.', duration:'10 Weeks', level:'intermediate', tools:['AWS','Docker','Kubernetes','CI/CD','Linux'], price:5499, colors:{h1:'#1a6b8a',h2:'#2196f3'}, status:'active' },
+  { id:5, icon:'mdi:palette-outline', title:'UI/UX Design', desc:'From wireframes to pixel-perfect interfaces. Learn design thinking, user research, and prototyping.', duration:'8 Weeks', level:'beginner', tools:['Figma','Adobe XD','Prototyping','User Research','Design Systems'], price:3999, colors:{h1:'#c0392b',h2:'#e74c3c'}, status:'active' },
+  { id:6, icon:'mdi:bullhorn-outline', title:'Digital Marketing', desc:'Master SEO, social media, paid ads, email campaigns, and content strategy. Run real campaigns.', duration:'6 Weeks', level:'beginner', tools:['Google Ads','Meta Ads','SEO','Canva','Analytics'], price:2999, colors:{h1:'#e67e22',h2:'#f39c12'}, status:'active' },
+  { id:7, icon:'mdi:chart-bar', title:'Data Science & Analytics', desc:'Turn raw data into business decisions. Data cleaning, visualization, machine learning, and pipelines.', duration:'12 Weeks', level:'intermediate', tools:['Python','Pandas','Scikit-learn','Tableau','SQL'], price:6999, colors:{h1:'#1e8449',h2:'#27ae60'}, status:'active' },
+  {
+  id:8,
+  icon:'mdi:video-outline',
+  title:'Video Editing & Content Creation',
+  desc:'Master professional video editing, motion graphics, reels creation, and content production for social media platforms.',
+  duration:'8 Weeks',
+  level:'beginner',
+  tools:['Premiere Pro','After Effects','CapCut','Color Grading','Content Strategy'],
+  price:4499,
+  colors:{h1:'#be185d',h2:'#ec4899'},
+  status:'active'
+},
+
+{
+  id:9,
+  icon:'mdi:cloud-outline',
+  title:'Cloud Computing',
+  desc:'Master cloud platforms, deployment strategies, virtual machines, storage, and scalable infrastructure.',
+  duration:'12 Weeks',
+  level:'intermediate',
+  tools:['AWS','Azure','Docker','Linux','Cloud Deployment'],
+  price:6499,
+  colors:{h1:'#0369a1',h2:'#0ea5e9'},
+  status:'active'
+},
+
+{
+  id:10,
+  icon:'mdi:cog-transfer-outline',
+  title:'DevOps Engineering',
+  desc:'Build CI/CD pipelines, automate deployments, monitor applications, and manage scalable infrastructure.',
+  duration:'10 Weeks',
+  level:'advanced',
+  tools:['Jenkins','Docker','Kubernetes','Terraform','GitHub Actions'],
+  price:6999,
+  colors:{h1:'#334155',h2:'#64748b'},
+  status:'active'
+},
+
+{
+  id:11,
+  icon:'mdi:gamepad-variant-outline',
+  title:'Game Development',
+  desc:'Create interactive 2D and 3D games using modern game engines and publish playable projects.',
+  duration:'14 Weeks',
+  level:'beginner',
+  tools:['Unity','C#','Blender','Game Physics','Animation'],
+  price:7499,
+  colors:{h1:'#4c1d95',h2:'#7c3aed'},
+  status:'active'
+},
+
+{
+  id:12,
+  icon:'mdi:trending-up',
+  title:'Business Analytics',
+  desc:'Analyze business data, create dashboards, and generate insights for strategic decision-making.',
+  duration:'8 Weeks',
+  level:'beginner',
+  tools:['Excel','Power BI','SQL','Data Visualization','Statistics'],
+  price:4999,
+  colors:{h1:'#166534',h2:'#22c55e'},
+  status:'active'
+},
 ];
 
 const CoursesContext = createContext(null);
@@ -22,13 +86,37 @@ const normTools = (t) => {
 };
 
 export const CoursesProvider = ({ children }) => {
-  const [courses, setCourses] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) { const p = JSON.parse(saved); if (Array.isArray(p) && p.length) return p; }
-    } catch {}
-    return DEFAULT_COURSES;
-  });
+const [courses, setCourses] = useState(() => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (saved) {
+      const parsed = JSON.parse(saved);
+
+      if (Array.isArray(parsed)) {
+
+        // Merge new default courses with old localStorage courses
+        const mergedCourses = [...parsed];
+
+        DEFAULT_COURSES.forEach((defaultCourse) => {
+          const exists = parsed.some(
+            (course) => course.title === defaultCourse.title
+          );
+
+          if (!exists) {
+            mergedCourses.push(defaultCourse);
+          }
+        });
+
+        return mergedCourses;
+      }
+    }
+  } catch (error) {
+    console.error('Course storage parse error:', error);
+  }
+
+  return DEFAULT_COURSES;
+});
 
   // Try fetching from Sanity on mount — merge with local
   useEffect(() => {
@@ -38,7 +126,7 @@ export const CoursesProvider = ({ children }) => {
         // Convert Sanity format to our format
         const converted = sanityCourses.map(c => ({
           id: c._id,
-          emoji: c.emoji || '🎓',
+          icon: c.icon || 'mdi:school-outline',
           title: c.title,
           desc: c.description || c.tagline || '',
           tagline: c.tagline || '',
@@ -85,14 +173,14 @@ export const CoursesProvider = ({ children }) => {
   ];
 
   const addCourse = (form, colorIdx = 0) => {
-    const c = { id:Date.now(), emoji:form.emoji||'🎓', title:form.title, desc:form.desc||form.tagline||form.about||'', tagline:form.tagline||'', about:form.about||'', duration:form.duration, level:form.level||'beginner', tools:normTools(form.tools), price:Number(form.price), colors:COLOR_PRESETS[colorIdx]||COLOR_PRESETS[0], language:form.language||'English + Hindi', status:'active' };
+    const c = { id:Date.now(), icon:form.icon||'mdi:school-outline', title:form.title, desc:form.desc||form.tagline||form.about||'', tagline:form.tagline||'', about:form.about||'', duration:form.duration, level:form.level||'beginner', tools:normTools(form.tools), price:Number(form.price), colors:COLOR_PRESETS[colorIdx]||COLOR_PRESETS[0], language:form.language||'English + Hindi', status:'active' };
     setCourses(prev => { const u=[...prev,c]; localStorage.setItem(STORAGE_KEY,JSON.stringify(u)); return u; });
     return c;
   };
 
   const updateCourse = (id, form, colorIdx) => {
     setCourses(prev => {
-      const u = prev.map(c => c.id===id ? { ...c, emoji:form.emoji||c.emoji, title:form.title||c.title, desc:form.desc||form.tagline||c.desc, tagline:form.tagline||c.tagline, about:form.about||c.about, duration:form.duration||c.duration, level:form.level||c.level, tools:normTools(form.tools).length?normTools(form.tools):c.tools, price:Number(form.price)||c.price, colors:colorIdx!==undefined?COLOR_PRESETS[colorIdx]:c.colors, language:form.language||c.language } : c);
+      const u = prev.map(c => c.id===id ? { ...c, icon:form.icon||c.icon, title:form.title||c.title, desc:form.desc||form.tagline||c.desc, tagline:form.tagline||c.tagline, about:form.about||c.about, duration:form.duration||c.duration, level:form.level||c.level, tools:normTools(form.tools).length?normTools(form.tools):c.tools, price:Number(form.price)||c.price, colors:colorIdx!==undefined?COLOR_PRESETS[colorIdx]:c.colors, language:form.language||c.language } : c);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(u)); return u;
     });
   };

@@ -39,6 +39,9 @@ export const resetPassword = (data) => API.post('/auth/reset-password', data);
 export const getProfile = () => API.get('/user/profile');
 export const updateProfile = (data) => API.put('/user/profile', data);
 export const changePassword = (data) => API.put('/user/change-password', data);
+export const getDashboardStats = () => API.get('/user/dashboard-stats');
+export const trackActivity = (data) => API.post('/user/track-activity', data);
+export const initializeProgress = () => API.post('/user/initialize-progress');
 
 // Applications
 export const submitApplication = (data) => API.post('/applications', data);
@@ -63,3 +66,4 @@ export const getAdminEnrollments = (params) => API.get('/admin/enrollments', { p
 export const getAdminHireRequests = () => API.get('/admin/hire-requests');
 export const updateHireRequest = (id, data) => API.patch(`/admin/hire-requests/${id}`, data);
 export const getAdminUsers = (params) => API.get('/admin/users', { params });
+export const getUserActivity = (userId) => API.get(`/admin/users/${userId}/activity`);
