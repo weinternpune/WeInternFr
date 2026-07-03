@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
 const User = require('../models/User');
+const { trackActivity, getUserStats, initializeUserProgress } = require('../utils/progressTracker');
 
 // Get profile
 router.get('/profile', protect, async (req, res) => {
@@ -34,6 +35,37 @@ router.put('/change-password', protect, async (req, res) => {
     user.password = newPassword;
     await user.save();
     res.json({ success: true, message: 'Password changed successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Get dashboard statistics
+router.get('/dashboard-stats', protect, async (req, res) => {
+  try {
+    const stats = await getUserStats(req.user._id);
+    res.json({ success: true, data: stats });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Track user activity (for logging sessions, practice, etc.)
+router.post('/track-activity', protect, async (req, res) => {
+  try {
+    const { activityType, details } = req.body;
+    const result = await trackActivity(req.user._id, activityType, details);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Initialize user progress (for existing users)
+router.post('/initialize-progress', protect, async (req, res) => {
+  try {
+    const progress = await initializeUserProgress(req.user._id);
+    res.json({ success: true, data: progress });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
