@@ -120,7 +120,7 @@ const AboutUs = () => {
           
           <div className="mission-stats">
             <div className="mission-stat">
-              <div className="stat-value">12,550+</div>
+              <div className="stat-value">12,500+</div>
               <div className="stat-label">Students Trained</div>
             </div>
             <div className="mission-stat">

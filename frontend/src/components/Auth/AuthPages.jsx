@@ -7,7 +7,7 @@ import './Auth.css';
 
 const BACKEND = process.env.REACT_APP_API_URL
   ? process.env.REACT_APP_API_URL.replace('/api', '')
-  : 'https://we-intern.in';
+  : 'http://localhost:5000';
 
 const AuthLayout = ({ title, subtitle, children }) => (
   <div className="auth-page">
@@ -112,16 +112,66 @@ export const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (form.password !== form.confirm) { toast.error('Passwords do not match'); return; }
-    if (form.password.length < 6) { toast.error('Password must be at least 6 characters'); return; }
+    
+    // Debug logging
+    console.log('Registration form data:', {
+      name: form.name,
+      email: form.email,
+      passwordLength: form.password.length,
+      confirmMatch: form.password === form.confirm
+    });
+    
+    if (!form.name.trim()) {
+      toast.error('Please enter your full name');
+      return;
+    }
+    
+    if (!form.email.trim()) {
+      toast.error('Please enter your email address');
+      return;
+    }
+    
+    if (form.password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+    
+    if (form.password !== form.confirm) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    
     setLoading(true);
     try {
-      const res = await register({ name: form.name, email: form.email, password: form.password });
-      toast.success('OTP sent to your email! 📧');
-      navigate(`/verify-otp?userId=${res.data.userId}`);
+      console.log('Sending registration request with:', {
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password
+      });
+      
+      const res = await register({ name: form.name.trim(), email: form.email.trim(), password: form.password });
+      
+      console.log('Registration response:', res.data);
+      
+      if (res.data.success) {
+        toast.success('Account created! Check your email for OTP 📧');
+        navigate(`/verify-otp?userId=${res.data.userId}`);
+      } else {
+        toast.error(res.data.message || 'Registration failed');
+      }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Registration failed');
-    } finally { setLoading(false); }
+      console.error('Registration error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        statusText: err.response?.statusText
+      });
+      
+      const errorMessage = err.response?.data?.message || 'Registration failed. Please try again.';
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -129,17 +179,45 @@ export const RegisterPage = () => {
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="form-group">
           <label>Full Name</label>
-          <input type="text" name="name" placeholder="Your full name" value={form.name} onChange={handleChange} required autoFocus />
+          <input 
+            type="text" 
+            name="name" 
+            placeholder="Your full name" 
+            value={form.name} 
+            onChange={handleChange} 
+            required 
+            autoFocus 
+            disabled={loading}
+          />
         </div>
         <div className="form-group">
           <label>Email Address</label>
-          <input type="email" name="email" placeholder="your@email.com" value={form.email} onChange={handleChange} required />
+          <input 
+            type="email" 
+            name="email" 
+            placeholder="your@email.com" 
+            value={form.email} 
+            onChange={handleChange} 
+            required 
+            disabled={loading}
+          />
         </div>
         <div className="form-group">
           <label>Password</label>
           <div className="pass-wrap">
-            <input type={showPass ? 'text' : 'password'} name="password" placeholder="Min. 6 characters" value={form.password} onChange={handleChange} required minLength={6} />
-            <button type="button" className="pass-toggle" onClick={() => setShowPass(s => !s)}>{showPass ? '🙈' : '👁️'}</button>
+            <input 
+              type={showPass ? 'text' : 'password'} 
+              name="password" 
+              placeholder="Min. 6 characters" 
+              value={form.password} 
+              onChange={handleChange} 
+              required 
+              minLength={6} 
+              disabled={loading}
+            />
+            <button type="button" className="pass-toggle" onClick={() => setShowPass(s => !s)} disabled={loading}>
+              {showPass ? '🙈' : '👁️'}
+            </button>
           </div>
           {form.password && (
             <div className="strength-bar">
@@ -150,10 +228,18 @@ export const RegisterPage = () => {
         </div>
         <div className="form-group">
           <label>Confirm Password</label>
-          <input type="password" name="confirm" placeholder="Repeat password" value={form.confirm} onChange={handleChange} required />
+          <input 
+            type="password" 
+            name="confirm" 
+            placeholder="Repeat password" 
+            value={form.confirm} 
+            onChange={handleChange} 
+            required 
+            disabled={loading}
+          />
           {form.confirm && form.password !== form.confirm && <span className="field-error">Passwords don't match</span>}
         </div>
-        <button type="submit" className="btn btn-primary btn-full auth-submit" disabled={loading}>
+        <button type="submit" className="btn btn-primary btn-full auth-submit" disabled={loading || form.password !== form.confirm}>
           {loading && <span className="btn-spinner" />}{loading ? 'Creating account...' : 'Create Account →'}
         </button>
       </form>
@@ -217,11 +303,26 @@ export const OTPPage = () => {
   };
 
   const handleResend = async () => {
-    if (countdown > 0) return; setResending(true);
+    if (countdown > 0) return; 
+    setResending(true);
     try {
-      await resendOTP({ userId }); toast.success('New OTP sent! Check your email.');
-      setCountdown(60); setOtp(['','','','','','']); document.getElementById('otp-0')?.focus();
-    } catch { toast.error('Failed to resend OTP'); } finally { setResending(false); }
+      const response = await resendOTP({ userId });
+      
+      if (response.data.success) {
+        toast.success('New OTP sent! Check your email or console.');
+        setCountdown(60); 
+        setOtp(['','','','','','']); 
+        document.getElementById('otp-0')?.focus();
+      } else {
+        toast.error(response.data.message || 'Failed to resend OTP');
+      }
+    } catch (err) {
+      console.error('Resend OTP error:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to resend OTP. Please try again.';
+      toast.error(errorMessage);
+    } finally { 
+      setResending(false); 
+    }
   };
 
   return (
@@ -255,20 +356,50 @@ export const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  
   const handleSubmit = async (e) => {
-    e.preventDefault(); setLoading(true);
-    try { await forgotPassword({ email }); setSent(true); toast.success('Reset link sent!'); }
-    catch { toast.error('Something went wrong'); } finally { setLoading(false); }
+    e.preventDefault(); 
+    
+    if (!email) {
+      toast.error('Please enter your email address');
+      return;
+    }
+    
+    setLoading(true);
+    try { 
+      const response = await forgotPassword({ email }); 
+      if (response.data.success) {
+        setSent(true); 
+        toast.success('Reset link sent! Check your email inbox');
+      } else {
+        toast.error(response.data.message || 'Something went wrong');
+      }
+    } catch (err) { 
+      console.error('Forgot password error:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to send reset email. Please try again.';
+      toast.error(errorMessage);
+    } finally { 
+      setLoading(false); 
+    }
   };
+  
   return (
     <AuthLayout title="Forgot Password 🔑" subtitle={sent ? 'Check your inbox for the reset link.' : "Enter your email and we'll send a reset link"}>
       {!sent ? (
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label>Email Address</label>
-            <input type="email" placeholder="your@email.com" value={email} onChange={e => setEmail(e.target.value)} required autoFocus />
+            <input 
+              type="email" 
+              placeholder="your@email.com" 
+              value={email} 
+              onChange={e => setEmail(e.target.value)} 
+              required 
+              autoFocus 
+              disabled={loading}
+            />
           </div>
-          <button type="submit" className="btn btn-primary btn-full auth-submit" disabled={loading}>
+          <button type="submit" className="btn btn-primary btn-full auth-submit" disabled={loading || !email}>
             {loading && <span className="btn-spinner" />}{loading ? 'Sending...' : 'Send Reset Link →'}
           </button>
         </form>
@@ -276,6 +407,15 @@ export const ForgotPasswordPage = () => {
         <div className="auth-success">
           <div className="auth-success-icon">✅</div>
           <p>Reset link sent to <strong>{email}</strong>. Expires in 1 hour. Check spam if not seen.</p>
+          <div style={{ marginTop: '1rem' }}>
+            <button 
+              onClick={() => {setSent(false); setEmail(''); }} 
+              className="btn btn-outline" 
+              style={{ fontSize: '.85rem' }}
+            >
+              Send to Different Email
+            </button>
+          </div>
         </div>
       )}
       <p className="auth-switch"><Link to="/login">← Back to Sign In</Link></p>
