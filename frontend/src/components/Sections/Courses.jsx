@@ -229,9 +229,11 @@ const Courses = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showPhoneGate, setShowPhoneGate] = useState(false);
   const [pendingEnrollCourse, setPendingEnrollCourse] = useState(null);
+  const [isCoursesVisible, setIsCoursesVisible] = useState(false); // Track if section is visible
   const trackRef = useRef(null);
   const viewportRef = useRef(null);
   const autoScrollInterval = useRef(null);
+  const coursesRef = useRef(null); // Ref for the courses section
   const { activeCourses } = useCourses();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -273,6 +275,82 @@ const Courses = () => {
       setPendingEnrollCourse(null);
     }
   };
+
+  // Detect when Courses section is visible in viewport
+  React.useEffect(() => {
+    const section = coursesRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            console.log('👀 Courses section is now visible!');
+            setIsCoursesVisible(true);
+          } else {
+            console.log('👋 Courses section is no longer visible');
+            setIsCoursesVisible(false);
+          }
+        });
+      },
+      { threshold: 0.3 } // Trigger when 30% of section is visible
+    );
+
+    observer.observe(section);
+
+    return () => {
+      if (section) {
+        observer.unobserve(section);
+      }
+    };
+  }, []);
+
+  // 15-second timer for phone verification popup (only when Courses section is visible)
+  React.useEffect(() => {
+    console.log('🔍 Timer effect triggered');
+    console.log('   - isCoursesVisible:', isCoursesVisible);
+    console.log('   - user:', user);
+    console.log('   - phoneVerified localStorage:', localStorage.getItem('phoneVerified'));
+    
+    // Skip if section is not visible
+    if (!isCoursesVisible) {
+      console.log('⏸️ Courses section not visible - timer not started');
+      return;
+    }
+
+    // Skip if user is logged in
+    if (user) {
+      console.log('✅ User logged in - no phone verification needed');
+      return;
+    }
+
+    // Check if phone already verified
+    const phoneVerified = localStorage.getItem('phoneVerified') === 'true';
+    console.log('📱 Phone verification status:', phoneVerified);
+    
+    if (phoneVerified) {
+      console.log('✅ Phone already verified - no popup needed');
+      return;
+    }
+
+    console.log('⏰ Starting 15-second timer for Courses section...');
+    console.log('   - Current showPhoneGate state:', showPhoneGate);
+
+    const timer = setTimeout(() => {
+      console.log('🚀 15 seconds complete! Setting showPhoneGate to true');
+      setShowPhoneGate(true);
+    }, 15000);
+
+    return () => {
+      console.log('⏹️ Courses timer cleanup');
+      clearTimeout(timer);
+    };
+  }, [isCoursesVisible, user]); // Depend on section visibility and user
+
+  // Debug log whenever showPhoneGate changes
+  React.useEffect(() => {
+    console.log('📱 showPhoneGate state changed to:', showPhoneGate);
+  }, [showPhoneGate]);
 
   /* Filter by tab */
   const filteredCourses = activeCourses.filter((c) => {
@@ -388,7 +466,7 @@ const Courses = () => {
   };
 
   return (
-    <section className="courses" id="courses">
+    <section className="courses" id="courses" ref={coursesRef}>
 
       {/* ── Header ── */}
       <div className="cs-header">

@@ -5,7 +5,6 @@ import { useCourses } from '../../context/CoursesContext';
 import { getMyApplications, getMyEnrollments, updateProfile, getDashboardStats, trackActivity } from '../../utils/api';
 import API from '../../utils/api';
 import toast from 'react-hot-toast';
-import PhoneGate from '../PhoneGate/PhoneGate';
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
   PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid,
@@ -72,22 +71,6 @@ const Dashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showPhoneGate, setShowPhoneGate] = useState(false);
-  const [phoneVerified, setPhoneVerified] = useState(false);
-
-  // Check phone verification
-  useEffect(() => {
-    const verified = localStorage.getItem('phoneVerified') === 'true';
-    setPhoneVerified(verified);
-    
-    if (!verified) {
-      // Show phone gate after 15 seconds
-      const timer = setTimeout(() => {
-        setShowPhoneGate(true);
-      }, 15000);
-      return () => clearTimeout(timer);
-    }
-  }, []);
 
   useEffect(() => {
     if (!user) { navigate('/login'); return; }
@@ -111,21 +94,6 @@ const Dashboard = () => {
     getMyEnrollments().then(r => setEnrollments(r.data.data)).catch(() => {});
   };
 
-  // Track login activity when dashboard loads
-  useEffect(() => {
-    if (user && !loading) {
-      trackActivity({ 
-        activityType: 'login',
-        details: { duration: 0 }  // Just a login ping
-      }).catch(err => console.warn('Activity tracking failed:', err));
-    }
-  }, [user, loading]);
-
-  const handlePhoneVerificationComplete = () => {
-    setPhoneVerified(true);
-    setShowPhoneGate(false);
-  };
-
   if (!user) return null;
   if (loading) return (
     <div className="dash-loading">
@@ -136,7 +104,6 @@ const Dashboard = () => {
 
   const currentTab = TABS.find(t => t.id === tab);
 
-  // Render dashboard with phone verification check
   const dashboardContent = (
     <div className="dashboard">
       {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
@@ -246,20 +213,6 @@ const Dashboard = () => {
       </main>
     </div>
   );
-
-  // If not phone verified, show blurred dashboard with phone gate
-  if (!phoneVerified) {
-    return (
-      <>
-        <div className="content-blurred-wrapper">
-          <div className="content-blurred">
-            {dashboardContent}
-          </div>
-        </div>
-        {showPhoneGate && <PhoneGate onComplete={handlePhoneVerificationComplete} />}
-      </>
-    );
-  }
 
   return dashboardContent;
 };

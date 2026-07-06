@@ -16,9 +16,6 @@ import { LoginPage, RegisterPage, OTPPage, ForgotPasswordPage, ResetPasswordPage
 import Dashboard from './components/Dashboard/Dashboard';
 import Admin from './components/Admin/Admin';
 
-// Phone Verification
-import PhoneGate from './components/PhoneGate/PhoneGate';
-
 // Global styles
 import './styles/global.css';
 import StudentProjects from './components/Sections/StudentProjects';
@@ -50,36 +47,10 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 
 // Layout wrapper with nav + footer
 const WithLayout = ({ children }) => {
-  const [phoneVerified, setPhoneVerified] = React.useState(false);
-  const [showPhoneGate, setShowPhoneGate] = React.useState(false);
-
-  React.useEffect(() => {
-    const verified = localStorage.getItem('phoneVerified') === 'true';
-    console.log('🔍 WithLayout - Phone verification check:', verified);
-    setPhoneVerified(verified);
-    
-    if (!verified) {
-      console.log('⏰ Starting 15-second timer for PhoneGate...');
-      const timer = setTimeout(() => {
-        console.log('🚀 15 seconds complete! Showing PhoneGate popup');
-        setShowPhoneGate(true);
-      }, 15000);
-      return () => {
-        console.log('⏹️ Timer cleanup');
-        clearTimeout(timer);
-      };
-    } else {
-      console.log('✅ Phone already verified - no popup needed');
-    }
-  }, []);
-
-  const handlePhoneGateComplete = () => {
-    console.log('✅ Phone verification completed!');
-    setPhoneVerified(true);
-    setShowPhoneGate(false);
-  };
-
-  console.log('📱 WithLayout render - phoneVerified:', phoneVerified, 'showPhoneGate:', showPhoneGate);
+  const { user } = useAuth(); // Get user from AuthContext
+  
+  // Determine phoneVerified status - user login OR localStorage
+  const phoneVerified = user || localStorage.getItem('phoneVerified') === 'true';
 
   return (
     <>
@@ -88,13 +59,6 @@ const WithLayout = ({ children }) => {
       {React.cloneElement(children, { phoneVerified })}
       <Footer />
       <WAFloat />
-      {/* Show PhoneGate popup after timer */}
-      {showPhoneGate && !phoneVerified && (
-        <>
-          {console.log('🎯 Rendering PhoneGate popup!')}
-          <PhoneGate onComplete={handlePhoneGateComplete} />
-        </>
-      )}
     </>
   );
 };
