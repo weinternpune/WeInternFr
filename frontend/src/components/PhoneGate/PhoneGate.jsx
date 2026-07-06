@@ -28,14 +28,23 @@ const PhoneGate = ({ onComplete }) => {
       return;
     }
 
+    console.log('📤 Sending OTP for phone:', phone);
     setLoading(true);
     try {
       // Send OTP via backend
-      await API.post('/auth/send-phone-otp', { phone });
+      const response = await API.post('/auth/send-phone-otp', { phone });
+      console.log('✅ OTP sent response:', response.data);
+      
+      // In development, the backend might return the OTP
+      if (response.data.otp) {
+        console.log('🔢 Development OTP (from response):', response.data.otp);
+      }
+      
       setOtpSent(true);
       setStep('otp');
       toast.success('OTP sent to your mobile number');
     } catch (error) {
+      console.error('❌ Send OTP error:', error.response?.data);
       toast.error(error.response?.data?.message || 'Failed to send OTP');
     } finally {
       setLoading(false);
@@ -48,13 +57,19 @@ const PhoneGate = ({ onComplete }) => {
       return;
     }
 
+    console.log('📤 Verifying OTP...');
+    console.log('📞 Phone:', phone);
+    console.log('🔢 OTP:', otp);
+    
     setLoading(true);
     try {
       // Verify OTP via backend
-      await API.post('/auth/verify-phone-otp', { phone, otp });
+      const response = await API.post('/auth/verify-phone-otp', { phone, otp });
+      console.log('✅ OTP verified:', response.data);
       setStep('interests');
       toast.success('Phone number verified successfully!');
     } catch (error) {
+      console.error('❌ Verify OTP error:', error.response?.data);
       toast.error(error.response?.data?.message || 'Invalid OTP');
     } finally {
       setLoading(false);

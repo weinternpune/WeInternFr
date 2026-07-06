@@ -83,23 +83,8 @@ const WithLayout = ({ children }) => {
   return (
     <>
       <Navbar />
-      {children}
-      {/* Only show StudentProjects and Testimonials if phone verified */}
-      {phoneVerified ? (
-        <>
-          <StudentProjects />
-          <TestimonialsSection />
-        </>
-      ) : (
-        <>
-          <div className="content-blurred-wrapper">
-            <div className="content-blurred">
-              <StudentProjects />
-              <TestimonialsSection />
-            </div>
-          </div>
-        </>
-      )}
+      {/* Pass phoneVerified as prop to children */}
+      {React.cloneElement(children, { phoneVerified })}
       <Footer />
       <WAFloat />
       {/* Show PhoneGate popup after timer */}

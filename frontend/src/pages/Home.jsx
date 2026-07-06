@@ -3,10 +3,12 @@ import Hero from '../components/Sections/Hero';
 import { Problem, HowItWorks, EcosystemSection, Vision } from '../components/Sections/Sections';
 import Courses from '../components/Sections/Courses';
 import { ApplySection, } from '../components/Sections/Forms';
+import StudentProjects from '../components/Sections/StudentProjects';
+import TestimonialsSection from '../components/Sections/Testimonials';
 import '../components/Sections/Sections.css';
 import '../components/Sections/Forms.css';
 
-const Home = () => (
+const Home = ({ phoneVerified = false }) => (
   <>
     <Hero />
     {/* Marquee - Always visible */}
@@ -18,12 +20,33 @@ const Home = () => (
       </div>
     </div>
     
-    {/* All main content - NO BLUR */}
-    <Problem />
-    <HowItWorks />
-    <EcosystemSection />
-    <Vision />
-    <ApplySection />
+    {/* Courses - Always visible */}
+    <Courses />
+    
+    {/* All sections after Courses - BLUR until phone verified */}
+    {phoneVerified ? (
+      <>
+        <Problem />
+        <HowItWorks />
+        <EcosystemSection />
+        <Vision />
+        <ApplySection />
+        <StudentProjects />
+        <TestimonialsSection />
+      </>
+    ) : (
+      <div className="content-blurred-wrapper">
+        <div className="content-blurred">
+          <Problem />
+          <HowItWorks />
+          <EcosystemSection />
+          <Vision />
+          <ApplySection />
+          <StudentProjects />
+          <TestimonialsSection />
+        </div>
+      </div>
+    )}
   </>
 );
 

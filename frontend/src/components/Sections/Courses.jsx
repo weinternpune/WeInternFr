@@ -229,6 +229,8 @@ const Courses = () => {
   const [showPhoneGate, setShowPhoneGate] = useState(false);
   const [pendingEnrollCourse, setPendingEnrollCourse] = useState(null);
   const trackRef = useRef(null);
+  const viewportRef = useRef(null);
+  const autoScrollInterval = useRef(null);
   const { activeCourses } = useCourses();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -280,6 +282,80 @@ const Courses = () => {
 
   /* If no matches for tab, fall back to all */
   const displayCourses = filteredCourses.length > 0 ? filteredCourses : activeCourses;
+
+  // Auto-scroll for mobile
+  React.useEffect(() => {
+    const isMobile = window.innerWidth <= 575.98;
+    if (!isMobile) return;
+
+    const viewport = viewportRef.current;
+    if (!viewport) {
+      console.log('❌ Viewport ref not found');
+      return;
+    }
+
+    console.log('✅ Auto-scroll starting for mobile...');
+    let scrollPosition = 0;
+    const scrollSpeed = 4; // pixels per frame (increased from 2.5 for even faster scroll)
+    const scrollDelay = 30; // ms between frames
+    let isUserScrolling = false;
+    let userScrollTimeout = null;
+
+    const autoScroll = () => {
+      if (!viewport || isUserScrolling) return;
+      
+      scrollPosition += scrollSpeed;
+      viewport.scrollTop = scrollPosition;
+
+      // Reset when reached bottom
+      if (scrollPosition >= viewport.scrollHeight - viewport.clientHeight) {
+        scrollPosition = 0;
+        viewport.scrollTop = 0;
+      }
+    };
+
+    // Start auto-scroll
+    const intervalId = setInterval(autoScroll, scrollDelay);
+    console.log('🔄 Auto-scroll interval started:', intervalId);
+
+    // Pause on user interaction (only touch and wheel, NOT scroll event)
+    const handleUserInteraction = (e) => {
+      // Only pause if it's actual user interaction, not programmatic scroll
+      if (e.type === 'wheel' || e.type === 'touchstart') {
+        console.log('👆 User interaction detected - pausing auto-scroll');
+        isUserScrolling = true;
+        
+        // Clear existing timeout
+        if (userScrollTimeout) {
+          clearTimeout(userScrollTimeout);
+        }
+        
+        // Resume after 5 seconds of no interaction
+        userScrollTimeout = setTimeout(() => {
+          if (viewport) {
+            console.log('▶️ Resuming auto-scroll');
+            isUserScrolling = false;
+            scrollPosition = viewport.scrollTop;
+          }
+        }, 5000);
+      }
+    };
+
+    viewport.addEventListener('touchstart', handleUserInteraction, { passive: true });
+    viewport.addEventListener('wheel', handleUserInteraction, { passive: true });
+
+    return () => {
+      console.log('🛑 Cleaning up auto-scroll');
+      clearInterval(intervalId);
+      if (userScrollTimeout) {
+        clearTimeout(userScrollTimeout);
+      }
+      if (viewport) {
+        viewport.removeEventListener('touchstart', handleUserInteraction);
+        viewport.removeEventListener('wheel', handleUserInteraction);
+      }
+    };
+  }, [activeTab, displayCourses.length]);
 
   /* ── Responsive visible count matches CSS breakpoints ── */
   const getVisible = () => {
@@ -351,7 +427,7 @@ const Courses = () => {
         </button>
 
         {/* Track */}
-        <div className="cs-carousel-viewport">
+        <div className="cs-carousel-viewport" ref={viewportRef}>
           <div
             className="cs-carousel-track"
             ref={trackRef}
