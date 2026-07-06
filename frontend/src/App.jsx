@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
@@ -45,16 +46,22 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 };
 
 // Layout wrapper with nav + footer
-const WithLayout = ({ children }) => (
-  <>
-    <Navbar />
-    {children}
-    <StudentProjects />
-    <TestimonialsSection />
-    <Footer />
-    <WAFloat />
-  </>
-);
+const WithLayout = ({ children }) => {
+  const { user } = useAuth(); // Get user from AuthContext
+  
+  // Determine phoneVerified status - user login OR localStorage
+  const phoneVerified = user || localStorage.getItem('phoneVerified') === 'true';
+
+  return (
+    <>
+      <Navbar />
+      {/* Pass phoneVerified as prop to children */}
+      {React.cloneElement(children, { phoneVerified })}
+      <Footer />
+      <WAFloat />
+    </>
+  );
+};
 
 // Auth pages (no footer)
 const AuthLayout = ({ children }) => (
@@ -118,7 +125,7 @@ function App() {
   return (
     <BrowserRouter>
       <CoursesProvider>
-      <SEOHead />
+        <SEOHead />
         <AuthProvider>
           <AdminProvider>
             <AppRoutes />
@@ -133,7 +140,7 @@ function App() {
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </AdminProvider>
         </AuthProvider>
-        </CoursesProvider>
+      </CoursesProvider>
     </BrowserRouter>
   );
 }

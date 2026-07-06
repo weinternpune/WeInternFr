@@ -341,3 +341,177 @@ router.get('/github/callback', passport.authenticate('github', { session: false 
 });
 
 module.exports = router;
+
+
+// Phone OTP verification routes
+const phoneOtpStore = new Map(); // In-memory store for OTPs (use Redis in production)
+const axios = require('axios');
+
+// Send SMS OTP using MSG91 or Twilio
+const sendSMSOTP = async (phone, otp) => {
+  try {
+    // MSG91 Integration (Popular in India)
+    if (process.env.MSG91_AUTH_KEY && process.env.MSG91_TEMPLATE_ID) {
+      const msg91Url = `https://control.msg91.com/api/v5/otp`;
+      const response = await axios.post(msg91Url, {
+        template_id: process.env.MSG91_TEMPLATE_ID,
+        mobile: `91${phone}`,
+        authkey: process.env.MSG91_AUTH_KEY,
+        otp: otp
+      });
+      console.log('✅ OTP sent via MSG91 to:', phone);
+      return { success: true, provider: 'MSG91' };
+    }
+    
+    // Twilio Integration (Alternative)
+    if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_PHONE_NUMBER) {
+      const twilioClient = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+      await twilioClient.messages.create({
+        body: `Your WeIntern OTP is: ${otp}. Valid for 10 minutes. Do not share with anyone.`,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: `+91${phone}`
+      });
+      console.log('✅ OTP sent via Twilio to:', phone);
+      return { success: true, provider: 'Twilio' };
+    }
+
+    // Fast2SMS Integration (Alternative Indian provider)
+    if (process.env.FAST2SMS_API_KEY) {
+      const fast2smsUrl = 'https://www.fast2sms.com/dev/bulkV2';
+      await axios.post(fast2smsUrl, {
+        route: 'otp',
+        variables_values: otp,
+        flash: 0,
+        numbers: phone
+      }, {
+        headers: {
+          'authorization': process.env.FAST2SMS_API_KEY,
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log('✅ OTP sent via Fast2SMS to:', phone);
+      return { success: true, provider: 'Fast2SMS' };
+    }
+
+    // If no SMS service configured, return false
+    return { success: false, provider: 'none' };
+  } catch (error) {
+    console.error('SMS sending error:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Send phone OTP
+router.post('/send-phone-otp', authLimiter, async (req, res) => {
+  try {
+    const { phone } = req.body;
+    
+    if (!phone || phone.length !== 10) {
+      return res.status(400).json({ success: false, message: 'Valid 10-digit phone number required' });
+    }
+
+    // FIXED OTP for development/testing - use '123456'
+    const otp = '123456';
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Store OTP in memory (use Redis in production)
+    phoneOtpStore.set(phone, { otp, otpExpiry });
+
+    // Try to send SMS
+    try {
+      const smsResult = await sendSMSOTP(phone, otp);
+      
+      if (smsResult.success) {
+        return res.json({ 
+          success: true, 
+          message: `OTP sent to +91${phone}`,
+          provider: smsResult.provider
+        });
+      }
+    } catch (smsError) {
+      // SMS failed, but continue with fixed OTP
+    }
+
+    // Return success (OTP is fixed to 123456 for now)
+    return res.json({ 
+      success: true, 
+      message: 'OTP sent successfully (Fixed OTP for testing)',
+    });
+  } catch (error) {
+    console.error('Send phone OTP error:', error);
+    res.status(500).json({ success: false, message: 'Failed to send OTP' });
+  }
+});
+
+// Verify phone OTP
+router.post('/verify-phone-otp', authLimiter, async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+    
+    if (!phone || !otp) {
+      return res.status(400).json({ success: false, message: 'Phone and OTP required' });
+    }
+
+    const storedData = phoneOtpStore.get(phone);
+    
+    if (!storedData) {
+      return res.status(400).json({ success: false, message: 'OTP not found or expired' });
+    }
+
+    const { otp: storedOtp, otpExpiry } = storedData;
+
+    // Check if OTP expired
+    if (new Date() > otpExpiry) {
+      phoneOtpStore.delete(phone);
+      return res.status(400).json({ success: false, message: 'OTP expired. Please request a new one' });
+    }
+
+    // Ensure both OTPs are strings for comparison
+    const receivedOtpStr = String(otp).trim();
+    const storedOtpStr = String(storedOtp).trim();
+
+    // Verify OTP
+    if (receivedOtpStr !== storedOtpStr) {
+      return res.status(400).json({ success: false, message: 'Invalid OTP' });
+    }
+
+    // OTP verified successfully
+    phoneOtpStore.delete(phone); // Remove OTP after verification
+
+    res.json({ 
+      success: true, 
+      message: 'Phone number verified successfully',
+      phone 
+    });
+  } catch (error) {
+    console.error('Verify phone OTP error:', error);
+    res.status(500).json({ success: false, message: 'Verification failed' });
+  }
+});
+
+// Save user interests
+router.post('/save-interests', authLimiter, async (req, res) => {
+  try {
+    const { phone, interests } = req.body;
+    
+    if (!phone || !interests || !Array.isArray(interests)) {
+      return res.status(400).json({ success: false, message: 'Phone and interests array required' });
+    }
+
+    // Store interests (you can extend this to save in database)
+    console.log(`📝 User interests saved for phone ${phone}:`, interests);
+
+    // TODO: Save to database with phone number and interests
+    // You can create a PhoneVerification model to store this data
+
+    res.json({ 
+      success: true, 
+      message: 'Interests saved successfully',
+      phone,
+      interests
+    });
+  } catch (error) {
+    console.error('Save interests error:', error);
+    res.status(500).json({ success: false, message: 'Failed to save interests' });
+  }
+});

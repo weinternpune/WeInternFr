@@ -795,10 +795,10 @@
   }
 }
 
-/* ── Mobile: exactly 1 card, 100% width, no horizontal scroll ── */
+/* ── Mobile: exactly 1 card, 100% width, auto + manual scroll ── */
 @media (max-width: 575.98px) {
   .courses {
-    padding: 2rem 0 0;
+    padding: 2rem 0 1rem;
   }
 
   .cs-main-title {
@@ -815,44 +815,123 @@
 
   .cs-carousel-viewport {
     flex: 1;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     padding: 0.5rem 0.4rem 0.9rem;
+    height: 600px; /* Increased from 550px */
+    width: 100%;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold) var(--cream);
   }
 
-  .cs-card {
-    flex: 0 0 100%;
+  /* Webkit scrollbar styling */
+  .cs-carousel-viewport::-webkit-scrollbar {
+    width: 6px;
   }
 
-  /* Mobile arrows */
-  .cs-arrow {
+  .cs-carousel-viewport::-webkit-scrollbar-track {
+    background: var(--cream);
+    border-radius: 10px;
+  }
+
+  .cs-carousel-viewport::-webkit-scrollbar-thumb {
+    background: var(--gold);
+    border-radius: 10px;
+  }
+
+  .cs-carousel-viewport::-webkit-scrollbar-thumb:hover {
+    background: var(--navy);
+  }
+
+  /* Auto-scroll animation for the viewport */
+  .cs-carousel-viewport.auto-scrolling {
+    animation: mobileAutoScroll 50s linear infinite;
+  }
+
+  /* Pause on hover/touch */
+  .cs-carousel-viewport.auto-scrolling:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes mobileAutoScroll {
+    0% {
+      scroll-behavior: auto;
+    }
+    100% {
+      scroll-behavior: auto;
+    }
+  }
+
+  .cs-carousel-track {
     display: flex;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 3px 10px rgba(13, 27, 62, 0.12);
-    align-items: center;
-    justify-content: center;
-    z-index: 20;
+    flex-direction: column;
   }
 
-  .cs-arrow--left {
-    left: -6px;
+  /* Ensure cards are clickable */
+  .cs-card {
+    flex: 0 0 auto;
+    width: 100%;
+    margin-bottom: 0.85rem;
+    pointer-events: auto;
+    cursor: pointer;
   }
 
-  .cs-arrow--right {
-    right: -6px;
+  /* Increase card size for mobile */
+  .cs-card-icon-zone {
+    height: 170px; /* Increased from 150px */
+    padding: 1.2rem 1.2rem 2rem;
   }
 
+  .cs-card-icon-wrap {
+    width: 70px; /* Increased from 60px */
+    height: 70px;
+  }
+
+  .cs-card-content {
+    padding: 0.8rem 1.2rem 0; /* Increased padding */
+  }
+
+  .cs-card-title {
+    font-size: 1.1rem; /* Increased from 1rem */
+    margin: 0 0 0.35rem;
+  }
+
+  .cs-card-dur {
+    font-size: 0.82rem; /* Increased from 0.75rem */
+    margin: 0 0 0.6rem;
+  }
+
+  .cs-card-list {
+    gap: 0.4rem; /* Increased from 0.35rem */
+    margin: 0 0 0.7rem;
+  }
+
+  .cs-card-list li {
+    font-size: 0.85rem; /* Increased from 0.78rem */
+  }
+
+  .cs-card-footer {
+    padding: 0.85rem 1.2rem; /* Increased padding */
+  }
+
+  .cs-card-price {
+    font-size: 1.2rem; /* Increased from 1.1rem */
+  }
+
+  .cs-cta-btn {
+    padding: 0.6rem 1.3rem; /* Increased button size */
+    font-size: 0.85rem;
+  }
+
+  /* Hide arrows for mobile */
+  .cs-arrow {
+    display: none;
+  }
+
+  /* Hide dots for mobile */
   .cs-dots {
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 0 4%;
-    margin-top: 0.8rem;
+    display: none;
   }
 
   /* Tabs */
@@ -873,9 +952,10 @@
     grid-template-columns: 1fr;
   }
 
-  /* Benefits Section (unchanged) */
+  /* Benefits Section (reduced gap) */
   .cs-benefits-wrap {
     padding: 1rem;
+    margin-top: 1rem;
   }
 
   .cs-benefits-inner {

@@ -94,16 +94,6 @@ const Dashboard = () => {
     getMyEnrollments().then(r => setEnrollments(r.data.data)).catch(() => {});
   };
 
-  // Track login activity when dashboard loads
-  useEffect(() => {
-    if (user && !loading) {
-      trackActivity({ 
-        activityType: 'login',
-        details: { duration: 0 }  // Just a login ping
-      }).catch(err => console.warn('Activity tracking failed:', err));
-    }
-  }, [user, loading]);
-
   if (!user) return null;
   if (loading) return (
     <div className="dash-loading">
@@ -114,7 +104,7 @@ const Dashboard = () => {
 
   const currentTab = TABS.find(t => t.id === tab);
 
-  return (
+  const dashboardContent = (
     <div className="dashboard">
       {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
 
@@ -223,6 +213,8 @@ const Dashboard = () => {
       </main>
     </div>
   );
+
+  return dashboardContent;
 };
 
 // ── Overview ────────────────────────────────────────────

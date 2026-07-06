@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // ===== Problem Section =====
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -54,13 +55,16 @@ export const Problem = () => {
 
 // ===== HowItWorks =====
 export const HowItWorks = () => {
+  // eslint-disable-next-line no-unused-vars
   const [tab, setTab] = React.useState('students');
+  // eslint-disable-next-line no-unused-vars
   const STEPS = [
     { num:'01', icon:'📝', title:'Apply & Get Selected', desc:'No prior experience needed. Just passion and the willingness to grow. Submit your application and our team reviews within 3–5 days.' },
     { num:'02', icon:'👥', title:'Join a Real Team', desc:'Become part of a supervised intern team working on actual client projects — web dev, apps, AI, cloud, and more.' },
     { num:'03', icon:'💰', title:'Earn While You Learn', desc:'Receive a stipend for your real contributions. Not just a certificate — actual income while you build real skills.' },
     { num:'04', icon:'🚀', title:'Build Your Portfolio', desc:'Leave with 4–6 live projects, verified industry experience, and the confidence to own any interview room.' }
   ];
+  // eslint-disable-next-line no-unused-vars
   const BIZ = [
     { num:'01', icon:'💡', title:'Share Your Requirements', desc:'Tell us what you need. We assess scope, timeline, and match your project to the right intern team.' },
     { num:'02', icon:'👥', title:'Get a Supervised Team', desc:'Passionate interns supervised by expert mentors. Quality guaranteed, deadlines respected.' },
@@ -402,6 +406,7 @@ const ProjectCard = ({ image, title, subtitle, tech }) => (
   </div>
 );
 
+  // eslint-disable-next-line no-unused-vars
 const StudentProjectsSection = () => {
   const [start, setStart] = useState(0);
   const [showAll, setShowAll] = useState(false);

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useCourses } from "../../context/CoursesContext";
@@ -6,6 +7,7 @@ import API from "../../utils/api";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import CourseDetailModal from "./CourseDetail";
+import PhoneGate from "../PhoneGate/PhoneGate";
 import { Icon } from "@iconify/react";
 import "./Courses.css";
 
@@ -225,16 +227,130 @@ const Courses = () => {
   const [enrollCourseData, setEnrollCourseData] = useState(null);
   const [activeTab, setActiveTab] = useState("Technology");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showPhoneGate, setShowPhoneGate] = useState(false);
+  const [pendingEnrollCourse, setPendingEnrollCourse] = useState(null);
+  const [isCoursesVisible, setIsCoursesVisible] = useState(false); // Track if section is visible
   const trackRef = useRef(null);
+  const viewportRef = useRef(null);
+  const autoScrollInterval = useRef(null);
+  const coursesRef = useRef(null); // Ref for the courses section
   const { activeCourses } = useCourses();
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleEnroll = (course) => {
-    if (!user) { toast.error("Please login to enroll"); navigate("/login"); return; }
+    // Check if phone is verified (for all users including logged-in)
+    const phoneVerified = localStorage.getItem('phoneVerified') === 'true';
+    if (!phoneVerified) {
+      // Store the course for enrollment after verification
+      setPendingEnrollCourse(course);
+      setDetailCourse(null);
+      setShowPhoneGate(true);
+      return;
+    }
+
+    // If not logged in after phone verification, redirect to login
+    if (!user) {
+      toast.error("Please login to enroll");
+      navigate("/login");
+      return;
+    }
+
+    // If phone verified and logged in, proceed with enrollment
     setDetailCourse(null);
     setEnrollCourseData(course);
   };
+
+  const handlePhoneVerificationComplete = () => {
+    setShowPhoneGate(false);
+    // After phone verification, check if user is logged in
+    if (user && pendingEnrollCourse) {
+      // User is logged in, proceed with enrollment
+      setEnrollCourseData(pendingEnrollCourse);
+      setPendingEnrollCourse(null);
+    } else if (pendingEnrollCourse) {
+      // User not logged in, redirect to login
+      toast.success("Phone verified! Please login to continue enrollment.");
+      navigate("/login");
+      setPendingEnrollCourse(null);
+    }
+  };
+
+  // Detect when Courses section is visible in viewport
+  React.useEffect(() => {
+    const section = coursesRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            console.log('👀 Courses section is now visible!');
+            setIsCoursesVisible(true);
+          } else {
+            console.log('👋 Courses section is no longer visible');
+            setIsCoursesVisible(false);
+          }
+        });
+      },
+      { threshold: 0.3 } // Trigger when 30% of section is visible
+    );
+
+    observer.observe(section);
+
+    return () => {
+      if (section) {
+        observer.unobserve(section);
+      }
+    };
+  }, []);
+
+  // 15-second timer for phone verification popup (only when Courses section is visible)
+  React.useEffect(() => {
+    console.log('🔍 Timer effect triggered');
+    console.log('   - isCoursesVisible:', isCoursesVisible);
+    console.log('   - user:', user);
+    console.log('   - phoneVerified localStorage:', localStorage.getItem('phoneVerified'));
+    
+    // Skip if section is not visible
+    if (!isCoursesVisible) {
+      console.log('⏸️ Courses section not visible - timer not started');
+      return;
+    }
+
+    // Skip if user is logged in
+    if (user) {
+      console.log('✅ User logged in - no phone verification needed');
+      return;
+    }
+
+    // Check if phone already verified
+    const phoneVerified = localStorage.getItem('phoneVerified') === 'true';
+    console.log('📱 Phone verification status:', phoneVerified);
+    
+    if (phoneVerified) {
+      console.log('✅ Phone already verified - no popup needed');
+      return;
+    }
+
+    console.log('⏰ Starting 15-second timer for Courses section...');
+    console.log('   - Current showPhoneGate state:', showPhoneGate);
+
+    const timer = setTimeout(() => {
+      console.log('🚀 15 seconds complete! Setting showPhoneGate to true');
+      setShowPhoneGate(true);
+    }, 15000);
+
+    return () => {
+      console.log('⏹️ Courses timer cleanup');
+      clearTimeout(timer);
+    };
+  }, [isCoursesVisible, user]); // Depend on section visibility and user
+
+  // Debug log whenever showPhoneGate changes
+  React.useEffect(() => {
+    console.log('📱 showPhoneGate state changed to:', showPhoneGate);
+  }, [showPhoneGate]);
 
   /* Filter by tab */
   const filteredCourses = activeCourses.filter((c) => {
@@ -245,6 +361,80 @@ const Courses = () => {
 
   /* If no matches for tab, fall back to all */
   const displayCourses = filteredCourses.length > 0 ? filteredCourses : activeCourses;
+
+  // Auto-scroll for mobile
+  React.useEffect(() => {
+    const isMobile = window.innerWidth <= 575.98;
+    if (!isMobile) return;
+
+    const viewport = viewportRef.current;
+    if (!viewport) {
+      console.log('❌ Viewport ref not found');
+      return;
+    }
+
+    console.log('✅ Auto-scroll starting for mobile...');
+    let scrollPosition = 0;
+    const scrollSpeed = 4; // pixels per frame (increased from 2.5 for even faster scroll)
+    const scrollDelay = 30; // ms between frames
+    let isUserScrolling = false;
+    let userScrollTimeout = null;
+
+    const autoScroll = () => {
+      if (!viewport || isUserScrolling) return;
+      
+      scrollPosition += scrollSpeed;
+      viewport.scrollTop = scrollPosition;
+
+      // Reset when reached bottom
+      if (scrollPosition >= viewport.scrollHeight - viewport.clientHeight) {
+        scrollPosition = 0;
+        viewport.scrollTop = 0;
+      }
+    };
+
+    // Start auto-scroll
+    const intervalId = setInterval(autoScroll, scrollDelay);
+    console.log('🔄 Auto-scroll interval started:', intervalId);
+
+    // Pause on user interaction (only touch and wheel, NOT scroll event)
+    const handleUserInteraction = (e) => {
+      // Only pause if it's actual user interaction, not programmatic scroll
+      if (e.type === 'wheel' || e.type === 'touchstart') {
+        console.log('👆 User interaction detected - pausing auto-scroll');
+        isUserScrolling = true;
+        
+        // Clear existing timeout
+        if (userScrollTimeout) {
+          clearTimeout(userScrollTimeout);
+        }
+        
+        // Resume after 5 seconds of no interaction
+        userScrollTimeout = setTimeout(() => {
+          if (viewport) {
+            console.log('▶️ Resuming auto-scroll');
+            isUserScrolling = false;
+            scrollPosition = viewport.scrollTop;
+          }
+        }, 5000);
+      }
+    };
+
+    viewport.addEventListener('touchstart', handleUserInteraction, { passive: true });
+    viewport.addEventListener('wheel', handleUserInteraction, { passive: true });
+
+    return () => {
+      console.log('🛑 Cleaning up auto-scroll');
+      clearInterval(intervalId);
+      if (userScrollTimeout) {
+        clearTimeout(userScrollTimeout);
+      }
+      if (viewport) {
+        viewport.removeEventListener('touchstart', handleUserInteraction);
+        viewport.removeEventListener('wheel', handleUserInteraction);
+      }
+    };
+  }, [activeTab, displayCourses.length]);
 
   /* ── Responsive visible count matches CSS breakpoints ── */
   const getVisible = () => {
@@ -276,7 +466,7 @@ const Courses = () => {
   };
 
   return (
-    <section className="courses" id="courses">
+    <section className="courses" id="courses" ref={coursesRef}>
 
       {/* ── Header ── */}
       <div className="cs-header">
@@ -316,7 +506,7 @@ const Courses = () => {
         </button>
 
         {/* Track */}
-        <div className="cs-carousel-viewport">
+        <div className="cs-carousel-viewport" ref={viewportRef}>
           <div
             className="cs-carousel-track"
             ref={trackRef}
@@ -462,6 +652,10 @@ const Courses = () => {
           course={enrollCourseData}
           onClose={() => setEnrollCourseData(null)}
         />
+      )}
+      {/* Phone verification modal for non-logged-in users */}
+      {showPhoneGate && (
+        <PhoneGate onComplete={handlePhoneVerificationComplete} />
       )}
     </section>
   );
