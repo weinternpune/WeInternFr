@@ -1,0 +1,372 @@
+/* Phone Gate Overlay */
+.phone-gate-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(27, 42, 74, 0.95);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Phone Gate Modal */
+.phone-gate-modal {
+  background: white;
+  border-radius: 24px;
+  max-width: 480px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Step Container */
+.pg-step {
+  padding: 2.5rem 2rem;
+}
+
+/* Header */
+.pg-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.pg-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.pg-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  color: #1B2A4A;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.pg-header p {
+  color: #5a6a82;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.pg-edit-phone {
+  background: none;
+  border: none;
+  color: #2196C9;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  transition: all 0.2s;
+}
+
+.pg-edit-phone:hover {
+  background: #e3f2fd;
+}
+
+/* Body */
+.pg-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Input Group */
+.pg-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pg-input-group label {
+  font-weight: 600;
+  color: #1B2A4A;
+  font-size: 0.9rem;
+}
+
+.pg-phone-input {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e4ef;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.pg-phone-input:focus-within {
+  border-color: #2196C9;
+  box-shadow: 0 0 0 4px rgba(33, 150, 201, 0.1);
+}
+
+.pg-country-code {
+  font-weight: 600;
+  color: #1B2A4A;
+  font-size: 1rem;
+  padding-right: 0.75rem;
+  border-right: 2px solid #e0e4ef;
+}
+
+.pg-phone-input input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1B2A4A;
+}
+
+.pg-phone-input input::placeholder {
+  color: #c0c8d8;
+}
+
+.pg-otp-input {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #e0e4ef;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.5rem;
+  color: #1B2A4A;
+  transition: all 0.2s;
+}
+
+.pg-otp-input:focus {
+  outline: none;
+  border-color: #2196C9;
+  box-shadow: 0 0 0 4px rgba(33, 150, 201, 0.1);
+}
+
+/* Buttons */
+.pg-btn-primary {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #E8A820, #f5c842);
+  color: #1B2A4A;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.pg-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(232, 168, 32, 0.4);
+}
+
+.pg-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pg-btn-link {
+  background: none;
+  border: none;
+  color: #2196C9;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.pg-btn-link:hover:not(:disabled) {
+  color: #1976d2;
+  text-decoration: underline;
+}
+
+.pg-btn-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Benefits */
+.pg-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.pg-benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: #5a6a82;
+}
+
+.pg-benefit-icon {
+  width: 24px;
+  height: 24px;
+  background: #27ae60;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Interests Grid */
+.pg-interests-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.pg-interest-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem 0.75rem;
+  background: #f8fafc;
+  border: 2px solid #e0e4ef;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.pg-interest-card:hover {
+  border-color: #2196C9;
+  background: white;
+}
+
+.pg-interest-card.selected {
+  background: #e3f2fd;
+  border-color: #2196C9;
+  box-shadow: 0 4px 12px rgba(33, 150, 201, 0.2);
+}
+
+.pg-interest-icon {
+  font-size: 2rem;
+}
+
+.pg-interest-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1B2A4A;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.pg-interest-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  background: #27ae60;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .phone-gate-modal {
+    border-radius: 20px;
+    max-height: 95vh;
+  }
+
+  .pg-step {
+    padding: 2rem 1.5rem;
+  }
+
+  .pg-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .pg-interests-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .pg-step {
+    padding: 1.5rem 1rem;
+  }
+
+  .pg-icon {
+    font-size: 3rem;
+  }
+
+  .pg-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .pg-header p {
+    font-size: 0.85rem;
+  }
+}
+
+/* Blur Effect for Protected Content */
+.content-blurred {
+  filter: blur(8px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.content-blurred-overlay {
+  position: relative;
+}
+
+.content-blurred-overlay::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}

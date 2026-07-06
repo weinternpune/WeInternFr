@@ -55,6 +55,7 @@ export const Problem = () => {
 // ===== HowItWorks =====
 export const HowItWorks = () => {
   const [tab, setTab] = React.useState('students');
+  
   const STEPS = [
     { num:'01', icon:'📝', title:'Apply & Get Selected', desc:'No prior experience needed. Just passion and the willingness to grow. Submit your application and our team reviews within 3–5 days.' },
     { num:'02', icon:'👥', title:'Join a Real Team', desc:'Become part of a supervised intern team working on actual client projects — web dev, apps, AI, cloud, and more.' },

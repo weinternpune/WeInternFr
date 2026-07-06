@@ -1,0 +1,22 @@
+/* Protected Content Wrapper */
+.content-blurred-wrapper {
+  position: relative;
+}
+
+.content-blurred {
+  filter: blur(8px);
+  pointer-events: none;
+  user-select: none;
+  position: relative;
+}
+
+.content-blurred::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.3);
+  pointer-events: none;
+}
