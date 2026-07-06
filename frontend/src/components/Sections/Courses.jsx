@@ -6,6 +6,7 @@ import API from "../../utils/api";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import CourseDetailModal from "./CourseDetail";
+import PhoneGate from "../PhoneGate/PhoneGate";
 import { Icon } from "@iconify/react";
 import "./Courses.css";
 
@@ -225,15 +226,49 @@ const Courses = () => {
   const [enrollCourseData, setEnrollCourseData] = useState(null);
   const [activeTab, setActiveTab] = useState("Technology");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showPhoneGate, setShowPhoneGate] = useState(false);
+  const [pendingEnrollCourse, setPendingEnrollCourse] = useState(null);
   const trackRef = useRef(null);
   const { activeCourses } = useCourses();
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleEnroll = (course) => {
-    if (!user) { toast.error("Please login to enroll"); navigate("/login"); return; }
+    // Check if phone is verified (for all users including logged-in)
+    const phoneVerified = localStorage.getItem('phoneVerified') === 'true';
+    if (!phoneVerified) {
+      // Store the course for enrollment after verification
+      setPendingEnrollCourse(course);
+      setDetailCourse(null);
+      setShowPhoneGate(true);
+      return;
+    }
+
+    // If not logged in after phone verification, redirect to login
+    if (!user) {
+      toast.error("Please login to enroll");
+      navigate("/login");
+      return;
+    }
+
+    // If phone verified and logged in, proceed with enrollment
     setDetailCourse(null);
     setEnrollCourseData(course);
+  };
+
+  const handlePhoneVerificationComplete = () => {
+    setShowPhoneGate(false);
+    // After phone verification, check if user is logged in
+    if (user && pendingEnrollCourse) {
+      // User is logged in, proceed with enrollment
+      setEnrollCourseData(pendingEnrollCourse);
+      setPendingEnrollCourse(null);
+    } else if (pendingEnrollCourse) {
+      // User not logged in, redirect to login
+      toast.success("Phone verified! Please login to continue enrollment.");
+      navigate("/login");
+      setPendingEnrollCourse(null);
+    }
   };
 
   /* Filter by tab */
@@ -462,6 +497,10 @@ const Courses = () => {
           course={enrollCourseData}
           onClose={() => setEnrollCourseData(null)}
         />
+      )}
+      {/* Phone verification modal for non-logged-in users */}
+      {showPhoneGate && (
+        <PhoneGate onComplete={handlePhoneVerificationComplete} />
       )}
     </section>
   );

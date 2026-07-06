@@ -9,7 +9,7 @@ import '../components/Sections/Forms.css';
 const Home = () => (
   <>
     <Hero />
-    {/* Marquee */}
+    {/* Marquee - Always visible */}
     <div className="marquee-strip">
       <div className="marquee-track">
         {['🌐 Web Development','📱 App Development','🤖 AI & Automation','☁️ Cloud Solutions','🎨 UI/UX Design','📢 Digital Marketing','📊 Data Science','💰 Earn While You Learn','🚀 Real Projects','✅ Stipend Based',
@@ -17,13 +17,14 @@ const Home = () => (
         ].map((t,i) => <span key={i}>{t}</span>)}
       </div>
     </div>
+    
+    {/* All main content - NO BLUR */}
     <Problem />
     <HowItWorks />
     <EcosystemSection />
     <Courses />
     <Vision />
     <ApplySection />
-    {/* <HireSection /> */}
   </>
 );
 
