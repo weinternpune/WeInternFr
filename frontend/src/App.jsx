@@ -47,16 +47,10 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 
 // Layout wrapper with nav + footer
 const WithLayout = ({ children }) => {
-  const { user } = useAuth(); // Get user from AuthContext
-  
-  // Determine phoneVerified status - user login OR localStorage
-  const phoneVerified = user || localStorage.getItem('phoneVerified') === 'true';
-
   return (
     <>
       <Navbar />
-      {/* Pass phoneVerified as prop to children */}
-      {React.cloneElement(children, { phoneVerified })}
+      {children}
       <Footer />
       <WAFloat />
     </>

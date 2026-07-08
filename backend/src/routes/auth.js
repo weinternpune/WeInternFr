@@ -410,12 +410,21 @@ router.post('/send-phone-otp', authLimiter, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Valid 10-digit phone number required' });
     }
 
-    // FIXED OTP for development/testing - use '123456'
-    const otp = '123456';
+    // Generate random 6-digit OTP
+    const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     // Store OTP in memory (use Redis in production)
     phoneOtpStore.set(phone, { otp, otpExpiry });
+
+    // Log OTP to console for development
+    console.log('\n════════════════════════════════════════');
+    console.log('📱 PHONE OTP - DEVELOPMENT MODE');
+    console.log('════════════════════════════════════════');
+    console.log('📞 Phone Number: +91', phone);
+    console.log('🔢 OTP Code:', otp);
+    console.log('⏰ Expires At:', otpExpiry.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }));
+    console.log('════════════════════════════════════════\n');
 
     // Try to send SMS
     try {
@@ -429,13 +438,15 @@ router.post('/send-phone-otp', authLimiter, async (req, res) => {
         });
       }
     } catch (smsError) {
-      // SMS failed, but continue with fixed OTP
+      console.log('⚠️  SMS service not configured - using console OTP only');
     }
 
-    // Return success (OTP is fixed to 123456 for now)
+    // Return success (OTP is logged to console)
     return res.json({ 
       success: true, 
-      message: 'OTP sent successfully (Fixed OTP for testing)',
+      message: 'OTP sent successfully',
+      // In development, optionally return OTP in response for testing
+      ...(process.env.NODE_ENV === 'development' && { otp })
     });
   } catch (error) {
     console.error('Send phone OTP error:', error);
