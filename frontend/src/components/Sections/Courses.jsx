@@ -92,17 +92,23 @@ const BENEFITS = [
 ];
 
 /* ══════════════════════════════════════════════════════════════
-   EnrollModal  —  all original logic preserved
+   EnrollModal  —  with offer system
 ══════════════════════════════════════════════════════════════ */
 const EnrollModal = ({ course, onClose }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [showPrice, setShowPrice] = useState(false);
   const [form, setForm] = useState({
     name: user?.name || "", email: user?.email || "", phone: user?.phone || "",
     college: user?.college || "", degree: "", year: user?.year || "",
   });
+
+  // Calculate offer details
+  const originalPrice = course.originalPrice || Math.round(course.price * 1.2); // 20% markup for original
+  const offerPrice = course.price;
+  const discount = Math.round(((originalPrice - offerPrice) / originalPrice) * 100);
 
   const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
@@ -155,9 +161,20 @@ const EnrollModal = ({ course, onClose }) => {
           <div className="enroll-emoji" style={{ color: meta.iconColor, background: meta.bg }}>
             <Icon icon={meta.icon} width={28} height={28} />
           </div>
-          <div>
+          <div style={{ flex: 1 }}>
             <h3 style={{ margin:0, fontSize:"1.05rem", color:"var(--navy)" }}>{course.title}</h3>
-            <div className="enroll-price-tag">₹{Number(course.price).toLocaleString("en-IN")}</div>
+            <div className="enroll-price-row">
+              <span className="enroll-original-price">₹{Number(originalPrice).toLocaleString("en-IN")}</span>
+              <span className="enroll-discount-badge">{discount}% OFF</span>
+              <span className="enroll-offer-price">₹{Number(offerPrice).toLocaleString("en-IN")}</span>
+            </div>
+          </div>
+          <div className="enroll-offer-badge">
+            <Icon icon="lucide:tag" width={12} height={12} />
+            <div>
+              <div className="enroll-offer-badge-title">OFFER PRICE</div>
+              <div className="enroll-offer-badge-subtitle">Limited Time Offer!</div>
+            </div>
           </div>
         </div>
 
@@ -186,6 +203,45 @@ const EnrollModal = ({ course, onClose }) => {
               </div>
             </div>
 
+            {/* Special Offer Section */}
+            <div className="enroll-special-offer">
+              <div className="enroll-offer-icon">
+                <Icon icon="lucide:tag" width={20} height={20} />
+              </div>
+              <div className="enroll-offer-text">
+                <strong>Special Offer for You!</strong>
+                <div className="enroll-offer-prices">
+                  Original Price <span className="enroll-offer-strike">₹{Number(originalPrice).toLocaleString("en-IN")}</span> — Now at Offer Price <span className="enroll-offer-highlight">₹{Number(offerPrice).toLocaleString("en-IN")}</span>
+                </div>
+              </div>
+              <button 
+                type="button"
+                className="enroll-show-price-btn"
+                onClick={() => setShowPrice(!showPrice)}
+              >
+                <Icon icon={showPrice ? "lucide:eye-off" : "lucide:eye"} width={14} height={14} />
+                {showPrice ? "Hide Price" : "Ohh! Price Dekhna"}
+              </button>
+            </div>
+
+            {/* Price breakdown - shown on button click */}
+            {showPrice && (
+              <div className="enroll-price-breakdown">
+                <div className="enroll-price-row-item">
+                  <span>Course Fee</span>
+                  <span>₹{Number(originalPrice).toLocaleString("en-IN")}</span>
+                </div>
+                <div className="enroll-price-row-item enroll-discount-row">
+                  <span>Limited Time Discount ({discount}%)</span>
+                  <span>- ₹{Number(originalPrice - offerPrice).toLocaleString("en-IN")}</span>
+                </div>
+                <div className="enroll-price-row-item enroll-total-row">
+                  <span><strong>Total Amount</strong></span>
+                  <span><strong>₹{Number(offerPrice).toLocaleString("en-IN")}</strong></span>
+                </div>
+              </div>
+            )}
+
             <div className="payment-methods-preview">
               <div className="pm-label">Accepted Payment Methods</div>
               <div className="pm-icons">
@@ -198,7 +254,7 @@ const EnrollModal = ({ course, onClose }) => {
 
             <button type="submit" className="btn btn-primary btn-full enroll-pay-btn">
               <Icon icon="lucide:lock" width={15} height={15} style={{ marginRight: "0.3rem" }} />
-              Pay ₹{Number(course.price).toLocaleString("en-IN")}
+              Pay ₹{Number(offerPrice).toLocaleString("en-IN")} Now
               <Icon icon="lucide:arrow-right" width={15} height={15} style={{ marginLeft: "0.3rem" }} />
             </button>
             <button type="button" className="btn btn-outline btn-full" onClick={onClose} style={{ marginTop:".6rem" }}>
@@ -227,130 +283,95 @@ const Courses = () => {
   const [enrollCourseData, setEnrollCourseData] = useState(null);
   const [activeTab, setActiveTab] = useState("Technology");
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [showPhoneGate, setShowPhoneGate] = useState(false);
-  const [pendingEnrollCourse, setPendingEnrollCourse] = useState(null);
-  const [isCoursesVisible, setIsCoursesVisible] = useState(false); // Track if section is visible
   const trackRef = useRef(null);
   const viewportRef = useRef(null);
   const autoScrollInterval = useRef(null);
-  const coursesRef = useRef(null); // Ref for the courses section
   const { activeCourses } = useCourses();
   const { user } = useAuth();
   const navigate = useNavigate();
+  
+  // Phone verification state
+  const [showPhoneGate, setShowPhoneGate] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [pendingCourse, setPendingCourse] = useState(null);
 
-  const handleEnroll = (course) => {
-    // Check if phone is verified (for all users including logged-in)
-    const phoneVerified = localStorage.getItem('phoneVerified') === 'true';
-    if (!phoneVerified) {
-      // Store the course for enrollment after verification
-      setPendingEnrollCourse(course);
-      setDetailCourse(null);
-      setShowPhoneGate(true);
-      return;
-    }
-
-    // If not logged in after phone verification, redirect to login
-    if (!user) {
-      toast.error("Please login to enroll");
-      navigate("/login");
-      return;
-    }
-
-    // If phone verified and logged in, proceed with enrollment
-    setDetailCourse(null);
-    setEnrollCourseData(course);
-  };
-
-  const handlePhoneVerificationComplete = () => {
-    setShowPhoneGate(false);
-    // After phone verification, check if user is logged in
-    if (user && pendingEnrollCourse) {
-      // User is logged in, proceed with enrollment
-      setEnrollCourseData(pendingEnrollCourse);
-      setPendingEnrollCourse(null);
-    } else if (pendingEnrollCourse) {
-      // User not logged in, redirect to login
-      toast.success("Phone verified! Please login to continue enrollment.");
-      navigate("/login");
-      setPendingEnrollCourse(null);
-    }
-  };
-
-  // Detect when Courses section is visible in viewport
+  // Check phone verification status and start timer on mount
   React.useEffect(() => {
-    const section = coursesRef.current;
-    if (!section) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            console.log('👀 Courses section is now visible!');
-            setIsCoursesVisible(true);
-          } else {
-            console.log('👋 Courses section is no longer visible');
-            setIsCoursesVisible(false);
-          }
-        });
-      },
-      { threshold: 0.3 } // Trigger when 30% of section is visible
-    );
-
-    observer.observe(section);
-
-    return () => {
-      if (section) {
-        observer.unobserve(section);
-      }
-    };
-  }, []);
-
-  // 15-second timer for phone verification popup (only when Courses section is visible)
-  React.useEffect(() => {
-    console.log('🔍 Timer effect triggered');
-    console.log('   - isCoursesVisible:', isCoursesVisible);
-    console.log('   - user:', user);
-    console.log('   - phoneVerified localStorage:', localStorage.getItem('phoneVerified'));
-    
-    // Skip if section is not visible
-    if (!isCoursesVisible) {
-      console.log('⏸️ Courses section not visible - timer not started');
-      return;
-    }
-
     // Skip if user is logged in
     if (user) {
-      console.log('✅ User logged in - no phone verification needed');
+      console.log('✅ User is logged in - no phone verification needed');
       return;
     }
 
-    // Check if phone already verified
-    const phoneVerified = localStorage.getItem('phoneVerified') === 'true';
-    console.log('📱 Phone verification status:', phoneVerified);
+    const verified = localStorage.getItem('phoneVerified') === 'true';
+    setPhoneVerified(verified);
+    console.log('📱 Courses: Phone verified status:', verified);
     
-    if (phoneVerified) {
-      console.log('✅ Phone already verified - no popup needed');
+    // Start timer if not verified
+    if (!verified) {
+      console.log('⏰ Starting 15-second timer in Courses section...');
+      
+      const timer = setTimeout(() => {
+        console.log('🚀 15 seconds complete! Showing PhoneGate popup');
+        setShowPhoneGate(true);
+      }, 15000);
+
+      return () => {
+        console.log('⏹️ Timer cleanup on unmount');
+        clearTimeout(timer);
+      };
+    } else {
+      console.log('✅ Phone already verified - no timer needed');
+    }
+  }, [user]); // Dependency on user - restart if user changes
+
+  const handlePhoneVerificationComplete = () => {
+    console.log('✅ Phone verification completed in Courses!');
+    setShowPhoneGate(false);
+    setPhoneVerified(true);
+    
+    // If there was a pending course and user is not logged in, redirect to login
+    if (pendingCourse) {
+      if (!user) {
+        toast.success("Phone verified! Please login to continue enrollment");
+        navigate("/login");
+      } else {
+        // User is logged in, proceed with enrollment
+        setDetailCourse(null);
+        setEnrollCourseData(pendingCourse);
+      }
+      setPendingCourse(null);
+    }
+  };
+
+  const handleEnroll = (course) => {
+    console.log('🎯 Enroll Now clicked for:', course.title);
+    
+    // If user is logged in, proceed directly with enrollment
+    if (user) {
+      console.log('✅ User logged in - proceeding with enrollment');
+      setDetailCourse(null);
+      setEnrollCourseData(course);
+      return;
+    }
+    
+    // If user is NOT logged in, check phone verification
+    const verified = localStorage.getItem('phoneVerified') === 'true';
+    console.log('📱 Phone verification status:', verified);
+    
+    if (!verified) {
+      // Show PhoneGate popup
+      console.log('📱 Phone not verified - showing PhoneGate popup');
+      setPendingCourse(course);
+      setShowPhoneGate(true);
       return;
     }
 
-    console.log('⏰ Starting 15-second timer for Courses section...');
-    console.log('   - Current showPhoneGate state:', showPhoneGate);
-
-    const timer = setTimeout(() => {
-      console.log('🚀 15 seconds complete! Setting showPhoneGate to true');
-      setShowPhoneGate(true);
-    }, 15000);
-
-    return () => {
-      console.log('⏹️ Courses timer cleanup');
-      clearTimeout(timer);
-    };
-  }, [isCoursesVisible, user]); // Depend on section visibility and user
-
-  // Debug log whenever showPhoneGate changes
-  React.useEffect(() => {
-    console.log('📱 showPhoneGate state changed to:', showPhoneGate);
-  }, [showPhoneGate]);
+    // If phone verified but not logged in, redirect to login
+    console.log('📱 Phone verified but not logged in - redirecting to login');
+    toast.error("Please login to enroll");
+    navigate("/login");
+  };
 
   /* Filter by tab */
   const filteredCourses = activeCourses.filter((c) => {
@@ -362,20 +383,22 @@ const Courses = () => {
   /* If no matches for tab, fall back to all */
   const displayCourses = filteredCourses.length > 0 ? filteredCourses : activeCourses;
 
-  // Auto-scroll for mobile
+  // Auto-scroll for mobile using IntersectionObserver
   React.useEffect(() => {
-    const isMobile = window.innerWidth <= 575.98;
-    if (!isMobile) return;
-
     const viewport = viewportRef.current;
-    if (!viewport) {
-      console.log('❌ Viewport ref not found');
+    if (!viewport) return;
+
+    // Check if mobile using matchMedia (works globally)
+    const isMobile = window.matchMedia('(max-width: 575.98px)').matches;
+    
+    if (!isMobile) {
+      console.log('❌ Not mobile - skipping auto-scroll');
       return;
     }
 
-    console.log('✅ Auto-scroll starting for mobile...');
+    console.log('✅ Mobile detected - starting auto-scroll...');
     let scrollPosition = 0;
-    const scrollSpeed = 4; // pixels per frame (increased from 2.5 for even faster scroll)
+    const scrollSpeed = 4; // pixels per frame
     const scrollDelay = 30; // ms between frames
     let isUserScrolling = false;
     let userScrollTimeout = null;
@@ -397,14 +420,12 @@ const Courses = () => {
     const intervalId = setInterval(autoScroll, scrollDelay);
     console.log('🔄 Auto-scroll interval started:', intervalId);
 
-    // Pause on user interaction (only touch and wheel, NOT scroll event)
+    // Pause on user interaction
     const handleUserInteraction = (e) => {
-      // Only pause if it's actual user interaction, not programmatic scroll
       if (e.type === 'wheel' || e.type === 'touchstart') {
         console.log('👆 User interaction detected - pausing auto-scroll');
         isUserScrolling = true;
         
-        // Clear existing timeout
         if (userScrollTimeout) {
           clearTimeout(userScrollTimeout);
         }
@@ -466,7 +487,7 @@ const Courses = () => {
   };
 
   return (
-    <section className="courses" id="courses" ref={coursesRef}>
+    <section className="courses" id="courses">
 
       {/* ── Header ── */}
       <div className="cs-header">
@@ -515,6 +536,11 @@ const Courses = () => {
             {displayCourses.map((c) => {
               const meta = getCourseMeta(c.title);
               const tools = getTools(c.tools).slice(0, 4);
+              
+              // Calculate offer details
+              const originalPrice = c.originalPrice || Math.round(c.price * 1.2);
+              const offerPrice = c.price;
+              const discount = Math.round(((originalPrice - offerPrice) / originalPrice) * 100);
 
               return (
                 <div
@@ -533,6 +559,17 @@ const Courses = () => {
                       <Icon icon={meta.badgeIcon} width={9} height={9} />
                       {meta.badge}
                     </span>
+                    
+                    {/* Offer Price Box */}
+                    <div className="cs-card-offer-box">
+                      <div className="cs-offer-label">OFFER PRICE</div>
+                      <div className="cs-offer-old-price">
+                        ₹{Number(originalPrice).toLocaleString("en-IN")}
+                        <span className="cs-offer-discount">{discount}% OFF</span>
+                      </div>
+                      <div className="cs-offer-new-price">₹{Number(offerPrice).toLocaleString("en-IN")}</div>
+                    </div>
+                    
                     {/* Icon box */}
                     <div className="cs-card-icon-wrap" style={{ color: meta.iconColor }}>
                       <Icon icon={meta.icon} width={26} height={26} strokeWidth={1.8} />
@@ -653,8 +690,9 @@ const Courses = () => {
           onClose={() => setEnrollCourseData(null)}
         />
       )}
-      {/* Phone verification modal for non-logged-in users */}
-      {showPhoneGate && (
+      
+      {/* Phone verification popup - only for non-logged-in users */}
+      {!user && showPhoneGate && (
         <PhoneGate onComplete={handlePhoneVerificationComplete} />
       )}
     </section>

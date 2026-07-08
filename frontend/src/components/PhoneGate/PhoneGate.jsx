@@ -36,14 +36,17 @@ const PhoneGate = ({ onComplete }) => {
       const response = await API.post('/auth/send-phone-otp', { phone });
       console.log('✅ OTP sent response:', response.data);
       
-      // In development, the backend might return the OTP
+      // In development, show OTP in alert if available
       if (response.data.otp) {
-        console.log('🔢 Development OTP (from response):', response.data.otp);
+        console.log('🔢 Development OTP:', response.data.otp);
+        alert(`🔢 DEVELOPMENT MODE\n\nYour OTP is: ${response.data.otp}\n\nThis is only shown in development mode.\nCheck backend console for OTP.`);
+      } else {
+        console.log('📝 Check backend console for OTP');
       }
       
       setOtpSent(true);
       setStep('otp');
-      toast.success('OTP sent to your mobile number');
+      toast.success('OTP sent! Check backend console');
     } catch (error) {
       console.error('❌ Send OTP error:', error.response?.data);
       toast.error(error.response?.data?.message || 'Failed to send OTP');

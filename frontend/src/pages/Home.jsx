@@ -5,20 +5,14 @@ import Courses from '../components/Sections/Courses';
 import { ApplySection, } from '../components/Sections/Forms';
 import StudentProjects from '../components/Sections/StudentProjects';
 import TestimonialsSection from '../components/Sections/Testimonials';
-import { useAuth } from '../context/AuthContext';
 import '../components/Sections/Sections.css';
 import '../components/Sections/Forms.css';
 
-const Home = ({ phoneVerified = false }) => {
-  const { user } = useAuth(); // Get user from AuthContext
-  
-  // If user is logged in, show everything (no blur)
-  const shouldShowContent = phoneVerified || user;
-
+const Home = () => {
   return (
     <>
       <Hero />
-      {/* Marquee - Always visible */}
+      {/* Marquee */}
       <div className="marquee-strip">
         <div className="marquee-track">
           {['🌐 Web Development', '📱 App Development', '🤖 AI & Automation', '☁️ Cloud Solutions', '🎨 UI/UX Design', '📢 Digital Marketing', '📊 Data Science', '💰 Earn While You Learn', '🚀 Real Projects', '✅ Stipend Based',
@@ -27,33 +21,15 @@ const Home = ({ phoneVerified = false }) => {
         </div>
       </div>
       
-      {/* Courses - Always visible */}
+      {/* All sections visible - no blur */}
       <Courses />
-      
-      {/* All sections after Courses - BLUR until phone verified OR logged in */}
-      {shouldShowContent ? (
-        <>
-          <Problem />
-          <HowItWorks />
-          <EcosystemSection />
-          <Vision />
-          <ApplySection />
-          <StudentProjects />
-          <TestimonialsSection />
-        </>
-      ) : (
-        <div className="content-blurred-wrapper">
-          <div className="content-blurred">
-            <Problem />
-            <HowItWorks />
-            <EcosystemSection />
-            <Vision />
-            <ApplySection />
-            <StudentProjects />
-            <TestimonialsSection />
-          </div>
-        </div>
-      )}
+      <Problem />
+      <HowItWorks />
+      <EcosystemSection />
+      <Vision />
+      <ApplySection />
+      <StudentProjects />
+      <TestimonialsSection />
     </>
   );
 };

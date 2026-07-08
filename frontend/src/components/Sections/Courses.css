@@ -236,6 +236,64 @@
   border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
+/* Offer Price Box (below badge) */
+.cs-card-offer-box {
+  position: absolute;
+  top: 2.2rem;
+  right: 0.6rem;
+  background: white;
+  border: 2px solid #16a34a;
+  border-radius: 8px;
+  padding: 0.4rem 0.55rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+  z-index: 2;
+  min-width: 100px;
+}
+
+.cs-offer-label {
+  background: #16a34a;
+  color: white;
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.cs-offer-old-price {
+  font-size: 0.68rem;
+  color: #9ca3af;
+  text-decoration: line-through;
+  font-weight: 500;
+  margin-bottom: 0.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.cs-offer-discount {
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 0.08rem 0.3rem;
+  border-radius: 3px;
+  text-decoration: none;
+}
+
+.cs-offer-new-price {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #16a34a;
+  font-family: 'Playfair Display', serif;
+  line-height: 1;
+}
+
 /* Icon white box */
 .cs-card-icon-wrap {
   width: 50px;
@@ -568,6 +626,169 @@
   margin-top: 2px;
 }
 
+/* ── New Offer System Styles ── */
+.enroll-price-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.enroll-original-price {
+  font-size: 0.95rem;
+  color: #9ca3af;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.enroll-discount-badge {
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.enroll-offer-price {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f97316;
+}
+
+.enroll-offer-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 1px solid #fbbf24;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+
+.enroll-offer-badge-title {
+  font-weight: 700;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.enroll-offer-badge-subtitle {
+  font-weight: 600;
+  color: #b45309;
+}
+
+.enroll-special-offer {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border: 2px solid #86efac;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.enroll-offer-icon {
+  width: 40px;
+  height: 40px;
+  background: #16a34a;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.enroll-offer-text {
+  flex: 1;
+  font-size: 0.85rem;
+  color: #1B2A4A;
+}
+
+.enroll-offer-text strong {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+  color: #166534;
+}
+
+.enroll-offer-prices {
+  font-size: 0.8rem;
+  color: #4b5563;
+}
+
+.enroll-offer-strike {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+.enroll-offer-highlight {
+  font-weight: 700;
+  color: #16a34a;
+  font-size: 0.9rem;
+}
+
+.enroll-show-price-btn {
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.enroll-show-price-btn:hover {
+  background: #15803d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+.enroll-price-breakdown {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.enroll-price-row-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.enroll-discount-row {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.enroll-total-row {
+  border-top: 2px solid #e5e7eb;
+  margin-top: 0.4rem;
+  padding-top: 0.6rem;
+  font-size: 0.95rem;
+  color: #1B2A4A;
+}
+
 .enroll-form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -876,6 +1097,34 @@
     pointer-events: auto;
     cursor: pointer;
   }
+  
+  /* Offer box responsive on mobile */
+  .cs-card-offer-box {
+    min-width: 90px;
+    padding: 0.35rem 0.45rem;
+    top: 2rem;
+    right: 0.5rem;
+  }
+  
+  .cs-offer-label {
+    font-size: 0.5rem;
+    padding: 0.12rem 0.35rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .cs-offer-old-price {
+    font-size: 0.62rem;
+    gap: 0.2rem;
+  }
+  
+  .cs-offer-discount {
+    font-size: 0.5rem;
+    padding: 0.06rem 0.25rem;
+  }
+  
+  .cs-offer-new-price {
+    font-size: 1.1rem;
+  }
 
   /* Increase card size for mobile */
   .cs-card-icon-zone {
@@ -950,6 +1199,32 @@
   /* Modal Form */
   .enroll-form-grid {
     grid-template-columns: 1fr;
+  }
+  
+  /* Offer system responsive */
+  .enroll-special-offer {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+    padding: 0.85rem;
+  }
+  
+  .enroll-show-price-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .enroll-offer-badge {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.65rem;
+  }
+  
+  .enroll-price-row {
+    justify-content: flex-start;
+  }
+  
+  .enroll-header {
+    flex-wrap: wrap;
   }
 
   /* Benefits Section (reduced gap) */
