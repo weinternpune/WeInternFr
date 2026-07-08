@@ -34,10 +34,58 @@ const SLIDES = [
   },
 ];
 
+/* ── Developer photos ── */
+const DEVELOPER_SLIDES = [
+  {
+    src: '/team/developer1.jpg',
+    name: 'Lead Developer',
+    role: 'Senior Full-Stack Engineer',
+    caption: 'Building scalable solutions with modern tech stack 💻',
+  },
+  {
+    src: '/team/developer2.jpg',
+    name: 'Core Developer',
+    role: 'Full-Stack Engineer',
+    caption: 'Crafting seamless user experiences 🚀',
+  },
+  {
+    src: '/team/developer3.jpg',
+    name: 'Backend Specialist',
+    role: 'Full-Stack Engineer',
+    caption: 'Architecting robust backend systems ⚡',
+  },
+];
+
+/* ── Leadership photos ── */
+const LEADERSHIP_SLIDES = [
+  {
+    src: '/team/founder1.jpg',
+    name: 'Founder & CEO',
+    role: 'Visionary Leader',
+    caption: 'Driving innovation and empowering students 🚀',
+  },
+  {
+    src: '/team/hr_manager.jpg',
+    name: 'HR Manager',
+    role: 'People & Culture',
+    caption: 'Nurturing talent and building teams 🤝',
+  },
+];
+
 const AboutUs = () => {
   const [current, setCurrent] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [direction, setDirection] = useState('next');
+  
+  // Developer slideshow state
+  const [devCurrent, setDevCurrent] = useState(0);
+  const [devIsAnimating, setDevIsAnimating] = useState(false);
+  const [devDirection, setDevDirection] = useState('next');
+  
+  // Leadership slideshow state
+  const [leaderCurrent, setLeaderCurrent] = useState(0);
+  const [leaderIsAnimating, setLeaderIsAnimating] = useState(false);
+  const [leaderDirection, setLeaderDirection] = useState('next');
 
   const goTo = useCallback(
     (index, dir = 'next') => {
@@ -59,12 +107,66 @@ const AboutUs = () => {
   const prev = useCallback(() => {
     goTo((current - 1 + SLIDES.length) % SLIDES.length, 'prev');
   }, [current, goTo]);
+  
+  // Developer slideshow functions
+  const devGoTo = useCallback(
+    (index, dir = 'next') => {
+      if (devIsAnimating) return;
+      setDevDirection(dir);
+      setDevIsAnimating(true);
+      setTimeout(() => {
+        setDevCurrent(index);
+        setDevIsAnimating(false);
+      }, 500);
+    },
+    [devIsAnimating]
+  );
 
-  /* auto-play */
+  const devNext = useCallback(() => {
+    devGoTo((devCurrent + 1) % DEVELOPER_SLIDES.length, 'next');
+  }, [devCurrent, devGoTo]);
+
+  const devPrev = useCallback(() => {
+    devGoTo((devCurrent - 1 + DEVELOPER_SLIDES.length) % DEVELOPER_SLIDES.length, 'prev');
+  }, [devCurrent, devGoTo]);
+  
+  // Leadership slideshow functions
+  const leaderGoTo = useCallback(
+    (index, dir = 'next') => {
+      if (leaderIsAnimating) return;
+      setLeaderDirection(dir);
+      setLeaderIsAnimating(true);
+      setTimeout(() => {
+        setLeaderCurrent(index);
+        setLeaderIsAnimating(false);
+      }, 500);
+    },
+    [leaderIsAnimating]
+  );
+
+  const leaderNext = useCallback(() => {
+    leaderGoTo((leaderCurrent + 1) % LEADERSHIP_SLIDES.length, 'next');
+  }, [leaderCurrent, leaderGoTo]);
+
+  const leaderPrev = useCallback(() => {
+    leaderGoTo((leaderCurrent - 1 + LEADERSHIP_SLIDES.length) % LEADERSHIP_SLIDES.length, 'prev');
+  }, [leaderCurrent, leaderGoTo]);
+
+  /* auto-play for all three slideshows */
   useEffect(() => {
     const id = setInterval(next, 4500);
     return () => clearInterval(id);
   }, [next]);
+  
+  useEffect(() => {
+    const id = setInterval(devNext, 5000);
+    return () => clearInterval(id);
+  }, [devNext]);
+  
+  useEffect(() => {
+    const id = setInterval(leaderNext, 5500); // Slightly different timing
+    return () => clearInterval(id);
+  }, [leaderNext]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -161,6 +263,7 @@ const AboutUs = () => {
       {/* ── Our Family Slideshow ── */}
       <section className="family-section">
         <div className="family-section-inner">
+          {/* HEADER TEXT - In the center */}
           <div className="family-header-text">
             <span className="about-label" style={{ display: 'block', textAlign: 'center' }}>THE PEOPLE BEHIND THE MISSION</span>
             <h2 className="family-title">Our Family</h2>
@@ -170,69 +273,173 @@ const AboutUs = () => {
             </p>
           </div>
 
-          {/* Slideshow */}
-          <div className="slideshow-wrapper">
-            <div className="slideshow-stage">
-              <div className={`slide-img-wrap ${isAnimating ? `slide-exit-${direction}` : 'slide-enter'}`}>
-                <img
-                  src={SLIDES[current].src}
-                  alt={`WeIntern team — slide ${current + 1}`}
-                  className="slide-img"
-                  onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
-                />
-                <div className="slide-placeholder" style={{ display: 'none' }}>
-                  <span>📷</span>
-                  <p>Team photo coming soon</p>
-                </div>
+          {/* TOP ROW: Leadership (Left) and Developers (Right) */}
+          <div className="family-top-row">
+            {/* LEFT: Leadership */}
+            <div className="family-top-box">
+              <div className="top-box-header">
+                <h3>Our Leadership</h3>
+                <p>Founders & HR</p>
               </div>
-
-              {/* Gradient overlay + caption */}
-              <div className="slide-overlay">
-                <p className="slide-caption">{SLIDES[current].caption}</p>
-              </div>
-
-              {/* Nav arrows */}
-              <button className="slide-arrow slide-arrow-left" onClick={prev} aria-label="Previous">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="15 18 9 12 15 6" />
-                </svg>
-              </button>
-              <button className="slide-arrow slide-arrow-right" onClick={next} aria-label="Next">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Dots */}
-            <div className="slide-dots">
-              {SLIDES.map((_, i) => (
-                <button
-                  key={i}
-                  className={`slide-dot ${i === current ? 'active' : ''}`}
-                  onClick={() => goTo(i, i > current ? 'next' : 'prev')}
-                  aria-label={`Go to slide ${i + 1}`}
-                />
-              ))}
-            </div>
-
-            {/* Thumbnail strip */}
-            <div className="slide-thumbs">
-              {SLIDES.map((slide, i) => (
-                <button
-                  key={i}
-                  className={`slide-thumb ${i === current ? 'active' : ''}`}
-                  onClick={() => goTo(i, i > current ? 'next' : 'prev')}
-                  aria-label={`Slide ${i + 1}`}
-                >
+              
+              <div className="top-box-stage">
+                <div className={`top-box-img-wrap ${leaderIsAnimating ? `top-box-exit-${leaderDirection}` : 'top-box-enter'}`}>
                   <img
-                    src={slide.src}
-                    alt={`Thumb ${i + 1}`}
-                    onError={e => { e.target.style.display = 'none'; }}
+                    src={LEADERSHIP_SLIDES[leaderCurrent].src}
+                    alt={LEADERSHIP_SLIDES[leaderCurrent].name}
+                    className="top-box-img"
+                    onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
                   />
-                  <div className="thumb-fallback">{i + 1}</div>
+                  <div className="top-box-placeholder" style={{ display: 'none' }}>
+                    <span>👔</span>
+                  </div>
+                </div>
+                
+                <div className="top-box-overlay">
+                  <h4>{LEADERSHIP_SLIDES[leaderCurrent].name}</h4>
+                  <p className="top-box-role">{LEADERSHIP_SLIDES[leaderCurrent].role}</p>
+                </div>
+
+                <button className="top-box-arrow top-box-arrow-left" onClick={leaderPrev}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
                 </button>
-              ))}
+                <button className="top-box-arrow top-box-arrow-right" onClick={leaderNext}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="top-box-dots">
+                {LEADERSHIP_SLIDES.map((_, i) => (
+                  <button
+                    key={i}
+                    className={`top-box-dot ${i === leaderCurrent ? 'active' : ''}`}
+                    onClick={() => leaderGoTo(i, i > leaderCurrent ? 'next' : 'prev')}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* MIDDLE: Spacer (empty grid column) */}
+            <div></div>
+
+            {/* RIGHT: Developers */}
+            <div className="family-top-box">
+              <div className="top-box-header">
+                <h3>Our Developers</h3>
+                <p>Tech Team</p>
+              </div>
+              
+              <div className="top-box-stage">
+                <div className={`top-box-img-wrap ${devIsAnimating ? `top-box-exit-${devDirection}` : 'top-box-enter'}`}>
+                  <img
+                    src={DEVELOPER_SLIDES[devCurrent].src}
+                    alt={DEVELOPER_SLIDES[devCurrent].name}
+                    className="top-box-img"
+                    onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                  />
+                  <div className="top-box-placeholder" style={{ display: 'none' }}>
+                    <span>👨‍💻</span>
+                  </div>
+                </div>
+                
+                <div className="top-box-overlay">
+                  <h4>{DEVELOPER_SLIDES[devCurrent].name}</h4>
+                  <p className="top-box-role">{DEVELOPER_SLIDES[devCurrent].role}</p>
+                </div>
+
+                <button className="top-box-arrow top-box-arrow-left" onClick={devPrev}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                </button>
+                <button className="top-box-arrow top-box-arrow-right" onClick={devNext}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="top-box-dots">
+                {DEVELOPER_SLIDES.map((_, i) => (
+                  <button
+                    key={i}
+                    className={`top-box-dot ${i === devCurrent ? 'active' : ''}`}
+                    onClick={() => devGoTo(i, i > devCurrent ? 'next' : 'prev')}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* BOTTOM: Main Team Slideshow */}
+          <div className="family-main-slideshow">
+            <div className="slideshow-wrapper">
+              <div className="slideshow-stage">
+                <div className={`slide-img-wrap ${isAnimating ? `slide-exit-${direction}` : 'slide-enter'}`}>
+                  <img
+                    src={SLIDES[current].src}
+                    alt={`WeIntern team — slide ${current + 1}`}
+                    className="slide-img"
+                    onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                  />
+                  <div className="slide-placeholder" style={{ display: 'none' }}>
+                    <span>📷</span>
+                    <p>Team photo coming soon</p>
+                  </div>
+                </div>
+
+                {/* Gradient overlay + caption */}
+                <div className="slide-overlay">
+                  <p className="slide-caption">{SLIDES[current].caption}</p>
+                </div>
+
+                {/* Nav arrows */}
+                <button className="slide-arrow slide-arrow-left" onClick={prev} aria-label="Previous">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                </button>
+                <button className="slide-arrow slide-arrow-right" onClick={next} aria-label="Next">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Dots */}
+              <div className="slide-dots">
+                {SLIDES.map((_, i) => (
+                  <button
+                    key={i}
+                    className={`slide-dot ${i === current ? 'active' : ''}`}
+                    onClick={() => goTo(i, i > current ? 'next' : 'prev')}
+                    aria-label={`Go to slide ${i + 1}`}
+                  />
+                ))}
+              </div>
+
+              {/* Thumbnail strip */}
+              <div className="slide-thumbs">
+                {SLIDES.map((slide, i) => (
+                  <button
+                    key={i}
+                    className={`slide-thumb ${i === current ? 'active' : ''}`}
+                    onClick={() => goTo(i, i > current ? 'next' : 'prev')}
+                    aria-label={`Slide ${i + 1}`}
+                  >
+                    <img
+                      src={slide.src}
+                      alt={`Thumb ${i + 1}`}
+                      onError={e => { e.target.style.display = 'none'; }}
+                    />
+                    <div className="thumb-fallback">{i + 1}</div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
