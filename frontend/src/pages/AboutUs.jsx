@@ -13,6 +13,10 @@ const SLIDES = [
     caption: 'Our family — growing together, one step at a time 🌱',
   },
   {
+    src: '/team/team_standing_floral2.jpg',
+    caption: 'Together we create, together we innovate 🌸',
+  },
+  {
     src: '/team/team_standing_green.jpg',
     caption: 'Collaborating on the future of learning and technology 💡',
   },
@@ -38,20 +42,20 @@ const SLIDES = [
 const DEVELOPER_SLIDES = [
   {
     src: '/team/developer1.jpg',
-    name: 'Lead Developer',
-    role: 'Senior Full-Stack Engineer',
+    name: 'Uttam Kumar',
+    role: 'Lead Developer',
     caption: 'Building scalable solutions with modern tech stack 💻',
   },
   {
     src: '/team/developer2.jpg',
-    name: 'Core Developer',
-    role: 'Full-Stack Engineer',
+    name: 'Amiya Samal',
+    role: 'Core Developer',
     caption: 'Crafting seamless user experiences 🚀',
   },
   {
     src: '/team/developer3.jpg',
-    name: 'Backend Specialist',
-    role: 'Full-Stack Engineer',
+    name: 'Aayush Patel',
+    role: 'Backend Specialist',
     caption: 'Architecting robust backend systems ⚡',
   },
 ];
@@ -60,14 +64,14 @@ const DEVELOPER_SLIDES = [
 const LEADERSHIP_SLIDES = [
   {
     src: '/team/founder1.jpg',
-    name: 'Founder & CEO',
-    role: 'Visionary Leader',
+    name: 'Ashwin Gurao',
+    role: 'Founder & CEO',
     caption: 'Driving innovation and empowering students 🚀',
   },
   {
     src: '/team/hr_manager.jpg',
-    name: 'HR Manager',
-    role: 'People & Culture',
+    name: 'Namita Gope',
+    role: 'HR Manager',
     caption: 'Nurturing talent and building teams 🤝',
   },
 ];
