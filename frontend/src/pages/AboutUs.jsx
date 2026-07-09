@@ -276,7 +276,7 @@ const AboutUs = () => {
           {/* TOP ROW: Leadership (Left) and Developers (Right) */}
           <div className="family-top-row">
             {/* LEFT: Leadership */}
-            <div className="family-top-box">
+            <div className="family-top-box leadership-box">
               <div className="top-box-header">
                 <h3>Our Leadership</h3>
                 <p>Founders & HR</p>
@@ -327,7 +327,7 @@ const AboutUs = () => {
             <div></div>
 
             {/* RIGHT: Developers */}
-            <div className="family-top-box">
+            <div className="family-top-box developer-box">
               <div className="top-box-header">
                 <h3>Our Developers</h3>
                 <p>Tech Team</p>
