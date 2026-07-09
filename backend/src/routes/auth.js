@@ -375,21 +375,33 @@ const sendSMSOTP = async (phone, otp) => {
       return { success: true, provider: 'Twilio' };
     }
 
-    // Fast2SMS Integration (Alternative Indian provider)
+    // Fast2SMS Integration (Best for India)
     if (process.env.FAST2SMS_API_KEY) {
       const fast2smsUrl = 'https://www.fast2sms.com/dev/bulkV2';
-      await axios.post(fast2smsUrl, {
-        route: 'otp',
-        variables_values: otp,
+      const message = `Your WeIntern OTP is ${otp}. Valid for 10 minutes. Do not share with anyone. - WeIntern`;
+      
+      const response = await axios.post(fast2smsUrl, {
+        route: 'v3',
+        sender_id: 'WEINTN',
+        message: message,
+        language: 'english',
         flash: 0,
         numbers: phone
       }, {
         headers: {
-          'authorization': process.env.FAST2SMS_API_KEY,
-          'Content-Type': 'application/json'
+          'authorization': process.env.FAST2SMS_API_KEY
         }
       });
-      console.log('✅ OTP sent via Fast2SMS to:', phone);
+      
+      console.log('\n════════════════════════════════════════');
+      console.log('✅ SMS SENT SUCCESSFULLY via Fast2SMS');
+      console.log('════════════════════════════════════════');
+      console.log('📞 Phone: +91', phone);
+      console.log('🔢 OTP:', otp);
+      console.log('📱 Provider: Fast2SMS');
+      console.log('📊 Response:', response.data);
+      console.log('════════════════════════════════════════\n');
+      
       return { success: true, provider: 'Fast2SMS' };
     }
 

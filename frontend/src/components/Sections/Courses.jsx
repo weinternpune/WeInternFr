@@ -297,17 +297,12 @@ const Courses = () => {
 
   // Check phone verification status and start timer on mount
   React.useEffect(() => {
-    // Skip if user is logged in
-    if (user) {
-      console.log('✅ User is logged in - no phone verification needed');
-      return;
-    }
-
     const verified = localStorage.getItem('phoneVerified') === 'true';
     setPhoneVerified(verified);
     console.log('📱 Courses: Phone verified status:', verified);
+    console.log('👤 User logged in:', !!user);
     
-    // Start timer if not verified
+    // Start timer if not verified (works for both logged-in and guest users)
     if (!verified) {
       console.log('⏰ Starting 15-second timer in Courses section...');
       
@@ -347,30 +342,31 @@ const Courses = () => {
   const handleEnroll = (course) => {
     console.log('🎯 Enroll Now clicked for:', course.title);
     
-    // If user is logged in, proceed directly with enrollment
-    if (user) {
-      console.log('✅ User logged in - proceeding with enrollment');
-      setDetailCourse(null);
-      setEnrollCourseData(course);
-      return;
-    }
-    
-    // If user is NOT logged in, check phone verification
+    // Check phone verification for both logged-in and guest users
     const verified = localStorage.getItem('phoneVerified') === 'true';
     console.log('📱 Phone verification status:', verified);
+    console.log('👤 User logged in:', !!user);
     
     if (!verified) {
-      // Show PhoneGate popup
+      // Show PhoneGate popup for phone verification
       console.log('📱 Phone not verified - showing PhoneGate popup');
       setPendingCourse(course);
       setShowPhoneGate(true);
       return;
     }
 
-    // If phone verified but not logged in, redirect to login
-    console.log('📱 Phone verified but not logged in - redirecting to login');
-    toast.error("Please login to enroll");
-    navigate("/login");
+    // Phone is verified, check login status
+    if (!user) {
+      console.log('📱 Phone verified but not logged in - redirecting to login');
+      toast.error("Please login to enroll");
+      navigate("/login");
+      return;
+    }
+    
+    // User is logged in and phone verified - proceed with enrollment
+    console.log('✅ User logged in and phone verified - proceeding with enrollment');
+    setDetailCourse(null);
+    setEnrollCourseData(course);
   };
 
   /* Filter by tab */

@@ -61,9 +61,13 @@ const PhoneGate = ({ onComplete }) => {
       return;
     }
 
+    console.log('════════════════════════════════════════');
     console.log('📤 Verifying OTP...');
     console.log('📞 Phone:', phone);
-    console.log('🔢 OTP:', otp);
+    console.log('🔢 OTP entered:', otp);
+    console.log('🔢 OTP type:', typeof otp);
+    console.log('🔢 OTP length:', otp.length);
+    console.log('════════════════════════════════════════');
     
     setLoading(true);
     try {
@@ -73,7 +77,11 @@ const PhoneGate = ({ onComplete }) => {
       setStep('interests');
       toast.success('Phone number verified successfully!');
     } catch (error) {
+      console.error('════════════════════════════════════════');
       console.error('❌ Verify OTP error:', error.response?.data);
+      console.error('❌ Status:', error.response?.status);
+      console.error('❌ Full error:', error);
+      console.error('════════════════════════════════════════');
       toast.error(error.response?.data?.message || 'Invalid OTP');
     } finally {
       setLoading(false);

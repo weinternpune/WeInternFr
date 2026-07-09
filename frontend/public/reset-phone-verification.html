@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Phone Verification - WeIntern</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .info-box {
+            background: #f7fafc;
+            border-left: 4px solid #4299e1;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+        
+        .info-box p {
+            color: #2d3748;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .status {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .status-label {
+            color: #4a5568;
+            font-weight: 600;
+        }
+        
+        .status-value {
+            color: #2d3748;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .status-verified {
+            color: #38a169;
+            font-weight: bold;
+        }
+        
+        .status-not-verified {
+            color: #e53e3e;
+            font-weight: bold;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+        
+        .btn-reset {
+            background: linear-gradient(135deg, #f56565 0%, #c53030 100%);
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 101, 101, 0.3);
+        }
+        
+        .btn-home {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+        }
+        
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(66, 153, 225, 0.3);
+        }
+        
+        .btn-disabled {
+            background: #cbd5e0;
+            color: #a0aec0;
+            cursor: not-allowed;
+        }
+        
+        .btn-disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .success-message {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #718096;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Phone Verification Reset</h1>
+        <p class="subtitle">Developer Tool - Reset Phone Verification Status</p>
+        
+        <div class="info-box">
+            <p><strong>What does this do?</strong><br>
+            This tool clears the phone verification status from your browser's localStorage. Use this when testing the phone verification flow or if you're experiencing issues with the popup not appearing.</p>
+        </div>
+        
+        <div class="status" id="statusBox">
+            <div class="status-item">
+                <span class="status-label">Phone Verified:</span>
+                <span class="status-value" id="verifiedStatus">-</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Verified Phone:</span>
+                <span class="status-value" id="verifiedPhone">-</span>
+            </div>
+        </div>
+        
+        <div class="success-message" id="successMessage">
+            ✅ Phone verification reset successfully!
+        </div>
+        
+        <button class="btn-reset" id="resetBtn" onclick="resetVerification()">
+            🔄 Reset Phone Verification
+        </button>
+        
+        <button class="btn-home" onclick="goHome()">
+            🏠 Go to Home Page
+        </button>
+        
+        <div class="footer">
+            WeIntern Developer Tools<br>
+            Use only for testing purposes
+        </div>
+    </div>
+    
+    <script>
+        // Update status on load
+        function updateStatus() {
+            const phoneVerified = localStorage.getItem('phoneVerified');
+            const verifiedPhone = localStorage.getItem('verifiedPhone');
+            
+            const verifiedStatusEl = document.getElementById('verifiedStatus');
+            const verifiedPhoneEl = document.getElementById('verifiedPhone');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            if (phoneVerified === 'true') {
+                verifiedStatusEl.textContent = 'YES ✓';
+                verifiedStatusEl.className = 'status-value status-verified';
+                resetBtn.disabled = false;
+                resetBtn.className = 'btn-reset';
+            } else {
+                verifiedStatusEl.textContent = 'NO ✗';
+                verifiedStatusEl.className = 'status-value status-not-verified';
+                resetBtn.disabled = true;
+                resetBtn.className = 'btn-reset btn-disabled';
+            }
+            
+            verifiedPhoneEl.textContent = verifiedPhone || 'None';
+        }
+        
+        // Reset verification
+        function resetVerification() {
+            localStorage.removeItem('phoneVerified');
+            localStorage.removeItem('verifiedPhone');
+            
+            // Show success message
+            document.getElementById('successMessage').classList.add('show');
+            
+            // Update status
+            updateStatus();
+            
+            // Hide success message after 3 seconds
+            setTimeout(() => {
+                document.getElementById('successMessage').classList.remove('show');
+            }, 3000);
+            
+            console.log('✅ Phone verification reset complete');
+            console.log('📱 phoneVerified:', localStorage.getItem('phoneVerified'));
+            console.log('📞 verifiedPhone:', localStorage.getItem('verifiedPhone'));
+        }
+        
+        // Go to home
+        function goHome() {
+            window.location.href = '/';
+        }
+        
+        // Initialize
+        updateStatus();
+        
+        // Auto-refresh status every 2 seconds
+        setInterval(updateStatus, 2000);
+    </script>
+</body>
+</html>
