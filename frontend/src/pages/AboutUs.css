@@ -578,6 +578,26 @@
   .flow-item { padding: 0.55rem 0.7rem; min-width: 60px; }
   .about-cta-buttons { flex-direction: column; align-items: center; }
   .footer-detail-item { flex-direction: column; gap: 2px; }
+  
+  /* Family section mobile fixes */
+  .family-section { padding: 2rem 1rem; }
+  .family-header-text { margin-bottom: 1.5rem; }
+  .family-title { font-size: 1.75rem; line-height: 1.2; }
+  .family-subtitle { font-size: 0.9rem; padding: 0 0.5rem; }
+  .slideshow-wrapper { gap: 1rem; }
+  .slideshow-stage { 
+    aspect-ratio: 4/3; 
+    border-radius: 12px;
+    max-width: 100%;
+  }
+  .slide-dots { 
+    gap: 6px; 
+    padding: 0.5rem;
+  }
+  .slide-dot { 
+    width: 6px; 
+    height: 6px; 
+  }
 }
 
 
@@ -851,18 +871,35 @@
 /* Responsive */
 @media (max-width: 1024px) {
   .family-top-row {
-    grid-template-columns: 1fr;
+    position: static;
+    flex-direction: column;
     gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .family-top-box {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto !important;
+  }
+  
+  .family-top-box:nth-child(2) {
+    display: none;
   }
   
   .top-box-stage {
-    aspect-ratio: 16/9;
+    aspect-ratio: 16/10;
   }
 }
 
 @media (max-width: 768px) {
+  .family-section {
+    padding: 3rem 1.25rem;
+  }
+  
   .family-top-box {
     padding: 1.25rem;
+    max-width: 100%;
   }
   
   .top-box-header h3 {
@@ -870,7 +907,78 @@
   }
   
   .top-box-stage {
+    aspect-ratio: 16/10;
+  }
+  
+  .family-header-text {
+    margin-bottom: 2rem;
+  }
+  
+  .family-title {
+    font-size: 2rem;
+  }
+  
+  .family-subtitle {
+    font-size: 0.95rem;
+  }
+  
+  .slideshow-stage {
+    aspect-ratio: 16/10;
+  }
+  
+  .family-values-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .family-top-box {
+    padding: 1rem;
+  }
+  
+  .top-box-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .top-box-header p {
+    font-size: 0.75rem;
+  }
+  
+  .top-box-stage {
     aspect-ratio: 1/1;
+  }
+  
+  .top-box-overlay h4 {
+    font-size: 0.95rem;
+  }
+  
+  .top-box-role {
+    font-size: 0.75rem;
+  }
+  
+  .family-title {
+    font-size: 1.75rem;
+  }
+  
+  .family-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .slideshow-stage {
+    aspect-ratio: 4/3;
+  }
+  
+  .family-values-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .family-value-card {
+    padding: 1.25rem;
+  }
+  
+  .fv-icon {
+    font-size: 2rem;
   }
 }
 
