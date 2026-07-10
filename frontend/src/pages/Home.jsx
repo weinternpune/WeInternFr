@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Hero from '../components/Sections/Hero';
 import { Problem, HowItWorks, EcosystemSection, Vision } from '../components/Sections/Sections';
 import Courses from '../components/Sections/Courses';
@@ -9,6 +11,28 @@ import '../components/Sections/Sections.css';
 import '../components/Sections/Forms.css';
 
 const Home = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Auto-redirect to login after 10 seconds if not logged in
+  useEffect(() => {
+    if (user) {
+      console.log('✅ User is logged in - no auto-redirect');
+      return;
+    }
+
+    console.log('⏰ Starting 10-second timer for login redirect...');
+    const timer = setTimeout(() => {
+      console.log('🚀 10 seconds complete! Redirecting to login page');
+      navigate('/login');
+    }, 10000);
+
+    return () => {
+      console.log('⏹️ Timer cleanup on unmount');
+      clearTimeout(timer);
+    };
+  }, [user, navigate]);
+
   return (
     <>
       <Hero />

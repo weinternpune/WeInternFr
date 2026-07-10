@@ -18,10 +18,15 @@ const trySendEmail = async (fn) => {
 // Register
 router.post('/register', authLimiter, async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, phone, password } = req.body;
     
     if (!name || !email || !password) {
-      return res.status(400).json({ success: false, message: 'All fields are required' });
+      return res.status(400).json({ success: false, message: 'Name, email and password are required' });
+    }
+    
+    // Validate phone number if provided
+    if (phone && !/^\d{10}$/.test(phone)) {
+      return res.status(400).json({ success: false, message: 'Phone number must be exactly 10 digits' });
     }
     
     const existing = await User.findOne({ email });
@@ -31,7 +36,22 @@ router.post('/register', authLimiter, async (req, res) => {
 
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
-    const user = await User.create({ name, email, password, otp, otpExpiry, isVerified: false });
+    
+    // Create user with phone number if provided
+    const userData = { 
+      name, 
+      email, 
+      password, 
+      otp, 
+      otpExpiry, 
+      isVerified: false 
+    };
+    
+    if (phone) {
+      userData.phone = phone;
+    }
+    
+    const user = await User.create(userData);
 
     // Check if email configuration is set up
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
@@ -42,6 +62,7 @@ router.post('/register', authLimiter, async (req, res) => {
         console.log('\n📧 DEVELOPMENT MODE - OTP Details:');
         console.log('👤 Name:', name);
         console.log('📧 Email:', email);
+        console.log('📱 Phone:', phone || 'Not provided');
         console.log('🔢 OTP:', otp);
         console.log('⏰ Expires:', otpExpiry.toLocaleString());
         console.log('\n📝 Note: Use this OTP to verify account\n');
@@ -73,6 +94,7 @@ router.post('/register', authLimiter, async (req, res) => {
         console.log('\n📧 EMAIL FAILED - OTP Details (Development):');
         console.log('👤 Name:', name);
         console.log('📧 Email:', email);
+        console.log('📱 Phone:', phone || 'Not provided');
         console.log('🔢 OTP:', otp);
         console.log('⏰ Expires:', otpExpiry.toLocaleString());
         console.log('\n📝 Note: Use this OTP to verify account\n');
@@ -375,21 +397,33 @@ const sendSMSOTP = async (phone, otp) => {
       return { success: true, provider: 'Twilio' };
     }
 
-    // Fast2SMS Integration (Alternative Indian provider)
+    // Fast2SMS Integration (Best for India)
     if (process.env.FAST2SMS_API_KEY) {
       const fast2smsUrl = 'https://www.fast2sms.com/dev/bulkV2';
-      await axios.post(fast2smsUrl, {
-        route: 'otp',
-        variables_values: otp,
+      const message = `Your WeIntern OTP is ${otp}. Valid for 10 minutes. Do not share with anyone. - WeIntern`;
+      
+      const response = await axios.post(fast2smsUrl, {
+        route: 'v3',
+        sender_id: 'WEINTN',
+        message: message,
+        language: 'english',
         flash: 0,
         numbers: phone
       }, {
         headers: {
-          'authorization': process.env.FAST2SMS_API_KEY,
-          'Content-Type': 'application/json'
+          'authorization': process.env.FAST2SMS_API_KEY
         }
       });
-      console.log('✅ OTP sent via Fast2SMS to:', phone);
+      
+      console.log('\n════════════════════════════════════════');
+      console.log('✅ SMS SENT SUCCESSFULLY via Fast2SMS');
+      console.log('════════════════════════════════════════');
+      console.log('📞 Phone: +91', phone);
+      console.log('🔢 OTP:', otp);
+      console.log('📱 Provider: Fast2SMS');
+      console.log('📊 Response:', response.data);
+      console.log('════════════════════════════════════════\n');
+      
       return { success: true, provider: 'Fast2SMS' };
     }
 

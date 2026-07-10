@@ -39,7 +39,10 @@ const COURSE_META = [
   { keys: ["web","full stack","fullstack","mern"],   icon: "lucide:code-2",             bg: HEADER_GRADIENTS.green,  iconColor: "#16a34a", border: "#bbf7d0", dot: "#16a34a",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#fff7ed", badgeText: "#ea580c" },
   { keys: ["app","mobile","flutter","android"],       icon: "lucide:smartphone",         bg: HEADER_GRADIENTS.blue,   iconColor: "#2563eb", border: "#bfdbfe", dot: "#2563eb",  badge: "Trending",   badgeIcon: "lucide:trending-up", badgeColor: "#eff6ff", badgeText: "#2563eb" },
   { keys: ["ai","machine","deep learning","nlp","automation"], icon: "lucide:brain-circuit", bg: HEADER_GRADIENTS.purple, iconColor: "#7c3aed", border: "#ddd6fe", dot: "#7c3aed", badge: "New",       badgeIcon: "lucide:sparkles", badgeColor: "#faf5ff", badgeText: "#7c3aed" },
-  { keys: ["data","python","sql","analytics"],        icon: "lucide:database",           bg: HEADER_GRADIENTS.amber,  iconColor: "#d97706", border: "#fde68a", dot: "#d97706",  badge: "In Demand",  badgeIcon: "lucide:zap",      badgeColor: "#fffbeb", badgeText: "#d97706" },
+  { keys: ["data","sql","analytics"],                 icon: "lucide:database",           bg: HEADER_GRADIENTS.amber,  iconColor: "#d97706", border: "#fde68a", dot: "#d97706",  badge: "In Demand",  badgeIcon: "lucide:zap",      badgeColor: "#fffbeb", badgeText: "#d97706" },
+  { keys: ["python"],                                 icon: "lucide:code",               bg: HEADER_GRADIENTS.purple, iconColor: "#7c3aed", border: "#ddd6fe", dot: "#7c3aed",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#faf5ff", badgeText: "#7c3aed" },
+  { keys: ["java"],                                   icon: "lucide:coffee",             bg: HEADER_GRADIENTS.green,  iconColor: "#16a34a", border: "#bbf7d0", dot: "#16a34a",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#fff7ed", badgeText: "#ea580c" },
+  { keys: ["c++","cpp","c/c++"],                      icon: "lucide:terminal",           bg: HEADER_GRADIENTS.sky,    iconColor: "#0ea5e9", border: "#bae6fd", dot: "#0ea5e9",  badge: "In Demand",  badgeIcon: "lucide:zap",      badgeColor: "#f0f9ff", badgeText: "#0ea5e9" },
   { keys: ["marketing","seo","digital"],              icon: "lucide:megaphone",          bg: HEADER_GRADIENTS.teal,   iconColor: "#0d9488", border: "#99f6e4", dot: "#0d9488",  badge: "Trending",   badgeIcon: "lucide:trending-up", badgeColor: "#f0fdfa", badgeText: "#0d9488" },
   { keys: ["ui","ux","design","figma"],               icon: "lucide:pencil-ruler",       bg: HEADER_GRADIENTS.pink,   iconColor: "#ec4899", border: "#fbcfe8", dot: "#ec4899",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#fdf2f8", badgeText: "#ec4899" },
   { keys: ["video","editing","content","premiere"],   icon: "lucide:clapperboard",       bg: HEADER_GRADIENTS.rose,   iconColor: "#e11d48", border: "#fecdd3", dot: "#e11d48",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#fff1f2", badgeText: "#e11d48" },
@@ -74,7 +77,7 @@ const TABS = [
 ];
 
 const TAB_KEYS = {
-  Technology: ["web","full stack","fullstack","mern","app","mobile","flutter","android","ai","machine","deep learning","nlp","automation","data","python","sql","cloud","devops","docker","kubernetes","game","unity","business","analytics","excel","power bi"],
+  Technology: ["web","full stack","fullstack","mern","app","mobile","flutter","android","ai","machine","deep learning","nlp","automation","data","python","java","c++","cpp","c/c++","programming","sql","cloud","devops","docker","kubernetes","game","unity","business","analytics","excel","power bi"],
   Design:     ["ui","ux","design","figma","video","editing","content","premiere"],
   Marketing:  ["marketing","seo","digital"],
 };
@@ -290,53 +293,28 @@ const Courses = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   
-  // Phone verification state
+  // Phone verification state (disabled for home page)
   const [showPhoneGate, setShowPhoneGate] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [pendingCourse, setPendingCourse] = useState(null);
 
-  // Check phone verification status and start timer on mount
-  React.useEffect(() => {
-    // Skip if user is logged in
-    if (user) {
-      console.log('✅ User is logged in - no phone verification needed');
-      return;
-    }
-
-    const verified = localStorage.getItem('phoneVerified') === 'true';
-    setPhoneVerified(verified);
-    console.log('📱 Courses: Phone verified status:', verified);
-    
-    // Start timer if not verified
-    if (!verified) {
-      console.log('⏰ Starting 15-second timer in Courses section...');
-      
-      const timer = setTimeout(() => {
-        console.log('🚀 15 seconds complete! Showing PhoneGate popup');
-        setShowPhoneGate(true);
-      }, 15000);
-
-      return () => {
-        console.log('⏹️ Timer cleanup on unmount');
-        clearTimeout(timer);
-      };
-    } else {
-      console.log('✅ Phone already verified - no timer needed');
-    }
-  }, [user]); // Dependency on user - restart if user changes
+  // Note: Phone verification timer is disabled on home page
+  // Phone verification only happens during registration/login flow
 
   const handlePhoneVerificationComplete = () => {
     console.log('✅ Phone verification completed in Courses!');
     setShowPhoneGate(false);
     setPhoneVerified(true);
     
-    // If there was a pending course and user is not logged in, redirect to login
+    // If there was a pending course
     if (pendingCourse) {
       if (!user) {
+        // User is not logged in, redirect to login
         toast.success("Phone verified! Please login to continue enrollment");
         navigate("/login");
       } else {
         // User is logged in, proceed with enrollment
+        console.log('✅ User logged in - proceeding with enrollment');
         setDetailCourse(null);
         setEnrollCourseData(pendingCourse);
       }
@@ -347,30 +325,31 @@ const Courses = () => {
   const handleEnroll = (course) => {
     console.log('🎯 Enroll Now clicked for:', course.title);
     
-    // If user is logged in, proceed directly with enrollment
-    if (user) {
-      console.log('✅ User logged in - proceeding with enrollment');
-      setDetailCourse(null);
-      setEnrollCourseData(course);
+    // Check if user is logged in
+    if (!user) {
+      // User not logged in - check phone verification first
+      const verified = localStorage.getItem('phoneVerified') === 'true';
+      console.log('📱 Phone verification status:', verified);
+      
+      if (!verified) {
+        // Show phone verification popup first
+        console.log('📱 Phone not verified - showing PhoneGate popup');
+        setPendingCourse(course);
+        setShowPhoneGate(true);
+        return;
+      }
+      
+      // Phone verified but not logged in - redirect to login
+      console.log('📱 Phone verified - redirecting to login');
+      toast.success("Phone verified! Please login to continue");
+      navigate("/login");
       return;
     }
     
-    // If user is NOT logged in, check phone verification
-    const verified = localStorage.getItem('phoneVerified') === 'true';
-    console.log('📱 Phone verification status:', verified);
-    
-    if (!verified) {
-      // Show PhoneGate popup
-      console.log('📱 Phone not verified - showing PhoneGate popup');
-      setPendingCourse(course);
-      setShowPhoneGate(true);
-      return;
-    }
-
-    // If phone verified but not logged in, redirect to login
-    console.log('📱 Phone verified but not logged in - redirecting to login');
-    toast.error("Please login to enroll");
-    navigate("/login");
+    // User is logged in - proceed directly with enrollment (no phone verification needed after login)
+    console.log('✅ User logged in - proceeding with enrollment');
+    setDetailCourse(null);
+    setEnrollCourseData(course);
   };
 
   /* Filter by tab */
@@ -618,10 +597,6 @@ const Courses = () => {
                       <Icon icon="lucide:star" width={11} height={11} className="cs-star-icon" />
                       {c.rating || "4.8"} ({c.reviews || "1.2k"})
                     </span>
-                    <span className="cs-enrolled">
-                      <Icon icon="lucide:users" width={11} height={11} />
-                      {c.enrolled || "5,000"}+ Enrolled
-                    </span>
                   </div>
                 </div>
               );
@@ -691,7 +666,7 @@ const Courses = () => {
         />
       )}
       
-      {/* Phone verification popup - only for non-logged-in users */}
+      {/* Phone verification popup - only for guest users (not logged in) */}
       {!user && showPhoneGate && (
         <PhoneGate onComplete={handlePhoneVerificationComplete} />
       )}
