@@ -236,46 +236,24 @@
   border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* Offer Price Box - Highlighted Badge Style */
+/* Offer Price Box - Extra Compact, Numbers Only */
 .cs-card-offer-box {
   position: absolute;
   top: 2.2rem;
   right: 0.6rem;
-  background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
-  border: none;
-  border-radius: 8px;
-  padding: 0.35rem 0.55rem;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid #e5e7eb;
+  border-radius: 5px;
+  padding: 0.25rem 0.35rem;
   text-align: center;
-  box-shadow: 0 3px 12px rgba(22, 163, 74, 0.4), 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   z-index: 3;
-  min-width: 60px;
-  animation: offerBounce 2.5s ease-in-out infinite;
-  transform-origin: top right;
-}
-
-@keyframes offerBounce {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 3px 12px rgba(22, 163, 74, 0.4), 0 1px 3px rgba(0,0,0,0.1);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 5px 18px rgba(22, 163, 74, 0.5), 0 2px 5px rgba(0,0,0,0.15);
-  }
+  min-width: 55px;
+  backdrop-filter: blur(8px);
 }
 
 .cs-offer-label {
-  display: block;
-  color: white;
-  font-size: 0.4rem;
-  font-weight: 700;
-  padding: 0;
-  border-radius: 0;
-  margin-bottom: 0.25rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  opacity: 0.95;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  display: none;
 }
 
 .cs-offer-label::before {
@@ -285,40 +263,36 @@
 .cs-offer-old-price {
   font-family: 'Poppins', sans-serif;
   font-size: 0.55rem;
-  color: rgba(255, 255, 255, 0.75);
+  color: #9ca3af;
   text-decoration: line-through;
   font-weight: 500;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.12rem;
   display: block;
   line-height: 1;
-  text-shadow: 0 1px 1px rgba(0,0,0,0.1);
 }
 
 .cs-offer-discount {
-  background: rgba(254, 243, 199, 0.95);
-  color: #92400e;
+  background: #fef3c7;
+  color: #d97706;
   font-size: 0.42rem;
-  font-weight: 800;
-  padding: 0.08rem 0.25rem;
+  font-weight: 700;
+  padding: 0.1rem 0.25rem;
   border-radius: 3px;
   text-decoration: none;
   margin: 0.15rem auto;
   display: inline-block;
-  border: 1px solid rgba(251, 191, 36, 0.6);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
 .cs-offer-new-price {
   font-family: 'Poppins', sans-serif;
   font-size: 0.85rem;
   font-weight: 700;
-  color: white;
+  color: #16a34a;
   line-height: 1;
   letter-spacing: -0.02em;
   display: block;
-  margin-top: 0.15rem;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  margin-top: 0.12rem;
 }
 
 /* Icon white box */
@@ -1117,35 +1091,33 @@
     cursor: pointer;
   }
   
-  /* Offer box responsive on mobile - Highlighted style */
+  /* Offer box responsive on mobile - Extra compact */
   .cs-card-offer-box {
-    min-width: 55px;
-    padding: 0.3rem 0.5rem;
+    min-width: 50px;
+    padding: 0.22rem 0.32rem;
     top: 2rem;
     right: 0.5rem;
-    border-radius: 6px;
+    border-radius: 4px;
   }
   
   .cs-offer-label {
-    font-size: 0.38rem;
-    margin-bottom: 0.2rem;
+    display: none;
   }
   
   .cs-offer-old-price {
-    font-size: 0.5rem;
-    margin-bottom: 0.12rem;
+    font-size: 0.52rem;
+    margin-bottom: 0.1rem;
   }
   
   .cs-offer-discount {
     font-size: 0.38rem;
-    padding: 0.06rem 0.22rem;
+    padding: 0.08rem 0.22rem;
     margin: 0.12rem auto;
-    border-radius: 3px;
   }
   
   .cs-offer-new-price {
-    font-size: 0.78rem;
-    margin-top: 0.12rem;
+    font-size: 0.75rem;
+    margin-top: 0.1rem;
   }
 
   /* Increase card size for mobile */
