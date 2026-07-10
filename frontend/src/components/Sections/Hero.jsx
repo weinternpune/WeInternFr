@@ -125,10 +125,10 @@ const Hero = () => {
         {/* RIGHT — Stats */}
         <div className="hero-stats-side">
           {[
-            { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>, val:'12,500+', label:'Students Trained' },
-            { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>, val:'920+', label:'Live Projects Delivered' },
-            { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>, val:'₹4.5 Cr+', label:'Paid to Students in Stipends' },
-            { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>, val:'200+', label:'College Partners' },
+            { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>, val:'2,000+', label:'Student Impact' },
+            { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>, val:'100+', label:'Live Projects' },
+            { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>, val:'₹5 Lakh+', label:'Paid in Stipends' },
+            { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>, val:'5+', label:'College Partners' },
             { icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>, val:'4.8/5', label:'Student Rating' },
           ].map((s,i) => (
             <div key={i} className="hss-item">
@@ -153,11 +153,11 @@ const Hero = () => {
       <div className="hero-stats-bar">
         <div className="hsb-inner">
           {[
-            {val:'₹4.5 Cr+', label:'Paid to Students in Stipends', color:'#18b45b'},
+            {val:'₹5 Lakh+', label:'Paid in Stipends', color:'#18b45b'},
             {val:'75%', label:'of Project Value Goes to Students', color:'#18b45b'},
-            {val:'920+', label:'Live Projects Completed', color:'#2563eb'},
-            {val:'12,500+', label:'Students Impacted', color:'#7c3aed'},
-            {val:'200+', label:'College Partners', color:'#7c3aed'},
+            {val:'100+', label:'Live Projects', color:'#2563eb'},
+            {val:'2,000+', label:'Student Impact', color:'#7c3aed'},
+            {val:'5+', label:'College Partners', color:'#7c3aed'},
             {val:'4.8/5', label:'Student Rating', color:'#f59e0b', stars:true},
           ].map((s,i)=>(
             <div key={i} className="hsb-item">

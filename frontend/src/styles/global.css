@@ -36,6 +36,23 @@ input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-
 }
 .container { max-width: 1160px; margin: 0 auto; padding: 0 1.5rem; }
 
+/* ============ POPPINS FOR ALL NUMBERS ============ */
+* {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Import Poppins for numbers */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Apply Poppins to all elements that contain numbers */
+body, input, textarea, select, button, 
+.cs-offer-new-price, .cs-offer-old-price, .enroll-price,
+.enroll-offer-price, .enroll-original-price,
+.cs-card-price, .stat-value, .hero-stat-value,
+.price, .amount, .count, .number {
+  font-feature-settings: 'tnum', 'lnum';
+}
+
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   padding: .85rem 1.8rem; border-radius: 50px; font-family: 'DM Sans', sans-serif;
