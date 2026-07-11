@@ -94,11 +94,22 @@ export const LoginPage = () => {
 };
 
 export const RegisterPage = () => {
-  const [form, setForm] = useState({ name:'', email:'', password:'', confirm:'' });
+  const [form, setForm] = useState({ name:'', email:'', phone:'', password:'', confirm:'' });
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
-  const handleChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    
+    // For phone field, only allow digits
+    if (name === 'phone') {
+      const numericValue = value.replace(/\D/g, '');
+      setForm(f => ({ ...f, [name]: numericValue }));
+    } else {
+      setForm(f => ({ ...f, [name]: value }));
+    }
+  };
 
   const getStrength = (p) => {
     if (!p) return 0; let s = 0;
@@ -117,6 +128,7 @@ export const RegisterPage = () => {
     console.log('Registration form data:', {
       name: form.name,
       email: form.email,
+      phone: form.phone,
       passwordLength: form.password.length,
       confirmMatch: form.password === form.confirm
     });
@@ -128,6 +140,16 @@ export const RegisterPage = () => {
     
     if (!form.email.trim()) {
       toast.error('Please enter your email address');
+      return;
+    }
+    
+    if (!form.phone.trim()) {
+      toast.error('Please enter your mobile number');
+      return;
+    }
+    
+    if (!/^\d{10}$/.test(form.phone.trim())) {
+      toast.error('Mobile number must be exactly 10 digits');
       return;
     }
     
@@ -146,10 +168,16 @@ export const RegisterPage = () => {
       console.log('Sending registration request with:', {
         name: form.name.trim(),
         email: form.email.trim(),
+        phone: form.phone.trim(),
         password: form.password
       });
       
-      const res = await register({ name: form.name.trim(), email: form.email.trim(), password: form.password });
+      const res = await register({ 
+        name: form.name.trim(), 
+        email: form.email.trim(), 
+        phone: form.phone.trim(),
+        password: form.password 
+      });
       
       console.log('Registration response:', res.data);
       
@@ -201,6 +229,36 @@ export const RegisterPage = () => {
             required 
             disabled={loading}
           />
+        </div>
+        <div className="form-group">
+          <label>Mobile Number</label>
+          <div className="pass-wrap">
+            <span style={{ 
+              position: 'absolute', 
+              left: '0.85rem', 
+              top: '50%', 
+              transform: 'translateY(-50%)',
+              color: 'var(--muted)',
+              fontSize: '0.9rem',
+              fontWeight: 600,
+              pointerEvents: 'none'
+            }}>+91</span>
+            <input 
+              type="tel" 
+              name="phone" 
+              placeholder="10-digit mobile number" 
+              value={form.phone} 
+              onChange={handleChange} 
+              required 
+              pattern="[0-9]{10}"
+              maxLength={10}
+              disabled={loading}
+              style={{ paddingLeft: '2.8rem' }}
+            />
+          </div>
+          {form.phone && !/^\d{10}$/.test(form.phone) && (
+            <span className="field-error">Enter valid 10-digit number</span>
+          )}
         </div>
         <div className="form-group">
           <label>Password</label>

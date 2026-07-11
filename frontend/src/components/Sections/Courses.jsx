@@ -293,41 +293,13 @@ const Courses = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   
-  // Phone verification state
+  // Phone verification state (disabled for home page)
   const [showPhoneGate, setShowPhoneGate] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [pendingCourse, setPendingCourse] = useState(null);
 
-  // Check phone verification status and start timer on mount
-  React.useEffect(() => {
-    // Don't show phone verification popup if user is already logged in
-    if (user) {
-      console.log('✅ User is logged in - skipping phone verification timer');
-      return;
-    }
-    
-    const verified = localStorage.getItem('phoneVerified') === 'true';
-    setPhoneVerified(verified);
-    console.log('📱 Courses: Phone verified status:', verified);
-    console.log('👤 User logged in:', !!user);
-    
-    // Start timer only if user is NOT logged in and not verified
-    if (!verified && !user) {
-      console.log('⏰ Starting 15-second timer in Courses section...');
-      
-      const timer = setTimeout(() => {
-        console.log('🚀 15 seconds complete! Showing PhoneGate popup');
-        setShowPhoneGate(true);
-      }, 15000);
-
-      return () => {
-        console.log('⏹️ Timer cleanup on unmount');
-        clearTimeout(timer);
-      };
-    } else {
-      console.log('✅ Phone already verified or user logged in - no timer needed');
-    }
-  }, [user]); // Dependency on user - restart if user changes
+  // Note: Phone verification timer is disabled on home page
+  // Phone verification only happens during registration/login flow
 
   const handlePhoneVerificationComplete = () => {
     console.log('✅ Phone verification completed in Courses!');
