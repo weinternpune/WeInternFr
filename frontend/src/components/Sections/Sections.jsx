@@ -2,6 +2,7 @@
 // ===== Problem Section =====
 
 import React, { useState, useEffect, useRef } from 'react';
+import API from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -615,56 +616,100 @@ export const LiveJourney = () => {
     setShowModal(true);
   };
 
-  const handleEnrollNow = () => {
-    // User is already logged in (modal only shows if logged in)
-    console.log('✅ Opening Razorpay payment');
-    
-    // Razorpay options
-    const options = {
-      key: process.env.REACT_APP_RAZORPAY_KEY_ID || 'rzp_test_YOUR_KEY_ID', // Replace with your Razorpay key
-      amount: 19900, // Amount in paise (₹199 = 19900 paise)
-      currency: 'INR',
-      name: 'WeIntern',
-      description: 'Weekly Skill Cohort Registration',
-      image: '/logo.png', // Your logo
-      handler: function (response) {
-        // Payment success callback
-        console.log('Payment successful:', response);
-        alert(`Payment Successful! Payment ID: ${response.razorpay_payment_id}`);
-        setShowModal(false);
-        // Here you can send payment details to your backend
-        // Example: sendPaymentToBackend(response);
-      },
-      prefill: {
-        name: '',
-        email: '',
-        contact: ''
-      },
-      notes: {
-        course: 'WeIntern Weekly Skill Cohort',
-        batch: 'Batch 1'
-      },
-      theme: {
-        color: '#5b21b6'
-      },
-      modal: {
-        ondismiss: function() {
-          console.log('Payment cancelled by user');
-        }
+  const handleEnrollNow = async () => {
+    if (!user) {
+      toast.error('Please login first');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      toast.loading('Preparing payment...', { id: 'cohort-pay' });
+
+      // Load Razorpay SDK
+      const sdkLoaded = await new Promise((resolve) => {
+        if (window.Razorpay) { resolve(true); return; }
+        const s = document.createElement('script');
+        s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        s.onload = () => resolve(true);
+        s.onerror = () => resolve(false);
+        document.body.appendChild(s);
+      });
+
+      if (!sdkLoaded) {
+        toast.error('Payment gateway failed to load. Check your internet.', { id: 'cohort-pay' });
+        return;
       }
-    };
 
-    // Create Razorpay instance
-    const razorpay = new window.Razorpay(options);
-    
-    // Handle payment failure
-    razorpay.on('payment.failed', function (response) {
-      console.error('Payment failed:', response.error);
-      alert('Payment failed! Please try again.');
-    });
+      // Create order from backend
+      const orderRes = await API.post('/payments/create-order', {
+        amount: 199,
+        enrollmentId: null,
+        description: 'WeIntern Weekly Skill Cohort'
+      });
 
-    // Open Razorpay payment modal
-    razorpay.open();
+      if (!orderRes.data.success) {
+        toast.error(orderRes.data.message || 'Failed to create order', { id: 'cohort-pay' });
+        return;
+      }
+
+      toast.dismiss('cohort-pay');
+      const order = orderRes.data.order;
+
+      const options = {
+        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency || 'INR',
+        name: 'WeIntern',
+        description: 'Weekly Skill Cohort - Batch Registration',
+        order_id: order.id,
+        image: '/welogo.png',
+        prefill: {
+          name: user.name || '',
+          email: user.email || '',
+          contact: user.phone || ''
+        },
+        notes: {
+          course: 'WeIntern Weekly Skill Cohort',
+          batch: 'Batch 1',
+          userId: user._id
+        },
+        theme: { color: '#18b45b' },
+        handler: async function (response) {
+          try {
+            toast.loading('Verifying payment...', { id: 'cohort-verify' });
+            const verifyRes = await API.post('/payments/verify', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              enrollmentId: null
+            });
+            if (verifyRes.data.success) {
+              toast.success('🎉 Payment Successful! You are registered for the cohort.', { id: 'cohort-verify', duration: 5000 });
+              setShowModal(false);
+            } else {
+              toast.error('Payment verification failed. Contact support.', { id: 'cohort-verify' });
+            }
+          } catch (err) {
+            toast.error('Verification error: ' + (err.response?.data?.message || err.message), { id: 'cohort-verify' });
+          }
+        },
+        modal: {
+          ondismiss: function() {
+            toast('Payment cancelled', { icon: 'ℹ️' });
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function(response) {
+        toast.error('Payment failed: ' + response.error.description);
+      });
+      rzp.open();
+
+    } catch (err) {
+      toast.error('Error: ' + (err.response?.data?.message || err.message), { id: 'cohort-pay' });
+    }
   };
 
   return (
