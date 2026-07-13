@@ -327,26 +327,14 @@ const Courses = () => {
     
     // Check if user is logged in
     if (!user) {
-      // User not logged in - check phone verification first
-      const verified = localStorage.getItem('phoneVerified') === 'true';
-      console.log('📱 Phone verification status:', verified);
-      
-      if (!verified) {
-        // Show phone verification popup first
-        console.log('📱 Phone not verified - showing PhoneGate popup');
-        setPendingCourse(course);
-        setShowPhoneGate(true);
-        return;
-      }
-      
-      // Phone verified but not logged in - redirect to login
-      console.log('📱 Phone verified - redirecting to login');
-      toast.success("Phone verified! Please login to continue");
+      // User not logged in - redirect to login directly
+      console.log('❌ User not logged in - redirecting to login/register');
+      toast("Please login or register to enroll", { icon: 'ℹ️' });
       navigate("/login");
       return;
     }
     
-    // User is logged in - proceed directly with enrollment (no phone verification needed after login)
+    // User is logged in - proceed directly with enrollment
     console.log('✅ User logged in - proceeding with enrollment');
     setDetailCourse(null);
     setEnrollCourseData(course);
@@ -664,11 +652,6 @@ const Courses = () => {
           course={enrollCourseData}
           onClose={() => setEnrollCourseData(null)}
         />
-      )}
-      
-      {/* Phone verification popup - only for guest users (not logged in) */}
-      {!user && showPhoneGate && (
-        <PhoneGate onComplete={handlePhoneVerificationComplete} />
       )}
     </section>
   );
