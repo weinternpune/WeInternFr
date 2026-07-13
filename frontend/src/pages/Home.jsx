@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Hero from '../components/Sections/Hero';
-import { Problem, HowItWorks, EcosystemSection, Vision } from '../components/Sections/Sections';
+import { Problem, HowItWorks, EcosystemSection, Vision, LiveJourney } from '../components/Sections/Sections';
 import Courses from '../components/Sections/Courses';
 import { ApplySection, } from '../components/Sections/Forms';
 import StudentProjects from '../components/Sections/StudentProjects';
@@ -47,6 +47,7 @@ const Home = () => {
       
       {/* All sections visible - no blur */}
       <Courses />
+      <LiveJourney />
       <Problem />
       <HowItWorks />
       <EcosystemSection />

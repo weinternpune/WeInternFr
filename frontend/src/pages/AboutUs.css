@@ -366,7 +366,7 @@
   text-align: center;
 }
 .mission-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Poppins', sans-serif;
   font-size: clamp(1.8rem, 3.5vw, 2.6rem);
   font-weight: 700;
   color: var(--navy);
@@ -396,7 +396,7 @@
   transform: translateY(-3px);
 }
 .stat-value {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 2rem;
   font-weight: 700;
   color: var(--navy);
@@ -411,7 +411,7 @@
 }
 .about-values-inner { max-width: 1100px; margin: 0 auto; }
 .values-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Poppins', sans-serif;
   font-size: clamp(1.8rem, 3.5vw, 2.6rem);
   font-weight: 700;
   color: var(--navy);
@@ -563,6 +563,11 @@
   .mission-stats { grid-template-columns: repeat(2, 1fr); }
   .about-footer-inner { grid-template-columns: 1fr; gap: 2rem; padding: 3rem 1.25rem 2rem; }
   .footer-bottom-inner { flex-direction: column; gap: 0.75rem; text-align: center; }
+  
+  /* Override title size for tablet */
+  .about-title {
+    font-size: 1.8rem !important;
+  }
 }
 @media (max-width: 480px) {
   .slideshow-stage { aspect-ratio: 16 / 9; }
@@ -574,8 +579,6 @@
   .family-values-row { grid-template-columns: 1fr; }
   .values-grid { grid-template-columns: 1fr; }
   .mission-stats { grid-template-columns: 1fr; }
-  .about-flow { gap: 0.25rem; }
-  .flow-item { padding: 0.55rem 0.7rem; min-width: 60px; }
   .about-cta-buttons { flex-direction: column; align-items: center; }
   .footer-detail-item { flex-direction: column; gap: 2px; }
   
@@ -597,6 +600,147 @@
   .slide-dot { 
     width: 6px; 
     height: 6px; 
+  }
+  
+  /* Hero section mobile fixes */
+  .about-hero {
+    padding: 2.5rem 0.75rem 2rem !important;
+    box-sizing: border-box;
+  }
+  
+  .about-content-wrapper {
+    padding: 0 0.5rem !important;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  
+  .about-left {
+    max-width: 100% !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+  }
+  
+  .about-label {
+    font-size: 0.85rem !important;
+    margin-bottom: 1rem !important;
+    letter-spacing: 0.14em !important;
+    font-weight: 800 !important;
+  }
+  
+  /* Title - "Building a Generation That's Ready" properly sized */
+  .about-title {
+    font-size: 1.1rem !important;
+    line-height: 1.4 !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-bottom: 0.85rem !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+  }
+  
+  .about-title br {
+    display: none !important;
+  }
+  
+  /* Description paragraph - proper line breaks */
+  .about-description {
+    font-size: 0.85rem !important;
+    line-height: 1.6 !important;
+    text-align: left;
+    hyphens: auto;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-bottom: 1.5rem !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Flow items (Learning, Experience, Income, Future) in one line */
+  .about-flow {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.3rem;
+    overflow-x: visible;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    justify-content: space-between;
+    padding-bottom: 0.5rem;
+    margin: 0 0;
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .about-flow::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .flow-item {
+    padding: 0.5rem 0.5rem;
+    min-width: 58px;
+    max-width: 70px;
+    flex: 1;
+    flex-shrink: 1;
+  }
+  
+  .flow-item:first-child {
+    margin-left: 0;
+  }
+  
+  .flow-item:last-child {
+    margin-right: 0;
+  }
+  
+  .flow-arrow {
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    padding: 0 0.1rem;
+  }
+  
+  .flow-icon {
+    font-size: 1.05rem;
+  }
+  
+  .flow-label {
+    font-size: 0.63rem;
+    white-space: nowrap;
+  }
+  
+  /* Founder card mobile fix - equal margins left and right */
+  .about-right {
+    width: 100% !important;
+    padding: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+  
+  .founder-card {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 1.5rem 1rem !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+  
+  .founder-quote {
+    font-size: 0.85rem !important;
+    line-height: 1.6 !important;
+    padding-left: 0.75rem !important;
+  }
+  
+  .founder-social {
+    flex-wrap: wrap;
+  }
+  
+  .social-link {
+    font-size: 0.8rem !important;
   }
 }
 

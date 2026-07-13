@@ -27,7 +27,7 @@
 
 /* ============ RESET ============ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { overflow-x: hidden; }
+html, body { overflow-x: hidden; font-family: 'Poppins', sans-serif; }
 *:focus { outline: none !important; box-shadow: none !important; }
 *:focus-visible { outline: 2px solid var(--cyan) !important; outline-offset: 2px !important; }
 input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible {
@@ -39,6 +39,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-
 /* ============ POPPINS FOR ALL NUMBERS ============ */
 * {
   font-variant-numeric: tabular-nums;
+  font-family: 'Poppins', sans-serif;
 }
 
 /* Import Poppins for numbers */
@@ -87,7 +88,7 @@ body, input, textarea, select, button,
 }
 .section-label.light { color: var(--gold2); }
 .section-title {
-  font-family: 'Playfair Display', serif; font-size: clamp(2rem,4vw,3rem);
+  font-family: 'Poppins', sans-serif; font-size: clamp(2rem,4vw,3rem);
   font-weight: 700; line-height: 1.15; color: var(--navy); margin-bottom: 1rem;
 }
 .section-title.light { color: white; }

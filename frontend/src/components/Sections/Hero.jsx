@@ -76,7 +76,7 @@ const Hero = () => {
         <div className="hero-left">
           <div className="hero-badge">
             <span className="badge-dot" />
-            India's #1 Learn-by-Working Ecosystem for Students
+            India's #1&nbsp;&nbsp;Learn-by-Working Ecosystem for Students
           </div>
           <h1 className="hero-title">
             Learn In-Demand Skills.<br />

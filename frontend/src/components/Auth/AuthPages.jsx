@@ -50,27 +50,81 @@ export const LoginPage = () => {
   const [form, setForm] = useState({ email:'', password:'' });
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
+  const [error, setError] = useState('');
   const { loginUser } = useAuth();
   const navigate = useNavigate();
-  const handleChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+    setError(''); // Clear error when user types
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); setLoading(true);
+    e.preventDefault(); 
+    
+    // Validation
+    if (!form.email || !form.password) {
+      const errorMsg = 'Please fill in all fields';
+      setError(errorMsg);
+      toast.error(errorMsg);
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
     try {
       const res = await login(form);
       loginUser(res.data.token, res.data.user);
       toast.success(`Welcome back, ${res.data.user.name}! 👋`);
       navigate(res.data.user.role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
+      console.error('Login error:', err);
       const data = err.response?.data;
-      if (data?.needsVerification) { toast.error('Please verify your email first'); navigate(`/verify-otp?userId=${data.userId}`); }
-      else toast.error(data?.message || 'Invalid email or password');
-    } finally { setLoading(false); }
+      
+      if (data?.needsVerification) { 
+        const errorMsg = 'Please verify your email first';
+        setError(errorMsg);
+        toast.error(errorMsg, { duration: 5000 }); 
+        navigate(`/verify-otp?userId=${data.userId}`); 
+      } else {
+        const errorMsg = data?.message || 'Invalid email or password';
+        setError(errorMsg);
+        toast.error(errorMsg, { 
+          duration: 5000,
+          style: {
+            background: '#dc4545',
+            color: 'white',
+            fontWeight: 700,
+            fontSize: '0.95rem',
+            padding: '1rem 1.5rem'
+          }
+        });
+      }
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   return (
     <AuthLayout title="Welcome Back 👋" subtitle="Sign in to your WeIntern account">
       <form onSubmit={handleSubmit} className="auth-form">
+        {error && (
+          <div style={{
+            background: 'rgba(220, 69, 69, 0.1)',
+            border: '1.5px solid #dc4545',
+            borderRadius: '8px',
+            padding: '0.75rem 1rem',
+            marginBottom: '1rem',
+            color: '#dc4545',
+            fontSize: '0.88rem',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <span>⚠️</span>
+            <span>{error}</span>
+          </div>
+        )}
         <div className="form-group">
           <label>Email Address</label>
           <input type="email" name="email" placeholder="your@email.com" value={form.email} onChange={handleChange} required autoFocus />
@@ -414,6 +468,7 @@ export const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [devMode, setDevMode] = useState(false);
   
   const handleSubmit = async (e) => {
     e.preventDefault(); 
@@ -427,8 +482,15 @@ export const ForgotPasswordPage = () => {
     try { 
       const response = await forgotPassword({ email }); 
       if (response.data.success) {
-        setSent(true); 
-        toast.success('Reset link sent! Check your email inbox');
+        setSent(true);
+        
+        // Check if development mode (console logging)
+        if (response.data.message.includes('console')) {
+          setDevMode(true);
+          toast.success('Reset link generated! Check server console 🖥️', { duration: 6000 });
+        } else {
+          toast.success('Reset link sent! Check your email inbox');
+        }
       } else {
         toast.error(response.data.message || 'Something went wrong');
       }
@@ -464,10 +526,45 @@ export const ForgotPasswordPage = () => {
       ) : (
         <div className="auth-success">
           <div className="auth-success-icon">✅</div>
-          <p>Reset link sent to <strong>{email}</strong>. Expires in 1 hour. Check spam if not seen.</p>
+          {devMode ? (
+            <>
+              <p style={{ marginBottom: '1rem' }}>
+                <strong>Development Mode:</strong> Email service not configured.
+              </p>
+              <p style={{ 
+                background: 'rgba(232, 168, 32, 0.1)', 
+                border: '1.5px solid #E8A820',
+                borderRadius: '8px',
+                padding: '1rem',
+                fontSize: '0.9rem',
+                lineHeight: '1.7',
+                color: 'var(--navy)',
+                marginBottom: '1rem'
+              }}>
+                🖥️ <strong>Check your server console/terminal</strong> for the password reset link for <strong>{email}</strong>
+                <br/><br/>
+                Look for:<br/>
+                <code style={{ 
+                  background: 'rgba(0,0,0,0.05)', 
+                  padding: '2px 6px', 
+                  borderRadius: '4px',
+                  fontSize: '0.85rem'
+                }}>
+                  🔗 DEVELOPMENT MODE - Reset Link
+                </code>
+              </p>
+              <p style={{ fontSize: '0.88rem', color: 'var(--muted)' }}>
+                Copy the link from console and paste it in your browser. Link expires in 1 hour.
+              </p>
+            </>
+          ) : (
+            <p>
+              Reset link sent to <strong>{email}</strong>. Expires in 1 hour. Check spam if not seen.
+            </p>
+          )}
           <div style={{ marginTop: '1rem' }}>
             <button 
-              onClick={() => {setSent(false); setEmail(''); }} 
+              onClick={() => {setSent(false); setEmail(''); setDevMode(false); }} 
               className="btn btn-outline" 
               style={{ fontSize: '.85rem' }}
             >

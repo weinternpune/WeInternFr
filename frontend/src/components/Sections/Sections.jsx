@@ -2,8 +2,12 @@
 // ===== Problem Section =====
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import useReveal from '../../hooks/useReveal';
 import './Sections.css';
+import './LiveJourney.css';
 
 import ai_chatbot from "../../assets/ai_chatbot.jpg";
 import analytics from "../../assets/analytics.jpg";
@@ -15,6 +19,11 @@ import platform from "../../assets/platform.jpg";
 import food_delivery from "../../assets/food_delivery.jpg";
 import job_portal from "../../assets/job_portal.jpg";
 import travel_booking from "../../assets/travel_booking.jpg";
+
+// Import cohort images
+import cohortLiveImg from "../../assets/cohort-live.jpg";
+import cohortUpcomingImg from "../../assets/cohort-upcoming.jpg";
+import cohortFutureImg from "../../assets/cohort-future.jpg";
 
 export const Problem = () => {
   const q1 = useReveal(); const q2 = useReveal(); const q3 = useReveal(); const q4 = useReveal();
@@ -580,4 +589,240 @@ export const Vision = () => {
   //     </div>
   //   </section>
   // );
+};
+
+// ===== Live Journey Section =====
+export const LiveJourney = () => {
+  const j1 = useReveal();
+  const j2 = useReveal();
+  const j3 = useReveal();
+  const [showModal, setShowModal] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleViewDetails = () => {
+    // Check if user is logged in
+    if (!user) {
+      // User not logged in - redirect to login
+      console.log('❌ User not logged in - redirecting to login/register');
+      toast("Please login or register to view details", { icon: 'ℹ️' });
+      navigate('/login');
+      return;
+    }
+    
+    // User is logged in - show modal
+    console.log('✅ User logged in - showing details modal');
+    setShowModal(true);
+  };
+
+  const handleEnrollNow = () => {
+    // User is already logged in (modal only shows if logged in)
+    console.log('✅ Opening Razorpay payment');
+    
+    // Razorpay options
+    const options = {
+      key: process.env.REACT_APP_RAZORPAY_KEY_ID || 'rzp_test_YOUR_KEY_ID', // Replace with your Razorpay key
+      amount: 19900, // Amount in paise (₹199 = 19900 paise)
+      currency: 'INR',
+      name: 'WeIntern',
+      description: 'Weekly Skill Cohort Registration',
+      image: '/logo.png', // Your logo
+      handler: function (response) {
+        // Payment success callback
+        console.log('Payment successful:', response);
+        alert(`Payment Successful! Payment ID: ${response.razorpay_payment_id}`);
+        setShowModal(false);
+        // Here you can send payment details to your backend
+        // Example: sendPaymentToBackend(response);
+      },
+      prefill: {
+        name: '',
+        email: '',
+        contact: ''
+      },
+      notes: {
+        course: 'WeIntern Weekly Skill Cohort',
+        batch: 'Batch 1'
+      },
+      theme: {
+        color: '#5b21b6'
+      },
+      modal: {
+        ondismiss: function() {
+          console.log('Payment cancelled by user');
+        }
+      }
+    };
+
+    // Create Razorpay instance
+    const razorpay = new window.Razorpay(options);
+    
+    // Handle payment failure
+    razorpay.on('payment.failed', function (response) {
+      console.error('Payment failed:', response.error);
+      alert('Payment failed! Please try again.');
+    });
+
+    // Open Razorpay payment modal
+    razorpay.open();
+  };
+
+  return (
+    <section className="live-journey" id="journey">
+      <div className="container">
+        <div className="section-label">Your Journey</div>
+        <h2 className="section-title">Learn. Build. Grow.</h2>
+        <p className="section-sub">Discover workshops, skill cohorts, hackathons, webinars, and networking events designed to make you industry-ready.</p>
+
+        <div className="journey-cards">
+          {/* Card 1: Cohort Live */}
+          <div className="journey-card card-live reveal" ref={j1}>
+            <div className="journey-card-image">
+              <img src={cohortLiveImg} alt="Cohort Live" />
+              <div className="journey-badge badge-live">
+                <span className="badge-pulse"></span>
+                LIVE NOW
+              </div>
+            </div>
+            <div className="journey-card-body">
+              <h3 className="journey-card-category">🚀 Cohort</h3>
+              <h2 className="journey-card-title">Cohort is Live!</h2>
+              <ul className="journey-card-list">
+                <li>💰 Course Fee: ₹199</li>
+                <li>🎯 Only 10 Seats Available</li>
+                <li>⚡ Limited time offer</li>
+              </ul>
+              <button className="journey-view-btn" onClick={handleViewDetails}>View details</button>
+            </div>
+          </div>
+
+          {/* Card 2: Coming Next */}
+          <div className="journey-card card-next reveal" ref={j2}>
+            <div className="journey-card-image">
+              <img src={cohortUpcomingImg} alt="Coming Next" />
+              <div className="journey-badge badge-next">
+                NEXT IN PIPELINE
+              </div>
+              <div className="journey-lock-icon">🔒</div>
+            </div>
+            <div className="journey-card-body">
+              <h3 className="journey-card-category">📅 Upcoming</h3>
+              <h2 className="journey-card-title">Coming Up Next</h2>
+              <ul className="journey-card-list">
+                <li>8 Upcoming Projects</li>
+                <li>Starting in 2-3 weeks</li>
+                <li>Early bird registration open</li>
+              </ul>
+              <button className="journey-view-btn" disabled>View details</button>
+            </div>
+          </div>
+
+          {/* Card 3: Future Opportunities */}
+          <div className="journey-card card-future reveal" ref={j3}>
+            <div className="journey-card-image">
+              <img src={cohortFutureImg} alt="Future Opportunities" />
+              <div className="journey-badge badge-future">
+                COMING SOON
+              </div>
+              <div className="journey-lock-icon">🔒</div>
+            </div>
+            <div className="journey-card-body">
+              <h3 className="journey-card-category">🌟 Future</h3>
+              <h2 className="journey-card-title">What's Ahead</h2>
+              <ul className="journey-card-list">
+                <li>20+ New Opportunities</li>
+                <li>International Projects</li>
+                <li>Advanced Technologies</li>
+              </ul>
+              <button className="journey-view-btn" disabled>View details</button>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Note */}
+        <div className="journey-note">
+          <span className="note-icon">💡</span>
+          <p>Every project means real experience, real portfolio, and real income for our students</p>
+        </div>
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="journey-modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="journey-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="journey-modal-close" onClick={() => setShowModal(false)}>×</button>
+            
+            <div className="journey-modal-content">
+              <h2 className="journey-modal-title">WeIntern Weekly Skill Cohort</h2>
+              <p className="journey-modal-subtitle">Learn. Build. Grow.</p>
+              
+              <p className="journey-modal-description">
+                Join an exclusive offline hands-on workshop designed for college students to learn trending industry skills from experts.
+              </p>
+
+              <div className="journey-modal-info">
+                <div className="journey-modal-info-item">
+                  <span className="info-icon">📍</span>
+                  <div>
+                    <strong>Venue:</strong> WeIntern Office, City Vista, Kharadi, Pune
+                  </div>
+                </div>
+                <div className="journey-modal-info-item">
+                  <span className="info-icon">💰</span>
+                  <div>
+                    <strong>Registration Fee:</strong> ₹199 Only
+                  </div>
+                </div>
+                <div className="journey-modal-info-item">
+                  <span className="info-icon">👥</span>
+                  <div>
+                    <strong>Batch Size:</strong> Only 10 Seats Per Batch
+                  </div>
+                </div>
+              </div>
+
+              <div className="journey-modal-section">
+                <h3>Why Join?</h3>
+                <ul className="journey-modal-benefits">
+                  <li>✅ Hands-on Practical Learning</li>
+                  <li>✅ Industry Mentorship</li>
+                  <li>✅ Certificate of Participation</li>
+                  <li>✅ Career Guidance</li>
+                  <li>✅ Networking with Students</li>
+                  <li>✅ Internship Opportunities at WeIntern</li>
+                </ul>
+              </div>
+
+              <div className="journey-modal-section">
+                <h3>Who Can Join?</h3>
+                <p>Perfect for Engineering, BCA, MCA, B.Sc., M.Sc., Diploma, MBA students, Freshers, and anyone eager to build practical skills.</p>
+              </div>
+
+              <div className="journey-modal-section">
+                <h3>Registration Process</h3>
+                <ol className="journey-modal-steps">
+                  <li>Fill out the registration form</li>
+                  <li>Complete the ₹199 payment</li>
+                  <li>Receive confirmation on WhatsApp</li>
+                  <li>Attend the workshop and start learning</li>
+                </ol>
+              </div>
+
+              <div className="journey-modal-highlight">
+                ⚡ Limited to just 10 students per batch to ensure personalized mentoring.
+              </div>
+
+              <div className="journey-modal-cta">
+                <h3>Ready to Upskill?</h3>
+                <p>Register now and reserve your seat before the batch is full.</p>
+                <button className="journey-modal-enroll-btn" onClick={handleEnrollNow}>
+                  Enroll Now →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
 };

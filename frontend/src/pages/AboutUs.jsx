@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './AboutUs.css';
 
 /* ── Team photos – place these files in /public/team/ ── */
@@ -58,6 +59,18 @@ const DEVELOPER_SLIDES = [
     role: 'Backend Specialist',
     caption: 'Architecting robust backend systems ⚡',
   },
+  {
+    src: '/team/developer4.jpg',
+    name: 'Priyanka Sahu',
+    role: 'Data Science',
+    caption: 'Transforming data into actionable insights 📊',
+  },
+  {
+    src: '/team/developer5.jpg',
+    name: 'Atasi Pradhan',
+    role: 'AI Automation',
+    caption: 'Automating the future with intelligent solutions 🤖',
+  },
 ];
 
 /* ── Leadership photos ── */
@@ -85,6 +98,29 @@ const AboutUs = () => {
   const [devCurrent, setDevCurrent] = useState(0);
   const [devIsAnimating, setDevIsAnimating] = useState(false);
   const [devDirection, setDevDirection] = useState('next');
+  
+  // Auth context and navigation
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Auto-redirect to login after 10 seconds if not logged in
+  useEffect(() => {
+    if (user) {
+      console.log('✅ User is logged in - no auto-redirect on About Us page');
+      return;
+    }
+
+    console.log('⏰ Starting 10-second timer for login redirect on About Us page...');
+    const timer = setTimeout(() => {
+      console.log('🚀 10 seconds complete! Redirecting to login page from About Us');
+      navigate('/login');
+    }, 10000);
+
+    return () => {
+      console.log('⏹️ Timer cleanup on About Us unmount');
+      clearTimeout(timer);
+    };
+  }, [user, navigate]);
   
   // Leadership slideshow state
   const [leaderCurrent, setLeaderCurrent] = useState(0);
@@ -201,7 +237,7 @@ const AboutUs = () => {
           <div className="about-left">
             <div className="about-label">OUR VISION</div>
             <h1 className="about-title">
-              Building a Generation<br />That's Ready.
+              Building a Generation That's Ready.
             </h1>
             <p className="about-description">
               To create a generation of professionals who are not afraid of interviews,

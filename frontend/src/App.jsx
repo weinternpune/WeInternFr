@@ -124,11 +124,33 @@ function App() {
           <AdminProvider>
             <AppRoutes />
             <Toaster
-              position="bottom-right"
+              position="top-center"
               toastOptions={{
-                duration: 4000,
-                style: { fontFamily: "'DM Sans', sans-serif", fontWeight: 600, borderRadius: 10, fontSize: '.9rem' },
-                success: { iconTheme: { primary: '#E8A820', secondary: '#1B2A4A' } }
+                duration: 4500,
+                style: { 
+                  fontFamily: "'DM Sans', sans-serif", 
+                  fontWeight: 600, 
+                  borderRadius: 10, 
+                  fontSize: '.9rem',
+                  maxWidth: '500px',
+                  padding: '0.9rem 1.2rem',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+                },
+                success: { 
+                  iconTheme: { primary: '#E8A820', secondary: '#1B2A4A' },
+                  style: {
+                    background: 'white',
+                    color: '#1B2A4A',
+                    border: '2px solid #E8A820'
+                  }
+                },
+                error: {
+                  style: {
+                    background: '#dc4545',
+                    color: 'white',
+                    fontWeight: 700
+                  }
+                }
               }}
             />
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
