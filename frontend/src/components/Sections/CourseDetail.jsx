@@ -168,6 +168,11 @@ const CourseDetailModal = ({ course, onClose, onEnroll }) => {
     ],
   };
 
+  // Calculate offer price (same logic as Courses.jsx)
+  const originalPrice = course.originalPrice || Math.round((course.price || details.price) * 1.2);
+  const offerPrice = course.price || details.price;
+  const discount = Math.round(((originalPrice - offerPrice) / originalPrice) * 100);
+
   const downloadCurriculum = () => {
     const win = window.open('', '_blank');
     const html = buildPDFHTML(details, course);
@@ -195,7 +200,17 @@ const CourseDetailModal = ({ course, onClose, onEnroll }) => {
           </div>
           <div className="cd-header-bottom">
             <div className="cd-price-row">
-              <div className="cd-price">Rs.{details.price.toLocaleString('en-IN')}</div>
+              <div className="cd-price">
+                <span style={{ fontSize: '0.85rem', textDecoration: 'line-through', opacity: 0.6, marginRight: '8px' }}>
+                  ₹{originalPrice.toLocaleString('en-IN')}
+                </span>
+                <span style={{ fontSize: '1.5rem', fontWeight: 800 }}>
+                  ₹{offerPrice.toLocaleString('en-IN')}
+                </span>
+                <span style={{ fontSize: '0.75rem', background: '#27ae60', color: 'white', padding: '2px 8px', borderRadius: '4px', marginLeft: '8px', fontWeight: 700 }}>
+                  {discount}% OFF
+                </span>
+              </div>
               <div className="cd-perks">
                 <span>Certificate</span>
                 <span>Stipend</span>
@@ -326,7 +341,15 @@ const CourseDetailModal = ({ course, onClose, onEnroll }) => {
         <div className="cd-footer">
           <div className="cd-footer-price">
             <small>Starting at</small>
-            <strong>Rs.{details.price.toLocaleString('en-IN')}</strong>
+            <strong>
+              <span style={{ textDecoration: 'line-through', opacity: 0.5, fontSize: '0.85rem', marginRight: '6px' }}>
+                ₹{originalPrice.toLocaleString('en-IN')}
+              </span>
+              ₹{offerPrice.toLocaleString('en-IN')}
+              <span style={{ fontSize: '0.7rem', background: '#27ae60', color: 'white', padding: '2px 6px', borderRadius: '3px', marginLeft: '6px' }}>
+                {discount}% OFF
+              </span>
+            </strong>
           </div>
           <div className="cd-footer-btns">
             <button onClick={downloadCurriculum} className="cd-dl-btn-sm"><Icon icon="mdi:download" width="14" height="14" style={{marginRight:4}} />Download PDF</button>
