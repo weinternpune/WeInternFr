@@ -18,6 +18,7 @@ import Admin from './components/Admin/Admin';
 
 // Global styles
 import './styles/global.css';
+import OAuthCallback from './components/Auth/OAuthCallback';
 import StudentProjects from './components/Sections/StudentProjects';
 import TestimonialsSection from './components/Sections/Testimonials';
 import { useSanitySEO } from './hooks/useSanity';
@@ -74,12 +75,12 @@ function AppRoutes() {
       <Route path="/about" element={<AboutUs />} />
 
       {/* Auth pages */}
-      <Route path="/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
+      <Route path="/auth/callback" element={<OAuthCallback />} />
+        <Route path="/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
       <Route path="/register" element={<AuthLayout><RegisterPage /></AuthLayout>} />
       <Route path="/verify-otp" element={<AuthLayout><OTPPage /></AuthLayout>} />
       <Route path="/forgot-password" element={<AuthLayout><ForgotPasswordPage /></AuthLayout>} />
       <Route path="/reset-password" element={<AuthLayout><ResetPasswordPage /></AuthLayout>} />
-      <Route path="/auth/callback" element={<AuthLayout><AuthCallback /></AuthLayout>} />
 
       {/* Protected */}
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
