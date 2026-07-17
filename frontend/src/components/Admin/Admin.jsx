@@ -588,14 +588,23 @@ const AdminUsers = () => {
   const [resetModal, setResetModal]       = useState(null);
   const [newPass, setNewPass]             = useState('');
   const [viewUser, setViewUser]           = useState(null);
+  const [limit, setLimit]                 = useState(10);
+  const [page, setPage]                   = useState(1);
+  const [pages, setPages]                 = useState(1);
+  const [viewAll, setViewAll]             = useState(false);
 
   const load = () => {
     setLoading(true);
-    getAdminUsers({ search })
-      .then(r => { setUsers(r.data.data); setTotal(r.data.total); })
+    const actualLimit = viewAll ? 1000 : limit; // View All shows up to 1000 users
+    getAdminUsers({ search, limit: actualLimit, page: viewAll ? 1 : page })
+      .then(r => { 
+        setUsers(r.data.data); 
+        setTotal(r.data.total); 
+        setPages(Math.ceil(r.data.total / actualLimit));
+      })
       .catch(() => toast.error('Failed')).finally(() => setLoading(false));
   };
-  useEffect(() => { load(); }, [search]);
+  useEffect(() => { load(); }, [search, limit, page, viewAll]);
 
   const deleteUser = async (id, name) => {
     if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
@@ -647,13 +656,66 @@ const AdminUsers = () => {
     <div>
       <div className="admin-filters">
         <input className="admin-search" placeholder="Search by name or email..."
-          value={search} onChange={e => setSearch(e.target.value)} />
-        <span className="admin-meta">Total: <strong>{total}</strong></span>
+          value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+          <span className="admin-meta" style={{ fontSize: '.88rem', color: '#5a6a82' }}>
+            Total: <strong style={{ color: '#1B2A4A', fontSize: '.95rem' }}>{total}</strong>
+          </span>
+          {!viewAll && total > limit && (
+            <button 
+              style={{ 
+                fontSize: '.8rem', 
+                padding: '.45rem 1rem', 
+                whiteSpace: 'nowrap',
+                background: '#E8A820',
+                color: '#1B2A4A',
+                border: 'none',
+                borderRadius: '6px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                transition: 'all .2s',
+                fontFamily: 'DM Sans, sans-serif',
+                lineHeight: '1',
+                display: 'inline-flex',
+                alignItems: 'center',
+                height: '32px'
+              }}
+              onClick={() => { setViewAll(true); setPage(1); }}
+            >
+              View All
+            </button>
+          )}
+          {viewAll && (
+            <button 
+              style={{ 
+                fontSize: '.8rem', 
+                padding: '.45rem 1rem', 
+                whiteSpace: 'nowrap',
+                background: 'white',
+                color: '#2196C9',
+                border: '1.5px solid #2196C9',
+                borderRadius: '6px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all .2s',
+                fontFamily: 'DM Sans, sans-serif',
+                lineHeight: '1',
+                display: 'inline-flex',
+                alignItems: 'center',
+                height: '32px'
+              }}
+              onClick={() => { setViewAll(false); setPage(1); }}
+            >
+              Show Less
+            </button>
+          )}
+        </div>
       </div>
       {loading ? <div className="dash-loading"><div className="dash-spinner" /></div> : (
-        <div className="table-wrap">
-          <table className="data-table">
-            <thead><tr><th>Name</th><th>Email</th><th>College</th><th>Auth</th><th>Verified</th><th>Status</th><th>Role</th><th>Actions</th></tr></thead>
+        <>
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead><tr><th>Name</th><th>Email</th><th>College</th><th>Auth</th><th>Verified</th><th>Status</th><th>Role</th><th>Actions</th></tr></thead>
             <tbody>
               {users.map(u => (
                 <tr key={u._id}>
@@ -688,6 +750,39 @@ const AdminUsers = () => {
             </tbody>
           </table>
         </div>
+        {!viewAll && pages > 1 && (
+          <div className="pagination">
+            <button 
+              disabled={page === 1} 
+              onClick={() => setPage(p => p - 1)} 
+              className="btn btn-outline" 
+              style={{ fontSize: '.8rem', padding: '.4rem .9rem' }}
+            >
+              Prev
+            </button>
+            <span>Page {page} of {pages}</span>
+            <select 
+              className="admin-select" 
+              value={limit} 
+              onChange={e => { setLimit(Number(e.target.value)); setPage(1); }}
+              style={{ fontSize: '.8rem', padding: '.4rem .6rem', marginLeft: '.5rem', marginRight: '.5rem' }}
+            >
+              <option value="10">10 per page</option>
+              <option value="25">25 per page</option>
+              <option value="50">50 per page</option>
+              <option value="100">100 per page</option>
+            </select>
+            <button 
+              disabled={page === pages} 
+              onClick={() => setPage(p => p + 1)} 
+              className="btn btn-outline" 
+              style={{ fontSize: '.8rem', padding: '.4rem .9rem' }}
+            >
+              Next
+            </button>
+          </div>
+        )}
+        </>
       )}
       {viewUser && <UserDetailModal user={viewUser} onClose={() => setViewUser(null)} />}
       {resetModal && (

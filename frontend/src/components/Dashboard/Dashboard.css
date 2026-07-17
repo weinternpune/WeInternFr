@@ -384,6 +384,7 @@
   .overview-grid { grid-template-columns: 1fr; }
   .profile-wrap { grid-template-columns: 1fr; }
 }
+
 @media (max-width: 860px) {
   .dash-main { margin-left: 0; }
   .dash-sidebar { position: fixed; left: -268px; transition: left .3s ease; height: 100vh; }
@@ -395,13 +396,215 @@
   .an-large { min-width: 100%; }
   .module-progress-grid { grid-template-columns: 1fr; }
 }
+
+/* Medium phones (iPhone XR, Pixel 5, etc - 414px - 640px) - Keep 2 columns */
+@media (min-width: 414px) and (max-width: 640px) {
+  .dash-content { padding: 1rem; }
+  
+  /* Stats Grid - Keep 2 columns on larger phones */
+  .ud-stats-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: .75rem; 
+  }
+  
+  /* Stat Cards - Slightly smaller */
+  .ud-stat-card { 
+    padding: 1rem; 
+  }
+  
+  /* Analytics KPI - 2 columns */
+  .an-kpi-row { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: .75rem; 
+  }
+  
+  /* Achievements - 2 columns */
+  .achievements-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: .75rem; 
+  }
+  
+  /* Welcome Banner */
+  .welcome-banner { padding: 1.5rem; }
+  .wb-title { font-size: 1.4rem; }
+}
+
+/* Small phones (Samsung S8+, smaller - 360px - 413px) - Optimize layout */
+@media (max-width: 413px) {
+  .dash-content { padding: 1rem; }
+  
+  /* Welcome Banner */
+  .welcome-banner { padding: 1.25rem; gap: 1rem; }
+  .wb-title { font-size: 1.3rem; }
+  .wb-sub { font-size: .82rem; margin-bottom: 1rem; }
+  .wb-btns { flex-direction: column; width: 100%; }
+  .wb-btn-primary, .wb-btn-outline { width: 100%; justify-content: center; text-align: center; }
+  
+  /* Stats Grid - 2 columns for compact view */
+  .ud-stats-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: .75rem; 
+  }
+  
+  /* Stat Cards - Compact */
+  .ud-stat-card { 
+    padding: .85rem; 
+    gap: .65rem; 
+  }
+  .ud-stat-icon { 
+    width: 38px; 
+    height: 38px; 
+  }
+  .ud-stat-val { font-size: 1.3rem; }
+  .ud-stat-label { font-size: .7rem; }
+  
+  /* Overview Grid - Single column */
+  .overview-grid { 
+    grid-template-columns: 1fr; 
+    gap: 1rem; 
+  }
+  
+  /* Overview Card - Compact padding */
+  .overview-card { 
+    padding: 1.25rem; 
+  }
+  
+  /* Applications - Stack vertically */
+  .app-card { 
+    flex-direction: column; 
+    align-items: flex-start; 
+    padding: 1rem; 
+    gap: .75rem; 
+  }
+  .appc-right { 
+    flex-direction: row; 
+    width: 100%; 
+    justify-content: space-between; 
+  }
+  
+  /* Analytics KPI - 2 columns */
+  .an-kpi-row { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: .75rem; 
+  }
+  
+  /* Course Cards - Single column */
+  .my-course-cards, .dash-courses-grid { 
+    grid-template-columns: 1fr; 
+    gap: 1rem; 
+  }
+  
+  /* Sessions - Single column */
+  .sessions-grid { 
+    grid-template-columns: 1fr; 
+    gap: 1rem; 
+  }
+  
+  /* Certificates - Single column */
+  .certs-grid { 
+    grid-template-columns: 1fr; 
+    gap: 1rem; 
+  }
+  
+  /* Achievements - 2 columns on small phones */
+  .achievements-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: .75rem; 
+  }
+  
+  /* Practice Summary - Single column */
+  .practice-summary { 
+    grid-template-columns: 1fr; 
+    gap: .75rem; 
+  }
+  
+  /* Tab Header - Stack vertically */
+  .tab-hdr { 
+    flex-direction: column; 
+    align-items: flex-start; 
+    gap: .75rem; 
+  }
+  
+  /* Course Filters - Wrap nicely */
+  .dash-course-filters { 
+    flex-wrap: wrap; 
+    gap: .5rem; 
+  }
+  .dcf-btn { 
+    padding: .35rem .85rem; 
+    font-size: .8rem; 
+  }
+}
+
+/* Extra small devices - Galaxy Z Fold 5 closed (< 360px) */
+@media (max-width: 359px) {
+  .dash-content { padding: .85rem; }
+  
+  /* Stats Grid - 2 columns even on Z Fold 5 */
+  .ud-stats-grid { 
+    grid-template-columns: repeat(2, 1fr) !important; 
+    gap: .5rem;
+  }
+  
+  /* Analytics KPI - 2 columns */
+  .an-kpi-row { 
+    grid-template-columns: repeat(2, 1fr) !important; 
+    gap: .5rem;
+  }
+  
+  /* Stat Cards - Ultra compact for narrow screen */
+  .ud-stat-card, .an-kpi-card { 
+    padding: .75rem .65rem;
+  }
+  .ud-stat-icon, .an-kpi-icon { 
+    width: 34px; 
+    height: 34px; 
+  }
+  .ud-stat-val, .an-kpi-val { 
+    font-size: 1.2rem; 
+  }
+  .ud-stat-label, .an-kpi-label { 
+    font-size: .68rem; 
+  }
+  
+  /* Welcome Banner - Extra compact */
+  .welcome-banner { padding: 1rem; }
+  .wb-title { font-size: 1.2rem; }
+  .wb-greeting { font-size: .78rem; }
+  .wb-sub { font-size: .8rem; }
+  .wb-btn-primary, .wb-btn-outline { 
+    padding: .6rem 1rem; 
+    font-size: .8rem; 
+  }
+  
+  /* Overview Card - Compact padding */
+  .overview-card { 
+    padding: 1rem; 
+  }
+  
+  /* Application Cards - Compact */
+  .app-card { 
+    padding: .85rem; 
+  }
+  
+  /* Font Sizes - Slightly smaller */
+  .tab-hdr h2 { font-size: 1.3rem; }
+  .section-sub-title { font-size: 1rem; }
+  
+  /* Achievements - 2 columns on Z Fold 5 */
+  .achievements-grid { 
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: .6rem; 
+  }
+  .achievement-card {
+    padding: 1rem .85rem;
+  }
+}
+
 @media (max-width: 640px) {
-  .ud-stats-grid { grid-template-columns: repeat(2,1fr); }
-  .an-kpi-row { grid-template-columns: repeat(2,1fr); }
   .practice-summary { grid-template-columns: 1fr; }
   .sessions-grid { grid-template-columns: 1fr; }
   .my-course-cards { grid-template-columns: 1fr; }
-  .achievements-grid { grid-template-columns: repeat(2,1fr); }
   .dash-courses-grid { grid-template-columns: 1fr; }
 }
 
