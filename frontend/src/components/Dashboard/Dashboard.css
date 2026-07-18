@@ -380,6 +380,77 @@
 .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 99; }
 
 /* ===== RESPONSIVE ===== */
+
+/* Tablets - iPad, Android Tablets (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .dash-content { padding: 1.5rem; }
+  
+  /* Overview Grid - Single column on tablets */
+  .overview-grid { 
+    grid-template-columns: 1fr; 
+  }
+  
+  /* Profile Wrap - Single column */
+  .profile-wrap { 
+    grid-template-columns: 1fr; 
+  }
+  
+  /* Stats Grid - 2 columns on tablets */
+  .ud-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  /* Analytics KPI - 2 columns on tablets */
+  .an-kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  /* Analytics Chart Row - Stack vertically */
+  .an-row {
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  
+  .an-chart-card, .an-large, .an-small {
+    min-width: 100%;
+    width: 100%;
+    flex: none;
+  }
+  
+  /* Course Cards - 2 columns on tablets */
+  .my-course-cards, .dash-courses-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+  
+  /* Achievements - 3 columns on tablets */
+  .achievements-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  
+  /* Sessions - 2 columns on tablets */
+  .sessions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  /* Certificates - 2 columns on tablets */
+  .certs-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  /* Module Progress - 2 columns on tablets */
+  .module-progress-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem 1.5rem;
+  }
+}
+
+/* General tablet and below - Sidebar adjustments */
 @media (max-width: 1024px) {
   .overview-grid { grid-template-columns: 1fr; }
   .profile-wrap { grid-template-columns: 1fr; }
@@ -486,6 +557,55 @@
   .an-kpi-row { 
     grid-template-columns: repeat(2, 1fr); 
     gap: .75rem; 
+  }
+  
+  /* Analytics KPI Cards - Compact for small screens */
+  .an-kpi-card {
+    padding: .95rem .8rem;
+    gap: .7rem;
+  }
+  
+  .an-kpi-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .an-kpi-val {
+    font-size: 1.2rem;
+  }
+  
+  .an-kpi-label {
+    font-size: .7rem;
+  }
+  
+  .an-kpi-trend {
+    font-size: .64rem;
+  }
+  
+  /* Analytics Chart Cards - Stack vertically */
+  .an-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .an-chart-card, .an-large, .an-small {
+    min-width: 100%;
+    width: 100%;
+    flex: none;
+  }
+  
+  .an-chart-card {
+    padding: 1.25rem;
+  }
+  
+  .an-chart-header h3 {
+    font-size: .95rem;
+  }
+  
+  /* Module Progress Grid - Stack on small screens */
+  .module-progress-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
   
   /* Course Cards - Single column */
