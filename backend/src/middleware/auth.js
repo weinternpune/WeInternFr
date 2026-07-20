@@ -3,15 +3,42 @@ const User = require('../models/User');
 
 const protect = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ success: false, message: 'Not authorized' });
+    console.log("========== PROTECT ==========");
+    console.log("Authorization Header:", req.headers.authorization);
+
+    const token = req.headers.authorization?.split(" ")[1];
+
+    console.log("Extracted Token:", token);
+
+    if (!token) {
+      console.log("❌ No token received");
+      return res.status(401).json({ success: false, message: "Not authorized" });
+    }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id).select('-password -otp -resetPasswordToken');
-    if (!req.user) return res.status(401).json({ success: false, message: 'User not found' });
+
+    console.log("Decoded JWT:", decoded);
+
+    const user = await User.findById(decoded.id).select(
+      "-password -otp -resetPasswordToken"
+    );
+
+    console.log("User Found:", user);
+
+    if (!user) {
+      console.log("❌ User not found");
+      return res.status(401).json({ success: false, message: "User not found" });
+    }
+
+    req.user = user;
+
+    console.log("✅ Protect Passed");
+    console.log("============================");
+
     next();
   } catch (err) {
-    res.status(401).json({ success: false, message: 'Invalid token' });
+    console.log("❌ Protect Error:", err);
+    res.status(401).json({ success: false, message: "Invalid token" });
   }
 };
 

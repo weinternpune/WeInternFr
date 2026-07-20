@@ -366,17 +366,50 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 
 // GitHub OAuth - Only register if configured
 if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
-  router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
-  router.get('/github/callback', passport.authenticate('github', { session: false }), (req, res) => {
-    const token = generateToken(req.user._id);
-    res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
-  });
+  // Start GitHub OAuth
+  router.get(
+    '/github',
+    passport.authenticate('github', {
+      scope: ['user:email'],
+    })
+  );
+
+  // GitHub OAuth Callback
+  router.get(
+    '/github/callback',
+    passport.authenticate('github', {
+      session: false,
+      failureRedirect: `${process.env.FRONTEND_URL}/login?error=github_auth_failed`,
+    }),
+    (req, res) => {
+      try {
+        const token = generateToken(req.user._id);
+
+        res.redirect(
+          `${process.env.FRONTEND_URL}/auth/callback?token=${token}`
+        );
+      } catch (error) {
+        console.error('GitHub Callback Error:', error);
+
+        res.redirect(
+          `${process.env.FRONTEND_URL}/login?error=token_generation_failed`
+        );
+      }
+    }
+  );
 } else {
   router.get('/github', (req, res) => {
-    res.status(501).json({ success: false, message: 'GitHub OAuth is not configured' });
+    res.status(501).json({
+      success: false,
+      message: 'GitHub OAuth is not configured',
+    });
   });
+
   router.get('/github/callback', (req, res) => {
-    res.status(501).json({ success: false, message: 'GitHub OAuth is not configured' });
+    res.status(501).json({
+      success: false,
+      message: 'GitHub OAuth is not configured',
+    });
   });
 }
 
