@@ -5,7 +5,7 @@ import { login, register, verifyOTP, resendOTP, forgotPassword, resetPassword, g
 import toast from 'react-hot-toast';
 import './Auth.css';
 
-const BACKEND = process.env.REACT_APP_API_URL
+const BACKEND = process.env.REACT_APP_API_URL?.replace("/api", "")
   ? process.env.REACT_APP_API_URL.replace('/api', '')
   : 'http://localhost:5000';
 
