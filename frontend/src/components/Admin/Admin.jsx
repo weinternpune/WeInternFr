@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Icon } from '@iconify/react';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Icon } from "@iconify/react";
 import {
   FaChartBar,
   FaFileAlt,
@@ -10,71 +10,112 @@ import {
   FaGraduationCap,
   FaRocket,
   FaUserShield,
-   FaSignOutAlt,
-} from 'react-icons/fa';
-import { useAuth } from '../../context/AuthContext';
-import { useAdmin } from '../../context/AdminContext';
+  FaSignOutAlt,
+} from "react-icons/fa";
+import { useAuth } from "../../context/AuthContext";
+import { useAdmin } from "../../context/AdminContext";
 import {
-  getAdminApplications, updateApplicationStatus,
-  getAdminEnrollments, getAdminHireRequests, updateHireRequest, getAdminUsers, getUserActivity
-} from '../../utils/api';
-import API from '../../utils/api';
-import toast from 'react-hot-toast';
+  getAdminApplications,
+  updateApplicationStatus,
+  getAdminEnrollments,
+  getAdminHireRequests,
+  updateHireRequest,
+  getAdminUsers,
+  getUserActivity,
+} from "../../utils/api";
+import API from "../../utils/api";
+import toast from "react-hot-toast";
 import {
-  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  Legend, ResponsiveContainer
-} from 'recharts';
-import './Admin.css';
-import { useCourses } from '../../context/CoursesContext';
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import "./Admin.css";
+import { useCourses } from "../../context/CoursesContext";
 
 const statusBadge = (s) => (
-  <span className={`badge-status badge-${s}`}>{s.charAt(0).toUpperCase() + s.slice(1)}</span>
+  <span className={`badge-status badge-${s}`}>
+    {s.charAt(0).toUpperCase() + s.slice(1)}
+  </span>
 );
 
 const ADMIN_TABS = [
-  { id: 'overview',     icon: <FaChartBar />,      label: 'Overview' },
-  { id: 'applications', icon: <FaFileAlt />,       label: 'Applications' },
-  { id: 'enrollments',  icon: <FaBook />,          label: 'Enrollments' },
-  { id: 'hire',         icon: <FaBuilding />,      label: 'Hire Requests' },
-  { id: 'users',        icon: <FaUsers />,         label: 'Users' },
-  { id: 'courses',      icon: <FaGraduationCap />, label: 'Courses' },
-  { id: 'projects',     icon: <FaRocket />,        label: 'Projects' },
-  { id: 'admins',       icon: <FaUserShield />,    label: 'Admins' },
+  { id: "overview", icon: <FaChartBar />, label: "Overview" },
+  { id: "applications", icon: <FaFileAlt />, label: "Applications" },
+  { id: "enrollments", icon: <FaBook />, label: "Enrollments" },
+  { id: "hire", icon: <FaBuilding />, label: "Hire Requests" },
+  { id: "users", icon: <FaUsers />, label: "Users" },
+  { id: "courses", icon: <FaGraduationCap />, label: "Courses" },
+  { id: "projects", icon: <FaRocket />, label: "Projects" },
+  { id: "admins", icon: <FaUserShield />, label: "Admins" },
 ];
 
 const Admin = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState('overview');
+  const [tab, setTab] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (!user) { navigate('/login'); return; }
-    if (user.role !== 'admin') { navigate('/dashboard'); return; }
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    if (user.role !== "admin") {
+      navigate("/dashboard");
+      return;
+    }
   }, [user, navigate]);
 
-  if (!user || user.role !== 'admin') return null;
+  if (!user || user.role !== "admin") return null;
 
   return (
     <div className="dashboard admin-panel">
-      {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
-      
-      <aside className={`dash-sidebar${sidebarOpen ? ' open' : ''}`}>
+      {sidebarOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <aside className={`dash-sidebar${sidebarOpen ? " open" : ""}`}>
         <div className="dash-sidebar-top">
           <Link to="/" className="dash-logo-link">
             <img src="/welogo.png" alt="WeIntern" className="dash-logo" />
           </Link>
-          <button className="sidebar-close" onClick={() => setSidebarOpen(false)}>×</button>
+          <button
+            className="sidebar-close"
+            onClick={() => setSidebarOpen(false)}
+          >
+            ×
+          </button>
         </div>
 
         <div className="dash-user-card">
-          <div className="dash-avatar-lg" style={{ background: '#dc4545' }}>
-            {user.avatar ? <img src={user.avatar} alt={user.name} /> : user.name?.[0]?.toUpperCase()}
+          <div className="dash-avatar-lg" style={{ background: "#dc4545" }}>
+            {user.avatar ? (
+              <img src={user.avatar} alt={user.name} />
+            ) : (
+              user.name?.[0]?.toUpperCase()
+            )}
           </div>
           <div className="dash-user-details">
             <div className="dash-user-name">{user.name}</div>
-            <div className="dash-user-role" style={{ color: '#ff6b6b' }}>Administrator</div>
+            <div className="dash-user-role" style={{ color: "#ff6b6b" }}>
+              Administrator
+            </div>
           </div>
         </div>
 
@@ -82,9 +123,15 @@ const Admin = () => {
           <div>
             <div className="dash-nav-section">
               <div className="dns-label">Main</div>
-              {ADMIN_TABS.slice(0,1).map(t => (
-                <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
-                  onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
+              {ADMIN_TABS.slice(0, 1).map((t) => (
+                <button
+                  key={t.id}
+                  className={`dash-nav-item${tab === t.id ? " active" : ""}`}
+                  onClick={() => {
+                    setTab(t.id);
+                    setSidebarOpen(false);
+                  }}
+                >
                   <span className="dni-icon">{t.icon}</span>
                   <span>{t.label}</span>
                 </button>
@@ -93,9 +140,15 @@ const Admin = () => {
 
             <div className="dash-nav-section">
               <div className="dns-label">Management</div>
-              {ADMIN_TABS.slice(1,5).map(t => (
-                <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
-                  onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
+              {ADMIN_TABS.slice(1, 5).map((t) => (
+                <button
+                  key={t.id}
+                  className={`dash-nav-item${tab === t.id ? " active" : ""}`}
+                  onClick={() => {
+                    setTab(t.id);
+                    setSidebarOpen(false);
+                  }}
+                >
                   <span className="dni-icon">{t.icon}</span>
                   <span>{t.label}</span>
                 </button>
@@ -104,9 +157,15 @@ const Admin = () => {
 
             <div className="dash-nav-section">
               <div className="dns-label">System</div>
-              {ADMIN_TABS.slice(5).map(t => (
-                <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
-                  onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
+              {ADMIN_TABS.slice(5).map((t) => (
+                <button
+                  key={t.id}
+                  className={`dash-nav-item${tab === t.id ? " active" : ""}`}
+                  onClick={() => {
+                    setTab(t.id);
+                    setSidebarOpen(false);
+                  }}
+                >
                   <span className="dni-icon">{t.icon}</span>
                   <span>{t.label}</span>
                 </button>
@@ -114,7 +173,13 @@ const Admin = () => {
             </div>
           </div>
 
-          <button onClick={() => { logout(); navigate('/'); }} className="dash-logout">
+          <button
+            onClick={() => {
+              logout();
+              navigate("/");
+            }}
+            className="dash-logout"
+          >
             <span className="dni-icon">🚪</span>
             <span>Logout</span>
           </button>
@@ -123,21 +188,33 @@ const Admin = () => {
 
       <main className="dash-main">
         <header className="dash-header">
-          <button className="sidebar-toggle" onClick={() => setSidebarOpen(true)}>☰</button>
+          <button
+            className="sidebar-toggle"
+            onClick={() => setSidebarOpen(true)}
+          >
+            ☰
+          </button>
           <div className="dash-header-title">
-            {ADMIN_TABS.find(t => t.id === tab)?.icon} {ADMIN_TABS.find(t => t.id === tab)?.label}
+            {ADMIN_TABS.find((t) => t.id === tab)?.icon}{" "}
+            {ADMIN_TABS.find((t) => t.id === tab)?.label}
           </div>
-          <Link to="/" className="btn btn-outline" style={{ fontSize: '.82rem', padding: '.5rem 1rem' }}>← Home</Link>
+          <Link
+            to="/"
+            className="btn btn-outline"
+            style={{ fontSize: ".82rem", padding: ".5rem 1rem" }}
+          >
+            ← Home
+          </Link>
         </header>
         <div className="dash-content">
-          {tab === 'overview'     && <AdminOverview />}
-          {tab === 'applications' && <AdminApplications />}
-          {tab === 'enrollments'  && <AdminEnrollments />}
-          {tab === 'hire'         && <AdminHireRequests />}
-          {tab === 'users'        && <AdminUsers />}
-          {tab === 'courses'      && <AdminCourses />}
-          {tab === 'projects'     && <AdminProjects />}
-          {tab === 'admins'       && <AdminsTab />}
+          {tab === "overview" && <AdminOverview />}
+          {tab === "applications" && <AdminApplications />}
+          {tab === "enrollments" && <AdminEnrollments />}
+          {tab === "hire" && <AdminHireRequests />}
+          {tab === "users" && <AdminUsers />}
+          {tab === "courses" && <AdminCourses />}
+          {tab === "projects" && <AdminProjects />}
+          {tab === "admins" && <AdminsTab />}
         </div>
       </main>
     </div>
@@ -146,7 +223,13 @@ const Admin = () => {
 
 // ── Overview ──────────────────────────────────────────────
 const AdminOverview = () => {
-  const { stats: statsData, loading, loadStats, refreshStats, lastUpdated } = useAdmin();
+  const {
+    stats: statsData,
+    loading,
+    loadStats,
+    refreshStats,
+    lastUpdated,
+  } = useAdmin();
 
   useEffect(() => {
     if (!statsData) {
@@ -154,46 +237,79 @@ const AdminOverview = () => {
     }
   }, [statsData, loadStats]);
 
-  if (!statsData) return <div className="dash-loading"><div className="dash-spinner" /></div>;
+  if (!statsData)
+    return (
+      <div className="dash-loading">
+        <div className="dash-spinner" />
+      </div>
+    );
 
   const { stats, monthlyData } = statsData;
 
   const courseData = [
-    { name: 'Full Stack', students: 45, color: '#e76f51' },
-    { name: 'Mobile App', students: 32, color: '#2a9d8f' },
-    { name: 'AI & Auto', students: 28, color: '#6c3483' },
-    { name: 'Cloud', students: 20, color: '#1a6b8a' },
-    { name: 'UI/UX', students: 38, color: '#c0392b' },
-    { name: 'Marketing', students: 55, color: '#e67e22' },
-    { name: 'Data Sci', students: 25, color: '#1e8449' },
+    { name: "Full Stack", students: 45, color: "#e76f51" },
+    { name: "Mobile App", students: 32, color: "#2a9d8f" },
+    { name: "AI & Auto", students: 28, color: "#6c3483" },
+    { name: "Cloud", students: 20, color: "#1a6b8a" },
+    { name: "UI/UX", students: 38, color: "#c0392b" },
+    { name: "Marketing", students: 55, color: "#e67e22" },
+    { name: "Data Sci", students: 25, color: "#1e8449" },
   ];
 
-  // Calculate real status data from applications  
+  // Calculate real status data from applications
   const statusData = [
-    { name: 'Accepted', value: Math.max(1, Math.floor(stats.totalApplications * 0.35)), color: '#27ae60' },
-    { name: 'Pending',  value: stats.pendingApplications, color: '#E8A820' },
-    { name: 'Reviewing',value: Math.max(1, Math.floor(stats.totalApplications * 0.20)), color: '#2196C9' },
-    { name: 'Rejected', value: Math.max(1, Math.floor(stats.totalApplications * 0.17)), color: '#dc4545' },
+    {
+      name: "Accepted",
+      value: Math.max(1, Math.floor(stats.totalApplications * 0.35)),
+      color: "#27ae60",
+    },
+    { name: "Pending", value: stats.pendingApplications, color: "#E8A820" },
+    {
+      name: "Reviewing",
+      value: Math.max(1, Math.floor(stats.totalApplications * 0.2)),
+      color: "#2196C9",
+    },
+    {
+      name: "Rejected",
+      value: Math.max(1, Math.floor(stats.totalApplications * 0.17)),
+      color: "#dc4545",
+    },
   ];
 
   const weeklyUsers = [
-    { day: 'Mon', users: Math.floor(stats.totalUsers * 0.08)  },
-    { day: 'Tue', users: Math.floor(stats.totalUsers * 0.12) },
-    { day: 'Wed', users: Math.floor(stats.totalUsers * 0.10) },
-    { day: 'Thu', users: Math.floor(stats.totalUsers * 0.18) },
-    { day: 'Fri', users: Math.floor(stats.totalUsers * 0.15) },
-    { day: 'Sat', users: Math.floor(stats.totalUsers * 0.25) },
-    { day: 'Sun', users: Math.floor(stats.totalUsers * 0.20) },
+    { day: "Mon", users: Math.floor(stats.totalUsers * 0.08) },
+    { day: "Tue", users: Math.floor(stats.totalUsers * 0.12) },
+    { day: "Wed", users: Math.floor(stats.totalUsers * 0.1) },
+    { day: "Thu", users: Math.floor(stats.totalUsers * 0.18) },
+    { day: "Fri", users: Math.floor(stats.totalUsers * 0.15) },
+    { day: "Sat", users: Math.floor(stats.totalUsers * 0.25) },
+    { day: "Sun", users: Math.floor(stats.totalUsers * 0.2) },
   ];
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div style={{ background:'white', border:'1px solid var(--border)', borderRadius:10, padding:'10px 14px', boxShadow:'var(--sh)', fontSize:'.82rem' }}>
-          <p style={{ fontWeight:700, color:'var(--navy)', marginBottom:4 }}>{label}</p>
+        <div
+          style={{
+            background: "white",
+            border: "1px solid var(--border)",
+            borderRadius: 10,
+            padding: "10px 14px",
+            boxShadow: "var(--sh)",
+            fontSize: ".82rem",
+          }}
+        >
+          <p style={{ fontWeight: 700, color: "var(--navy)", marginBottom: 4 }}>
+            {label}
+          </p>
           {payload.map((p, i) => (
-            <p key={i} style={{ color: p.color, margin:'2px 0' }}>
-              {p.name}: <strong>{typeof p.value === 'number' && p.name === 'revenue' ? 'Rs.' + p.value.toLocaleString('en-IN') : p.value}</strong>
+            <p key={i} style={{ color: p.color, margin: "2px 0" }}>
+              {p.name}:{" "}
+              <strong>
+                {typeof p.value === "number" && p.name === "revenue"
+                  ? "Rs." + p.value.toLocaleString("en-IN")
+                  : p.value}
+              </strong>
             </p>
           ))}
         </div>
@@ -209,37 +325,91 @@ const AdminOverview = () => {
           <h2>Analytics Dashboard</h2>
           <p>Real-time platform insights and performance metrics.</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           {lastUpdated && (
-            <span style={{ fontSize: '.8rem', color: 'var(--muted)' }}>
+            <span style={{ fontSize: ".8rem", color: "var(--muted)" }}>
               Last updated: {lastUpdated.toLocaleTimeString()}
             </span>
           )}
-          <button 
-            onClick={refreshStats} 
+          <button
+            onClick={refreshStats}
             disabled={loading}
-            className="btn btn-outline" 
-            style={{ fontSize: '.8rem', padding: '.4rem .8rem' }}
+            className="btn btn-outline"
+            style={{
+              fontSize: ".8rem",
+              padding: ".4rem .8rem",
+              backgroundColor: "#198754",
+              color: "#fff",
+            }}
           >
-            {loading ? '🔄' : '↻'} Refresh
+            {loading ? "🔄" : "↻"} Refresh
           </button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', marginBottom:'2rem' }}>
+      <div
+        className="stats-grid"
+        style={{
+          gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))",
+          marginBottom: "2rem",
+        }}
+      >
         {[
-          { icon:'👥', num: stats.totalUsers,          label:'Total Students',   color:'#2196C9' },
-          { icon:'📝', num: stats.totalApplications,   label:'Applications',     color:'#E8A820' },
-          { icon:'⏳', num: stats.pendingApplications, label:'Pending Review',   color:'#e67e22' },
-          { icon:'📚', num: stats.totalEnrollments,    label:'Enrollments',      color:'#6c3483' },
-          { icon:'💰', num: stats.paidEnrollments,     label:'Paid',             color:'#27ae60' },
-          { icon:'🏢', num: stats.totalHireRequests,   label:'Hire Requests',    color:'#dc4545' },
-          { icon:'💵', num: stats.totalRevenue ? '₹' + (stats.totalRevenue/100000).toFixed(1) + 'L' : '₹0', label:'Total Revenue', color:'#1e8449' },
-        ].map(s => (
-          <div key={s.label} className="stat-card" style={{ borderTop: '3px solid ' + s.color }}>
+          {
+            icon: "👥",
+            num: stats.totalUsers,
+            label: "Total Students",
+            color: "#2196C9",
+          },
+          {
+            icon: "📝",
+            num: stats.totalApplications,
+            label: "Applications",
+            color: "#E8A820",
+          },
+          {
+            icon: "⏳",
+            num: stats.pendingApplications,
+            label: "Pending Review",
+            color: "#e67e22",
+          },
+          {
+            icon: "📚",
+            num: stats.totalEnrollments,
+            label: "Enrollments",
+            color: "#6c3483",
+          },
+          {
+            icon: "💰",
+            num: stats.paidEnrollments,
+            label: "Paid",
+            color: "#27ae60",
+          },
+          {
+            icon: "🏢",
+            num: stats.totalHireRequests,
+            label: "Hire Requests",
+            color: "#dc4545",
+          },
+          {
+            icon: "💵",
+            num: stats.totalRevenue
+              ? "₹" + (stats.totalRevenue / 100000).toFixed(1) + "L"
+              : "₹0",
+            label: "Total Revenue",
+            color: "#1e8449",
+          },
+        ].map((s) => (
+          <div
+            key={s.label}
+            className="stat-card"
+            style={{ borderTop: "3px solid " + s.color }}
+          >
             <div className="stat-icon">{s.icon}</div>
-            <div className="stat-num" style={{ color: s.color }}>{s.num}</div>
+            <div className="stat-num" style={{ color: s.color }}>
+              {s.num}
+            </div>
             <div className="stat-label">{s.label}</div>
           </div>
         ))}
@@ -253,24 +423,55 @@ const AdminOverview = () => {
             <span className="chart-sub">Last 8 months</span>
           </div>
           <ResponsiveContainer width="100%" height={260}>
-            <AreaChart data={monthlyData} margin={{ top:10, right:20, left:0, bottom:0 }}>
+            <AreaChart
+              data={monthlyData}
+              margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+            >
               <defs>
                 <linearGradient id="appGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2196C9" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#2196C9" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#2196C9" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#2196C9" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="enrGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#E8A820" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#E8A820" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#E8A820" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#E8A820" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(27,42,74,0.06)" />
-              <XAxis dataKey="month" tick={{ fontSize:12, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize:12, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(27,42,74,0.06)"
+              />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 12, fill: "#5a6a82" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 12, fill: "#5a6a82" }}
+                axisLine={false}
+                tickLine={false}
+              />
               <Tooltip content={<CustomTooltip />} />
-              <Legend wrapperStyle={{ fontSize:12 }} />
-              <Area type="monotone" dataKey="applications" stroke="#2196C9" strokeWidth={2.5} fill="url(#appGrad)" name="Applications" dot={{ r:4, fill:'#2196C9' }} />
-              <Area type="monotone" dataKey="enrollments" stroke="#E8A820" strokeWidth={2.5} fill="url(#enrGrad)" name="Enrollments" dot={{ r:4, fill:'#E8A820' }} />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <Area
+                type="monotone"
+                dataKey="applications"
+                stroke="#2196C9"
+                strokeWidth={2.5}
+                fill="url(#appGrad)"
+                name="Applications"
+                dot={{ r: 4, fill: "#2196C9" }}
+              />
+              <Area
+                type="monotone"
+                dataKey="enrollments"
+                stroke="#E8A820"
+                strokeWidth={2.5}
+                fill="url(#enrGrad)"
+                name="Enrollments"
+                dot={{ r: 4, fill: "#E8A820" }}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -282,15 +483,24 @@ const AdminOverview = () => {
           </div>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
-              <Pie data={statusData} cx="50%" cy="50%" innerRadius={55} outerRadius={85}
-                paddingAngle={3} dataKey="value">
-                {statusData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+              <Pie
+                data={statusData}
+                cx="50%"
+                cy="50%"
+                innerRadius={55}
+                outerRadius={85}
+                paddingAngle={3}
+                dataKey="value"
+              >
+                {statusData.map((entry, i) => (
+                  <Cell key={i} fill={entry.color} />
+                ))}
               </Pie>
-              <Tooltip formatter={(v, n) => [v + ' applications', n]} />
+              <Tooltip formatter={(v, n) => [v + " applications", n]} />
             </PieChart>
           </ResponsiveContainer>
           <div className="pie-legend">
-            {statusData.map(s => (
+            {statusData.map((s) => (
               <div key={s.name} className="pie-legend-item">
                 <div className="pie-dot" style={{ background: s.color }} />
                 <span>{s.name}</span>
@@ -302,20 +512,43 @@ const AdminOverview = () => {
       </div>
 
       {/* Row 2: Bar Chart + Line Chart */}
-      <div className="charts-row" style={{ marginTop:'1.5rem' }}>
+      <div className="charts-row" style={{ marginTop: "1.5rem" }}>
         <div className="chart-card chart-medium">
           <div className="chart-header">
             <h3>Students per Course</h3>
             <span className="chart-sub">Total enrolled</span>
           </div>
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={courseData} margin={{ top:10, right:10, left:0, bottom:20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(27,42,74,0.06)" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize:10, fill:'#5a6a82' }} axisLine={false} tickLine={false} angle={-15} textAnchor="end" />
-              <YAxis tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
-              <Tooltip cursor={{ fill:'rgba(27,42,74,0.04)' }} content={<CustomTooltip />} />
-              <Bar dataKey="students" name="Students" radius={[6,6,0,0]}>
-                {courseData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+            <BarChart
+              data={courseData}
+              margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(27,42,74,0.06)"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="name"
+                tick={{ fontSize: 10, fill: "#5a6a82" }}
+                axisLine={false}
+                tickLine={false}
+                angle={-15}
+                textAnchor="end"
+              />
+              <YAxis
+                tick={{ fontSize: 11, fill: "#5a6a82" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                cursor={{ fill: "rgba(27,42,74,0.04)" }}
+                content={<CustomTooltip />}
+              />
+              <Bar dataKey="students" name="Students" radius={[6, 6, 0, 0]}>
+                {courseData.map((entry, i) => (
+                  <Cell key={i} fill={entry.color} />
+                ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -327,49 +560,102 @@ const AdminOverview = () => {
             <span className="chart-sub">Estimated (Rs.)</span>
           </div>
           <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={monthlyData} margin={{ top:10, right:20, left:0, bottom:0 }}>
+            <LineChart
+              data={monthlyData}
+              margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+            >
               <defs>
                 <linearGradient id="revGrad" x1="0" y1="0" x2="1" y2="0">
                   <stop offset="0%" stopColor="#27ae60" />
                   <stop offset="100%" stopColor="#2196C9" />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(27,42,74,0.06)" />
-              <XAxis dataKey="month" tick={{ fontSize:12, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} tickFormatter={v => 'Rs.' + (v/1000).toFixed(0) + 'K'} />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(27,42,74,0.06)"
+              />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 12, fill: "#5a6a82" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 11, fill: "#5a6a82" }}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(v) => "Rs." + (v / 1000).toFixed(0) + "K"}
+              />
               <Tooltip content={<CustomTooltip />} />
-              <Line type="monotone" dataKey="revenue" name="revenue" stroke="url(#revGrad)" strokeWidth={3} dot={{ r:5, fill:'#27ae60', strokeWidth:2, stroke:'white' }} activeDot={{ r:7 }} />
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                name="revenue"
+                stroke="url(#revGrad)"
+                strokeWidth={3}
+                dot={{ r: 5, fill: "#27ae60", strokeWidth: 2, stroke: "white" }}
+                activeDot={{ r: 7 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Row 3: Weekly signups + Recent Activity */}
-      <div className="charts-row" style={{ marginTop:'1.5rem' }}>
-        <div className="chart-card" style={{ flex:1 }}>
+      <div className="charts-row" style={{ marginTop: "1.5rem" }}>
+        <div className="chart-card" style={{ flex: 1 }}>
           <div className="chart-header">
             <h3>New Signups This Week</h3>
             <span className="chart-sub">Daily registrations</span>
           </div>
           <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={weeklyUsers} margin={{ top:10, right:10, left:0, bottom:0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(27,42,74,0.06)" vertical={false} />
-              <XAxis dataKey="day" tick={{ fontSize:12, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
-              <Tooltip cursor={{ fill:'rgba(27,42,74,0.04)' }} />
-              <Bar dataKey="users" name="New Users" fill="#1B2A4A" radius={[6,6,0,0]} />
+            <BarChart
+              data={weeklyUsers}
+              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(27,42,74,0.06)"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="day"
+                tick={{ fontSize: 12, fill: "#5a6a82" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 11, fill: "#5a6a82" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip cursor={{ fill: "rgba(27,42,74,0.04)" }} />
+              <Bar
+                dataKey="users"
+                name="New Users"
+                fill="#1B2A4A"
+                radius={[6, 6, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="chart-card" style={{ flex:1 }}>
-          <div className="chart-header"><h3>Recent Applications</h3><span className="chart-sub">Latest 5</span></div>
+        <div className="chart-card" style={{ flex: 1 }}>
+          <div className="chart-header">
+            <h3>Recent Applications</h3>
+            <span className="chart-sub">Latest 5</span>
+          </div>
           <div className="recent-list">
-            {statsData.recentApplications.slice(0, 5).map(a => (
+            {statsData.recentApplications.slice(0, 5).map((a) => (
               <div key={a._id} className="recent-item">
                 <div className="ri-left">
                   <div className="ri-avatar">{a.name?.[0]?.toUpperCase()}</div>
-                  <div><strong>{a.name}</strong><span>{a.interest} · {a.college}</span></div>
+                  <div>
+                    <strong>{a.name}</strong>
+                    <span>
+                      {a.interest} · {a.college}
+                    </span>
+                  </div>
                 </div>
                 {statusBadge(a.status)}
               </div>
@@ -377,11 +663,9 @@ const AdminOverview = () => {
           </div>
         </div>
       </div>
-
     </div>
   );
 };
-
 
 // ── Applications ──────────────────────────────────────────
 const AdminApplications = () => {
@@ -389,8 +673,8 @@ const AdminApplications = () => {
   const [apps, setApps] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [updating, setUpdating] = useState(null);
@@ -398,55 +682,118 @@ const AdminApplications = () => {
   const load = async () => {
     setLoading(true);
     try {
-      const r = await getAdminApplications({ search, status: statusFilter, page, limit: 15 });
-      setApps(r.data.data); setTotal(r.data.total); setPages(r.data.pages);
-    } catch { toast.error('Failed to load'); } finally { setLoading(false); }
+      const r = await getAdminApplications({
+        search,
+        status: statusFilter,
+        page,
+        limit: 15,
+      });
+      setApps(r.data.data);
+      setTotal(r.data.total);
+      setPages(r.data.pages);
+    } catch {
+      toast.error("Failed to load");
+    } finally {
+      setLoading(false);
+    }
   };
-  useEffect(() => { load(); }, [search, statusFilter, page]);
+  useEffect(() => {
+    load();
+  }, [search, statusFilter, page]);
 
   const updateStatus = async (id, status) => {
     setUpdating(id);
-    try { 
-      await updateApplicationStatus(id, { status }); 
-      toast.success('Status updated'); 
+    try {
+      await updateApplicationStatus(id, { status });
+      toast.success("Status updated");
       load();
       triggerGlobalUpdate(); // Trigger real-time update across tabs
+    } catch {
+      toast.error("Update failed");
+    } finally {
+      setUpdating(null);
     }
-    catch { toast.error('Update failed'); } finally { setUpdating(null); }
   };
 
   return (
     <div>
       <div className="admin-filters">
-        <input className="admin-search" placeholder="Search name, email, college..."
-          value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
-        <select className="admin-select" value={statusFilter}
-          onChange={e => { setStatusFilter(e.target.value); setPage(1); }}>
-          {['all','pending','reviewing','accepted','rejected'].map(s => (
-            <option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>
+        <input
+          className="admin-search"
+          placeholder="Search name, email, college..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+        />
+        <select
+          className="admin-select"
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setPage(1);
+          }}
+        >
+          {["all", "pending", "reviewing", "accepted", "rejected"].map((s) => (
+            <option key={s} value={s}>
+              {s.charAt(0).toUpperCase() + s.slice(1)}
+            </option>
           ))}
         </select>
       </div>
-      <div className="admin-meta">Total: <strong>{total}</strong></div>
-      {loading ? <div className="dash-loading"><div className="dash-spinner" /></div> : (
+      <div className="admin-meta">
+        Total: <strong>{total}</strong>
+      </div>
+      {loading ? (
+        <div className="dash-loading">
+          <div className="dash-spinner" />
+        </div>
+      ) : (
         <div className="table-wrap">
           <table className="data-table">
-            <thead><tr><th>Name</th><th>Email</th><th>Interest</th><th>Duration</th><th>College</th><th>Applied</th><th>Status</th><th>Change</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Interest</th>
+                <th>Duration</th>
+                <th>College</th>
+                <th>Applied</th>
+                <th>Status</th>
+                <th>Change</th>
+              </tr>
+            </thead>
             <tbody>
-              {apps.map(a => (
+              {apps.map((a) => (
                 <tr key={a._id}>
-                  <td><strong>{a.name}</strong></td>
-                  <td><a href={`mailto:${a.email}`} className="email-link">{a.email}</a></td>
+                  <td>
+                    <strong>{a.name}</strong>
+                  </td>
+                  <td>
+                    <a href={`mailto:${a.email}`} className="email-link">
+                      {a.email}
+                    </a>
+                  </td>
                   <td>{a.interest}</td>
-                  <td>{a.duration === '3months' ? '3M' : '6M'}</td>
+                  <td>{a.duration === "3months" ? "3M" : "6M"}</td>
                   <td>{a.college}</td>
-                  <td>{new Date(a.createdAt).toLocaleDateString('en-IN')}</td>
+                  <td>{new Date(a.createdAt).toLocaleDateString("en-IN")}</td>
                   <td>{statusBadge(a.status)}</td>
                   <td>
-                    <select className="status-select" value={a.status}
+                    <select
+                      className="status-select"
+                      value={a.status}
                       disabled={updating === a._id}
-                      onChange={e => updateStatus(a._id, e.target.value)}>
-                      {['pending','reviewing','accepted','rejected'].map(s => <option key={s} value={s}>{s}</option>)}
+                      onChange={(e) => updateStatus(a._id, e.target.value)}
+                    >
+                      {["pending", "reviewing", "accepted", "rejected"].map(
+                        (s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ),
+                      )}
                     </select>
                   </td>
                 </tr>
@@ -457,9 +804,25 @@ const AdminApplications = () => {
       )}
       {pages > 1 && (
         <div className="pagination">
-          <button disabled={page===1} onClick={() => setPage(p=>p-1)} className="btn btn-outline" style={{fontSize:'.8rem',padding:'.4rem .9rem'}}>Prev</button>
-          <span>Page {page} of {pages}</span>
-          <button disabled={page===pages} onClick={() => setPage(p=>p+1)} className="btn btn-outline" style={{fontSize:'.8rem',padding:'.4rem .9rem'}}>Next</button>
+          <button
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+            className="btn btn-outline"
+            style={{ fontSize: ".8rem", padding: ".4rem .9rem" }}
+          >
+            Prev
+          </button>
+          <span>
+            Page {page} of {pages}
+          </span>
+          <button
+            disabled={page === pages}
+            onClick={() => setPage((p) => p + 1)}
+            className="btn btn-outline"
+            style={{ fontSize: ".8rem", padding: ".4rem .9rem" }}
+          >
+            Next
+          </button>
         </div>
       )}
     </div>
@@ -470,36 +833,483 @@ const AdminApplications = () => {
 const AdminEnrollments = () => {
   const [enrolls, setEnrolls] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  useEffect(() => {
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [summary, setSummary] = useState({
+    fullPaid: 0,
+    emi1: 0,
+    emi2: 0,
+    emi3: 0,
+    pending: 0,
+  });
+  const [selected, setSelected] = useState(null);
+
+  const load = (f = filter) => {
     setLoading(true);
-    getAdminEnrollments({ search }).then(r => setEnrolls(r.data.data))
-      .catch(() => toast.error('Failed')).finally(() => setLoading(false));
-  }, [search]);
+    const params = f !== "all" ? `?filter=${f}` : "";
+    API.get(`/admin/payment-details${params}`)
+      .then((r) => {
+        setEnrolls(r.data.data);
+        setSummary(r.data.summary);
+      })
+      .catch(() => {
+        // fallback to old endpoint
+        getAdminEnrollments({ search }).then((r) => setEnrolls(r.data.data));
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    load();
+  }, [filter]);
+
+  const filtered = enrolls.filter(
+    (e) =>
+      !search ||
+      e.name?.toLowerCase().includes(search.toLowerCase()) ||
+      e.email?.toLowerCase().includes(search.toLowerCase()) ||
+      e.courseName?.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  const exportCSV = () => {
+    const rows = [
+      [
+        "Name",
+        "Email",
+        "Phone",
+        "College",
+        "Course",
+        "Price",
+        "Payment Type",
+        "Status",
+        "Paid On",
+      ],
+    ];
+    filtered.forEach((e) =>
+      rows.push([
+        e.name,
+        e.email,
+        e.phone,
+        e.college,
+        e.courseName,
+        e.finalPrice || e.coursePrice,
+        e.paymentType || "full",
+        e.paymentStatus,
+        new Date(e.createdAt).toLocaleDateString("en-IN"),
+      ]),
+    );
+    const csv = rows.map((r) => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `payments_${filter}_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    toast.success("CSV exported!");
+  };
+
+  const FILTERS = [
+    {
+      key: "all",
+      label: "All",
+      color: "#6b7280",
+      count:
+        summary.fullPaid +
+        summary.emi1 +
+        summary.emi2 +
+        summary.emi3 +
+        summary.pending,
+    },
+    {
+      key: "full",
+      label: "Full Paid ✅",
+      color: "#27ae60",
+      count: summary.fullPaid,
+    },
+    {
+      key: "emi_1",
+      label: "EMI 1st Only",
+      color: "#2196C9",
+      count: summary.emi1,
+    },
+    {
+      key: "emi_2",
+      label: "EMI 2nd Done",
+      color: "#6c3483",
+      count: summary.emi2,
+    },
+    {
+      key: "emi_3",
+      label: "EMI 3rd Done",
+      color: "#E8A820",
+      count: summary.emi3,
+    },
+    {
+      key: "pending",
+      label: "Pending ⚠️",
+      color: "#dc4545",
+      count: summary.pending,
+    },
+  ];
+
+  const payBadge = (status, type) => {
+    const map = {
+      paid: { label: "Full Paid", bg: "rgba(39,174,96,.1)", color: "#27ae60" },
+      emi_1: { label: "EMI 1/3", bg: "rgba(33,150,201,.1)", color: "#2196C9" },
+      emi_2: { label: "EMI 2/3", bg: "rgba(108,52,131,.1)", color: "#6c3483" },
+      emi_3: { label: "EMI 3/3", bg: "rgba(232,168,32,.1)", color: "#E8A820" },
+      pending: { label: "Pending", bg: "rgba(220,69,69,.1)", color: "#dc4545" },
+      failed: { label: "Failed", bg: "rgba(220,69,69,.1)", color: "#dc4545" },
+    };
+    const s = map[status] || { label: status, bg: "#f5f5f5", color: "#666" };
+    return (
+      <span
+        style={{
+          background: s.bg,
+          color: s.color,
+          padding: ".2rem .65rem",
+          borderRadius: "50px",
+          fontSize: ".72rem",
+          fontWeight: 700,
+        }}
+      >
+        {s.label}
+      </span>
+    );
+  };
+
   return (
     <div>
-      <div className="admin-filters">
-        <input className="admin-search" placeholder="Search name, course..."
-          value={search} onChange={e => setSearch(e.target.value)} />
+      {/* Summary filter cards */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill,minmax(140px,1fr))",
+          gap: ".75rem",
+          marginBottom: "1.5rem",
+        }}
+      >
+        {FILTERS.map((f) => (
+          <div
+            key={f.key}
+            onClick={() => setFilter(f.key)}
+            style={{
+              background: filter === f.key ? f.color : "white",
+              color: filter === f.key ? "white" : f.color,
+              border: `2px solid ${f.color}`,
+              borderRadius: 12,
+              padding: ".85rem 1rem",
+              cursor: "pointer",
+              transition: "all .2s",
+              textAlign: "center",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "1.4rem",
+                fontWeight: 900,
+                fontFamily: "'Playfair Display',serif",
+              }}
+            >
+              {f.count}
+            </div>
+            <div style={{ fontSize: ".72rem", fontWeight: 600, marginTop: 2 }}>
+              {f.label}
+            </div>
+          </div>
+        ))}
       </div>
-      {loading ? <div className="dash-loading"><div className="dash-spinner" /></div> : (
+
+      <div
+        style={{
+          display: "flex",
+          gap: ".75rem",
+          marginBottom: "1rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <input
+          className="admin-search"
+          placeholder="Search name, email, course..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ flex: 1, minWidth: 200 }}
+        />
+        <button
+          onClick={exportCSV}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: ".4rem",
+            background: "#27ae60",
+            color: "white",
+            border: "none",
+            borderRadius: 8,
+            padding: ".55rem 1rem",
+            fontWeight: 700,
+            fontSize: ".82rem",
+            cursor: "pointer",
+            fontFamily: "'DM Sans',sans-serif",
+          }}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Export CSV
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="dash-loading">
+          <div className="dash-spinner" />
+        </div>
+      ) : (
         <div className="table-wrap">
           <table className="data-table">
-            <thead><tr><th>Name</th><th>Email</th><th>Course</th><th>Price</th><th>College</th><th>Enrolled On</th><th>Payment</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Course</th>
+                <th>Amount</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Coupon</th>
+                <th>Enrolled On</th>
+                <th>Details</th>
+              </tr>
+            </thead>
             <tbody>
-              {enrolls.map(e => (
+              {filtered.map((e) => (
                 <tr key={e._id}>
-                  <td><strong>{e.name}</strong></td>
-                  <td><a href={`mailto:${e.email}`} className="email-link">{e.email}</a></td>
-                  <td>{e.courseName}</td>
-                  <td>Rs.{e.coursePrice?.toLocaleString('en-IN')}</td>
-                  <td>{e.college}</td>
-                  <td>{new Date(e.createdAt).toLocaleDateString('en-IN')}</td>
-                  <td>{statusBadge(e.paymentStatus)}</td>
+                  <td>
+                    <strong>{e.name}</strong>
+                    <div style={{ fontSize: ".75rem", color: "var(--muted)" }}>
+                      {e.email}
+                    </div>
+                    <div style={{ fontSize: ".72rem", color: "var(--muted)" }}>
+                      {e.phone}
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ fontWeight: 600 }}>{e.courseName}</div>
+                    <div style={{ fontSize: ".72rem", color: "var(--muted)" }}>
+                      {e.college}
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ fontWeight: 700, color: "var(--navy)" }}>
+                      ₹
+                      {(e.finalPrice || e.coursePrice)?.toLocaleString("en-IN")}
+                    </div>
+                    {e.discountAmount > 0 && (
+                      <div style={{ fontSize: ".7rem", color: "#27ae60" }}>
+                        Saved ₹{e.discountAmount?.toLocaleString("en-IN")}
+                      </div>
+                    )}
+                  </td>
+                  <td>
+                    <span
+                      style={{
+                        fontSize: ".75rem",
+                        fontWeight: 600,
+                        color: e.paymentType === "emi" ? "#2196C9" : "#27ae60",
+                      }}
+                    >
+                      {e.paymentType === "emi" ? "3-Part EMI" : "Full Payment"}
+                    </span>
+                  </td>
+                  <td>{payBadge(e.paymentStatus, e.paymentType)}</td>
+                  <td>
+                    {e.couponApplied ? (
+                      <span
+                        style={{
+                          background: "rgba(232,168,32,.1)",
+                          color: "#E8A820",
+                          padding: ".15rem .5rem",
+                          borderRadius: "50px",
+                          fontSize: ".7rem",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {e.couponCode} 10%
+                      </span>
+                    ) : (
+                      <span
+                        style={{ color: "var(--muted)", fontSize: ".75rem" }}
+                      >
+                        —
+                      </span>
+                    )}
+                  </td>
+                  <td style={{ fontSize: ".8rem" }}>
+                    {new Date(e.createdAt).toLocaleDateString("en-IN")}
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => setSelected(e)}
+                      style={{
+                        background: "var(--navy)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: 6,
+                        padding: ".35rem .7rem",
+                        fontSize: ".75rem",
+                        cursor: "pointer",
+                        fontFamily: "'DM Sans',sans-serif",
+                      }}
+                    >
+                      View
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Detail Modal */}
+      {selected && (
+        <div
+          className="modal-overlay"
+          onClick={(e) => e.target === e.currentTarget && setSelected(null)}
+        >
+          <div className="modal-box" style={{ maxWidth: 500 }}>
+            <button className="modal-close" onClick={() => setSelected(null)}>
+              ×
+            </button>
+            <h3
+              style={{
+                fontFamily: "'Playfair Display',serif",
+                color: "var(--navy)",
+                marginBottom: "1.25rem",
+              }}
+            >
+              Payment Details — {selected.name}
+            </h3>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: ".75rem",
+              }}
+            >
+              {[
+                ["Email", selected.email],
+                ["Phone", selected.phone],
+                ["College", selected.college],
+                ["Course", selected.courseName],
+                [
+                  "Original Price",
+                  `₹${selected.originalPrice?.toLocaleString("en-IN") || selected.coursePrice?.toLocaleString("en-IN")}`,
+                ],
+                [
+                  "Coupon",
+                  selected.couponApplied
+                    ? `${selected.couponCode} (10% off — saved ₹${selected.discountAmount?.toLocaleString("en-IN")})`
+                    : "None",
+                ],
+                [
+                  "Final Price",
+                  `₹${(selected.finalPrice || selected.coursePrice)?.toLocaleString("en-IN")}`,
+                ],
+                [
+                  "Payment Type",
+                  selected.paymentType === "emi"
+                    ? "3-Part EMI"
+                    : "Full Payment",
+                ],
+                ["Status", selected.paymentStatus],
+                [
+                  "Enrolled On",
+                  new Date(selected.createdAt).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  }),
+                ],
+              ].map(([label, val], i) => (
+                <div
+                  key={i}
+                  style={{
+                    background: "var(--cream)",
+                    borderRadius: 10,
+                    padding: ".75rem 1rem",
+                    border: "1px solid var(--border)",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: ".68rem",
+                      color: "var(--muted)",
+                      textTransform: "uppercase",
+                      letterSpacing: ".05em",
+                      marginBottom: ".1rem",
+                    }}
+                  >
+                    {label}
+                  </div>
+                  <div style={{ fontWeight: 600, color: "var(--navy)" }}>
+                    {val}
+                  </div>
+                </div>
+              ))}
+              {selected.paymentType === "emi" &&
+                selected.emiInstallments?.length > 0 && (
+                  <div
+                    style={{
+                      background: "var(--cream)",
+                      borderRadius: 10,
+                      padding: ".75rem 1rem",
+                      border: "1px solid var(--border)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: ".68rem",
+                        color: "var(--muted)",
+                        textTransform: "uppercase",
+                        letterSpacing: ".05em",
+                        marginBottom: ".5rem",
+                      }}
+                    >
+                      EMI Installments
+                    </div>
+                    {selected.emiInstallments.map((inst, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          padding: ".35rem 0",
+                          borderBottom: "1px solid var(--border)",
+                          fontSize: ".82rem",
+                        }}
+                      >
+                        <span>Installment {inst.installment}</span>
+                        <span style={{ fontWeight: 700 }}>
+                          ₹{inst.amount?.toLocaleString("en-IN")}
+                        </span>
+                        <span style={{ color: "#27ae60", fontSize: ".72rem" }}>
+                          {inst.paidAt
+                            ? new Date(inst.paidAt).toLocaleDateString("en-IN")
+                            : "—"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -514,42 +1324,83 @@ const AdminHireRequests = () => {
   const [selected, setSelected] = useState(null);
   const load = () => {
     setLoading(true);
-    getAdminHireRequests().then(r => setRequests(r.data.data))
-      .catch(() => toast.error('Failed')).finally(() => setLoading(false));
+    getAdminHireRequests()
+      .then((r) => setRequests(r.data.data))
+      .catch(() => toast.error("Failed"))
+      .finally(() => setLoading(false));
   };
   useEffect(load, []);
   const update = async (id, status) => {
-    try { 
-      await updateHireRequest(id, { status }); 
-      toast.success('Updated!'); 
+    try {
+      await updateHireRequest(id, { status });
+      toast.success("Updated!");
       load();
       triggerGlobalUpdate(); // Trigger real-time update
+    } catch {
+      toast.error("Failed");
     }
-    catch { toast.error('Failed'); }
   };
   return (
     <div>
-      {loading ? <div className="dash-loading"><div className="dash-spinner" /></div> : (
+      {loading ? (
+        <div className="dash-loading">
+          <div className="dash-spinner" />
+        </div>
+      ) : (
         <div className="table-wrap">
           <table className="data-table">
-            <thead><tr><th>Company</th><th>Name</th><th>Email</th><th>Services</th><th>Budget</th><th>Date</th><th>Status</th><th>View</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Services</th>
+                <th>Budget</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>View</th>
+              </tr>
+            </thead>
             <tbody>
-              {requests.map(r => (
+              {requests.map((r) => (
                 <tr key={r._id}>
-                  <td><strong>{r.company}</strong></td>
-                  <td>{r.name}</td>
-                  <td><a href={`mailto:${r.email}`} className="email-link">{r.email}</a></td>
-                  <td style={{ fontSize:'.75rem', maxWidth:'140px' }}>{r.services?.join(', ')}</td>
-                  <td style={{ fontSize:'.78rem' }}>{r.budget}</td>
-                  <td>{new Date(r.createdAt).toLocaleDateString('en-IN')}</td>
                   <td>
-                    <select className="status-select" value={r.status} onChange={e => update(r._id, e.target.value)}>
-                      {['new','contacted','in_progress','closed'].map(s => <option key={s} value={s}>{s}</option>)}
+                    <strong>{r.company}</strong>
+                  </td>
+                  <td>{r.name}</td>
+                  <td>
+                    <a href={`mailto:${r.email}`} className="email-link">
+                      {r.email}
+                    </a>
+                  </td>
+                  <td style={{ fontSize: ".75rem", maxWidth: "140px" }}>
+                    {r.services?.join(", ")}
+                  </td>
+                  <td style={{ fontSize: ".78rem" }}>{r.budget}</td>
+                  <td>{new Date(r.createdAt).toLocaleDateString("en-IN")}</td>
+                  <td>
+                    <select
+                      className="status-select"
+                      value={r.status}
+                      onChange={(e) => update(r._id, e.target.value)}
+                    >
+                      {["new", "contacted", "in_progress", "closed"].map(
+                        (s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ),
+                      )}
                     </select>
                   </td>
                   <td>
-                    <button className="btn btn-outline" style={{fontSize:'.75rem',padding:'.35rem .75rem'}}
-                      onClick={() => setSelected(r)}>View</button>
+                    <button
+                      className="btn btn-outline"
+                      style={{ fontSize: ".75rem", padding: ".35rem .75rem" }}
+                      onClick={() => setSelected(r)}
+                    >
+                      View
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -559,15 +1410,28 @@ const AdminHireRequests = () => {
       )}
       {selected && (
         <div className="modal-overlay" onClick={() => setSelected(null)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setSelected(null)}>×</button>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setSelected(null)}>
+              ×
+            </button>
             <h3>Project Inquiry</h3>
             <div className="hire-detail">
-              <p><strong>Company:</strong> {selected.company}</p>
-              <p><strong>Contact:</strong> {selected.name} · {selected.email} · {selected.phone}</p>
-              <p><strong>Services:</strong> {selected.services?.join(', ')}</p>
-              <p><strong>Budget:</strong> {selected.budget}</p>
-              <p><strong>Description:</strong></p>
+              <p>
+                <strong>Company:</strong> {selected.company}
+              </p>
+              <p>
+                <strong>Contact:</strong> {selected.name} · {selected.email} ·{" "}
+                {selected.phone}
+              </p>
+              <p>
+                <strong>Services:</strong> {selected.services?.join(", ")}
+              </p>
+              <p>
+                <strong>Budget:</strong> {selected.budget}
+              </p>
+              <p>
+                <strong>Description:</strong>
+              </p>
               <div className="hire-desc">{selected.description}</div>
             </div>
           </div>
@@ -580,226 +1444,362 @@ const AdminHireRequests = () => {
 // ── Users ─────────────────────────────────────────────────
 const AdminUsers = () => {
   const { triggerGlobalUpdate } = useAdmin();
-  const [users, setUsers]                 = useState([]);
-  const [loading, setLoading]             = useState(true);
-  const [search, setSearch]               = useState('');
-  const [total, setTotal]                 = useState(0);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [total, setTotal] = useState(0);
   const [actionLoading, setActionLoading] = useState(null);
-  const [resetModal, setResetModal]       = useState(null);
-  const [newPass, setNewPass]             = useState('');
-  const [viewUser, setViewUser]           = useState(null);
-  const [limit, setLimit]                 = useState(10);
-  const [page, setPage]                   = useState(1);
-  const [pages, setPages]                 = useState(1);
-  const [viewAll, setViewAll]             = useState(false);
+  const [resetModal, setResetModal] = useState(null);
+  const [newPass, setNewPass] = useState("");
+  const [viewUser, setViewUser] = useState(null);
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const [viewAll, setViewAll] = useState(false);
 
   const load = () => {
     setLoading(true);
     const actualLimit = viewAll ? 1000 : limit; // View All shows up to 1000 users
     getAdminUsers({ search, limit: actualLimit, page: viewAll ? 1 : page })
-      .then(r => { 
-        setUsers(r.data.data); 
-        setTotal(r.data.total); 
+      .then((r) => {
+        setUsers(r.data.data);
+        setTotal(r.data.total);
         setPages(Math.ceil(r.data.total / actualLimit));
       })
-      .catch(() => toast.error('Failed')).finally(() => setLoading(false));
+      .catch(() => toast.error("Failed"))
+      .finally(() => setLoading(false));
   };
-  useEffect(() => { load(); }, [search, limit, page, viewAll]);
+  useEffect(() => {
+    load();
+  }, [search, limit, page, viewAll]);
 
   const deleteUser = async (id, name) => {
     if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
-    setActionLoading(id + '-delete');
-    try { 
-      await API.delete(`/admin/users/${id}`); 
-      toast.success('User deleted'); 
+    setActionLoading(id + "-delete");
+    try {
+      await API.delete(`/admin/users/${id}`);
+      toast.success("User deleted");
       load();
       triggerGlobalUpdate(); // Trigger real-time update
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Delete failed");
+    } finally {
+      setActionLoading(null);
     }
-    catch (err) { toast.error(err.response?.data?.message || 'Delete failed'); }
-    finally { setActionLoading(null); }
   };
 
   const toggleBlock = async (id, isBlocked) => {
-    setActionLoading(id + '-block');
-    try { 
-      await API.patch(`/admin/users/${id}/block`); 
-      toast.success(isBlocked ? 'Unblocked' : 'Blocked'); 
+    setActionLoading(id + "-block");
+    try {
+      await API.patch(`/admin/users/${id}/block`);
+      toast.success(isBlocked ? "Unblocked" : "Blocked");
       load();
       triggerGlobalUpdate(); // Trigger real-time update
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed");
+    } finally {
+      setActionLoading(null);
     }
-    catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
-    finally { setActionLoading(null); }
   };
 
   const changeRole = async (id, role) => {
-    try { 
-      await API.patch(`/admin/users/${id}/role`, { role }); 
-      toast.success(`Role updated`); 
+    try {
+      await API.patch(`/admin/users/${id}/role`, { role });
+      toast.success(`Role updated`);
       load();
       triggerGlobalUpdate(); // Trigger real-time update
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed");
     }
-    catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
   };
 
   const handleResetPassword = async () => {
-    if (!newPass || newPass.length < 6) { toast.error('Min. 6 characters'); return; }
+    if (!newPass || newPass.length < 6) {
+      toast.error("Min. 6 characters");
+      return;
+    }
     try {
-      await API.patch(`/admin/users/${resetModal._id}/reset-password`, { password: newPass });
-      toast.success('Password reset!'); 
-      setResetModal(null); 
-      setNewPass('');
+      await API.patch(`/admin/users/${resetModal._id}/reset-password`, {
+        password: newPass,
+      });
+      toast.success("Password reset!");
+      setResetModal(null);
+      setNewPass("");
       triggerGlobalUpdate(); // Trigger real-time update
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed");
+    }
   };
 
   return (
     <div>
       <div className="admin-filters">
-        <input className="admin-search" placeholder="Search by name or email..."
-          value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
-          <span className="admin-meta" style={{ fontSize: '.88rem', color: '#5a6a82' }}>
-            Total: <strong style={{ color: '#1B2A4A', fontSize: '.95rem' }}>{total}</strong>
+        <input
+          className="admin-search"
+          placeholder="Search by name or email..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+        />
+        <div style={{ display: "flex", alignItems: "center", gap: ".5rem" }}>
+          <span
+            className="admin-meta"
+            style={{ fontSize: ".88rem", color: "#5a6a82" }}
+          >
+            Total:{" "}
+            <strong style={{ color: "#1B2A4A", fontSize: ".95rem" }}>
+              {total}
+            </strong>
           </span>
           {!viewAll && total > limit && (
-            <button 
-              style={{ 
-                fontSize: '.8rem', 
-                padding: '.45rem 1rem', 
-                whiteSpace: 'nowrap',
-                background: '#E8A820',
-                color: '#1B2A4A',
-                border: 'none',
-                borderRadius: '6px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                transition: 'all .2s',
-                fontFamily: 'DM Sans, sans-serif',
-                lineHeight: '1',
-                display: 'inline-flex',
-                alignItems: 'center',
-                height: '32px'
+            <button
+              style={{
+                fontSize: ".8rem",
+                padding: ".45rem 1rem",
+                whiteSpace: "nowrap",
+                background: "#E8A820",
+                color: "#1B2A4A",
+                border: "none",
+                borderRadius: "6px",
+                fontWeight: "700",
+                cursor: "pointer",
+                transition: "all .2s",
+                fontFamily: "DM Sans, sans-serif",
+                lineHeight: "1",
+                display: "inline-flex",
+                alignItems: "center",
+                height: "32px",
               }}
-              onClick={() => { setViewAll(true); setPage(1); }}
+              onClick={() => {
+                setViewAll(true);
+                setPage(1);
+              }}
             >
               View All
             </button>
           )}
           {viewAll && (
-            <button 
-              style={{ 
-                fontSize: '.8rem', 
-                padding: '.45rem 1rem', 
-                whiteSpace: 'nowrap',
-                background: 'white',
-                color: '#2196C9',
-                border: '1.5px solid #2196C9',
-                borderRadius: '6px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all .2s',
-                fontFamily: 'DM Sans, sans-serif',
-                lineHeight: '1',
-                display: 'inline-flex',
-                alignItems: 'center',
-                height: '32px'
+            <button
+              style={{
+                fontSize: ".8rem",
+                padding: ".45rem 1rem",
+                whiteSpace: "nowrap",
+                background: "white",
+                color: "#2196C9",
+                border: "1.5px solid #2196C9",
+                borderRadius: "6px",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "all .2s",
+                fontFamily: "DM Sans, sans-serif",
+                lineHeight: "1",
+                display: "inline-flex",
+                alignItems: "center",
+                height: "32px",
               }}
-              onClick={() => { setViewAll(false); setPage(1); }}
+              onClick={() => {
+                setViewAll(false);
+                setPage(1);
+              }}
             >
               Show Less
             </button>
           )}
         </div>
       </div>
-      {loading ? <div className="dash-loading"><div className="dash-spinner" /></div> : (
+      {loading ? (
+        <div className="dash-loading">
+          <div className="dash-spinner" />
+        </div>
+      ) : (
         <>
           <div className="table-wrap">
             <table className="data-table">
-              <thead><tr><th>Name</th><th>Email</th><th>College</th><th>Auth</th><th>Verified</th><th>Status</th><th>Role</th><th>Actions</th></tr></thead>
-            <tbody>
-              {users.map(u => (
-                <tr key={u._id}>
-                  <td><strong>{u.name}</strong></td>
-                  <td><a href={`mailto:${u.email}`} className="email-link">{u.email}</a></td>
-                  <td>{u.college || '—'}</td>
-                  <td><span className="badge-status badge-enrolled" style={{ textTransform:'capitalize' }}>{u.authProvider}</span></td>
-                  <td>{u.isVerified ? <span className="badge-status badge-accepted">Yes</span> : <span className="badge-status badge-rejected">No</span>}</td>
-                  <td>{u.isBlocked ? <span className="badge-status badge-rejected">Blocked</span> : <span className="badge-status badge-accepted">Active</span>}</td>
-                  <td>
-                    <select className="status-select" value={u.role} onChange={e => changeRole(u._id, e.target.value)}>
-                      <option value="student">Student</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  </td>
-                  <td>
-                    <div className="user-actions">
-                      <button className={`ua-btn ${u.isBlocked ? 'ua-btn-green' : 'ua-btn-orange'}`}
-                        disabled={actionLoading === u._id + '-block'}
-                        onClick={() => toggleBlock(u._id, u.isBlocked)}>
-                        {u.isBlocked ? 'Unblock' : 'Block'}
-                      </button>
-                      <button className="ua-btn ua-btn-blue" onClick={() => { setResetModal(u); setNewPass(''); }}>Reset</button>
-                      <button className="ua-btn" style={{background:'#e8f4fd',color:'#1B2A4A',border:'1px solid #bae6fd'}} onClick={() => setViewUser(u)}>View</button>
-                      <button className="ua-btn ua-btn-red"
-                        disabled={actionLoading === u._id + '-delete'}
-                        onClick={() => deleteUser(u._id, u.name)}>Delete</button>
-                    </div>
-                  </td>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>College</th>
+                  <th>Auth</th>
+                  <th>Verified</th>
+                  <th>Status</th>
+                  <th>Role</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {!viewAll && pages > 1 && (
-          <div className="pagination">
-            <button 
-              disabled={page === 1} 
-              onClick={() => setPage(p => p - 1)} 
-              className="btn btn-outline" 
-              style={{ fontSize: '.8rem', padding: '.4rem .9rem' }}
-            >
-              Prev
-            </button>
-            <span>Page {page} of {pages}</span>
-            <select 
-              className="admin-select" 
-              value={limit} 
-              onChange={e => { setLimit(Number(e.target.value)); setPage(1); }}
-              style={{ fontSize: '.8rem', padding: '.4rem .6rem', marginLeft: '.5rem', marginRight: '.5rem' }}
-            >
-              <option value="10">10 per page</option>
-              <option value="25">25 per page</option>
-              <option value="50">50 per page</option>
-              <option value="100">100 per page</option>
-            </select>
-            <button 
-              disabled={page === pages} 
-              onClick={() => setPage(p => p + 1)} 
-              className="btn btn-outline" 
-              style={{ fontSize: '.8rem', padding: '.4rem .9rem' }}
-            >
-              Next
-            </button>
+              </thead>
+              <tbody>
+                {users.map((u) => (
+                  <tr key={u._id}>
+                    <td>
+                      <strong>{u.name}</strong>
+                    </td>
+                    <td>
+                      <a href={`mailto:${u.email}`} className="email-link">
+                        {u.email}
+                      </a>
+                    </td>
+                    <td>{u.college || "—"}</td>
+                    <td>
+                      <span
+                        className="badge-status badge-enrolled"
+                        style={{ textTransform: "capitalize" }}
+                      >
+                        {u.authProvider}
+                      </span>
+                    </td>
+                    <td>
+                      {u.isVerified ? (
+                        <span className="badge-status badge-accepted">Yes</span>
+                      ) : (
+                        <span className="badge-status badge-rejected">No</span>
+                      )}
+                    </td>
+                    <td>
+                      {u.isBlocked ? (
+                        <span className="badge-status badge-rejected">
+                          Blocked
+                        </span>
+                      ) : (
+                        <span className="badge-status badge-accepted">
+                          Active
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      <select
+                        className="status-select"
+                        value={u.role}
+                        onChange={(e) => changeRole(u._id, e.target.value)}
+                      >
+                        <option value="student">Student</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </td>
+                    <td>
+                      <div className="user-actions">
+                        <button
+                          className={`ua-btn ${u.isBlocked ? "ua-btn-green" : "ua-btn-orange"}`}
+                          disabled={actionLoading === u._id + "-block"}
+                          onClick={() => toggleBlock(u._id, u.isBlocked)}
+                        >
+                          {u.isBlocked ? "Unblock" : "Block"}
+                        </button>
+                        <button
+                          className="ua-btn ua-btn-blue"
+                          onClick={() => {
+                            setResetModal(u);
+                            setNewPass("");
+                          }}
+                        >
+                          Reset
+                        </button>
+                        <button
+                          className="ua-btn"
+                          style={{
+                            background: "#e8f4fd",
+                            color: "#1B2A4A",
+                            border: "1px solid #bae6fd",
+                          }}
+                          onClick={() => setViewUser(u)}
+                        >
+                          View
+                        </button>
+                        <button
+                          className="ua-btn ua-btn-red"
+                          disabled={actionLoading === u._id + "-delete"}
+                          onClick={() => deleteUser(u._id, u.name)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        )}
+          {!viewAll && pages > 1 && (
+            <div className="pagination">
+              <button
+                disabled={page === 1}
+                onClick={() => setPage((p) => p - 1)}
+                className="btn btn-outline"
+                style={{ fontSize: ".8rem", padding: ".4rem .9rem" }}
+              >
+                Prev
+              </button>
+              <span>
+                Page {page} of {pages}
+              </span>
+              <select
+                className="admin-select"
+                value={limit}
+                onChange={(e) => {
+                  setLimit(Number(e.target.value));
+                  setPage(1);
+                }}
+                style={{
+                  fontSize: ".8rem",
+                  padding: ".4rem .6rem",
+                  marginLeft: ".5rem",
+                  marginRight: ".5rem",
+                }}
+              >
+                <option value="10">10 per page</option>
+                <option value="25">25 per page</option>
+                <option value="50">50 per page</option>
+                <option value="100">100 per page</option>
+              </select>
+              <button
+                disabled={page === pages}
+                onClick={() => setPage((p) => p + 1)}
+                className="btn btn-outline"
+                style={{ fontSize: ".8rem", padding: ".4rem .9rem" }}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </>
       )}
-      {viewUser && <UserDetailModal user={viewUser} onClose={() => setViewUser(null)} />}
+      {viewUser && (
+        <UserDetailModal user={viewUser} onClose={() => setViewUser(null)} />
+      )}
       {resetModal && (
         <div className="modal-overlay" onClick={() => setResetModal(null)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setResetModal(null)}>×</button>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setResetModal(null)}>
+              ×
+            </button>
             <h3>Reset Password</h3>
-            <p style={{ color:'var(--muted)', marginBottom:'1.25rem', fontSize:'.9rem' }}>
+            <p
+              style={{
+                color: "var(--muted)",
+                marginBottom: "1.25rem",
+                fontSize: ".9rem",
+              }}
+            >
               For <strong>{resetModal.name}</strong> ({resetModal.email})
             </p>
             <div className="form-group">
               <label>New Password</label>
-              <input type="password" placeholder="Min. 6 characters" value={newPass}
-                onChange={e => setNewPass(e.target.value)} autoFocus />
+              <input
+                type="password"
+                placeholder="Min. 6 characters"
+                value={newPass}
+                onChange={(e) => setNewPass(e.target.value)}
+                autoFocus
+              />
             </div>
-            <button className="btn btn-primary btn-full" style={{ marginTop:'1rem' }}
-              onClick={handleResetPassword}>Reset Password</button>
+            <button
+              className="btn btn-primary btn-full"
+              style={{ marginTop: "1rem" }}
+              onClick={handleResetPassword}
+            >
+              Reset Password
+            </button>
           </div>
         </div>
       )}
@@ -809,189 +1809,279 @@ const AdminUsers = () => {
 
 // ── Courses Management ────────────────────────────────────
 const DEFAULT_COURSE_FORM = {
-  icon:'mdi:web',
-  title:'',
-  tagline:'',
-  desc:'',
-  price:'',
-  duration:'',
-  level:'beginner',
-  language:'English + Hindi',
-  about:'',
-  tools:'',
-  category:'beginner',
-  colors:null
+  icon: "mdi:web",
+  title: "",
+  tagline: "",
+  desc: "",
+  price: "",
+  duration: "",
+  level: "beginner",
+  language: "English + Hindi",
+  about: "",
+  tools: "",
+  category: "beginner",
+  colors: null,
 };
 
 const COLOR_PRESETS = [
-  {h1:'#e76f51',h2:'#f4a261',label:'Orange'},
-  {h1:'#2a9d8f',h2:'#264653',label:'Teal'},
-  {h1:'#6c3483',h2:'#a569bd',label:'Purple'},
-  {h1:'#1a6b8a',h2:'#2196f3',label:'Blue'},
-  {h1:'#c0392b',h2:'#e74c3c',label:'Red'},
-  {h1:'#e67e22',h2:'#f39c12',label:'Amber'},
-  {h1:'#1e8449',h2:'#27ae60',label:'Green'},
-  {h1:'#2c3e50',h2:'#3498db',label:'Navy'},
+  { h1: "#e76f51", h2: "#f4a261", label: "Orange" },
+  { h1: "#2a9d8f", h2: "#264653", label: "Teal" },
+  { h1: "#6c3483", h2: "#a569bd", label: "Purple" },
+  { h1: "#1a6b8a", h2: "#2196f3", label: "Blue" },
+  { h1: "#c0392b", h2: "#e74c3c", label: "Red" },
+  { h1: "#e67e22", h2: "#f39c12", label: "Amber" },
+  { h1: "#1e8449", h2: "#27ae60", label: "Green" },
+  { h1: "#2c3e50", h2: "#3498db", label: "Navy" },
 ];
 
 const COURSE_ICONS = [
   // Development
-  { label: 'Web Development', icon: 'mdi:web' },
-  { label: 'Frontend Development', icon: 'mdi:monitor-dashboard' },
-  { label: 'Backend Development', icon: 'mdi:server' },
-  { label: 'Full Stack Development', icon: 'mdi:layers-triple' },
-  { label: 'Mobile App Development', icon: 'mdi:cellphone' },
-  { label: 'Software Engineering', icon: 'mdi:code-braces' },
+  { label: "Web Development", icon: "mdi:web" },
+  { label: "Frontend Development", icon: "mdi:monitor-dashboard" },
+  { label: "Backend Development", icon: "mdi:server" },
+  { label: "Full Stack Development", icon: "mdi:layers-triple" },
+  { label: "Mobile App Development", icon: "mdi:cellphone" },
+  { label: "Software Engineering", icon: "mdi:code-braces" },
 
   // AI & Data
-  { label: 'Artificial Intelligence', icon: 'mdi:robot-outline' },
-  { label: 'Machine Learning', icon: 'mdi:brain' },
-  { label: 'Data Science', icon: 'mdi:chart-bar' },
-  { label: 'Data Analytics', icon: 'mdi:chart-line' },
-  { label: 'Business Analytics', icon: 'mdi:trending-up' },
+  { label: "Artificial Intelligence", icon: "mdi:robot-outline" },
+  { label: "Machine Learning", icon: "mdi:brain" },
+  { label: "Data Science", icon: "mdi:chart-bar" },
+  { label: "Data Analytics", icon: "mdi:chart-line" },
+  { label: "Business Analytics", icon: "mdi:trending-up" },
 
   // Cloud & DevOps
-  { label: 'Cloud Computing', icon: 'mdi:cloud-outline' },
-  { label: 'DevOps', icon: 'mdi:cog-transfer-outline' },
-  { label: 'Cyber Security', icon: 'mdi:shield-lock-outline' },
-  { label: 'Networking', icon: 'mdi:lan' },
+  { label: "Cloud Computing", icon: "mdi:cloud-outline" },
+  { label: "DevOps", icon: "mdi:cog-transfer-outline" },
+  { label: "Cyber Security", icon: "mdi:shield-lock-outline" },
+  { label: "Networking", icon: "mdi:lan" },
 
   // Design & Creative
-  { label: 'UI/UX Design', icon: 'mdi:palette-outline' },
-  { label: 'Graphic Design', icon: 'mdi:image-outline' },
-  { label: 'Video Editing', icon: 'mdi:video-outline' },
-  { label: 'Animation', icon: 'mdi:movie-open-outline' },
-  { label: 'Content Creation', icon: 'mdi:camera-outline' },
+  { label: "UI/UX Design", icon: "mdi:palette-outline" },
+  { label: "Graphic Design", icon: "mdi:image-outline" },
+  { label: "Video Editing", icon: "mdi:video-outline" },
+  { label: "Animation", icon: "mdi:movie-open-outline" },
+  { label: "Content Creation", icon: "mdi:camera-outline" },
 
   // Marketing & Business
-  { label: 'Digital Marketing', icon: 'mdi:bullhorn-outline' },
-  { label: 'SEO', icon: 'mdi:magnify' },
-  { label: 'Sales', icon: 'mdi:cash-multiple' },
-  { label: 'Finance', icon: 'mdi:currency-inr' },
-  { label: 'Business Management', icon: 'mdi:briefcase-outline' },
+  { label: "Digital Marketing", icon: "mdi:bullhorn-outline" },
+  { label: "SEO", icon: "mdi:magnify" },
+  { label: "Sales", icon: "mdi:cash-multiple" },
+  { label: "Finance", icon: "mdi:currency-inr" },
+  { label: "Business Management", icon: "mdi:briefcase-outline" },
 
   // Engineering
-  { label: 'Mechanical Engineering', icon: 'mdi:cog-outline' },
-  { label: 'Electrical Engineering', icon: 'mdi:flash-outline' },
-  { label: 'Civil Engineering', icon: 'mdi:home-city-outline' },
-  { label: 'Automobile Engineering', icon: 'mdi:car-outline' },
+  { label: "Mechanical Engineering", icon: "mdi:cog-outline" },
+  { label: "Electrical Engineering", icon: "mdi:flash-outline" },
+  { label: "Civil Engineering", icon: "mdi:home-city-outline" },
+  { label: "Automobile Engineering", icon: "mdi:car-outline" },
 
   // Emerging Tech
-  { label: 'Blockchain', icon: 'mdi:link-variant' },
-  { label: 'Web3', icon: 'mdi:hexagon-multiple-outline' },
-  { label: 'Internet of Things', icon: 'mdi:access-point-network' },
-  { label: 'AR / VR', icon: 'mdi:virtual-reality' },
+  { label: "Blockchain", icon: "mdi:link-variant" },
+  { label: "Web3", icon: "mdi:hexagon-multiple-outline" },
+  { label: "Internet of Things", icon: "mdi:access-point-network" },
+  { label: "AR / VR", icon: "mdi:virtual-reality" },
 
   // General
-  { label: 'Research', icon: 'mdi:book-search-outline' },
-  { label: 'Project Management', icon: 'mdi:clipboard-check-outline' },
-  { label: 'Entrepreneurship', icon: 'mdi:rocket-launch-outline' },
-  { label: 'Communication Skills', icon: 'mdi:account-voice' },
-  { label: 'Leadership', icon: 'mdi:account-tie' },
+  { label: "Research", icon: "mdi:book-search-outline" },
+  { label: "Project Management", icon: "mdi:clipboard-check-outline" },
+  { label: "Entrepreneurship", icon: "mdi:rocket-launch-outline" },
+  { label: "Communication Skills", icon: "mdi:account-voice" },
+  { label: "Leadership", icon: "mdi:account-tie" },
 
   // Default
-  { label: 'General Course', icon: 'mdi:school-outline' },
+  { label: "General Course", icon: "mdi:school-outline" },
 ];
 const AdminCourses = () => {
-  const { courses, addCourse, updateCourse, deleteCourse, toggleStatus } = useCourses();
+  const { courses, addCourse, updateCourse, deleteCourse, toggleStatus } =
+    useCourses();
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(DEFAULT_COURSE_FORM);
   const [selectedColor, setSelectedColor] = useState(0);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState("all");
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const handleSubmit = (e) => {
     e.preventDefault();
-   const courseData = {
-  ...form,
-  icon: form.icon,
-  colors: COLOR_PRESETS[selectedColor],
-};
+    const courseData = {
+      ...form,
+      icon: form.icon,
+      colors: COLOR_PRESETS[selectedColor],
+    };
     if (editing) {
       updateCourse(editing.id, courseData);
-      toast.success('Course updated!');
+      toast.success("Course updated!");
     } else {
       addCourse(courseData);
-      toast.success('Course added! It is now live on the home page.');
+      toast.success("Course added! It is now live on the home page.");
     }
-    setShowModal(false); setEditing(null); setForm(DEFAULT_COURSE_FORM); setSelectedColor(0);
+    setShowModal(false);
+    setEditing(null);
+    setForm(DEFAULT_COURSE_FORM);
+    setSelectedColor(0);
   };
 
   const openEdit = (c) => {
     setEditing(c);
     setForm({
-      icon: c.icon, title: c.title, tagline: c.tagline||'',
-      desc: c.desc || c.tagline || '', price: c.price,
-      duration: c.duration, level: c.level, language: c.language||'English + Hindi',
-      about: c.about||'', tools: Array.isArray(c.tools) ? c.tools.join(', ') : (c.tools||''),
-      category: c.category||c.level, colors: c.colors
+      icon: c.icon,
+      title: c.title,
+      tagline: c.tagline || "",
+      desc: c.desc || c.tagline || "",
+      price: c.price,
+      duration: c.duration,
+      level: c.level,
+      language: c.language || "English + Hindi",
+      about: c.about || "",
+      tools: Array.isArray(c.tools) ? c.tools.join(", ") : c.tools || "",
+      category: c.category || c.level,
+      colors: c.colors,
     });
-    const idx = COLOR_PRESETS.findIndex(cp => cp.h1 === c.colors?.h1);
+    const idx = COLOR_PRESETS.findIndex((cp) => cp.h1 === c.colors?.h1);
     setSelectedColor(idx >= 0 ? idx : 0);
     setShowModal(true);
   };
 
-  const filtered = filter === 'all' ? courses : courses.filter(c => c.status === filter);
+  const filtered =
+    filter === "all" ? courses : courses.filter((c) => c.status === filter);
 
   return (
     <div>
       <div className="tab-header">
         <div>
           <h2>Courses Management</h2>
-          <p style={{ color:'var(--muted)', fontSize:'.85rem', marginTop:'.25rem' }}>
-            {courses.filter(c=>c.status==='active').length} active · {courses.filter(c=>c.status==='inactive').length} inactive · Changes reflect on home page instantly
+          <p
+            style={{
+              color: "var(--muted)",
+              fontSize: ".85rem",
+              marginTop: ".25rem",
+            }}
+          >
+            {courses.filter((c) => c.status === "active").length} active ·{" "}
+            {courses.filter((c) => c.status === "inactive").length} inactive ·
+            Changes reflect on home page instantly
           </p>
         </div>
-        <button className="btn btn-primary" onClick={() => { setEditing(null); setForm(DEFAULT_COURSE_FORM); setSelectedColor(0); setShowModal(true); }}>
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            setEditing(null);
+            setForm(DEFAULT_COURSE_FORM);
+            setSelectedColor(0);
+            setShowModal(true);
+          }}
+        >
           + Add Course
         </button>
       </div>
 
-      <div className="admin-filters" style={{ marginBottom:'1.25rem' }}>
-        {['all','active','inactive'].map(f => (
-          <button key={f}
-            style={{ borderRadius:'50px', padding:'.4rem 1rem', fontSize:'.82rem', border:'1.5px solid var(--border)', cursor:'pointer', background: filter===f?'var(--navy)':'white', color: filter===f?'var(--gold)':'var(--muted)', fontFamily:'DM Sans,sans-serif', fontWeight:600, transition:'all .2s', marginRight:'.4rem' }}
-            onClick={() => setFilter(f)}>
-            {f.charAt(0).toUpperCase()+f.slice(1)} ({f==='all'?courses.length:courses.filter(c=>c.status===f).length})
+      <div className="admin-filters" style={{ marginBottom: "1.25rem" }}>
+        {["all", "active", "inactive"].map((f) => (
+          <button
+            key={f}
+            style={{
+              borderRadius: "50px",
+              padding: ".4rem 1rem",
+              fontSize: ".82rem",
+              border: "1.5px solid var(--border)",
+              cursor: "pointer",
+              background: filter === f ? "var(--navy)" : "white",
+              color: filter === f ? "var(--gold)" : "var(--muted)",
+              fontFamily: "DM Sans,sans-serif",
+              fontWeight: 600,
+              transition: "all .2s",
+              marginRight: ".4rem",
+            }}
+            onClick={() => setFilter(f)}
+          >
+            {f.charAt(0).toUpperCase() + f.slice(1)} (
+            {f === "all"
+              ? courses.length
+              : courses.filter((c) => c.status === f).length}
+            )
           </button>
         ))}
       </div>
 
       <div className="admin-courses-grid">
-        {filtered.map(c => (
-         
-          <div key={c.id} className={`admin-course-card${c.status==='inactive'?' inactive':''}`}>
-            <div className="acc-card-header" style={{ background:`linear-gradient(135deg,${c.colors?.h1||'#e76f51'},${c.colors?.h2||'#f4a261'})` }}>
-            <div className="acc-card-emoji">
-  <Icon icon={c.icon || 'mdi:school-outline'} />
-</div>
-              <span className="acc-card-badge">{c.level?.charAt(0).toUpperCase()+c.level?.slice(1)}</span>
-              {c.status === 'inactive' && <span className="acc-inactive-badge">Inactive</span>}
+        {filtered.map((c) => (
+          <div
+            key={c.id}
+            className={`admin-course-card${c.status === "inactive" ? " inactive" : ""}`}
+          >
+            <div
+              className="acc-card-header"
+              style={{
+                background: `linear-gradient(135deg,${c.colors?.h1 || "#e76f51"},${c.colors?.h2 || "#f4a261"})`,
+              }}
+            >
+              <div className="acc-card-emoji">
+                <Icon icon={c.icon || "mdi:school-outline"} />
+              </div>
+              <span className="acc-card-badge">
+                {c.level?.charAt(0).toUpperCase() + c.level?.slice(1)}
+              </span>
+              {c.status === "inactive" && (
+                <span className="acc-inactive-badge">Inactive</span>
+              )}
             </div>
             <div className="acc-card-body">
               <h4>{c.title}</h4>
-              <p>{c.desc || c.tagline || c.about || 'No description'}</p>
+              <p>{c.desc || c.tagline || c.about || "No description"}</p>
               <div className="acc-card-meta">
                 <span>⏱ {c.duration}</span>
-                <span>📊 {c.level?.charAt(0).toUpperCase()+c.level?.slice(1)}</span>
+                <span>
+                  📊 {c.level?.charAt(0).toUpperCase() + c.level?.slice(1)}
+                </span>
               </div>
               <div className="acc-card-tools">
-                {(Array.isArray(c.tools) ? c.tools : (c.tools||'').split(','))
-                  .slice(0,4).filter(Boolean).map(t => <span key={t} className="acc-tool">{t.trim()}</span>)}
+                {(Array.isArray(c.tools) ? c.tools : (c.tools || "").split(","))
+                  .slice(0, 4)
+                  .filter(Boolean)
+                  .map((t) => (
+                    <span key={t} className="acc-tool">
+                      {t.trim()}
+                    </span>
+                  ))}
               </div>
               <div className="acc-card-footer">
                 <div className="acc-card-price">
                   <small>Starting at</small>
-                  <strong>₹{Number(c.price).toLocaleString('en-IN')}</strong>
+                  <strong>₹{Number(c.price).toLocaleString("en-IN")}</strong>
                 </div>
                 <div className="acc-actions-row">
-                  <button className="ua-btn ua-btn-blue" onClick={() => openEdit(c)}>Edit</button>
-                  <button className={`ua-btn ${c.status==='active'?'ua-btn-orange':'ua-btn-green'}`} onClick={() => { toggleStatus(c.id); toast.success(c.status==='active'?'Course deactivated':'Course activated!'); }}>
-                    {c.status==='active'?'Deactivate':'Activate'}
+                  <button
+                    className="ua-btn ua-btn-blue"
+                    onClick={() => openEdit(c)}
+                  >
+                    Edit
                   </button>
-                  <button className="ua-btn ua-btn-red" onClick={() => { if(window.confirm('Delete this course?')){ deleteCourse(c.id); toast.success('Deleted'); } }}>Delete</button>
+                  <button
+                    className={`ua-btn ${c.status === "active" ? "ua-btn-orange" : "ua-btn-green"}`}
+                    onClick={() => {
+                      toggleStatus(c.id);
+                      toast.success(
+                        c.status === "active"
+                          ? "Course deactivated"
+                          : "Course activated!",
+                      );
+                    }}
+                  >
+                    {c.status === "active" ? "Deactivate" : "Activate"}
+                  </button>
+                  <button
+                    className="ua-btn ua-btn-red"
+                    onClick={() => {
+                      if (window.confirm("Delete this course?")) {
+                        deleteCourse(c.id);
+                        toast.success("Deleted");
+                      }
+                    }}
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             </div>
@@ -1000,41 +2090,67 @@ const AdminCourses = () => {
       </div>
 
       {showModal && (
-        <div className="modal-overlay" onClick={(e) => e.target===e.currentTarget && setShowModal(false)}>
-          <div className="modal-box" style={{ maxWidth:'580px', maxHeight:'88vh', overflowY:'auto' }}>
-            <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
-            <h3>{editing ? 'Edit Course' : 'Add New Course'}</h3>
+        <div
+          className="modal-overlay"
+          onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
+        >
+          <div
+            className="modal-box"
+            style={{ maxWidth: "580px", maxHeight: "88vh", overflowY: "auto" }}
+          >
+            <button className="modal-close" onClick={() => setShowModal(false)}>
+              ×
+            </button>
+            <h3>{editing ? "Edit Course" : "Add New Course"}</h3>
 
             <div className="course-preview">
               <div className="cp-label">Live Preview</div>
               <div className="cp-card">
-                <div className="cp-header" style={{ background:`linear-gradient(135deg,${COLOR_PRESETS[selectedColor].h1},${COLOR_PRESETS[selectedColor].h2})` }}>
+                <div
+                  className="cp-header"
+                  style={{
+                    background: `linear-gradient(135deg,${COLOR_PRESETS[selectedColor].h1},${COLOR_PRESETS[selectedColor].h2})`,
+                  }}
+                >
                   <Icon
-  icon={form.icon || 'mdi:school-outline'}
-  width={34}
-  height={34}
-/>
-                  <span className="cc-badge">{form.level?.charAt(0).toUpperCase()+form.level?.slice(1)||'Beginner'}</span>
+                    icon={form.icon || "mdi:school-outline"}
+                    width={34}
+                    height={34}
+                  />
+                  <span className="cc-badge">
+                    {form.level?.charAt(0).toUpperCase() +
+                      form.level?.slice(1) || "Beginner"}
+                  </span>
                 </div>
                 <div className="cp-body">
-                  <strong>{form.title||'Course Title'}</strong>
-                  <p>{form.desc||form.tagline||'Course description...'}</p>
-                  <div className="cp-price">₹{form.price?Number(form.price).toLocaleString('en-IN'):'0'}</div>
+                  <strong>{form.title || "Course Title"}</strong>
+                  <p>{form.desc || form.tagline || "Course description..."}</p>
+                  <div className="cp-price">
+                    ₹
+                    {form.price
+                      ? Number(form.price).toLocaleString("en-IN")
+                      : "0"}
+                  </div>
                 </div>
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} style={{ marginTop:'1.25rem' }}>
+            <form onSubmit={handleSubmit} style={{ marginTop: "1.25rem" }}>
               <div className="form-group">
                 <label>Card Color Theme *</label>
                 <div className="color-picker">
                   {COLOR_PRESETS.map((c, i) => (
-                    <button key={i} type="button"
-                      className={`color-swatch${selectedColor===i?' selected':''}`}
-                      style={{ background:`linear-gradient(135deg,${c.h1},${c.h2})` }}
+                    <button
+                      key={i}
+                      type="button"
+                      className={`color-swatch${selectedColor === i ? " selected" : ""}`}
+                      style={{
+                        background: `linear-gradient(135deg,${c.h1},${c.h2})`,
+                      }}
                       onClick={() => setSelectedColor(i)}
-                      title={c.label}>
-                      {selectedColor===i && <span>✓</span>}
+                      title={c.label}
+                    >
+                      {selectedColor === i && <span>✓</span>}
                     </button>
                   ))}
                 </div>
@@ -1042,26 +2158,26 @@ const AdminCourses = () => {
 
               <div className="form-row">
                 <div className="form-group">
-  <label>Course Icon *</label>
+                  <label>Course Icon *</label>
 
-  <select
-    value={form.icon}
-    onChange={(e) => set('icon', e.target.value)}
-    required
-  >
-    {COURSE_ICONS.map(item => (
-      <option
-        key={item.icon}
-        value={item.icon}
-      >
-        {item.label}
-      </option>
-    ))}
-  </select>
-</div>
+                  <select
+                    value={form.icon}
+                    onChange={(e) => set("icon", e.target.value)}
+                    required
+                  >
+                    {COURSE_ICONS.map((item) => (
+                      <option key={item.icon} value={item.icon}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div className="form-group">
                   <label>Level *</label>
-                  <select value={form.level} onChange={e => set('level',e.target.value)}>
+                  <select
+                    value={form.level}
+                    onChange={(e) => set("level", e.target.value)}
+                  >
                     <option value="beginner">Beginner</option>
                     <option value="intermediate">Intermediate</option>
                     <option value="advanced">Advanced</option>
@@ -1071,51 +2187,104 @@ const AdminCourses = () => {
 
               <div className="form-group">
                 <label>Course Title *</label>
-                <input value={form.title} onChange={e => set('title',e.target.value)} placeholder="e.g. Full Stack Web Development" required />
+                <input
+                  value={form.title}
+                  onChange={(e) => set("title", e.target.value)}
+                  placeholder="e.g. Full Stack Web Development"
+                  required
+                />
               </div>
 
               <div className="form-group">
                 <label>Short Description *</label>
-                <textarea rows="2" value={form.desc} onChange={e => set('desc',e.target.value)} placeholder="Shown on course card..." required />
+                <textarea
+                  rows="2"
+                  value={form.desc}
+                  onChange={(e) => set("desc", e.target.value)}
+                  placeholder="Shown on course card..."
+                  required
+                />
               </div>
 
               <div className="form-row">
                 <div className="form-group">
                   <label>Price (₹) *</label>
-                  <input type="number" value={form.price} onChange={e => set('price',e.target.value)} placeholder="4999" required />
+                  <input
+                    type="number"
+                    value={form.price}
+                    onChange={(e) => set("price", e.target.value)}
+                    placeholder="4999"
+                    required
+                  />
                 </div>
                 <div className="form-group">
                   <label>Duration *</label>
-                  <input value={form.duration} onChange={e => set('duration',e.target.value)} placeholder="e.g. 12 Weeks" required />
+                  <input
+                    value={form.duration}
+                    onChange={(e) => set("duration", e.target.value)}
+                    placeholder="e.g. 12 Weeks"
+                    required
+                  />
                 </div>
               </div>
 
               <div className="form-group">
                 <label>Tools (comma separated) *</label>
-                <input value={form.tools} onChange={e => set('tools',e.target.value)} placeholder="React, Node.js, MongoDB, Git" required />
+                <input
+                  value={form.tools}
+                  onChange={(e) => set("tools", e.target.value)}
+                  placeholder="React, Node.js, MongoDB, Git"
+                  required
+                />
               </div>
 
               <div className="form-row">
                 <div className="form-group">
                   <label>Language</label>
-                  <input value={form.language} onChange={e => set('language',e.target.value)} placeholder="English + Hindi" />
+                  <input
+                    value={form.language}
+                    onChange={(e) => set("language", e.target.value)}
+                    placeholder="English + Hindi"
+                  />
                 </div>
                 <div className="form-group">
                   <label>Tagline</label>
-                  <input value={form.tagline} onChange={e => set('tagline',e.target.value)} placeholder="One-line course tagline" />
+                  <input
+                    value={form.tagline}
+                    onChange={(e) => set("tagline", e.target.value)}
+                    placeholder="One-line course tagline"
+                  />
                 </div>
               </div>
 
               <div className="form-group">
                 <label>Full Description</label>
-                <textarea rows="3" value={form.about} onChange={e => set('about',e.target.value)} placeholder="Detailed course description for course detail page..." />
+                <textarea
+                  rows="3"
+                  value={form.about}
+                  onChange={(e) => set("about", e.target.value)}
+                  placeholder="Detailed course description for course detail page..."
+                />
               </div>
 
-              <div style={{ display:'flex', gap:'.75rem', marginTop:'1rem' }}>
-                <button type="submit" className="btn btn-primary" style={{ flex:1 }}>
-                  {editing ? '✓ Update Course' : '+ Add Course to Platform'}
+              <div
+                style={{ display: "flex", gap: ".75rem", marginTop: "1rem" }}
+              >
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ flex: 1 }}
+                >
+                  {editing ? "✓ Update Course" : "+ Add Course to Platform"}
                 </button>
-                <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)} style={{ flex:1 }}>Cancel</button>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => setShowModal(false)}
+                  style={{ flex: 1 }}
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>
@@ -1127,157 +2296,375 @@ const AdminCourses = () => {
 
 // ── Projects Management ───────────────────────────────────
 const DEFAULT_PROJECT = {
-  title:'', client:'', category:'Web Development', tech:'', status:'ongoing',
-  description:'', teamSize:'', duration:'', completedDate:'', liveUrl:''
+  title: "",
+  client: "",
+  category: "Web Development",
+  tech: "",
+  status: "ongoing",
+  description: "",
+  teamSize: "",
+  duration: "",
+  completedDate: "",
+  liveUrl: "",
 };
 
 const AdminProjects = () => {
   const [projects, setProjects] = useState(() => {
-    const saved = localStorage.getItem('admin_projects');
-    return saved ? JSON.parse(saved) : [
-      { id:1, title:'E-Commerce Platform', client:'RetailEdge Solutions', category:'Web Development', tech:'React, Node.js, MongoDB', status:'completed', description:'Full e-commerce platform with payment integration.', teamSize:'4', duration:'8 weeks', liveUrl:'', completedDate:'2024-01-15' },
-      { id:2, title:'AI Customer Support Bot', client:'TechCorp India', category:'AI & Automation', tech:'Python, OpenAI, LangChain', status:'ongoing', description:'AI-powered customer support chatbot.', teamSize:'3', duration:'6 weeks', liveUrl:'', completedDate:'' },
-      { id:3, title:'Mobile Delivery App', client:'QuickDeliver', category:'App Development', tech:'Flutter, Firebase', status:'completed', description:'Cross-platform food delivery app.', teamSize:'5', duration:'10 weeks', liveUrl:'', completedDate:'2024-02-20' },
-    ];
+    const saved = localStorage.getItem("admin_projects");
+    return saved
+      ? JSON.parse(saved)
+      : [
+          {
+            id: 1,
+            title: "E-Commerce Platform",
+            client: "RetailEdge Solutions",
+            category: "Web Development",
+            tech: "React, Node.js, MongoDB",
+            status: "completed",
+            description: "Full e-commerce platform with payment integration.",
+            teamSize: "4",
+            duration: "8 weeks",
+            liveUrl: "",
+            completedDate: "2024-01-15",
+          },
+          {
+            id: 2,
+            title: "AI Customer Support Bot",
+            client: "TechCorp India",
+            category: "AI & Automation",
+            tech: "Python, OpenAI, LangChain",
+            status: "ongoing",
+            description: "AI-powered customer support chatbot.",
+            teamSize: "3",
+            duration: "6 weeks",
+            liveUrl: "",
+            completedDate: "",
+          },
+          {
+            id: 3,
+            title: "Mobile Delivery App",
+            client: "QuickDeliver",
+            category: "App Development",
+            tech: "Flutter, Firebase",
+            status: "completed",
+            description: "Cross-platform food delivery app.",
+            teamSize: "5",
+            duration: "10 weeks",
+            liveUrl: "",
+            completedDate: "2024-02-20",
+          },
+        ];
   });
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(DEFAULT_PROJECT);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState("all");
 
-  const save = (data) => { localStorage.setItem('admin_projects', JSON.stringify(data)); setProjects(data); };
+  const save = (data) => {
+    localStorage.setItem("admin_projects", JSON.stringify(data));
+    setProjects(data);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (editing) {
-      save(projects.map(p => p.id === editing.id ? { ...p, ...form } : p));
-      toast.success('Project updated!');
+      save(projects.map((p) => (p.id === editing.id ? { ...p, ...form } : p)));
+      toast.success("Project updated!");
     } else {
       save([...projects, { ...form, id: Date.now() }]);
-      toast.success('Project added!');
+      toast.success("Project added!");
     }
-    setShowModal(false); setEditing(null); setForm(DEFAULT_PROJECT);
+    setShowModal(false);
+    setEditing(null);
+    setForm(DEFAULT_PROJECT);
   };
 
   const deleteProject = (id) => {
-    if (!window.confirm('Delete this project?')) return;
-    save(projects.filter(p => p.id !== id)); toast.success('Project deleted');
+    if (!window.confirm("Delete this project?")) return;
+    save(projects.filter((p) => p.id !== id));
+    toast.success("Project deleted");
   };
 
-  const openEdit = (p) => { setEditing(p); setForm({...p}); setShowModal(true); };
+  const openEdit = (p) => {
+    setEditing(p);
+    setForm({ ...p });
+    setShowModal(true);
+  };
 
-  const filtered = filter === 'all' ? projects : projects.filter(p => p.status === filter);
+  const filtered =
+    filter === "all" ? projects : projects.filter((p) => p.status === filter);
 
-  const STATUS_COLORS = { completed:'#27ae60', ongoing:'#2196C9', paused:'#e67e22', cancelled:'#dc4545' };
+  const STATUS_COLORS = {
+    completed: "#27ae60",
+    ongoing: "#2196C9",
+    paused: "#e67e22",
+    cancelled: "#dc4545",
+  };
 
   return (
     <div>
       <div className="tab-header">
         <h2>Projects Management</h2>
-        <button className="btn btn-primary" onClick={() => { setEditing(null); setForm(DEFAULT_PROJECT); setShowModal(true); }}>
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            setEditing(null);
+            setForm(DEFAULT_PROJECT);
+            setShowModal(true);
+          }}
+        >
           + Add Project
         </button>
       </div>
 
-      <div className="admin-filters" style={{ marginBottom:'1.25rem' }}>
-        {['all','ongoing','completed','paused','cancelled'].map(f => (
-          <button key={f} className={`cf-btn${filter===f?' active':''}`}
-            style={{ borderRadius:'50px', padding:'.4rem 1rem', fontSize:'.82rem', border:'1.5px solid var(--border)', cursor:'pointer', background: filter===f?'var(--navy)':'white', color: filter===f?'var(--gold)':'var(--muted)', fontFamily:'DM Sans,sans-serif', fontWeight:600, transition:'all .2s' }}
-            onClick={() => setFilter(f)}>
-            {f.charAt(0).toUpperCase()+f.slice(1)} ({f==='all'?projects.length:projects.filter(p=>p.status===f).length})
+      <div className="admin-filters" style={{ marginBottom: "1.25rem" }}>
+        {["all", "ongoing", "completed", "paused", "cancelled"].map((f) => (
+          <button
+            key={f}
+            className={`cf-btn${filter === f ? " active" : ""}`}
+            style={{
+              borderRadius: "50px",
+              padding: ".4rem 1rem",
+              fontSize: ".82rem",
+              border: "1.5px solid var(--border)",
+              cursor: "pointer",
+              background: filter === f ? "var(--navy)" : "white",
+              color: filter === f ? "var(--gold)" : "var(--muted)",
+              fontFamily: "DM Sans,sans-serif",
+              fontWeight: 600,
+              transition: "all .2s",
+            }}
+            onClick={() => setFilter(f)}
+          >
+            {f.charAt(0).toUpperCase() + f.slice(1)} (
+            {f === "all"
+              ? projects.length
+              : projects.filter((p) => p.status === f).length}
+            )
           </button>
         ))}
       </div>
 
       <div className="admin-projects-grid">
-        {filtered.map(p => (
+        {filtered.map((p) => (
           <div key={p.id} className="admin-project-card">
             <div className="apc-top">
               <div className="apc-info">
                 <h4>{p.title}</h4>
                 <span className="apc-client">{p.client}</span>
               </div>
-              <span className="apc-status" style={{ background: STATUS_COLORS[p.status]+'22', color: STATUS_COLORS[p.status], border:`1px solid ${STATUS_COLORS[p.status]}44` }}>
+              <span
+                className="apc-status"
+                style={{
+                  background: STATUS_COLORS[p.status] + "22",
+                  color: STATUS_COLORS[p.status],
+                  border: `1px solid ${STATUS_COLORS[p.status]}44`,
+                }}
+              >
                 {p.status}
               </span>
             </div>
             <div className="apc-meta">
               <span className="apc-cat">{p.category}</span>
-              <span>Team: {p.teamSize || '—'}</span>
-              <span>{p.duration || '—'}</span>
+              <span>Team: {p.teamSize || "—"}</span>
+              <span>{p.duration || "—"}</span>
             </div>
             <p className="apc-desc">{p.description}</p>
-            <div className="apc-tech">{p.tech.split(',').map(t => <span key={t} className="cd-tool-tag">{t.trim()}</span>)}</div>
-            {p.liveUrl && <a href={p.liveUrl} target="_blank" rel="noreferrer" className="apc-link">View Live</a>}
-            <div className="acc-actions" style={{ marginTop:'.85rem' }}>
-              <button className="ua-btn ua-btn-blue" onClick={() => openEdit(p)}>Edit</button>
-              <button className="ua-btn ua-btn-red" onClick={() => deleteProject(p.id)}>Delete</button>
+            <div className="apc-tech">
+              {p.tech.split(",").map((t) => (
+                <span key={t} className="cd-tool-tag">
+                  {t.trim()}
+                </span>
+              ))}
+            </div>
+            {p.liveUrl && (
+              <a
+                href={p.liveUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="apc-link"
+              >
+                View Live
+              </a>
+            )}
+            <div className="acc-actions" style={{ marginTop: ".85rem" }}>
+              <button
+                className="ua-btn ua-btn-blue"
+                onClick={() => openEdit(p)}
+              >
+                Edit
+              </button>
+              <button
+                className="ua-btn ua-btn-red"
+                onClick={() => deleteProject(p.id)}
+              >
+                Delete
+              </button>
             </div>
           </div>
         ))}
       </div>
 
       {showModal && (
-        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
-          <div className="modal-box" style={{ maxWidth:'560px', maxHeight:'85vh', overflowY:'auto' }}>
-            <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
-            <h3>{editing ? 'Edit Project' : 'Add New Project'}</h3>
-            <form onSubmit={handleSubmit} style={{ marginTop:'1.25rem' }}>
+        <div
+          className="modal-overlay"
+          onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
+        >
+          <div
+            className="modal-box"
+            style={{ maxWidth: "560px", maxHeight: "85vh", overflowY: "auto" }}
+          >
+            <button className="modal-close" onClick={() => setShowModal(false)}>
+              ×
+            </button>
+            <h3>{editing ? "Edit Project" : "Add New Project"}</h3>
+            <form onSubmit={handleSubmit} style={{ marginTop: "1.25rem" }}>
               <div className="form-group">
                 <label>Project Title *</label>
-                <input value={form.title} onChange={e => setForm(f=>({...f,title:e.target.value}))} placeholder="e.g. E-Commerce Platform" required />
+                <input
+                  value={form.title}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, title: e.target.value }))
+                  }
+                  placeholder="e.g. E-Commerce Platform"
+                  required
+                />
               </div>
               <div className="form-row">
                 <div className="form-group">
                   <label>Client Name *</label>
-                  <input value={form.client} onChange={e => setForm(f=>({...f,client:e.target.value}))} placeholder="Client company name" required />
+                  <input
+                    value={form.client}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, client: e.target.value }))
+                    }
+                    placeholder="Client company name"
+                    required
+                  />
                 </div>
                 <div className="form-group">
                   <label>Category *</label>
-                  <select value={form.category} onChange={e => setForm(f=>({...f,category:e.target.value}))}>
-                    {['Web Development','App Development','AI & Automation','Cloud Solutions','UI/UX Design','Digital Marketing','Data Science'].map(c => <option key={c}>{c}</option>)}
+                  <select
+                    value={form.category}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, category: e.target.value }))
+                    }
+                  >
+                    {[
+                      "Web Development",
+                      "App Development",
+                      "AI & Automation",
+                      "Cloud Solutions",
+                      "UI/UX Design",
+                      "Digital Marketing",
+                      "Data Science",
+                    ].map((c) => (
+                      <option key={c}>{c}</option>
+                    ))}
                   </select>
                 </div>
               </div>
               <div className="form-group">
                 <label>Tech Stack (comma separated) *</label>
-                <input value={form.tech} onChange={e => setForm(f=>({...f,tech:e.target.value}))} placeholder="React, Node.js, MongoDB" required />
+                <input
+                  value={form.tech}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, tech: e.target.value }))
+                  }
+                  placeholder="React, Node.js, MongoDB"
+                  required
+                />
               </div>
               <div className="form-row">
                 <div className="form-group">
                   <label>Status *</label>
-                  <select value={form.status} onChange={e => setForm(f=>({...f,status:e.target.value}))}>
-                    {['ongoing','completed','paused','cancelled'].map(s => <option key={s}>{s}</option>)}
+                  <select
+                    value={form.status}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, status: e.target.value }))
+                    }
+                  >
+                    {["ongoing", "completed", "paused", "cancelled"].map(
+                      (s) => (
+                        <option key={s}>{s}</option>
+                      ),
+                    )}
                   </select>
                 </div>
                 <div className="form-group">
                   <label>Team Size</label>
-                  <input type="number" value={form.teamSize} onChange={e => setForm(f=>({...f,teamSize:e.target.value}))} placeholder="e.g. 4" />
+                  <input
+                    type="number"
+                    value={form.teamSize}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, teamSize: e.target.value }))
+                    }
+                    placeholder="e.g. 4"
+                  />
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
                   <label>Duration</label>
-                  <input value={form.duration} onChange={e => setForm(f=>({...f,duration:e.target.value}))} placeholder="e.g. 8 weeks" />
+                  <input
+                    value={form.duration}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, duration: e.target.value }))
+                    }
+                    placeholder="e.g. 8 weeks"
+                  />
                 </div>
                 <div className="form-group">
                   <label>Completed Date</label>
-                  <input type="date" value={form.completedDate} onChange={e => setForm(f=>({...f,completedDate:e.target.value}))} />
+                  <input
+                    type="date"
+                    value={form.completedDate}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, completedDate: e.target.value }))
+                    }
+                  />
                 </div>
               </div>
               <div className="form-group">
                 <label>Live URL</label>
-                <input value={form.liveUrl} onChange={e => setForm(f=>({...f,liveUrl:e.target.value}))} placeholder="https://..." />
+                <input
+                  value={form.liveUrl}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, liveUrl: e.target.value }))
+                  }
+                  placeholder="https://..."
+                />
               </div>
               <div className="form-group">
                 <label>Description *</label>
-                <textarea rows="3" value={form.description} onChange={e => setForm(f=>({...f,description:e.target.value}))} placeholder="Project description..." required />
+                <textarea
+                  rows="3"
+                  value={form.description}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, description: e.target.value }))
+                  }
+                  placeholder="Project description..."
+                  required
+                />
               </div>
-              <div style={{ display:'flex', gap:'.75rem', marginTop:'1rem' }}>
-                <button type="submit" className="btn btn-primary" style={{ flex:1 }}>
-                  {editing ? 'Update Project' : 'Add Project'}
+              <div
+                style={{ display: "flex", gap: ".75rem", marginTop: "1rem" }}
+              >
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ flex: 1 }}
+                >
+                  {editing ? "Update Project" : "Add Project"}
                 </button>
-                <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)} style={{ flex:1 }}>Cancel</button>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => setShowModal(false)}
+                  style={{ flex: 1 }}
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>
@@ -1289,7 +2676,7 @@ const AdminProjects = () => {
 
 // ── User Detail Analytics Modal ───────────────────────────
 const UserDetailModal = ({ user: u, onClose }) => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState("overview");
   const [activityData, setActivityData] = useState({
     courses: 0,
     hoursLogged: 0,
@@ -1298,7 +2685,7 @@ const UserDetailModal = ({ user: u, onClose }) => {
     averageScore: 0,
     dayStreak: 0,
     sessionsAttended: 0,
-    recentActivities: []
+    recentActivities: [],
   });
   const [loading, setLoading] = useState(true);
 
@@ -1310,8 +2697,8 @@ const UserDetailModal = ({ user: u, onClose }) => {
         const response = await API.get(`/admin/users/${u._id}/activity`);
         setActivityData(response.data.data);
       } catch (error) {
-        console.error('Failed to fetch user activity:', error);
-        toast.error('Failed to load user activity data');
+        // console.error("Failed to fetch user activity:", error);
+        toast.error("Failed to load user activity data");
       } finally {
         setLoading(false);
       }
@@ -1323,53 +2710,66 @@ const UserDetailModal = ({ user: u, onClose }) => {
   }, [u._id]);
 
   const mockActivityData = [
-    { week: 'Week 1', lectures: 0,  practice: 0,  sessions: 0 },
-    { week: 'Week 2', lectures: 0, practice: 0,  sessions: 0 },
-    { week: 'Week 3', lectures: 0, practice: 0, sessions: 0 },
-    { week: 'Week 4', lectures: 0, practice: 0, sessions: 0 },
-    { week: 'Week 5', lectures: 0, practice: 0, sessions: 0 },
-    { week: 'Week 6', lectures: 0, practice: 0, sessions: 0 },
+    { week: "Week 1", lectures: 0, practice: 0, sessions: 0 },
+    { week: "Week 2", lectures: 0, practice: 0, sessions: 0 },
+    { week: "Week 3", lectures: 0, practice: 0, sessions: 0 },
+    { week: "Week 4", lectures: 0, practice: 0, sessions: 0 },
+    { week: "Week 5", lectures: 0, practice: 0, sessions: 0 },
+    { week: "Week 6", lectures: 0, practice: 0, sessions: 0 },
   ];
 
   const skillData = [
-    { subject: 'HTML/CSS',     A: 0 },
-    { subject: 'JavaScript',   A: 0 },
-    { subject: 'React',        A: 0 },
-    { subject: 'Node.js',      A: 0 },
-    { subject: 'Database',     A: 0 },
-    { subject: 'Deployment',   A: 0 },
+    { subject: "HTML/CSS", A: 0 },
+    { subject: "JavaScript", A: 0 },
+    { subject: "React", A: 0 },
+    { subject: "Node.js", A: 0 },
+    { subject: "Database", A: 0 },
+    { subject: "Deployment", A: 0 },
   ];
 
   const dailyLogin = [
-    { day: 'Mon', hours: 0 },
-    { day: 'Tue', hours: 0 },
-    { day: 'Wed', hours: 0 },
-    { day: 'Thu', hours: 0 },
-    { day: 'Fri', hours: 0 },
-    { day: 'Sat', hours: 0 },
-    { day: 'Sun', hours: 0 },
+    { day: "Mon", hours: 0 },
+    { day: "Tue", hours: 0 },
+    { day: "Wed", hours: 0 },
+    { day: "Thu", hours: 0 },
+    { day: "Fri", hours: 0 },
+    { day: "Sat", hours: 0 },
+    { day: "Sun", hours: 0 },
   ];
 
   const progressData = [
-    { name: 'Completed', value: 0, color: '#27ae60' },
-    { name: 'In Progress', value: 0, color: '#2196C9' },
-    { name: 'Pending', value: 100, color: '#E8A820' },
+    { name: "Completed", value: 0, color: "#27ae60" },
+    { name: "In Progress", value: 0, color: "#2196C9" },
+    { name: "Pending", value: 100, color: "#E8A820" },
   ];
 
   const TABS = [
-    { id: 'overview',  label: 'Overview' },
-    { id: 'activity',  label: 'Activity' },
-    { id: 'progress',  label: 'Progress' },
-    { id: 'sessions',  label: 'Sessions' },
+    { id: "overview", label: "Overview" },
+    { id: "activity", label: "Activity" },
+    { id: "progress", label: "Progress" },
+    { id: "sessions", label: "Sessions" },
   ];
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div style={{ background:'white', border:'1px solid var(--border)', borderRadius:8, padding:'8px 12px', boxShadow:'var(--sh)', fontSize:'.8rem' }}>
-          <p style={{ fontWeight:700, color:'var(--navy)', marginBottom:3 }}>{label}</p>
+        <div
+          style={{
+            background: "white",
+            border: "1px solid var(--border)",
+            borderRadius: 8,
+            padding: "8px 12px",
+            boxShadow: "var(--sh)",
+            fontSize: ".8rem",
+          }}
+        >
+          <p style={{ fontWeight: 700, color: "var(--navy)", marginBottom: 3 }}>
+            {label}
+          </p>
           {payload.map((p, i) => (
-            <p key={i} style={{ color:p.color, margin:'2px 0' }}>{p.name}: <strong>{p.value}</strong></p>
+            <p key={i} style={{ color: p.color, margin: "2px 0" }}>
+              {p.name}: <strong>{p.value}</strong>
+            </p>
           ))}
         </div>
       );
@@ -1378,35 +2778,165 @@ const UserDetailModal = ({ user: u, onClose }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div
+      className="modal-overlay"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
       <div className="ud-modal">
         <div className="ud-header">
-          <button className="ud-close" onClick={onClose}>×</button>
+          <button className="ud-close" onClick={onClose}>
+            ×
+          </button>
           <div className="ud-profile">
             <div className="ud-avatar">{u.name?.[0]?.toUpperCase()}</div>
             <div className="ud-info">
               <h2>{u.name}</h2>
-              <p>{u.email} · {u.phone || 'No phone'}</p>
+              <p>
+                {u.email} · {u.phone || "No phone"}
+              </p>
               <div className="ud-tags">
-                <span className={`ud-tag ${u.isVerified ? 'green' : 'red'}`}>{u.isVerified ? '✓ Verified' : '✗ Unverified'}</span>
-                <span className={`ud-tag ${u.isBlocked ? 'red' : 'green'}`}>{u.isBlocked ? '🚫 Blocked' : '✓ Active'}</span>
+                <span className={`ud-tag ${u.isVerified ? "green" : "red"}`}>
+                  {u.isVerified ? "✓ Verified" : "✗ Unverified"}
+                </span>
+                <span className={`ud-tag ${u.isBlocked ? "red" : "green"}`}>
+                  {u.isBlocked ? "🚫 Blocked" : "✓ Active"}
+                </span>
                 <span className="ud-tag blue">{u.authProvider}</span>
                 {u.college && <span className="ud-tag navy">{u.college}</span>}
-                {u.interest && <span className="ud-tag gold">{u.interest}</span>}
+                {u.interest && (
+                  <span className="ud-tag gold">{u.interest}</span>
+                )}
               </div>
             </div>
           </div>
           <div className="ud-quick-stats">
             {[
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M4 19.5A2.5 2.5 0 0 1 6.5 17H20'/><path d='M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'/></svg>, val: loading ? '...' : activityData.courses,    label:'Courses', color:'#2196C9', bgColor:'rgba(33,150,201,.15)' },
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg>, val: loading ? '...' : `${activityData.hoursLogged}h`, label:'Hours Logged', color:'#27ae60', bgColor:'rgba(39,174,96,.15)' },
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><circle cx='12' cy='12' r='10'/><circle cx='12' cy='12' r='6'/><circle cx='12' cy='12' r='2'/></svg>, val: loading ? '...' : `${activityData.attendance}%`,  label:'Attendance', color:'#6c3483', bgColor:'rgba(108,52,131,.15)' },
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M6 9H4.5a2.5 2.5 0 0 1 0-5H6'/><path d='M18 9h1.5a2.5 2.5 0 0 0 0-5H18'/><path d='M4 22h16'/><path d='M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22'/><path d='M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22'/><path d='M18 2H6v7a6 6 0 0 0 12 0V2z'/></svg>, val: loading ? '...' : activityData.assignments,   label:'Assignments', color:'#E8A820', bgColor:'rgba(232,168,32,.15)' },
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='currentColor'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg>, val: loading ? '...' : activityData.averageScore,  label:'Avg Score', color:'#e67e22', bgColor:'rgba(230,126,34,.15)' },
-              { icon:<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z'/></svg>, val: loading ? '...' : activityData.dayStreak,   label:'Day Streak', color:'#dc4545', bgColor:'rgba(220,69,69,.15)' },
-            ].map(s => (
+              {
+                icon: (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                  </svg>
+                ),
+                val: loading ? "..." : activityData.courses,
+                label: "Courses",
+                color: "#2196C9",
+                bgColor: "rgba(33,150,201,.15)",
+              },
+              {
+                icon: (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                ),
+                val: loading ? "..." : `${activityData.hoursLogged}h`,
+                label: "Hours Logged",
+                color: "#27ae60",
+                bgColor: "rgba(39,174,96,.15)",
+              },
+              {
+                icon: (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="12" r="6" />
+                    <circle cx="12" cy="12" r="2" />
+                  </svg>
+                ),
+                val: loading ? "..." : `${activityData.attendance}%`,
+                label: "Attendance",
+                color: "#6c3483",
+                bgColor: "rgba(108,52,131,.15)",
+              },
+              {
+                icon: (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                    <path d="M4 22h16" />
+                    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                    <path d="M18 2H6v7a6 6 0 0 0 12 0V2z" />
+                  </svg>
+                ),
+                val: loading ? "..." : activityData.assignments,
+                label: "Assignments",
+                color: "#E8A820",
+                bgColor: "rgba(232,168,32,.15)",
+              },
+              {
+                icon: (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                ),
+                val: loading ? "..." : activityData.averageScore,
+                label: "Avg Score",
+                color: "#e67e22",
+                bgColor: "rgba(230,126,34,.15)",
+              },
+              {
+                icon: (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z" />
+                  </svg>
+                ),
+                val: loading ? "..." : activityData.dayStreak,
+                label: "Day Streak",
+                color: "#dc4545",
+                bgColor: "rgba(220,69,69,.15)",
+              },
+            ].map((s) => (
               <div key={s.label} className="ud-qs">
-                <span style={{ color: s.color, background: s.bgColor, boxShadow: `0 2px 8px ${s.color}33` }}>{s.icon}</span>
+                <span
+                  style={{
+                    color: s.color,
+                    background: s.bgColor,
+                    boxShadow: `0 2px 8px ${s.color}33`,
+                  }}
+                >
+                  {s.icon}
+                </span>
                 <strong style={{ color: s.color }}>{s.val}</strong>
                 <small>{s.label}</small>
               </div>
@@ -1415,42 +2945,110 @@ const UserDetailModal = ({ user: u, onClose }) => {
         </div>
 
         <div className="ud-tabs">
-          {TABS.map(t => (
-            <button key={t.id} className={`ud-tab${activeTab === t.id ? ' active' : ''}`}
-              onClick={() => setActiveTab(t.id)}>{t.label}</button>
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              className={`ud-tab${activeTab === t.id ? " active" : ""}`}
+              onClick={() => setActiveTab(t.id)}
+            >
+              {t.label}
+            </button>
           ))}
         </div>
 
         <div className="ud-body">
-          {activeTab === 'overview' && (
+          {activeTab === "overview" && (
             <div className="ud-section">
               <div className="ud-charts-row">
                 <div className="ud-chart-card" style={{ flex: 2 }}>
                   <div className="ud-chart-title">Weekly Learning Activity</div>
                   <ResponsiveContainer width="100%" height={220}>
-                    <AreaChart data={mockActivityData} margin={{ top:10, right:10, left:-20, bottom:0 }}>
+                    <AreaChart
+                      data={mockActivityData}
+                      margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                    >
                       <defs>
                         <linearGradient id="lgGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#2196C9" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#2196C9" stopOpacity={0}/>
+                          <stop
+                            offset="5%"
+                            stopColor="#2196C9"
+                            stopOpacity={0.3}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#2196C9"
+                            stopOpacity={0}
+                          />
                         </linearGradient>
                         <linearGradient id="prGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#E8A820" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#E8A820" stopOpacity={0}/>
+                          <stop
+                            offset="5%"
+                            stopColor="#E8A820"
+                            stopOpacity={0.3}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#E8A820"
+                            stopOpacity={0}
+                          />
                         </linearGradient>
                         <linearGradient id="seGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#27ae60" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#27ae60" stopOpacity={0}/>
+                          <stop
+                            offset="5%"
+                            stopColor="#27ae60"
+                            stopOpacity={0.3}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#27ae60"
+                            stopOpacity={0}
+                          />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(27,42,74,0.06)" />
-                      <XAxis dataKey="week" tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="rgba(27,42,74,0.06)"
+                      />
+                      <XAxis
+                        dataKey="week"
+                        tick={{ fontSize: 11, fill: "#5a6a82" }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 11, fill: "#5a6a82" }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
                       <Tooltip content={<CustomTooltip />} />
-                      <Legend wrapperStyle={{ fontSize:11 }} />
-                      <Area type="monotone" dataKey="lectures" stroke="#2196C9" strokeWidth={2} fill="url(#lgGrad)" name="Lectures" dot={{ r:3 }} />
-                      <Area type="monotone" dataKey="practice" stroke="#E8A820" strokeWidth={2} fill="url(#prGrad)" name="Practice" dot={{ r:3 }} />
-                      <Area type="monotone" dataKey="sessions" stroke="#27ae60" strokeWidth={2} fill="url(#seGrad)" name="Live Sessions" dot={{ r:3 }} />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      <Area
+                        type="monotone"
+                        dataKey="lectures"
+                        stroke="#2196C9"
+                        strokeWidth={2}
+                        fill="url(#lgGrad)"
+                        name="Lectures"
+                        dot={{ r: 3 }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="practice"
+                        stroke="#E8A820"
+                        strokeWidth={2}
+                        fill="url(#prGrad)"
+                        name="Practice"
+                        dot={{ r: 3 }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="sessions"
+                        stroke="#27ae60"
+                        strokeWidth={2}
+                        fill="url(#seGrad)"
+                        name="Live Sessions"
+                        dot={{ r: 3 }}
+                      />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -1459,17 +3057,29 @@ const UserDetailModal = ({ user: u, onClose }) => {
                   <div className="ud-chart-title">Overall Progress</div>
                   <ResponsiveContainer width="100%" height={160}>
                     <PieChart>
-                      <Pie data={progressData} cx="50%" cy="50%" innerRadius={45} outerRadius={70}
-                        paddingAngle={3} dataKey="value">
-                        {progressData.map((e, i) => <Cell key={i} fill={e.color} />)}
+                      <Pie
+                        data={progressData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={45}
+                        outerRadius={70}
+                        paddingAngle={3}
+                        dataKey="value"
+                      >
+                        {progressData.map((e, i) => (
+                          <Cell key={i} fill={e.color} />
+                        ))}
                       </Pie>
-                      <Tooltip formatter={(v) => [v + '%', '']} />
+                      <Tooltip formatter={(v) => [v + "%", ""]} />
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="pie-legend">
-                    {progressData.map(s => (
+                    {progressData.map((s) => (
                       <div key={s.name} className="pie-legend-item">
-                        <div className="pie-dot" style={{ background: s.color }} />
+                        <div
+                          className="pie-dot"
+                          style={{ background: s.color }}
+                        />
                         <span>{s.name}</span>
                         <strong>{s.value}%</strong>
                       </div>
@@ -1480,14 +3090,22 @@ const UserDetailModal = ({ user: u, onClose }) => {
 
               <div className="ud-info-grid">
                 {[
-                  { icon:'👤', label:'Full Name',      val: u.name },
-                  { icon:'📧', label:'Email',          val: u.email },
-                  { icon:'🎓', label:'College',        val: u.college || '—' },
-                  { icon:'📅', label:'Year',           val: u.year || '—' },
-                  { icon:'💡', label:'Interest',       val: u.interest || '—' },
-                  { icon:'🔑', label:'Auth Provider',  val: u.authProvider },
-                  { icon:'📅', label:'Joined On',      val: new Date(u.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }) },
-                  { icon:'📱', label:'Phone',          val: u.phone || '—' },
+                  { icon: "👤", label: "Full Name", val: u.name },
+                  { icon: "📧", label: "Email", val: u.email },
+                  { icon: "🎓", label: "College", val: u.college || "—" },
+                  { icon: "📅", label: "Year", val: u.year || "—" },
+                  { icon: "💡", label: "Interest", val: u.interest || "—" },
+                  { icon: "🔑", label: "Auth Provider", val: u.authProvider },
+                  {
+                    icon: "📅",
+                    label: "Joined On",
+                    val: new Date(u.createdAt).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    }),
+                  },
+                  { icon: "📱", label: "Phone", val: u.phone || "—" },
                 ].map(({ icon, label, val }) => (
                   <div key={label} className="ud-info-card">
                     <div className="ud-ic-icon">{icon}</div>
@@ -1501,20 +3119,53 @@ const UserDetailModal = ({ user: u, onClose }) => {
             </div>
           )}
 
-          {activeTab === 'activity' && (
+          {activeTab === "activity" && (
             <div className="ud-section">
               <div className="ud-charts-row">
                 <div className="ud-chart-card" style={{ flex: 1 }}>
-                  <div className="ud-chart-title">Daily Study Hours (This Week)</div>
+                  <div className="ud-chart-title">
+                    Daily Study Hours (This Week)
+                  </div>
                   <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={dailyLogin} margin={{ top:10, right:10, left:-20, bottom:0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(27,42,74,0.06)" vertical={false} />
-                      <XAxis dataKey="day" tick={{ fontSize:12, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} unit="h" />
+                    <BarChart
+                      data={dailyLogin}
+                      margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="rgba(27,42,74,0.06)"
+                        vertical={false}
+                      />
+                      <XAxis
+                        dataKey="day"
+                        tick={{ fontSize: 12, fill: "#5a6a82" }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 11, fill: "#5a6a82" }}
+                        axisLine={false}
+                        tickLine={false}
+                        unit="h"
+                      />
                       <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="hours" name="Hours" fill="#1B2A4A" radius={[6,6,0,0]}>
+                      <Bar
+                        dataKey="hours"
+                        name="Hours"
+                        fill="#1B2A4A"
+                        radius={[6, 6, 0, 0]}
+                      >
                         {dailyLogin.map((e, i) => (
-                          <Cell key={i} fill={e.hours >= 4 ? '#E8A820' : e.hours >= 3 ? '#2196C9' : '#1B2A4A'} />
+                          <Cell
+                            key={i}
+                            fill={
+                              e.hours >= 4
+                                ? "#E8A820"
+                                : e.hours >= 3
+                                  ? "#2196C9"
+                                  : "#1B2A4A"
+                            }
+                          />
                         ))}
                       </Bar>
                     </BarChart>
@@ -1524,14 +3175,52 @@ const UserDetailModal = ({ user: u, onClose }) => {
                 <div className="ud-chart-card" style={{ flex: 1 }}>
                   <div className="ud-chart-title">Skill Proficiency (%)</div>
                   <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={skillData} layout="vertical" margin={{ top:5, right:20, left:20, bottom:5 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(27,42,74,0.06)" horizontal={false} />
-                      <XAxis type="number" domain={[0,100]} tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} unit="%" />
-                      <YAxis type="category" dataKey="subject" tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} width={75} />
+                    <BarChart
+                      data={skillData}
+                      layout="vertical"
+                      margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="rgba(27,42,74,0.06)"
+                        horizontal={false}
+                      />
+                      <XAxis
+                        type="number"
+                        domain={[0, 100]}
+                        tick={{ fontSize: 11, fill: "#5a6a82" }}
+                        axisLine={false}
+                        tickLine={false}
+                        unit="%"
+                      />
+                      <YAxis
+                        type="category"
+                        dataKey="subject"
+                        tick={{ fontSize: 11, fill: "#5a6a82" }}
+                        axisLine={false}
+                        tickLine={false}
+                        width={75}
+                      />
                       <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="A" name="Proficiency" radius={[0,6,6,0]} fill="#2196C9">
+                      <Bar
+                        dataKey="A"
+                        name="Proficiency"
+                        radius={[0, 6, 6, 0]}
+                        fill="#2196C9"
+                      >
                         {skillData.map((e, i) => (
-                          <Cell key={i} fill={e.A >= 75 ? '#27ae60' : e.A >= 60 ? '#2196C9' : e.A >= 45 ? '#E8A820' : '#dc4545'} />
+                          <Cell
+                            key={i}
+                            fill={
+                              e.A >= 75
+                                ? "#27ae60"
+                                : e.A >= 60
+                                  ? "#2196C9"
+                                  : e.A >= 45
+                                    ? "#E8A820"
+                                    : "#dc4545"
+                            }
+                          />
                         ))}
                       </Bar>
                     </BarChart>
@@ -1539,33 +3228,59 @@ const UserDetailModal = ({ user: u, onClose }) => {
                 </div>
               </div>
 
-              <div className="ud-chart-card" style={{ marginTop:'1.25rem' }}>
+              <div className="ud-chart-card" style={{ marginTop: "1.25rem" }}>
                 <div className="ud-chart-title">Recent Activity Log</div>
                 <div className="activity-timeline">
                   {loading ? (
-                    <div className="dash-loading" style={{ padding: '2rem' }}>
+                    <div className="dash-loading" style={{ padding: "2rem" }}>
                       <div className="dash-spinner" />
                       <p>Loading activities...</p>
                     </div>
                   ) : activityData.recentActivities.length > 0 ? (
                     activityData.recentActivities.map((activity, i) => (
                       <div key={i} className="at-item">
-                        <div className={`at-dot ${activity.activityType || 'default'}`} />
+                        <div
+                          className={`at-dot ${activity.activityType || "default"}`}
+                        />
                         <div className="at-icon">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
                           </svg>
                         </div>
                         <div className="at-content">
-                          <div className="at-action">{activity.activityType?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Activity'}</div>
-                          <div className="at-time">{new Date(activity.createdAt).toLocaleDateString()}</div>
+                          <div className="at-action">
+                            {activity.activityType
+                              ?.replace("_", " ")
+                              .replace(/\b\w/g, (l) => l.toUpperCase()) ||
+                              "Activity"}
+                          </div>
+                          <div className="at-time">
+                            {new Date(activity.createdAt).toLocaleDateString()}
+                          </div>
                         </div>
-                        <span className={`at-badge ${activity.activityType || 'default'}`}>{activity.activityType || 'activity'}</span>
+                        <span
+                          className={`at-badge ${activity.activityType || "default"}`}
+                        >
+                          {activity.activityType || "activity"}
+                        </span>
                       </div>
                     ))
                   ) : (
-                    <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--muted)' }}>
+                    <div
+                      style={{
+                        padding: "2rem",
+                        textAlign: "center",
+                        color: "var(--muted)",
+                      }}
+                    >
                       <p>No recent activities found</p>
                     </div>
                   )}
@@ -1574,73 +3289,177 @@ const UserDetailModal = ({ user: u, onClose }) => {
             </div>
           )}
 
-          {activeTab === 'progress' && (
+          {activeTab === "progress" && (
             <div className="ud-section">
               <div className="ud-charts-row">
-                <div className="ud-chart-card" style={{ flex:1 }}>
-                  <div className="ud-chart-title">Lectures Attended vs Total</div>
+                <div className="ud-chart-card" style={{ flex: 1 }}>
+                  <div className="ud-chart-title">
+                    Lectures Attended vs Total
+                  </div>
                   <div className="progress-modules">
                     {[
-                      { name:'HTML & CSS',  done:12, total:12, color:'#27ae60' },
-                      { name:'JavaScript',  done:18, total:24, color:'#2196C9' },
-                      { name:'React.js',    done:10, total:20, color:'#6c3483' },
-                      { name:'Node.js',     done:6,  total:16, color:'#e67e22' },
-                      { name:'MongoDB',     done:4,  total:12, color:'#1e8449' },
-                      { name:'Deployment',  done:0,  total:8,  color:'#dc4545' },
-                    ].map(m => (
+                      {
+                        name: "HTML & CSS",
+                        done: 12,
+                        total: 12,
+                        color: "#27ae60",
+                      },
+                      {
+                        name: "JavaScript",
+                        done: 18,
+                        total: 24,
+                        color: "#2196C9",
+                      },
+                      {
+                        name: "React.js",
+                        done: 10,
+                        total: 20,
+                        color: "#6c3483",
+                      },
+                      { name: "Node.js", done: 6, total: 16, color: "#e67e22" },
+                      { name: "MongoDB", done: 4, total: 12, color: "#1e8449" },
+                      {
+                        name: "Deployment",
+                        done: 0,
+                        total: 8,
+                        color: "#dc4545",
+                      },
+                    ].map((m) => (
                       <div key={m.name} className="pm-item">
                         <div className="pm-header">
                           <span className="pm-name">{m.name}</span>
-                          <span className="pm-count">{m.done}/{m.total}</span>
+                          <span className="pm-count">
+                            {m.done}/{m.total}
+                          </span>
                         </div>
                         <div className="pm-bar">
-                          <div className="pm-fill" style={{ width: `${(m.done/m.total)*100}%`, background: m.color }} />
+                          <div
+                            className="pm-fill"
+                            style={{
+                              width: `${(m.done / m.total) * 100}%`,
+                              background: m.color,
+                            }}
+                          />
                         </div>
-                        <span className="pm-pct" style={{ color: m.color }}>{Math.round((m.done/m.total)*100)}%</span>
+                        <span className="pm-pct" style={{ color: m.color }}>
+                          {Math.round((m.done / m.total) * 100)}%
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="ud-chart-card" style={{ flex:1 }}>
+                <div className="ud-chart-card" style={{ flex: 1 }}>
                   <div className="ud-chart-title">Assignment Scores</div>
                   <ResponsiveContainer width="100%" height={260}>
-                    <LineChart data={[
-                      { num:'A1', score:72 },{ num:'A2', score:78 },{ num:'A3', score:85 },
-                      { num:'A4', score:80 },{ num:'A5', score:88 },{ num:'A6', score:82 },
-                      { num:'A7', score:91 },{ num:'A8', score:88 },
-                    ]} margin={{ top:10, right:20, left:-20, bottom:0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(27,42,74,0.06)" />
-                      <XAxis dataKey="num" tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
-                      <YAxis domain={[60,100]} tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} unit="%" />
+                    <LineChart
+                      data={[
+                        { num: "A1", score: 72 },
+                        { num: "A2", score: 78 },
+                        { num: "A3", score: 85 },
+                        { num: "A4", score: 80 },
+                        { num: "A5", score: 88 },
+                        { num: "A6", score: 82 },
+                        { num: "A7", score: 91 },
+                        { num: "A8", score: 88 },
+                      ]}
+                      margin={{ top: 10, right: 20, left: -20, bottom: 0 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="rgba(27,42,74,0.06)"
+                      />
+                      <XAxis
+                        dataKey="num"
+                        tick={{ fontSize: 11, fill: "#5a6a82" }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        domain={[60, 100]}
+                        tick={{ fontSize: 11, fill: "#5a6a82" }}
+                        axisLine={false}
+                        tickLine={false}
+                        unit="%"
+                      />
                       <Tooltip content={<CustomTooltip />} />
-                      <Line type="monotone" dataKey="score" name="Score" stroke="#E8A820" strokeWidth={2.5}
-                        dot={{ r:5, fill:'#E8A820', strokeWidth:2, stroke:'white' }} activeDot={{ r:7 }} />
+                      <Line
+                        type="monotone"
+                        dataKey="score"
+                        name="Score"
+                        stroke="#E8A820"
+                        strokeWidth={2.5}
+                        dot={{
+                          r: 5,
+                          fill: "#E8A820",
+                          strokeWidth: 2,
+                          stroke: "white",
+                        }}
+                        activeDot={{ r: 7 }}
+                      />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
-              <div style={{ marginTop:'1.25rem' }}>
-                <div className="ud-chart-title" style={{ marginBottom:'.85rem' }}>Enrolled Courses</div>
+              <div style={{ marginTop: "1.25rem" }}>
+                <div
+                  className="ud-chart-title"
+                  style={{ marginBottom: ".85rem" }}
+                >
+                  Enrolled Courses
+                </div>
                 <div className="enrolled-courses">
                   {[
-                    { name:'Full Stack Web Development', progress:65,  status:'active',    paid:true,  start:'Jan 2024' },
-                    { name:'UI/UX Design',               progress:100, status:'completed', paid:true,  start:'Nov 2023' },
-                    { name:'Digital Marketing',          progress:30,  status:'active',    paid:false, start:'Feb 2024' },
+                    {
+                      name: "Full Stack Web Development",
+                      progress: 65,
+                      status: "active",
+                      paid: true,
+                      start: "Jan 2024",
+                    },
+                    {
+                      name: "UI/UX Design",
+                      progress: 100,
+                      status: "completed",
+                      paid: true,
+                      start: "Nov 2023",
+                    },
+                    {
+                      name: "Digital Marketing",
+                      progress: 30,
+                      status: "active",
+                      paid: false,
+                      start: "Feb 2024",
+                    },
                   ].map((c, i) => (
                     <div key={i} className="ec-card">
                       <div className="ec-info">
                         <h4>{c.name}</h4>
                         <div className="ec-meta">
                           <span>Started: {c.start}</span>
-                          <span className={`ec-badge ${c.status}`}>{c.status}</span>
-                          <span className={`ec-badge ${c.paid ? 'paid' : 'pending'}`}>{c.paid ? 'Paid' : 'Pending Payment'}</span>
+                          <span className={`ec-badge ${c.status}`}>
+                            {c.status}
+                          </span>
+                          <span
+                            className={`ec-badge ${c.paid ? "paid" : "pending"}`}
+                          >
+                            {c.paid ? "Paid" : "Pending Payment"}
+                          </span>
                         </div>
                       </div>
                       <div className="ec-progress">
                         <div className="ec-pct">{c.progress}%</div>
-                        <div className="ec-bar"><div className="ec-fill" style={{ width:`${c.progress}%`, background: c.progress === 100 ? '#27ae60' : '#2196C9' }} /></div>
+                        <div className="ec-bar">
+                          <div
+                            className="ec-fill"
+                            style={{
+                              width: `${c.progress}%`,
+                              background:
+                                c.progress === 100 ? "#27ae60" : "#2196C9",
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1649,65 +3468,183 @@ const UserDetailModal = ({ user: u, onClose }) => {
             </div>
           )}
 
-          {activeTab === 'sessions' && (
+          {activeTab === "sessions" && (
             <div className="ud-section">
               <div className="ud-charts-row">
-                <div className="ud-chart-card" style={{ flex:1 }}>
+                <div className="ud-chart-card" style={{ flex: 1 }}>
                   <div className="ud-chart-title">Live Sessions Attendance</div>
                   <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={mockActivityData} margin={{ top:10, right:10, left:-20, bottom:0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(27,42,74,0.06)" vertical={false} />
-                      <XAxis dataKey="week" tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
+                    <BarChart
+                      data={mockActivityData}
+                      margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="rgba(27,42,74,0.06)"
+                        vertical={false}
+                      />
+                      <XAxis
+                        dataKey="week"
+                        tick={{ fontSize: 11, fill: "#5a6a82" }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 11, fill: "#5a6a82" }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
                       <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="sessions" name="Sessions Attended" fill="#27ae60" radius={[6,6,0,0]} />
+                      <Bar
+                        dataKey="sessions"
+                        name="Sessions Attended"
+                        fill="#27ae60"
+                        radius={[6, 6, 0, 0]}
+                      />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="ud-chart-card" style={{ flex:1 }}>
+                <div className="ud-chart-card" style={{ flex: 1 }}>
                   <div className="ud-chart-title">Session Summary</div>
                   <div className="session-stats">
                     {[
-                      { label:'Total Sessions Scheduled', val:'24',     icon:'📅', color:'#1B2A4A' },
-                      { label:'Sessions Attended',        val:'19',     icon:'✅', color:'#27ae60' },
-                      { label:'Sessions Missed',          val:'5',      icon:'❌', color:'#dc4545' },
-                      { label:'Attendance Rate',          val:'79%',    icon:'📊', color:'#2196C9' },
-                      { label:'Avg Session Duration',     val:'55 min', icon:'⏱️', color:'#e67e22' },
-                      { label:'Practice Hours Total',     val:'68h',    icon:'💻', color:'#6c3483' },
+                      {
+                        label: "Total Sessions Scheduled",
+                        val: "24",
+                        icon: "📅",
+                        color: "#1B2A4A",
+                      },
+                      {
+                        label: "Sessions Attended",
+                        val: "19",
+                        icon: "✅",
+                        color: "#27ae60",
+                      },
+                      {
+                        label: "Sessions Missed",
+                        val: "5",
+                        icon: "❌",
+                        color: "#dc4545",
+                      },
+                      {
+                        label: "Attendance Rate",
+                        val: "79%",
+                        icon: "📊",
+                        color: "#2196C9",
+                      },
+                      {
+                        label: "Avg Session Duration",
+                        val: "55 min",
+                        icon: "⏱️",
+                        color: "#e67e22",
+                      },
+                      {
+                        label: "Practice Hours Total",
+                        val: "68h",
+                        icon: "💻",
+                        color: "#6c3483",
+                      },
                     ].map((s, i) => (
                       <div key={i} className="ss-item">
                         <span className="ss-icon">{s.icon}</span>
                         <span className="ss-label">{s.label}</span>
-                        <strong className="ss-val" style={{ color: s.color }}>{s.val}</strong>
+                        <strong className="ss-val" style={{ color: s.color }}>
+                          {s.val}
+                        </strong>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
 
-              <div className="ud-chart-card" style={{ marginTop:'1.25rem' }}>
+              <div className="ud-chart-card" style={{ marginTop: "1.25rem" }}>
                 <div className="ud-chart-title">Session History</div>
-                <div className="table-wrap" style={{ marginTop:'.75rem' }}>
+                <div className="table-wrap" style={{ marginTop: ".75rem" }}>
                   <table className="data-table">
                     <thead>
-                      <tr><th>Session</th><th>Topic</th><th>Date</th><th>Duration</th><th>Status</th><th>Score</th></tr>
+                      <tr>
+                        <th>Session</th>
+                        <th>Topic</th>
+                        <th>Date</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                        <th>Score</th>
+                      </tr>
                     </thead>
                     <tbody>
                       {[
-                        { name:'Live Session #19', topic:'Node.js REST APIs',     date:'01 May 2024', dur:'60 min', status:'attended', score:'92%' },
-                        { name:'Live Session #18', topic:'React Hooks Deep Dive', date:'28 Apr 2024', dur:'55 min', status:'attended', score:'88%' },
-                        { name:'Live Session #17', topic:'MongoDB Aggregation',   date:'25 Apr 2024', dur:'60 min', status:'missed',   score:'—'   },
-                        { name:'Live Session #16', topic:'Express Middleware',    date:'22 Apr 2024', dur:'50 min', status:'attended', score:'85%' },
-                        { name:'Live Session #15', topic:'JS Async/Await',        date:'19 Apr 2024', dur:'55 min', status:'attended', score:'90%' },
-                        { name:'Live Session #14', topic:'CSS Grid & Flexbox',    date:'16 Apr 2024', dur:'45 min', status:'missed',   score:'—'   },
+                        {
+                          name: "Live Session #19",
+                          topic: "Node.js REST APIs",
+                          date: "01 May 2024",
+                          dur: "60 min",
+                          status: "attended",
+                          score: "92%",
+                        },
+                        {
+                          name: "Live Session #18",
+                          topic: "React Hooks Deep Dive",
+                          date: "28 Apr 2024",
+                          dur: "55 min",
+                          status: "attended",
+                          score: "88%",
+                        },
+                        {
+                          name: "Live Session #17",
+                          topic: "MongoDB Aggregation",
+                          date: "25 Apr 2024",
+                          dur: "60 min",
+                          status: "missed",
+                          score: "—",
+                        },
+                        {
+                          name: "Live Session #16",
+                          topic: "Express Middleware",
+                          date: "22 Apr 2024",
+                          dur: "50 min",
+                          status: "attended",
+                          score: "85%",
+                        },
+                        {
+                          name: "Live Session #15",
+                          topic: "JS Async/Await",
+                          date: "19 Apr 2024",
+                          dur: "55 min",
+                          status: "attended",
+                          score: "90%",
+                        },
+                        {
+                          name: "Live Session #14",
+                          topic: "CSS Grid & Flexbox",
+                          date: "16 Apr 2024",
+                          dur: "45 min",
+                          status: "missed",
+                          score: "—",
+                        },
                       ].map((s, i) => (
                         <tr key={i}>
-                          <td><strong>{s.name}</strong></td>
+                          <td>
+                            <strong>{s.name}</strong>
+                          </td>
                           <td>{s.topic}</td>
                           <td>{s.date}</td>
                           <td>{s.dur}</td>
-                          <td><span className={`badge-status ${s.status === 'attended' ? 'badge-accepted' : 'badge-rejected'}`}>{s.status}</span></td>
-                          <td><strong style={{ color: s.score !== '—' ? '#27ae60' : '#dc4545' }}>{s.score}</strong></td>
+                          <td>
+                            <span
+                              className={`badge-status ${s.status === "attended" ? "badge-accepted" : "badge-rejected"}`}
+                            >
+                              {s.status}
+                            </span>
+                          </td>
+                          <td>
+                            <strong
+                              style={{
+                                color: s.score !== "—" ? "#27ae60" : "#dc4545",
+                              }}
+                            >
+                              {s.score}
+                            </strong>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -1732,95 +3669,358 @@ const AdminsTab = () => {
 
   const load = () => {
     setLoading(true);
-    API.get('/admin/admins')
-      .then(r => setAdmins(r.data.data))
-      .catch(() => toast.error('Failed to load admins'))
+    API.get("/admin/admins")
+      .then((r) => setAdmins(r.data.data))
+      .catch(() => toast.error("Failed to load admins"))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const handleDelete = async (admin) => {
-    if (admin._id === currentUser?._id) { toast.error('You cannot delete yourself'); return; }
-    if (!window.confirm(`Delete admin "${admin.name}"? This cannot be undone.`)) return;
+    if (admin._id === currentUser?._id) {
+      toast.error("You cannot delete yourself");
+      return;
+    }
+    if (!window.confirm(`Delete admin "${admin.name}"? This cannot be undone.`))
+      return;
     setDeleting(admin._id);
     try {
       await API.delete(`/admin/admins/${admin._id}`);
-      toast.success('Admin deleted!');
+      toast.success("Admin deleted!");
       setSelected(null);
       load();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Delete failed');
-    } finally { setDeleting(null); }
+      toast.error(err.response?.data?.message || "Delete failed");
+    } finally {
+      setDeleting(null);
+    }
   };
 
-  if (loading) return <div className="dash-loading"><div className="dash-spinner" /></div>;
+  if (loading)
+    return (
+      <div className="dash-loading">
+        <div className="dash-spinner" />
+      </div>
+    );
 
   return (
     <div>
       <div className="tab-header">
         <div>
           <h2>Admin Accounts</h2>
-          <p style={{ color:'var(--muted)', fontSize:'.85rem', marginTop:'.2rem' }}>
-            {admins.length} admin{admins.length !== 1 ? 's' : ''} have access to this panel
+          <p
+            style={{
+              color: "var(--muted)",
+              fontSize: ".85rem",
+              marginTop: ".2rem",
+            }}
+          >
+            {admins.length} admin{admins.length !== 1 ? "s" : ""} have access to
+            this panel
           </p>
         </div>
-        <div style={{ display:'flex', alignItems:'center', gap:'.5rem', background:'rgba(220,69,69,.1)', color:'#dc4545', border:'1px solid rgba(220,69,69,.25)', padding:'.5rem 1.25rem', borderRadius:'50px', fontWeight:700, fontSize:'.88rem' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          {admins.length} Admin{admins.length !== 1 ? 's' : ''}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: ".5rem",
+            background: "rgba(220,69,69,.1)",
+            color: "#dc4545",
+            border: "1px solid rgba(220,69,69,.25)",
+            padding: ".5rem 1.25rem",
+            borderRadius: "50px",
+            fontWeight: 700,
+            fontSize: ".88rem",
+          }}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          {admins.length} Admin{admins.length !== 1 ? "s" : ""}
         </div>
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))', gap:'1rem', marginBottom:'1.75rem' }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill,minmax(180px,1fr))",
+          gap: "1rem",
+          marginBottom: "1.75rem",
+        }}
+      >
         {[
-          { color:'#dc4545', bg:'rgba(220,69,69,.1)',  num:admins.length, label:'Total Admins' },
-          { color:'#27ae60', bg:'rgba(39,174,96,.1)',  num:admins.filter(a=>a.isVerified).length, label:'Verified' },
-          { color:'#2196C9', bg:'rgba(33,150,201,.1)', num:admins.filter(a=>a.authProvider==='local').length, label:'Local Auth' },
-          { color:'#E8A820', bg:'rgba(232,168,32,.1)', num:admins.filter(a=>a._id!==currentUser?._id).length, label:'Other Admins' },
-        ].map((s,i) => (
-          <div key={i} style={{ background:'white', borderRadius:'var(--r)', padding:'1.25rem', display:'flex', alignItems:'center', gap:'1rem', boxShadow:'var(--sh)', border:'1px solid var(--border)' }}>
-            <div style={{ width:48, height:48, borderRadius:12, background:s.bg, color:s.color, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          {
+            color: "#dc4545",
+            bg: "rgba(220,69,69,.1)",
+            num: admins.length,
+            label: "Total Admins",
+          },
+          {
+            color: "#27ae60",
+            bg: "rgba(39,174,96,.1)",
+            num: admins.filter((a) => a.isVerified).length,
+            label: "Verified",
+          },
+          {
+            color: "#2196C9",
+            bg: "rgba(33,150,201,.1)",
+            num: admins.filter((a) => a.authProvider === "local").length,
+            label: "Local Auth",
+          },
+          {
+            color: "#E8A820",
+            bg: "rgba(232,168,32,.1)",
+            num: admins.filter((a) => a._id !== currentUser?._id).length,
+            label: "Other Admins",
+          },
+        ].map((s, i) => (
+          <div
+            key={i}
+            style={{
+              background: "white",
+              borderRadius: "var(--r)",
+              padding: "1.25rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "1rem",
+              boxShadow: "var(--sh)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <div
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                background: s.bg,
+                color: s.color,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
             </div>
             <div>
-              <div style={{ fontFamily:"'Playfair Display',serif", fontSize:'1.5rem', fontWeight:900, color:s.color, lineHeight:1 }}>{s.num}</div>
-              <div style={{ fontSize:'.72rem', color:'var(--muted)', marginTop:2 }}>{s.label}</div>
+              <div
+                style={{
+                  fontFamily: "'Playfair Display',serif",
+                  fontSize: "1.5rem",
+                  fontWeight: 900,
+                  color: s.color,
+                  lineHeight: 1,
+                }}
+              >
+                {s.num}
+              </div>
+              <div
+                style={{
+                  fontSize: ".72rem",
+                  color: "var(--muted)",
+                  marginTop: 2,
+                }}
+              >
+                {s.label}
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))', gap:'1.25rem' }}>
-        {admins.map(a => (
-          <div key={a._id} style={{ background:'white', borderRadius:'var(--r)', padding:'1.5rem', boxShadow:'var(--sh)', border: a._id===currentUser?._id ? '2px solid #E8A820' : '1px solid var(--border)', position:'relative' }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))",
+          gap: "1.25rem",
+        }}
+      >
+        {admins.map((a) => (
+          <div
+            key={a._id}
+            style={{
+              background: "white",
+              borderRadius: "var(--r)",
+              padding: "1.5rem",
+              boxShadow: "var(--sh)",
+              border:
+                a._id === currentUser?._id
+                  ? "2px solid #E8A820"
+                  : "1px solid var(--border)",
+              position: "relative",
+            }}
+          >
             {a._id === currentUser?._id && (
-              <div style={{ position:'absolute', top:'1rem', right:'1rem', background:'#E8A820', color:'var(--navy)', fontSize:'.65rem', fontWeight:800, padding:'.2rem .65rem', borderRadius:'50px' }}>YOU</div>
+              <div
+                style={{
+                  position: "absolute",
+                  top: "1rem",
+                  right: "1rem",
+                  background: "#E8A820",
+                  color: "var(--navy)",
+                  fontSize: ".65rem",
+                  fontWeight: 800,
+                  padding: ".2rem .65rem",
+                  borderRadius: "50px",
+                }}
+              >
+                YOU
+              </div>
             )}
-            <div style={{ display:'flex', alignItems:'center', gap:'1rem', marginBottom:'1rem' }}>
-              <div style={{ width:54, height:54, borderRadius:'50%', background:'linear-gradient(135deg,#dc4545,#ff6b6b)', color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:900, fontSize:'1.3rem', flexShrink:0 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "1rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <div
+                style={{
+                  width: 54,
+                  height: 54,
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg,#dc4545,#ff6b6b)",
+                  color: "white",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 900,
+                  fontSize: "1.3rem",
+                  flexShrink: 0,
+                }}
+              >
                 {a.name?.[0]?.toUpperCase()}
               </div>
               <div>
-                <div style={{ fontWeight:700, color:'var(--navy)', fontSize:'1rem', marginBottom:'.2rem' }}>{a.name}</div>
-                <div style={{ fontSize:'.78rem', color:'var(--muted)', marginBottom:'.4rem' }}>{a.email}</div>
-                <div style={{ display:'flex', gap:'.35rem' }}>
-                  <span style={{ fontSize:'.65rem', fontWeight:700, padding:'.18rem .6rem', borderRadius:'50px', background:a.isVerified?'rgba(39,174,96,.1)':'rgba(220,69,69,.1)', color:a.isVerified?'#27ae60':'#dc4545', border:`1px solid ${a.isVerified?'rgba(39,174,96,.25)':'rgba(220,69,69,.25)'}` }}>{a.isVerified?'✓ Verified':'✗ Unverified'}</span>
-                  <span style={{ fontSize:'.65rem', fontWeight:700, padding:'.18rem .6rem', borderRadius:'50px', background:'rgba(33,150,201,.1)', color:'#2196C9', border:'1px solid rgba(33,150,201,.25)', textTransform:'capitalize' }}>{a.authProvider}</span>
+                <div
+                  style={{
+                    fontWeight: 700,
+                    color: "var(--navy)",
+                    fontSize: "1rem",
+                    marginBottom: ".2rem",
+                  }}
+                >
+                  {a.name}
+                </div>
+                <div
+                  style={{
+                    fontSize: ".78rem",
+                    color: "var(--muted)",
+                    marginBottom: ".4rem",
+                  }}
+                >
+                  {a.email}
+                </div>
+                <div style={{ display: "flex", gap: ".35rem" }}>
+                  <span
+                    style={{
+                      fontSize: ".65rem",
+                      fontWeight: 700,
+                      padding: ".18rem .6rem",
+                      borderRadius: "50px",
+                      background: a.isVerified
+                        ? "rgba(39,174,96,.1)"
+                        : "rgba(220,69,69,.1)",
+                      color: a.isVerified ? "#27ae60" : "#dc4545",
+                      border: `1px solid ${a.isVerified ? "rgba(39,174,96,.25)" : "rgba(220,69,69,.25)"}`,
+                    }}
+                  >
+                    {a.isVerified ? "✓ Verified" : "✗ Unverified"}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: ".65rem",
+                      fontWeight: 700,
+                      padding: ".18rem .6rem",
+                      borderRadius: "50px",
+                      background: "rgba(33,150,201,.1)",
+                      color: "#2196C9",
+                      border: "1px solid rgba(33,150,201,.25)",
+                      textTransform: "capitalize",
+                    }}
+                  >
+                    {a.authProvider}
+                  </span>
                 </div>
               </div>
             </div>
-            <div style={{ fontSize:'.8rem', color:'var(--muted)', marginBottom:'1rem', display:'flex', flexDirection:'column', gap:'.35rem' }}>
-              <span>Joined: {new Date(a.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</span>
+            <div
+              style={{
+                fontSize: ".8rem",
+                color: "var(--muted)",
+                marginBottom: "1rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: ".35rem",
+              }}
+            >
+              <span>
+                Joined:{" "}
+                {new Date(a.createdAt).toLocaleDateString("en-IN", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </span>
               {a.phone && <span>Phone: {a.phone}</span>}
               {a.college && <span>College: {a.college}</span>}
             </div>
-            <div style={{ display:'flex', gap:'.5rem' }}>
-              <button onClick={() => setSelected(a)} style={{ flex:1, padding:'.6rem', background:'var(--navy)', color:'white', border:'none', borderRadius:'var(--rsm)', fontWeight:700, fontSize:'.82rem', cursor:'pointer', fontFamily:"'DM Sans',sans-serif" }}>
+            <div style={{ display: "flex", gap: ".5rem" }}>
+              <button
+                onClick={() => setSelected(a)}
+                style={{
+                  flex: 1,
+                  padding: ".6rem",
+                  background: "var(--navy)",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "var(--rsm)",
+                  fontWeight: 700,
+                  fontSize: ".82rem",
+                  cursor: "pointer",
+                  fontFamily: "'DM Sans',sans-serif",
+                }}
+              >
                 View Details
               </button>
               {a._id !== currentUser?._id && (
-                <button disabled={deleting===a._id} onClick={() => handleDelete(a)} style={{ padding:'.6rem .9rem', background:'rgba(220,69,69,.1)', color:'#dc4545', border:'1px solid rgba(220,69,69,.25)', borderRadius:'var(--rsm)', fontWeight:700, fontSize:'.82rem', cursor:'pointer', fontFamily:"'DM Sans',sans-serif", opacity:deleting===a._id ? .5 : 1 }}>
-                  {deleting===a._id?'...':'Delete'}
+                <button
+                  disabled={deleting === a._id}
+                  onClick={() => handleDelete(a)}
+                  style={{
+                    padding: ".6rem .9rem",
+                    background: "rgba(220,69,69,.1)",
+                    color: "#dc4545",
+                    border: "1px solid rgba(220,69,69,.25)",
+                    borderRadius: "var(--rsm)",
+                    fontWeight: 700,
+                    fontSize: ".82rem",
+                    cursor: "pointer",
+                    fontFamily: "'DM Sans',sans-serif",
+                    opacity: deleting === a._id ? 0.5 : 1,
+                  }}
+                >
+                  {deleting === a._id ? "..." : "Delete"}
                 </button>
               )}
             </div>
@@ -1829,34 +4029,142 @@ const AdminsTab = () => {
       </div>
 
       {selected && (
-        <div className="modal-overlay" onClick={(e) => e.target===e.currentTarget && setSelected(null)}>
-          <div className="modal-box" style={{ maxWidth:'480px' }}>
-            <button className="modal-close" onClick={() => setSelected(null)}>×</button>
-            <div style={{ display:'flex', alignItems:'center', gap:'1.25rem', paddingBottom:'1.25rem', borderBottom:'1px solid var(--border)', marginBottom:'1.5rem' }}>
-              <div style={{ width:64, height:64, borderRadius:'50%', background:'linear-gradient(135deg,#dc4545,#ff6b6b)', color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:900, fontSize:'1.6rem', flexShrink:0 }}>{selected.name?.[0]?.toUpperCase()}</div>
+        <div
+          className="modal-overlay"
+          onClick={(e) => e.target === e.currentTarget && setSelected(null)}
+        >
+          <div className="modal-box" style={{ maxWidth: "480px" }}>
+            <button className="modal-close" onClick={() => setSelected(null)}>
+              ×
+            </button>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "1.25rem",
+                paddingBottom: "1.25rem",
+                borderBottom: "1px solid var(--border)",
+                marginBottom: "1.5rem",
+              }}
+            >
+              <div
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg,#dc4545,#ff6b6b)",
+                  color: "white",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 900,
+                  fontSize: "1.6rem",
+                  flexShrink: 0,
+                }}
+              >
+                {selected.name?.[0]?.toUpperCase()}
+              </div>
               <div>
-                <h3 style={{ fontFamily:"'Playfair Display',serif", color:'var(--navy)', marginBottom:'.3rem' }}>{selected.name}</h3>
-                <span style={{ fontSize:'.75rem', background:'rgba(220,69,69,.1)', color:'#dc4545', padding:'.2rem .65rem', borderRadius:'50px', fontWeight:700 }}>Administrator</span>
+                <h3
+                  style={{
+                    fontFamily: "'Playfair Display',serif",
+                    color: "var(--navy)",
+                    marginBottom: ".3rem",
+                  }}
+                >
+                  {selected.name}
+                </h3>
+                <span
+                  style={{
+                    fontSize: ".75rem",
+                    background: "rgba(220,69,69,.1)",
+                    color: "#dc4545",
+                    padding: ".2rem .65rem",
+                    borderRadius: "50px",
+                    fontWeight: 700,
+                  }}
+                >
+                  Administrator
+                </span>
               </div>
             </div>
-            <div style={{ display:'flex', flexDirection:'column', gap:'.75rem' }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: ".75rem",
+              }}
+            >
               {[
-                ['Email',         selected.email],
-                ['Phone',         selected.phone||'—'],
-                ['College',       selected.college||'—'],
-                ['Joined',        new Date(selected.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})],
-                ['Auth Provider', selected.authProvider],
-                ['Verified',      selected.isVerified?'Yes ✓':'No ✗'],
+                ["Email", selected.email],
+                ["Phone", selected.phone || "—"],
+                ["College", selected.college || "—"],
+                [
+                  "Joined",
+                  new Date(selected.createdAt).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  }),
+                ],
+                ["Auth Provider", selected.authProvider],
+                ["Verified", selected.isVerified ? "Yes ✓" : "No ✗"],
               ].map(([label, val], i) => (
-                <div key={i} style={{ background:'var(--cream)', borderRadius:10, padding:'.85rem 1rem', border:'1px solid var(--border)' }}>
-                  <div style={{ fontSize:'.68rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:'.15rem' }}>{label}</div>
-                  <div style={{ fontSize:'.9rem', fontWeight:600, color:'var(--navy)', wordBreak:'break-all' }}>{val}</div>
+                <div
+                  key={i}
+                  style={{
+                    background: "var(--cream)",
+                    borderRadius: 10,
+                    padding: ".85rem 1rem",
+                    border: "1px solid var(--border)",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: ".68rem",
+                      color: "var(--muted)",
+                      textTransform: "uppercase",
+                      letterSpacing: ".06em",
+                      marginBottom: ".15rem",
+                    }}
+                  >
+                    {label}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: ".9rem",
+                      fontWeight: 600,
+                      color: "var(--navy)",
+                      wordBreak: "break-all",
+                    }}
+                  >
+                    {val}
+                  </div>
                 </div>
               ))}
             </div>
             {selected._id !== currentUser?._id && (
-              <button disabled={deleting===selected._id} onClick={() => handleDelete(selected)} style={{ width:'100%', marginTop:'1.25rem', padding:'.75rem', background:'#dc4545', color:'white', border:'none', borderRadius:'var(--rsm)', fontWeight:700, fontSize:'.9rem', cursor:'pointer', fontFamily:"'DM Sans',sans-serif", opacity:deleting===selected._id ? .5 : 1 }}>
-                {deleting===selected._id?'Deleting...':'Delete This Admin'}
+              <button
+                disabled={deleting === selected._id}
+                onClick={() => handleDelete(selected)}
+                style={{
+                  width: "100%",
+                  marginTop: "1.25rem",
+                  padding: ".75rem",
+                  background: "#dc4545",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "var(--rsm)",
+                  fontWeight: 700,
+                  fontSize: ".9rem",
+                  cursor: "pointer",
+                  fontFamily: "'DM Sans',sans-serif",
+                  opacity: deleting === selected._id ? 0.5 : 1,
+                }}
+              >
+                {deleting === selected._id
+                  ? "Deleting..."
+                  : "Delete This Admin"}
               </button>
             )}
           </div>

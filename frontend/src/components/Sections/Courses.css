@@ -439,15 +439,6 @@
   flex-shrink: 0;
 }
 
-.cs-rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.64rem;
-  font-weight: 600;
-  color: #374151;
-}
-
 .cs-star-icon {
   color: #f59e0b;
   flex-shrink: 0;
@@ -1305,3 +1296,115 @@
     text-align: center;
   }
 }
+
+/* ── EMI on course card ── */
+.cs-emi-label {
+  font-size: .68rem;
+  color: rgba(255,255,255,0.75);
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+/* ── EMI selector in EnrollModal ── */
+.emi-selector { margin: 1rem 0; }
+.emi-selector-label {
+  font-size: .78rem; font-weight: 700; color: var(--navy);
+  text-transform: uppercase; letter-spacing: .05em; margin-bottom: .65rem;
+}
+.emi-options { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; }
+.emi-option {
+  border: 2px solid var(--border); border-radius: 10px;
+  padding: .85rem .75rem; cursor: pointer; background: white;
+  text-align: left; transition: all .2s; font-family: 'DM Sans', sans-serif;
+}
+.emi-option:hover { border-color: var(--gold); }
+.emi-option.active { border-color: var(--gold); background: rgba(232,168,32,.06); }
+.emi-option-title { font-size: .78rem; font-weight: 700; color: var(--navy); margin-bottom: .2rem; }
+.emi-option-price { font-size: 1rem; font-weight: 800; color: var(--gold); margin-bottom: .15rem; }
+.emi-option-sub { font-size: .68rem; color: var(--muted); }
+.emi-breakdown {
+  background: #f8fafc; border: 1px solid var(--border);
+  border-radius: 10px; padding: .85rem 1rem; margin-top: .65rem;
+}
+.emi-breakdown-title {
+  font-size: .75rem; font-weight: 700; color: var(--navy);
+  margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .05em;
+}
+.emi-breakdown-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: .35rem 0; border-bottom: 1px solid var(--border);
+  font-size: .8rem; color: var(--muted);
+}
+.emi-breakdown-row strong { color: var(--navy); }
+.emi-breakdown-total {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: .5rem; margin-top: .25rem;
+  font-size: .85rem; font-weight: 700; color: var(--navy);
+}
+
+/* ── Coupon Section ── */
+.coupon-section {
+  background: #f8fafc; border: 1.5px dashed #d1d5db;
+  border-radius: 12px; padding: 1rem; margin: 1rem 0;
+}
+.coupon-label {
+  display: flex; align-items: center; gap: .4rem;
+  font-size: .8rem; font-weight: 700; color: var(--navy);
+  margin-bottom: .65rem;
+}
+.coupon-input-row { display: flex; gap: .5rem; }
+.coupon-input {
+  flex: 1; padding: .6rem .85rem; border: 1.5px solid var(--border);
+  border-radius: 8px; font-size: .88rem; font-family: 'Space Mono', monospace;
+  text-transform: uppercase; letter-spacing: .05em; outline: none;
+  transition: border-color .2s;
+}
+.coupon-input:focus { border-color: var(--gold); }
+.coupon-apply-btn {
+  padding: .6rem 1.1rem; background: var(--navy); color: white;
+  border: none; border-radius: 8px; font-weight: 700; font-size: .85rem;
+  cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .2s;
+  white-space: nowrap;
+}
+.coupon-apply-btn:hover:not(:disabled) { background: var(--gold); color: var(--navy); }
+.coupon-apply-btn:disabled { opacity: .6; cursor: not-allowed; }
+.coupon-applied-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(24,180,91,.08); border: 1.5px solid rgba(24,180,91,.3);
+  border-radius: 8px; padding: .65rem .85rem;
+}
+.coupon-applied-info {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: .82rem; color: var(--navy); flex-wrap: wrap;
+}
+.coupon-saved {
+  background: rgba(24,180,91,.15); color: #18b45b;
+  font-size: .72rem; font-weight: 700; padding: .15rem .5rem;
+  border-radius: 50px;
+}
+.coupon-remove-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: .85rem; padding: .2rem .4rem;
+  border-radius: 4px; transition: all .2s; flex-shrink: 0;
+}
+.coupon-remove-btn:hover { background: rgba(220,69,69,.1); color: #dc4545; }
+.coupon-error {
+  font-size: .78rem; color: #dc4545; margin-top: .5rem;
+  display: flex; align-items: center; gap: .35rem;
+}
+.coupon-error::before { content: '⚠'; }
+.coupon-price-summary {
+  margin-top: .75rem; padding-top: .75rem;
+  border-top: 1px solid rgba(24,180,91,.2);
+}
+.cps-row {
+  display: flex; justify-content: space-between;
+  font-size: .82rem; color: var(--muted); padding: .25rem 0;
+}
+.cps-discount { color: #18b45b; }
+.cps-total {
+  display: flex; justify-content: space-between;
+  font-size: .9rem; color: var(--navy); padding-top: .4rem;
+  border-top: 1px solid var(--border); margin-top: .25rem;
+}
+.cps-total strong { color: var(--gold); font-size: 1rem; }

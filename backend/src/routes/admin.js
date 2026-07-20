@@ -294,4 +294,36 @@ router.patch('/users/:id/reset-password', async (req, res) => {
   }
 });
 
+
+// Payment details with EMI tracking
+router.get('/payment-details', async (req, res) => {
+  try {
+    const { filter } = req.query;
+    let query = {};
+    if (filter === 'full') query.paymentStatus = 'paid';
+    else if (filter === 'emi_1') query.paymentStatus = 'emi_1';
+    else if (filter === 'emi_2') query.paymentStatus = 'emi_2';
+    else if (filter === 'emi_3') query.paymentStatus = 'emi_3';
+    else if (filter === 'pending') query.paymentStatus = 'pending';
+
+    const enrollments = await Enrollment.find(query)
+      .populate('user', 'name email phone')
+      .sort('-createdAt')
+      .select('name email phone college courseName coursePrice paymentStatus paymentType emiInstallments couponApplied couponCode originalPrice discountAmount finalPrice createdAt paymentId');
+
+    // Summary counts
+    const [fullPaid, emi1, emi2, emi3, pending] = await Promise.all([
+      Enrollment.countDocuments({ paymentStatus: 'paid' }),
+      Enrollment.countDocuments({ paymentStatus: 'emi_1' }),
+      Enrollment.countDocuments({ paymentStatus: 'emi_2' }),
+      Enrollment.countDocuments({ paymentStatus: 'emi_3' }),
+      Enrollment.countDocuments({ paymentStatus: 'pending' }),
+    ]);
+
+    res.json({ success: true, data: enrollments, summary: { fullPaid, emi1, emi2, emi3, pending } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = router;

@@ -103,6 +103,11 @@ const EnrollModal = ({ course, onClose }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showPrice, setShowPrice] = useState(false);
+  const [paymentType, setPaymentType] = useState('full'); // 'full' or 'emi'
+  const [couponCode, setCouponCode] = useState('');
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [couponError, setCouponError] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
   const [form, setForm] = useState({
     name: user?.name || "", email: user?.email || "", phone: user?.phone || "",
     college: user?.college || "", degree: "", year: user?.year || "",
@@ -112,6 +117,41 @@ const EnrollModal = ({ course, onClose }) => {
   const originalPrice = course.originalPrice || Math.round(course.price * 1.2); // 20% markup for original
   const offerPrice = course.price;
   const discount = Math.round(((originalPrice - offerPrice) / originalPrice) * 100);
+  const emi1 = Math.ceil(offerPrice * 0.3); // 30% first installment
+  const emi2 = Math.ceil((offerPrice - emi1) / 2); // remaining split in 2
+  const emi3 = offerPrice - emi1 - emi2;
+  const couponDiscount = couponApplied ? Math.round(offerPrice * 0.1) : 0;
+  const finalPrice = offerPrice - couponDiscount;
+  const finalEmi1 = Math.ceil(finalPrice * 0.3);
+  const finalEmi2 = Math.ceil((finalPrice - finalEmi1) / 2);
+  const finalEmi3 = finalPrice - finalEmi1 - finalEmi2;
+  const payAmount = paymentType === 'emi' ? finalEmi1 : finalPrice;
+
+  const VALID_COUPONS = ['WEINTERN10', 'INTERN10', 'WELCOME10', 'LAUNCH10', 'STUDENT10'];
+
+  const applyCoupon = () => {
+    if (!couponCode.trim()) { setCouponError('Please enter a coupon code'); return; }
+    setCouponLoading(true);
+    setCouponError('');
+    setTimeout(() => {
+      if (VALID_COUPONS.includes(couponCode.trim().toUpperCase())) {
+        setCouponApplied(true);
+        setCouponError('');
+        toast.success('Coupon applied! 10% discount added 🎉');
+      } else {
+        setCouponApplied(false);
+        setCouponError('Invalid coupon code. Please check and try again.');
+      }
+      setCouponLoading(false);
+    }, 800);
+  };
+
+  const removeCoupon = () => {
+    setCouponApplied(false);
+    setCouponCode('');
+    setCouponError('');
+    toast('Coupon removed', { icon: 'ℹ️' });
+  };
 
   const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
@@ -129,7 +169,17 @@ const EnrollModal = ({ course, onClose }) => {
       const enrollmentId = enrollRes.data.data._id;
       const sdkLoaded = await loadRazorpaySDK();
       if (!sdkLoaded) { toast.error("Payment gateway failed."); setStep(1); setLoading(false); return; }
-      const orderRes = await API.post("/payments/create-order", { amount: course.price, enrollmentId });
+      const orderRes = await API.post("/payments/create-order", { 
+        amount: payAmount, 
+        enrollmentId,
+        paymentType,
+        emiInstallment: paymentType === 'emi' ? 1 : null,
+        couponApplied,
+        couponCode: couponApplied ? couponCode : null,
+        originalPrice: offerPrice,
+        discountAmount: couponDiscount,
+        finalPrice
+      });
       const order = orderRes.data.order;
       const rzp = new window.Razorpay({
         key: RAZORPAY_KEY, amount: order.amount, currency: "INR",
@@ -137,7 +187,18 @@ const EnrollModal = ({ course, onClose }) => {
         image: `${window.location.origin}/welogo.png`, order_id: order.id,
         handler: async (response) => {
           try {
-            await API.post("/payments/verify", { ...response, enrollmentId });
+            await API.post("/payments/verify", { 
+              ...response, 
+              enrollmentId,
+              paymentType,
+              emiInstallment: paymentType === 'emi' ? 1 : null,
+              amount: payAmount,
+              couponApplied,
+              couponCode: couponApplied ? couponCode : null,
+              originalPrice: offerPrice,
+              discountAmount: couponDiscount,
+              finalPrice
+            });
             toast.success("Payment successful! You are now enrolled."); onClose();
           } catch { toast.error("Verification failed. Contact support."); }
         },
@@ -245,6 +306,106 @@ const EnrollModal = ({ course, onClose }) => {
               </div>
             )}
 
+            {/* Coupon Code */}
+            <div className="coupon-section">
+              <div className="coupon-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                Have a Coupon Code?
+              </div>
+              {!couponApplied ? (
+                <div className="coupon-input-row">
+                  <input
+                    type="text"
+                    className="coupon-input"
+                    placeholder="Enter coupon code"
+                    value={couponCode}
+                    onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponError(''); }}
+                    onKeyDown={(e) => e.key === 'Enter' && applyCoupon()}
+                  />
+                  <button
+                    type="button"
+                    className="coupon-apply-btn"
+                    onClick={applyCoupon}
+                    disabled={couponLoading}
+                  >
+                    {couponLoading ? '...' : 'Apply'}
+                  </button>
+                </div>
+              ) : (
+                <div className="coupon-applied-row">
+                  <div className="coupon-applied-info">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span><strong>{couponCode}</strong> applied — 10% off!</span>
+                    <span className="coupon-saved">You save ₹{Number(couponDiscount).toLocaleString('en-IN')}</span>
+                  </div>
+                  <button type="button" className="coupon-remove-btn" onClick={removeCoupon}>✕</button>
+                </div>
+              )}
+              {couponError && <div className="coupon-error">{couponError}</div>}
+              {couponApplied && (
+                <div className="coupon-price-summary">
+                  <div className="cps-row">
+                    <span>Course Fee</span>
+                    <span>₹{Number(offerPrice).toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="cps-row cps-discount">
+                    <span>Coupon Discount (10%)</span>
+                    <span>− ₹{Number(couponDiscount).toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="cps-row cps-total">
+                    <span>Final Amount</span>
+                    <strong>₹{Number(finalPrice).toLocaleString('en-IN')}</strong>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Payment Type Selector */}
+            <div className="emi-selector">
+              <div className="emi-selector-label">Choose Payment Option</div>
+              <div className="emi-options">
+                <button
+                  type="button"
+                  className={`emi-option${paymentType === 'full' ? ' active' : ''}`}
+                  onClick={() => setPaymentType('full')}
+                >
+                  <div className="emi-option-title">Full Payment</div>
+                  <div className="emi-option-price">₹{Number(finalPrice).toLocaleString('en-IN')}</div>
+                  <div className="emi-option-sub">Pay once, save more</div>
+                </button>
+                <button
+                  type="button"
+                  className={`emi-option${paymentType === 'emi' ? ' active' : ''}`}
+                  onClick={() => setPaymentType('emi')}
+                >
+                  <div className="emi-option-title">3-Part EMI</div>
+                  <div className="emi-option-price">₹{Number(finalEmi1).toLocaleString('en-IN')} now</div>
+                  <div className="emi-option-sub">+ 2 more in 20 days</div>
+                </button>
+              </div>
+              {paymentType === 'emi' && (
+                <div className="emi-breakdown">
+                  <div className="emi-breakdown-title">EMI Schedule</div>
+                  <div className="emi-breakdown-row">
+                    <span>📅 Today (1st Installment — 30%)</span>
+                    <strong>₹{Number(finalEmi1).toLocaleString('en-IN')}</strong>
+                  </div>
+                  <div className="emi-breakdown-row">
+                    <span>📅 After 20 days (2nd Installment)</span>
+                    <strong>₹{Number(finalEmi2).toLocaleString('en-IN')}</strong>
+                  </div>
+                  <div className="emi-breakdown-row">
+                    <span>📅 After 40 days (3rd Installment)</span>
+                    <strong>₹{Number(finalEmi3).toLocaleString('en-IN')}</strong>
+                  </div>
+                  <div className="emi-breakdown-total">
+                    <span>Total</span>
+                    <strong>₹{Number(finalPrice).toLocaleString('en-IN')}</strong>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="payment-methods-preview">
               <div className="pm-label">Accepted Payment Methods</div>
               <div className="pm-icons">
@@ -257,7 +418,9 @@ const EnrollModal = ({ course, onClose }) => {
 
             <button type="submit" className="btn btn-primary btn-full enroll-pay-btn">
               <Icon icon="lucide:lock" width={15} height={15} style={{ marginRight: "0.3rem" }} />
-              Pay ₹{Number(offerPrice).toLocaleString("en-IN")} Now
+              {paymentType === 'full' 
+                ? `Pay ₹${Number(finalPrice).toLocaleString('en-IN')} Now`
+                : `Pay EMI 1: ₹${Number(finalEmi1).toLocaleString('en-IN')} Now`}
               <Icon icon="lucide:arrow-right" width={15} height={15} style={{ marginLeft: "0.3rem" }} />
             </button>
             <button type="button" className="btn btn-outline btn-full" onClick={onClose} style={{ marginTop:".6rem" }}>
@@ -462,7 +625,7 @@ const Courses = () => {
           <Icon icon="lucide:rocket" width={13} height={13} className="cs-badge-rocket-icon" /> Industry-Ready Programs
         </div>
         <h2 className="cs-main-title">
-          Explore <span className="cs-title-accent">Our Programs</span>
+          Explore Our <span className="cs-title-accent">Training + Internships</span>
         </h2>
         <p className="cs-sub">Upskill with Job-Ready Programs &amp; Career-Driven Certifications.</p>
       </div>
@@ -535,6 +698,7 @@ const Courses = () => {
                         <span className="cs-offer-discount">{discount}% OFF</span>
                       </div>
                       <div className="cs-offer-new-price">₹{Number(offerPrice).toLocaleString("en-IN")}</div>
+                      <div className="cs-emi-label">or ₹{Math.ceil(offerPrice * 0.3).toLocaleString("en-IN")} EMI</div>
                     </div>
                     
                     {/* Icon box */}
@@ -582,8 +746,6 @@ const Courses = () => {
                   {/* Rating row */}
                   <div className="cs-card-footer">
                     <span className="cs-rating">
-                      <Icon icon="lucide:star" width={11} height={11} className="cs-star-icon" />
-                      {c.rating || "4.8"} ({c.reviews || "1.2k"})
                     </span>
                   </div>
                 </div>

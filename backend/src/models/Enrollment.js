@@ -12,7 +12,21 @@ const enrollmentSchema = new mongoose.Schema({
   year: { type: String, required: true },
   paymentId: { type: String },
   paymentOrderId: { type: String },
-  paymentStatus: { type: String, enum: ['pending', 'paid', 'failed'], default: 'pending' },
+  paymentStatus: { type: String, enum: ['pending', 'paid', 'failed', 'emi_1', 'emi_2', 'emi_3'], default: 'pending' },
+  paymentType: { type: String, enum: ['full', 'emi'], default: 'full' },
+  couponApplied: { type: Boolean, default: false },
+  couponCode: { type: String },
+  originalPrice: { type: Number },
+  discountAmount: { type: Number, default: 0 },
+  finalPrice: { type: Number },
+  emiInstallments: [{
+    installment: { type: Number },
+    amount: { type: Number },
+    paymentId: { type: String },
+    orderId: { type: String },
+    paidAt: { type: Date },
+    status: { type: String, enum: ['pending', 'paid'], default: 'pending' }
+  }],
   status: { type: String, enum: ['enrolled', 'in_progress', 'completed', 'dropped'], default: 'enrolled' }
 }, { timestamps: true });
 
