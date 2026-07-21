@@ -202,6 +202,7 @@ const AdminOverview = () => {
     return null;
   };
 
+ 
   return (
     <div className="analytics-wrapper">
       <div className="overview-welcome">
@@ -219,7 +220,7 @@ const AdminOverview = () => {
             onClick={refreshStats} 
             disabled={loading}
             className="btn btn-outline" 
-            style={{ fontSize: '.8rem', padding: '.4rem .8rem' }}
+            style={{ fontSize: '.8rem', padding: '.4rem .8rem' , color:'white',backgroundColor:'black'}}
           >
             {loading ? '🔄' : '↻'} Refresh
           </button>
@@ -471,6 +472,25 @@ const AdminEnrollments = () => {
   const [enrolls, setEnrolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+const [selectedEnrollment, setSelectedEnrollment] = useState(null);
+ const handleDelete = async () => {
+  try {
+    await API.delete(`/courses/enroll/${selectedEnrollment}`);
+
+    setEnrolls(prev =>
+      prev.filter(item => item._id !== selectedEnrollment)
+    );
+
+    toast.success("Enrollment deleted successfully");
+
+    setShowDeleteModal(false);
+    setSelectedEnrollment(null);
+
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to delete");
+  }
+};
   useEffect(() => {
     setLoading(true);
     getAdminEnrollments({ search }).then(r => setEnrolls(r.data.data))
@@ -482,10 +502,45 @@ const AdminEnrollments = () => {
         <input className="admin-search" placeholder="Search name, course..."
           value={search} onChange={e => setSearch(e.target.value)} />
       </div>
+      {showDeleteModal && (
+  <div className="modal-overlay">
+    <div className="delete-modal">
+
+      <div className="delete-icon">🗑️</div>
+
+      <h2>Delete Enrollment?</h2>
+
+      <p>
+        This action cannot be undone.
+        Are you sure you want to permanently delete this enrollment?
+      </p>
+
+      <div className="modal-buttons">
+        <button
+          className="cancel-btn"
+          onClick={() => {
+            setShowDeleteModal(false);
+            setSelectedEnrollment(null);
+          }}
+        >
+          Cancel
+        </button>
+
+        <button
+          className="confirm-btn"
+          onClick={handleDelete}
+        >
+          Delete
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
       {loading ? <div className="dash-loading"><div className="dash-spinner" /></div> : (
         <div className="table-wrap">
           <table className="data-table">
-            <thead><tr><th>Name</th><th>Email</th><th>Course</th><th>Price</th><th>College</th><th>Enrolled On</th><th>Payment</th></tr></thead>
+            <thead><tr><th>Name</th><th>Email</th><th>Course</th><th>Price</th><th>College</th><th>Enrolled On</th><th>Payment</th><th>Action</th></tr></thead>
             <tbody>
               {enrolls.map(e => (
                 <tr key={e._id}>
@@ -496,6 +551,17 @@ const AdminEnrollments = () => {
                   <td>{e.college}</td>
                   <td>{new Date(e.createdAt).toLocaleDateString('en-IN')}</td>
                   <td>{statusBadge(e.paymentStatus)}</td>
+                <td>
+<button
+  className="delete-btn"
+  onClick={() => {
+    setSelectedEnrollment(e._id);
+    setShowDeleteModal(true);
+  }}
+>
+  Delete
+</button>
+</td>
                 </tr>
               ))}
             </tbody>
@@ -548,7 +614,7 @@ const AdminHireRequests = () => {
                     </select>
                   </td>
                   <td>
-                    <button className="btn btn-outline" style={{fontSize:'.75rem',padding:'.35rem .75rem'}}
+                    <button className="btn btn-outline" style={{fontSize:'.75rem',padding:'.35rem .75rem',backgroundColor:'black',color:'white'}}
                       onClick={() => setSelected(r)}>View</button>
                   </td>
                 </tr>

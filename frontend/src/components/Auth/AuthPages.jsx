@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { login, register, verifyOTP, resendOTP, forgotPassword, resetPassword, getProfile } from '../../utils/api';
 import toast from 'react-hot-toast';
 import './Auth.css';
+ 
 
 const BACKEND = process.env.REACT_APP_API_URL
   ? process.env.REACT_APP_API_URL.replace('/api', '')
@@ -22,7 +23,7 @@ const AuthLayout = ({ title, subtitle, children }) => (
     </div>
   </div>
 );
-
+     
 const SocialButtons = () => (
   <>
     <div className="auth-divider"><span>or continue with</span></div>
@@ -625,7 +626,10 @@ export const AuthCallback = () => {
   const { loginUser } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState(false);
+  const hasRun = useRef(false);
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
     if (!token) { setError(true); return; }
