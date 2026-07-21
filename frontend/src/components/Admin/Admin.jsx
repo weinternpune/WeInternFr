@@ -148,6 +148,7 @@ const Admin = () => {
 const AdminOverview = () => {
   const { stats: statsData, loading, loadStats, refreshStats, lastUpdated } = useAdmin();
 
+
   useEffect(() => {
     if (!statsData) {
       loadStats();
@@ -156,17 +157,17 @@ const AdminOverview = () => {
 
   if (!statsData) return <div className="dash-loading"><div className="dash-spinner" /></div>;
 
-  const { stats, monthlyData } = statsData;
+ const { stats, monthlyData, courseData ,weeklyUsers, } = statsData;
 
-  const courseData = [
-    { name: 'Full Stack', students: 45, color: '#e76f51' },
-    { name: 'Mobile App', students: 32, color: '#2a9d8f' },
-    { name: 'AI & Auto', students: 28, color: '#6c3483' },
-    { name: 'Cloud', students: 20, color: '#1a6b8a' },
-    { name: 'UI/UX', students: 38, color: '#c0392b' },
-    { name: 'Marketing', students: 55, color: '#e67e22' },
-    { name: 'Data Sci', students: 25, color: '#1e8449' },
-  ];
+const COURSE_COLORS = [
+  "#e76f51",
+  "#2a9d8f",
+  "#6c3483",
+  "#1a6b8a",
+  "#c0392b",
+  "#e67e22",
+  "#1e8449",
+];
 
   // Calculate real status data from applications  
   const statusData = [
@@ -176,15 +177,7 @@ const AdminOverview = () => {
     { name: 'Rejected', value: Math.max(1, Math.floor(stats.totalApplications * 0.17)), color: '#dc4545' },
   ];
 
-  const weeklyUsers = [
-    { day: 'Mon', users: Math.floor(stats.totalUsers * 0.08)  },
-    { day: 'Tue', users: Math.floor(stats.totalUsers * 0.12) },
-    { day: 'Wed', users: Math.floor(stats.totalUsers * 0.10) },
-    { day: 'Thu', users: Math.floor(stats.totalUsers * 0.18) },
-    { day: 'Fri', users: Math.floor(stats.totalUsers * 0.15) },
-    { day: 'Sat', users: Math.floor(stats.totalUsers * 0.25) },
-    { day: 'Sun', users: Math.floor(stats.totalUsers * 0.20) },
-  ];
+
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -236,7 +229,15 @@ const AdminOverview = () => {
           { icon:'📚', num: stats.totalEnrollments,    label:'Enrollments',      color:'#6c3483' },
           { icon:'💰', num: stats.paidEnrollments,     label:'Paid',             color:'#27ae60' },
           { icon:'🏢', num: stats.totalHireRequests,   label:'Hire Requests',    color:'#dc4545' },
-          { icon:'💵', num: stats.totalRevenue ? '₹' + (stats.totalRevenue/100000).toFixed(1) + 'L' : '₹0', label:'Total Revenue', color:'#1e8449' },
+        {
+  icon: "💵",
+  num:
+    stats.totalRevenue >= 100000
+      ? `₹${(stats.totalRevenue / 100000).toFixed(1)}L`
+      : `₹${stats.totalRevenue.toLocaleString("en-IN")}`,
+  label: "Total Revenue",
+  color: "#1e8449",
+}
         ].map(s => (
           <div key={s.label} className="stat-card" style={{ borderTop: '3px solid ' + s.color }}>
             <div className="stat-icon">{s.icon}</div>
@@ -316,7 +317,12 @@ const AdminOverview = () => {
               <YAxis tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
               <Tooltip cursor={{ fill:'rgba(27,42,74,0.04)' }} content={<CustomTooltip />} />
               <Bar dataKey="students" name="Students" radius={[6,6,0,0]}>
-                {courseData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+               {courseData.map((entry, i) => (
+  <Cell
+    key={i}
+    fill={COURSE_COLORS[i % COURSE_COLORS.length]}
+  />
+))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>

@@ -23,6 +23,7 @@ export const AdminProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await getAdminStats();
+      
       setStats(response.data.data);
       setLastUpdated(new Date());
       
