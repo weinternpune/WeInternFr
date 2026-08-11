@@ -379,11 +379,11 @@ const AnalyticsTab = ({ enrollments, applications, dashboardStats }) => {
   ];
 
   const moduleProgress = [
-    { name:'HTML & CSS',   done:12, total:12, color:'#27ae60' },
-    { name:'JavaScript',   done:18, total:24, color:'#2196C9' },
-    { name:'React.js',     done:10, total:20, color:'#6c3483' },
-    { name:'Node.js',      done:6,  total:16, color:'#e67e22' },
-    { name:'MongoDB',      done:4,  total:12, color:'#1e8449' },
+    { name:'HTML & CSS',   done:0, total:12, color:'#27ae60' },
+    { name:'JavaScript',   done:0, total:24, color:'#2196C9' },
+    { name:'React.js',     done:0, total:20, color:'#6c3483' },
+    { name:'Node.js',      done:0,  total:16, color:'#e67e22' },
+    { name:'MongoDB',      done:0,  total:12, color:'#1e8449' },
     { name:'Deployment',   done:0,  total:8,  color:'#dc4545' },
   ];
 

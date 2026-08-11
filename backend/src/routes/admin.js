@@ -27,6 +27,27 @@ router.get('/stats', async (req, res) => {
     const paidEnrollmentsData = await Enrollment.find({ paymentStatus: 'paid' }).select('coursePrice createdAt');
     const totalRevenue = paidEnrollmentsData.reduce((sum, enrollment) => sum + (enrollment.coursePrice || 0), 0);
 
+    // Calculate students per course
+const enrollments = await Enrollment.find().select("courseName");
+
+const courseMap = {};
+
+enrollments.forEach((enrollment) => {
+  const course = enrollment.courseName;
+
+  if (!courseMap[course]) {
+    courseMap[course] = 0;
+  }
+
+  courseMap[course]++;
+});
+
+const courseData = Object.entries(courseMap).map(([name, students]) => ({
+  name,
+  students,
+}));
+
+
     // Calculate monthly data for the last 8 months
     const monthlyData = [];
     const currentDate = new Date();
@@ -68,6 +89,44 @@ router.get('/stats', async (req, res) => {
 
     const recentApplications = await Application.find().sort('-createdAt').limit(5);
     const recentEnrollments = await Enrollment.find().sort('-createdAt').limit(5).populate('user', 'name email');
+
+    // Calculate real weekly signups
+const weeklyUsers = [];
+const today = new Date();
+
+// Start from Monday
+const currentDay = today.getDay(); // Sunday = 0
+const monday = new Date(today);
+
+monday.setHours(0, 0, 0, 0);
+
+const diff = currentDay === 0 ? 6 : currentDay - 1;
+monday.setDate(today.getDate() - diff);
+
+const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+for (let i = 0; i < 7; i++) {
+  const start = new Date(monday);
+  start.setDate(monday.getDate() + i);
+
+  const end = new Date(start);
+  end.setDate(start.getDate() + 1);
+
+  const users = await User.countDocuments({
+    role: "student",
+    createdAt: {
+      $gte: start,
+      $lt: end,
+    },
+  });
+
+  weeklyUsers.push({
+    day: dayNames[i],
+    users,
+  });
+}
+
+console.log("Weekly Users:", weeklyUsers);
     
     res.json({
       success: true,
@@ -76,6 +135,7 @@ router.get('/stats', async (req, res) => {
           totalUsers, 
           totalApplications, 
           totalEnrollments, 
+          
           totalHireRequests, 
           pendingApplications, 
           paidEnrollments, 
@@ -83,6 +143,8 @@ router.get('/stats', async (req, res) => {
           totalRevenue 
         },
         monthlyData,
+        courseData,
+        weeklyUsers,
         recentApplications,
         recentEnrollments
       }

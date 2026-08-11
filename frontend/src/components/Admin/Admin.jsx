@@ -231,6 +231,7 @@ const AdminOverview = () => {
     lastUpdated,
   } = useAdmin();
 
+
   useEffect(() => {
     if (!statsData) {
       loadStats();
@@ -244,7 +245,7 @@ const AdminOverview = () => {
       </div>
     );
 
-  const { stats, monthlyData } = statsData;
+ const { stats, monthlyData, courseData ,weeklyUsers, } = statsData;
 
   const courseData = [
     { name: "Full Stack", students: 45, color: "#e76f51" },
@@ -318,6 +319,7 @@ const AdminOverview = () => {
     return null;
   };
 
+ 
   return (
     <div className="analytics-wrapper">
       <div className="overview-welcome">

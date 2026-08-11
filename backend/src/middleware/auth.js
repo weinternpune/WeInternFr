@@ -3,12 +3,11 @@ const User = require('../models/User');
 
 const protect = async (req, res, next) => {
   try {
-    console.log("========== PROTECT ==========");
-    console.log("Authorization Header:", req.headers.authorization);
+
 
     const token = req.headers.authorization?.split(" ")[1];
 
-    console.log("Extracted Token:", token);
+
 
     if (!token) {
       console.log("❌ No token received");
@@ -17,13 +16,12 @@ const protect = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    console.log("Decoded JWT:", decoded);
 
     const user = await User.findById(decoded.id).select(
       "-password -otp -resetPasswordToken"
     );
 
-    console.log("User Found:", user);
+    // console.log("User Found:", user);
 
     if (!user) {
       console.log("❌ User not found");
@@ -32,12 +30,10 @@ const protect = async (req, res, next) => {
 
     req.user = user;
 
-    console.log("✅ Protect Passed");
-    console.log("============================");
 
     next();
   } catch (err) {
-    console.log("❌ Protect Error:", err);
+   
     res.status(401).json({ success: false, message: "Invalid token" });
   }
 };
