@@ -14,7 +14,7 @@ import ai_chatbot from "../../assets/ai_chatbot.jpg";
 import analytics from "../../assets/analytics.jpg";
 import ecommerce from "../../assets/ecommerce.jpg";
 import edtech from "../../assets/edtech.jpg";
-import fleet_monitoring from "../../assets/fleet_monitoring.jpg";
+import fleet_monitoring from "../../assets/fleet_monitoring.png";
 import healthcare from "../../assets/healthcare.jpg";
 import platform from "../../assets/platform.jpg";
 import food_delivery from "../../assets/food_delivery.jpg";
