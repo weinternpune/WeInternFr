@@ -3,53 +3,57 @@ const User = require('../models/User');
 
 const protect = async (req, res, next) => {
   try {
-
-
-    const token = req.headers.authorization?.split(" ")[1];
-
-
     console.log("========== PROTECT ==========");
-    // console.log("Authorization Header:", req.headers.authorization);
 
     const token = req.headers.authorization?.split(" ")[1];
-
-    // console.log("Extracted Token:", token);
 
     if (!token) {
       console.log("❌ No token received");
-      return res.status(401).json({ success: false, message: "Not authorized" });
+      return res.status(401).json({
+        success: false,
+        message: "Not authorized"
+      });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // console.log("Decoded JWT:", decoded);
 
     const user = await User.findById(decoded.id).select(
       "-password -otp -resetPasswordToken"
     );
 
-   
-
     if (!user) {
       console.log("❌ User not found");
-      return res.status(401).json({ success: false, message: "User not found" });
+      return res.status(401).json({
+        success: false,
+        message: "User not found"
+      });
     }
 
     req.user = user;
 
-
     next();
   } catch (err) {
-   
-    res.status(401).json({ success: false, message: "Invalid token" });
+    console.error("❌ Auth error:", err.message);
+
+    return res.status(401).json({
+      success: false,
+      message: "Invalid token"
+    });
   }
 };
 
 const adminOnly = (req, res, next) => {
   if (req.user?.role !== 'admin') {
-    return res.status(403).json({ success: false, message: 'Admin access required' });
+    return res.status(403).json({
+      success: false,
+      message: 'Admin access required'
+    });
   }
+
   next();
 };
 
-module.exports = { protect, adminOnly };
+module.exports = {
+  protect,
+  adminOnly
+};
