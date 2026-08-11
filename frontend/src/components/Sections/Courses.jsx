@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import CourseDetailModal from "./CourseDetail";
 import PhoneGate from "../PhoneGate/PhoneGate";
 import { Icon } from "@iconify/react";
+import { slugify } from "../../data/courseExtras";
 import "./Courses.css";
 
 /* ─── Razorpay loader (original, untouched) ─── */
@@ -97,7 +98,7 @@ const BENEFITS = [
 /* ══════════════════════════════════════════════════════════════
    EnrollModal  —  with offer system
 ══════════════════════════════════════════════════════════════ */
-const EnrollModal = ({ course, onClose }) => {
+export const EnrollModal = ({ course, onClose }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -677,7 +678,7 @@ const Courses = () => {
                   key={c.id || c.title}
                   className="cs-card"
                   style={{ "--crd-border": meta.border, "--enroll-color": meta.iconColor }}
-                  onClick={() => setDetailCourse(c)}
+                  onClick={() => navigate(`/courses/${slugify(c.title)}`)}
                 >
                   {/* Gradient icon zone */}
                   <div className="cs-card-icon-zone" style={{ background: meta.bg }}>

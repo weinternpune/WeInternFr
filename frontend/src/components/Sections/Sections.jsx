@@ -9,6 +9,7 @@ import toast from 'react-hot-toast';
 import useReveal from '../../hooks/useReveal';
 import './Sections.css';
 import './LiveJourney.css';
+import './SectionsPolish.css';
 
 import ai_chatbot from "../../assets/ai_chatbot.jpg";
 import analytics from "../../assets/analytics.jpg";

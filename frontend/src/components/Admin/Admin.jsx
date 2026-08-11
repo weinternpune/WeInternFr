@@ -245,17 +245,17 @@ const AdminOverview = () => {
       </div>
     );
 
- const { stats, monthlyData, courseData ,weeklyUsers, } = statsData;
+ const { stats, monthlyData, courseData} = statsData;
 
-  const courseData = [
-    { name: "Full Stack", students: 45, color: "#e76f51" },
-    { name: "Mobile App", students: 32, color: "#2a9d8f" },
-    { name: "AI & Auto", students: 28, color: "#6c3483" },
-    { name: "Cloud", students: 20, color: "#1a6b8a" },
-    { name: "UI/UX", students: 38, color: "#c0392b" },
-    { name: "Marketing", students: 55, color: "#e67e22" },
-    { name: "Data Sci", students: 25, color: "#1e8449" },
-  ];
+  // const courseData = [
+  //   { name: "Full Stack", students: 45, color: "#e76f51" },
+  //   { name: "Mobile App", students: 32, color: "#2a9d8f" },
+  //   { name: "AI & Auto", students: 28, color: "#6c3483" },
+  //   { name: "Cloud", students: 20, color: "#1a6b8a" },
+  //   { name: "UI/UX", students: 38, color: "#c0392b" },
+  //   { name: "Marketing", students: 55, color: "#e67e22" },
+  //   { name: "Data Sci", students: 25, color: "#1e8449" },
+  // ];
 
   // Calculate real status data from applications
   const statusData = [

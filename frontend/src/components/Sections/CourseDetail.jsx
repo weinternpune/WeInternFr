@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './CourseDetail.css';
 import { Icon } from '@iconify/react';
 
-const COURSE_DETAILS = {
+export const COURSE_DETAILS = {
   'Full Stack Web Development': {
     icon:'mdi:web',tagline:'Master the complete web stack and build production-grade applications',price:4999,duration:'12 Weeks',level:'Beginner',language:'English + Hindi',certificate:true,stipend:true,colors:{h1:'#e76f51',h2:'#f4a261'},
     about:'This comprehensive course takes you from zero to full-stack developer. You will build 4 real client projects that go live — not toy apps. You will work with actual client requirements, real deadlines, and a supervised team just like a professional work environment.',

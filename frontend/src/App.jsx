@@ -15,6 +15,7 @@ import AboutUs from './pages/AboutUs';
 import { LoginPage, RegisterPage, OTPPage, ForgotPasswordPage, ResetPasswordPage, AuthCallback } from './components/Auth/AuthPages';
 import Dashboard from './components/Dashboard/Dashboard';
 import Admin from './components/Admin/Admin';
+import CoursePage from './pages/CoursePage';
 
 // Global styles
 import './styles/global.css';
@@ -71,6 +72,9 @@ function AppRoutes() {
       {/* Public with layout */}
       <Route path="/" element={<WithLayout><Home /></WithLayout>} />
       
+      {/* Course detail page - standalone, opens in a new tab */}
+      <Route path="/courses/:slug" element={<CoursePage />} />
+
       {/* About Us - standalone page without footer */}
       <Route path="/about" element={<AboutUs />} />
 
