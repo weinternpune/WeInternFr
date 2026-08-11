@@ -8,6 +8,12 @@ const protect = async (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1];
 
 
+    console.log("========== PROTECT ==========");
+    // console.log("Authorization Header:", req.headers.authorization);
+
+    const token = req.headers.authorization?.split(" ")[1];
+
+    // console.log("Extracted Token:", token);
 
     if (!token) {
       console.log("❌ No token received");
@@ -16,12 +22,13 @@ const protect = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+    // console.log("Decoded JWT:", decoded);
 
     const user = await User.findById(decoded.id).select(
       "-password -otp -resetPasswordToken"
     );
 
-    // console.log("User Found:", user);
+   
 
     if (!user) {
       console.log("❌ User not found");
