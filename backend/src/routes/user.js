@@ -4,6 +4,37 @@ const { protect } = require('../middleware/auth');
 const User = require('../models/User');
 const { trackActivity, getUserStats, initializeUserProgress } = require('../utils/progressTracker');
 
+const {
+  getDashboardAnalytics
+} = require('../utils/dashboardAnalytics');
+
+router.get('/dashboard-analytics', protect, async (req, res) => {
+  try {
+
+    const analytics =
+      await getDashboardAnalytics(
+        req.user._id
+      );
+
+    res.json({
+      success: true,
+      data: analytics
+    });
+
+  } catch (err) {
+
+    console.error(
+      'Dashboard analytics error:',
+      err
+    );
+
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
+});
+
 // Get profile
 router.get('/profile', protect, async (req, res) => {
   res.json({ success: true, data: req.user });

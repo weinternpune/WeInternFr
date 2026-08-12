@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCourses } from '../../context/CoursesContext';
-import { getMyApplications, getMyEnrollments, updateProfile, getDashboardStats, trackActivity } from '../../utils/api';
+import { getMyApplications, getMyEnrollments, updateProfile, getDashboardStats, getDashboardAnalytics, trackActivity } from '../../utils/api';
 import API from '../../utils/api';
 import toast from 'react-hot-toast';
 import {
@@ -69,24 +69,162 @@ const Dashboard = () => {
     averageScore: 0,
     practiceProblems: { solved: 0, total: 6 }
   });
+  const [analyticsData, setAnalyticsData] = useState({
+  weeklyActivity: [],
+  dailyHours: [],
+  assignmentScores: [],
+  practiceResults: [],
+  courseProgress: [],
+  overallProgress: [],
+  recentActivities: [],
+  sessionHistory: []
+});
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+ useEffect(() => {
+  if (!user) {
+    navigate('/login');
+    return;
+  }
+
+  const loadDashboard = async () => {
+    try {
+      const results = await Promise.allSettled([
+        getMyApplications(),
+        getMyEnrollments(),
+        getDashboardStats(),
+        getDashboardAnalytics()
+      ]);
+
+      const [
+        appsResult,
+        enrollmentsResult,
+        statsResult,
+        analyticsResult
+      ] = results;
+
+      if (appsResult.status === 'fulfilled') {
+        setApplications(
+          appsResult.value.data.data || []
+        );
+      } else {
+        console.error(
+          'Applications failed:',
+          appsResult.reason
+        );
+      }
+
+      if (enrollmentsResult.status === 'fulfilled') {
+        setEnrollments(
+          enrollmentsResult.value.data.data || []
+        );
+      } else {
+        console.error(
+          'Enrollments failed:',
+          enrollmentsResult.reason
+        );
+      }
+
+      if (statsResult.status === 'fulfilled') {
+        setDashboardStats(
+          statsResult.value.data.data
+        );
+      } else {
+        console.error(
+          'Dashboard stats failed:',
+          statsResult.reason
+        );
+      }
+
+      if (analyticsResult.status === 'fulfilled') {
+        setAnalyticsData(
+          analyticsResult.value.data.data
+        );
+      } else {
+        console.error(
+          'Analytics failed:',
+          analyticsResult.reason
+        );
+      }
+
+    } catch (error) {
+      console.error(
+        'Dashboard loading error:',
+        error
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadDashboard();
+}, [user, navigate]);
+
   useEffect(() => {
-    if (!user) { navigate('/login'); return; }
-    Promise.all([
-      getMyApplications(), 
+
+  if (!user) return;
+
+  const refreshDashboard = async () => {
+  try {
+    const results = await Promise.allSettled([
+      getMyApplications(),
       getMyEnrollments(),
-      getDashboardStats()
-    ])
-      .then(([appsRes, enrollRes, statsRes]) => {
-        setApplications(appsRes.data.data);
-        setEnrollments(enrollRes.data.data);
-        setDashboardStats(statsRes.data.data);
-      })
-      .catch(() => toast.error('Failed to load data'))
-      .finally(() => setLoading(false));
-  }, [user, navigate]);
+      getDashboardStats(),
+      getDashboardAnalytics()
+    ]);
+
+    const [
+      appsResult,
+      enrollmentsResult,
+      statsResult,
+      analyticsResult
+    ] = results;
+
+    if (appsResult.status === 'fulfilled') {
+      setApplications(
+        appsResult.value.data.data || []
+      );
+    }
+
+    if (enrollmentsResult.status === 'fulfilled') {
+      setEnrollments(
+        enrollmentsResult.value.data.data || []
+      );
+    }
+
+    if (statsResult.status === 'fulfilled') {
+      setDashboardStats(
+        statsResult.value.data.data
+      );
+    }
+
+    if (analyticsResult.status === 'fulfilled') {
+      setAnalyticsData(
+        analyticsResult.value.data.data
+      );
+    }
+
+  } catch (error) {
+    console.error(
+      'Dashboard refresh failed:',
+      error
+    );
+  }
+};
+
+
+  const interval =
+    setInterval(
+      refreshDashboard,
+      30000
+    );
+
+
+  return () =>
+    clearInterval(interval);
+
+}, [user]);
 
   const handleLogout = () => { logout(); navigate('/'); };
 
@@ -200,8 +338,8 @@ const Dashboard = () => {
         </header>
 
         <div className="dash-content">
-          {tab === 'overview'      && <OverviewTab user={user} applications={applications} enrollments={enrollments} dashboardStats={dashboardStats} setTab={setTab} />}
-          {tab === 'analytics'     && <AnalyticsTab enrollments={enrollments} applications={applications} dashboardStats={dashboardStats} />}
+          {tab === 'overview'      && <OverviewTab user={user} applications={applications} enrollments={enrollments} dashboardStats={dashboardStats} analyticsData={analyticsData} setTab={setTab} />}
+          {tab === 'analytics'     && <AnalyticsTab enrollments={enrollments} applications={applications} dashboardStats={dashboardStats} analyticsData={analyticsData} />}
           {tab === 'applications'  && <ApplicationsTab applications={applications} />}
           {tab === 'mycourses'     && <MyCoursesTab enrollments={enrollments} refresh={refreshEnrollments} />}
           {tab === 'allcourses'    && <AllCoursesTab />}
@@ -218,7 +356,7 @@ const Dashboard = () => {
 };
 
 // ── Overview ────────────────────────────────────────────
-const OverviewTab = ({ user, applications, enrollments, dashboardStats, setTab }) => {
+const OverviewTab = ({ user, applications, enrollments, dashboardStats, analyticsData, setTab }) => {
   const accepted = applications.filter(a => a.status === 'accepted').length;
 
   const STATS = [
@@ -349,43 +487,14 @@ const OverviewTab = ({ user, applications, enrollments, dashboardStats, setTab }
 };
 
 // ── Analytics ────────────────────────────────────────────
-const AnalyticsTab = ({ enrollments, applications, dashboardStats }) => {
-  const weeklyActivity = [
-    { week:'W1', lectures:8,  practice:5,  sessions:2 },
-    { week:'W2', lectures:12, practice:8,  sessions:3 },
-    { week:'W3', lectures:10, practice:12, sessions:2 },
-    { week:'W4', lectures:15, practice:10, sessions:4 },
-    { week:'W5', lectures:11, practice:15, sessions:3 },
-    { week:'W6', lectures:18, practice:18, sessions:5 },
-    { week:'W7', lectures:20, practice:14, sessions:6 },
-    { week:'W8', lectures:16, practice:20, sessions:4 },
-  ];
-
-  const scoreData = [
-    { num:'A1', score:72 },{ num:'A2', score:78 },{ num:'A3', score:85 },
-    { num:'A4', score:80 },{ num:'A5', score:88 },{ num:'A6', score:82 },
-    { num:'A7', score:91 },{ num:'A8', score:88 },
-  ];
-
-  const progressData = [
-    { name:'Completed', value:65, color:'#27ae60' },
-    { name:'In Progress', value:25, color:'#2196C9' },
-    { name:'Pending', value:10, color:'#E8A820' },
-  ];
-
-  const dailyHours = [
-    { day:'Mon', hours:2.5 },{ day:'Tue', hours:1.8 },{ day:'Wed', hours:3.2 },
-    { day:'Thu', hours:2.0 },{ day:'Fri', hours:4.1 },{ day:'Sat', hours:5.5 },{ day:'Sun', hours:3.8 },
-  ];
-
-  const moduleProgress = [
-    { name:'HTML & CSS',   done:12, total:12, color:'#27ae60' },
-    { name:'JavaScript',   done:18, total:24, color:'#2196C9' },
-    { name:'React.js',     done:10, total:20, color:'#6c3483' },
-    { name:'Node.js',      done:6,  total:16, color:'#e67e22' },
-    { name:'MongoDB',      done:4,  total:12, color:'#1e8449' },
-    { name:'Deployment',   done:0,  total:8,  color:'#dc4545' },
-  ];
+const AnalyticsTab = ({ enrollments, applications, dashboardStats, analyticsData }) => {
+  const {
+  weeklyActivity,
+  assignmentScores,
+  overallProgress,
+  dailyHours,
+  courseProgress
+} = analyticsData;
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload?.length) return (
@@ -446,14 +555,14 @@ const AnalyticsTab = ({ enrollments, applications, dashboardStats }) => {
           <div className="an-chart-header"><h3>Overall Progress</h3></div>
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
-              <Pie data={progressData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} dataKey="value">
-                {progressData.map((e, i) => <Cell key={i} fill={e.color} />)}
+              <Pie data={overallProgress} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} dataKey="value">
+                {overallProgress.map((e, i) => <Cell key={i} fill={e.color} />)}
               </Pie>
               <Tooltip formatter={v => [v + '%', '']} />
             </PieChart>
           </ResponsiveContainer>
           <div className="pie-legend">
-            {progressData.map(s => (
+            {overallProgress.map(s => (
               <div key={s.name} className="pie-legend-item">
                 <div className="pie-dot" style={{ background: s.color }} />
                 <span>{s.name}</span><strong>{s.value}%</strong>
@@ -482,7 +591,7 @@ const AnalyticsTab = ({ enrollments, applications, dashboardStats }) => {
         <div className="an-chart-card" style={{ flex:1 }}>
           <div className="an-chart-header"><h3>Assignment Scores</h3></div>
           <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={scoreData} margin={{ top:10, right:20, left:-20, bottom:0 }}>
+            <LineChart data={assignmentScores} margin={{ top:10, right:20, left:-20, bottom:0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(27,42,74,0.06)" />
               <XAxis dataKey="num" tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
               <YAxis domain={[60,100]} tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} unit="%" />
@@ -497,7 +606,7 @@ const AnalyticsTab = ({ enrollments, applications, dashboardStats }) => {
       <div className="an-chart-card" style={{ marginTop:'1.25rem' }}>
         <div className="an-chart-header"><h3>Module Completion Progress</h3></div>
         <div className="module-progress-grid">
-          {moduleProgress.map(m => (
+          {courseProgress.map(m => (
             <div key={m.name} className="mp-item">
               <div className="mp-header">
                 <span className="mp-name">{m.name}</span>
@@ -562,14 +671,14 @@ const MyCoursesTab = ({ enrollments, refresh }) => {
         details: { 
           duration,
           courseName: enrollment.courseName,
-          progressPercentage: Math.min(45 + Math.floor(Math.random() * 20), 100) // Simulate progress
+          
         }
       });
       
       toast.success(`Studied ${enrollment.courseName} for ${duration} minutes!`);
       
       // Refresh page to show updated stats
-      setTimeout(() => window.location.reload(), 1500);
+      await getDashboardAnalytics();
     } catch (error) {
       toast.error('Failed to track course progress');
     }
@@ -750,18 +859,13 @@ const LiveSessionsTab = ({ dashboardStats }) => {
       toast.success(`Joined ${session.topic} session!`);
       
       // Refresh page to show updated stats
-      setTimeout(() => window.location.reload(), 1500);
+      await getDashboardAnalytics();
     } catch (error) {
       toast.error('Failed to track session attendance');
     }
   };
   
-  const UPCOMING = [
-    { topic:'React Hooks & Context API', instructor:'Ashwin Kumar', date:'Today', time:'4:00 PM', duration:'60 min', status:'live', attendees:42 },
-    { topic:'Node.js REST API Design', instructor:'Priya Sharma', date:'Tomorrow', time:'3:00 PM', duration:'55 min', status:'upcoming', attendees:38 },
-    { topic:'MongoDB Aggregation Pipeline', instructor:'Rahul Mehta', date:'Wed, 8 May', time:'5:00 PM', duration:'60 min', status:'upcoming', attendees:29 },
-    { topic:'Docker & Container Basics', instructor:'Sneha Patel', date:'Thu, 9 May', time:'4:30 PM', duration:'50 min', status:'upcoming', attendees:33 },
-  ];
+  const UPCOMING = dashboardStats?.upcomingSessions || [];
 
   const PAST = [];
 
@@ -836,29 +940,28 @@ const LiveSessionsTab = ({ dashboardStats }) => {
 const PracticeTab = ({ dashboardStats }) => {
   
   const handlePracticeComplete = async (challenge) => {
-    try {
-      // Simulate completing a practice problem
-      const duration = parseInt(challenge.time.split(' ')[0]); // Extract minutes from "15 min" format
-      const score = Math.floor(Math.random() * 20) + 80; // Random score between 80-100
-      
-      await trackActivity({ 
-        activityType: 'practice_completed',
-        details: { 
-          duration,
-          score,
-          challengeName: challenge.title,
-          difficulty: challenge.difficulty
-        }
-      });
-      
-      toast.success(`Completed ${challenge.title}! Score: ${score}%`);
-      
-      // Refresh page to show updated stats
-      setTimeout(() => window.location.reload(), 1500);
-    } catch (error) {
-      toast.error('Failed to track practice completion');
-    }
-  };
+  try {
+    const duration = parseInt(challenge.time.split(" ")[0]);
+
+    const score = Math.floor(Math.random() * 21) + 80;
+
+    await trackActivity({
+      activityType: 'practice_completed',
+      details: {
+        duration,
+        score,
+        challengeName: challenge.title,
+        difficulty: challenge.difficulty
+      }
+    });
+
+    toast.success(`Completed ${challenge.title}! Score: ${score}%`);
+
+    setTimeout(() => window.location.reload(), 1500);
+  } catch (error) {
+    toast.error('Failed to track practice completion');
+  }
+};
   const CHALLENGES = [
     { title:'Reverse a String',        difficulty:'Easy',   topic:'JavaScript', time:'15 min', solved: dashboardStats.practiceProblems.solved >= 1,  score: dashboardStats.practiceProblems.solved >= 1 ? '100%' : '—' },
     { title:'Fibonacci Sequence',      difficulty:'Easy',   topic:'JavaScript', time:'20 min', solved: dashboardStats.practiceProblems.solved >= 2,  score: dashboardStats.practiceProblems.solved >= 2 ? '90%' : '—'  },

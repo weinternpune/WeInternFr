@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { getDashboardAnalytics } = require('../utils/dashboardAnalytics');
 const { protect, adminOnly } = require('../middleware/auth');
 const Application = require('../models/Application');
 const { Enrollment, HireRequest } = require('../models/Enrollment');
@@ -13,14 +14,17 @@ router.use(protect, adminOnly);
 router.get('/stats', async (req, res) => {
   try {
     const [totalUsers, totalApplications, totalEnrollments, totalHireRequests,
-      pendingApplications, paidEnrollments, totalAdmins] = await Promise.all([
+      pendingApplications, paidEnrollments, totalAdmins, acceptedApplications, reviewingApplications, rejectedApplications] = await Promise.all([
       User.countDocuments({ role: 'student' }),
       Application.countDocuments(),
       Enrollment.countDocuments(),
       HireRequest.countDocuments(),
       Application.countDocuments({ status: 'pending' }),
       Enrollment.countDocuments({ paymentStatus: 'paid' }),
-      User.countDocuments({ role: 'admin' })
+      User.countDocuments({ role: 'admin' }),
+      Application.countDocuments({ status: "accepted" }),
+      Application.countDocuments({ status: "reviewing" }),
+      Application.countDocuments({ status: "rejected" }),
     ]);
 
     // Calculate real revenue from paid enrollments
@@ -69,6 +73,32 @@ router.get('/stats', async (req, res) => {
     const recentApplications = await Application.find().sort('-createdAt').limit(5);
     const recentEnrollments = await Enrollment.find().sort('-createdAt').limit(5).populate('user', 'name email');
     
+    // Calculate real new student signups for the last 7 days
+const weeklyUsers = [];
+
+for (let i = 6; i >= 0; i--) {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    startOfDay.setDate(startOfDay.getDate() - i);
+
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
+    const users = await User.countDocuments({
+        role: 'student',
+        createdAt: {
+            $gte: startOfDay,
+            $lt: endOfDay
+        }
+    });
+
+    weeklyUsers.push({
+        day: startOfDay.toLocaleDateString('en-US', {
+            weekday: 'short'
+        }),
+        users
+    });
+}
     res.json({
       success: true,
       data: {
@@ -80,9 +110,13 @@ router.get('/stats', async (req, res) => {
           pendingApplications, 
           paidEnrollments, 
           totalAdmins,
-          totalRevenue 
+          totalRevenue,
+          acceptedApplications,
+          reviewingApplications,
+          rejectedApplications,
         },
         monthlyData,
+        weeklyUsers,
         recentApplications,
         recentEnrollments
       }
@@ -203,42 +237,32 @@ router.get('/admins', async (req, res) => {
 
 // Get user activity data for admin view
 router.get('/users/:id/activity', async (req, res) => {
+
   try {
-    const userId = req.params.id;
-    
-    // Get user enrollments count
-    const enrollmentCount = await Enrollment.countDocuments({ user: userId });
-    
-    // Get user progress data
-    const userProgress = await UserProgress.findOne({ user: userId });
-    
-    // Get recent user activities
-    const recentActivities = await UserActivity.find({ user: userId })
-      .sort('-createdAt')
-      .limit(20)
-      .populate('user', 'name');
-    
-    // Calculate stats based on actual data
-    const totalHours = userProgress ? Math.floor(userProgress.totalStudyHours / 60) : 0; // Convert minutes to hours
-    const attendanceRate = userProgress && userProgress.sessionsTotal > 0 
-      ? Math.round((userProgress.sessionsAttended / userProgress.sessionsTotal) * 100) 
-      : 0;
-    
-    const activityData = {
-      courses: enrollmentCount,
-      hoursLogged: totalHours,
-      attendance: attendanceRate,
-      assignments: userProgress ? userProgress.assignmentsCompleted : 0,
-      averageScore: userProgress ? userProgress.averageScore : 0,
-      dayStreak: userProgress ? userProgress.currentStreak : 0,
-      sessionsAttended: userProgress ? userProgress.sessionsAttended : 0,
-      recentActivities: recentActivities
-    };
-    
-    res.json({ success: true, data: activityData });
+
+    const activityData =
+      await getDashboardAnalytics(
+        req.params.id
+      );
+
+    res.json({
+      success: true,
+      data: activityData
+    });
+
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+
+    console.error(
+      'Admin user activity error:',
+      err
+    );
+
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
   }
+
 });
 
 // Delete user

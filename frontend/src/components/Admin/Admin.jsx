@@ -244,47 +244,36 @@ const AdminOverview = () => {
       </div>
     );
 
-  const { stats, monthlyData } = statsData;
+  const {
+  stats,
+  monthlyData = [],
+  weeklyUsers = [],
+  courseData = [],
+  recentApplications = []
+} = statsData;
 
-  const courseData = [
-    { name: "Full Stack", students: 45, color: "#e76f51" },
-    { name: "Mobile App", students: 32, color: "#2a9d8f" },
-    { name: "AI & Auto", students: 28, color: "#6c3483" },
-    { name: "Cloud", students: 20, color: "#1a6b8a" },
-    { name: "UI/UX", students: 38, color: "#c0392b" },
-    { name: "Marketing", students: 55, color: "#e67e22" },
-    { name: "Data Sci", students: 25, color: "#1e8449" },
-  ];
-
-  // Calculate real status data from applications
   const statusData = [
-    {
-      name: "Accepted",
-      value: Math.max(1, Math.floor(stats.totalApplications * 0.35)),
-      color: "#27ae60",
-    },
-    { name: "Pending", value: stats.pendingApplications, color: "#E8A820" },
-    {
-      name: "Reviewing",
-      value: Math.max(1, Math.floor(stats.totalApplications * 0.2)),
-      color: "#2196C9",
-    },
-    {
-      name: "Rejected",
-      value: Math.max(1, Math.floor(stats.totalApplications * 0.17)),
-      color: "#dc4545",
-    },
-  ];
-
-  const weeklyUsers = [
-    { day: "Mon", users: Math.floor(stats.totalUsers * 0.08) },
-    { day: "Tue", users: Math.floor(stats.totalUsers * 0.12) },
-    { day: "Wed", users: Math.floor(stats.totalUsers * 0.1) },
-    { day: "Thu", users: Math.floor(stats.totalUsers * 0.18) },
-    { day: "Fri", users: Math.floor(stats.totalUsers * 0.15) },
-    { day: "Sat", users: Math.floor(stats.totalUsers * 0.25) },
-    { day: "Sun", users: Math.floor(stats.totalUsers * 0.2) },
-  ];
+  {
+    name: "Accepted",
+    value: stats.acceptedApplications,
+    color: "#27ae60"
+  },
+  {
+    name: "Pending",
+    value: stats.pendingApplications,
+    color: "#E8AB82"
+  },
+  {
+    name: "Reviewing",
+    value: stats.reviewingApplications,
+    color: "#2196C9"
+  },
+  {
+    name: "Rejected",
+    value: stats.rejectedApplications,
+    color: "#dc4545"
+  }
+];
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -646,7 +635,7 @@ const AdminOverview = () => {
             <span className="chart-sub">Latest 5</span>
           </div>
           <div className="recent-list">
-            {statsData.recentApplications.slice(0, 5).map((a) => (
+            {recentApplications.slice(0, 5).map((a) => (
               <div key={a._id} className="recent-item">
                 <div className="ri-left">
                   <div className="ri-avatar">{a.name?.[0]?.toUpperCase()}</div>
@@ -2678,15 +2667,23 @@ const AdminProjects = () => {
 const UserDetailModal = ({ user: u, onClose }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [activityData, setActivityData] = useState({
-    courses: 0,
-    hoursLogged: 0,
-    attendance: 0,
-    assignments: 0,
-    averageScore: 0,
-    dayStreak: 0,
-    sessionsAttended: 0,
-    recentActivities: [],
-  });
+  courses: 0,
+  hoursLogged: 0,
+  attendance: 0,
+  assignments: 0,
+  averageScore: 0,
+  dayStreak: 0,
+  sessionsAttended: 0,
+
+  weeklyActivity: [],
+  dailyHours: [],
+  assignmentScores: [],
+  courseProgress: [],
+  overallProgress: [],
+  sessionHistory: [],
+
+  recentActivities: []
+});
   const [loading, setLoading] = useState(true);
 
   // Fetch user activity data when modal opens
@@ -2709,39 +2706,25 @@ const UserDetailModal = ({ user: u, onClose }) => {
     }
   }, [u._id]);
 
-  const mockActivityData = [
-    { week: "Week 1", lectures: 0, practice: 0, sessions: 0 },
-    { week: "Week 2", lectures: 0, practice: 0, sessions: 0 },
-    { week: "Week 3", lectures: 0, practice: 0, sessions: 0 },
-    { week: "Week 4", lectures: 0, practice: 0, sessions: 0 },
-    { week: "Week 5", lectures: 0, practice: 0, sessions: 0 },
-    { week: "Week 6", lectures: 0, practice: 0, sessions: 0 },
-  ];
+  const activityChartData = activityData.weeklyActivity || [];
 
-  const skillData = [
-    { subject: "HTML/CSS", A: 0 },
-    { subject: "JavaScript", A: 0 },
-    { subject: "React", A: 0 },
-    { subject: "Node.js", A: 0 },
-    { subject: "Database", A: 0 },
-    { subject: "Deployment", A: 0 },
-  ];
+  const skillData = activityData.assignmentScores?.map((item) => ({
+  subject: item.name,
+  A: item.score || 0,
+})) || [];
 
-  const dailyLogin = [
-    { day: "Mon", hours: 0 },
-    { day: "Tue", hours: 0 },
-    { day: "Wed", hours: 0 },
-    { day: "Thu", hours: 0 },
-    { day: "Fri", hours: 0 },
-    { day: "Sat", hours: 0 },
-    { day: "Sun", hours: 0 },
-  ];
+  const dailyLogin = activityData.dailyHours || [];
 
-  const progressData = [
-    { name: "Completed", value: 0, color: "#27ae60" },
-    { name: "In Progress", value: 0, color: "#2196C9" },
-    { name: "Pending", value: 100, color: "#E8A820" },
-  ];
+  const progressData =
+  activityData.overallProgress?.map((item) => ({
+    ...item,
+    color:
+      item.name === "Completed"
+        ? "#27ae60"
+        : item.name === "In Progress"
+        ? "#E8A820"
+        : "#dc4545",
+  })) || [];
 
   const TABS = [
     { id: "overview", label: "Overview" },
@@ -2964,7 +2947,7 @@ const UserDetailModal = ({ user: u, onClose }) => {
                   <div className="ud-chart-title">Weekly Learning Activity</div>
                   <ResponsiveContainer width="100%" height={220}>
                     <AreaChart
-                      data={mockActivityData}
+                      data={activityChartData}
                       margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                     >
                       <defs>
@@ -3352,17 +3335,8 @@ const UserDetailModal = ({ user: u, onClose }) => {
                 <div className="ud-chart-card" style={{ flex: 1 }}>
                   <div className="ud-chart-title">Assignment Scores</div>
                   <ResponsiveContainer width="100%" height={260}>
-                    <LineChart
-                      data={[
-                        { num: "A1", score: 72 },
-                        { num: "A2", score: 78 },
-                        { num: "A3", score: 85 },
-                        { num: "A4", score: 80 },
-                        { num: "A5", score: 88 },
-                        { num: "A6", score: 82 },
-                        { num: "A7", score: 91 },
-                        { num: "A8", score: 88 },
-                      ]}
+                     <LineChart
+                     data={activityData.assignmentScores || []}
                       margin={{ top: 10, right: 20, left: -20, bottom: 0 }}
                     >
                       <CartesianGrid
@@ -3410,29 +3384,45 @@ const UserDetailModal = ({ user: u, onClose }) => {
                   Enrolled Courses
                 </div>
                 <div className="enrolled-courses">
-                  {[
-                    {
-                      name: "Full Stack Web Development",
-                      progress: 65,
-                      status: "active",
-                      paid: true,
-                      start: "Jan 2024",
-                    },
-                    {
-                      name: "UI/UX Design",
-                      progress: 100,
-                      status: "completed",
-                      paid: true,
-                      start: "Nov 2023",
-                    },
-                    {
-                      name: "Digital Marketing",
-                      progress: 30,
-                      status: "active",
-                      paid: false,
-                      start: "Feb 2024",
-                    },
-                  ].map((c, i) => (
+                  {(activityData.courseProgress || []).map((c, i) => (
+  <div key={c.id || i} className="ec-card">
+    <div className="ec-info">
+      <h4>{c.name}</h4>
+
+      <div className="ec-meta">
+        <span>Started: {c.start || "—"}</span>
+
+        <span className={`ec-badge ${c.status || ""}`}>
+          {c.status || "In Progress"}
+        </span>
+
+        <span
+          className={`ec-badge ${c.paid ? "paid" : "pending"}`}
+        >
+          {c.paid ? "Paid" : "Pending Payment"}
+        </span>
+      </div>
+    </div>
+
+    <div className="ec-progress">
+      <div className="ec-pct">
+        {c.progress || 0}%
+      </div>
+
+      <div className="ec-bar">
+        <div
+          className="ec-fill"
+          style={{
+            width: `${c.progress || 0}%`,
+            background:
+              c.progress === 100 ? "#27ae60" : "#2196C9",
+          }}
+        />
+      </div>
+    </div>
+  </div>
+))}
+                  .map((c, i) = (
                     <div key={i} className="ec-card">
                       <div className="ec-info">
                         <h4>{c.name}</h4>
@@ -3462,7 +3452,7 @@ const UserDetailModal = ({ user: u, onClose }) => {
                         </div>
                       </div>
                     </div>
-                  ))}
+                  ))
                 </div>
               </div>
             </div>
@@ -3475,7 +3465,7 @@ const UserDetailModal = ({ user: u, onClose }) => {
                   <div className="ud-chart-title">Live Sessions Attendance</div>
                   <ResponsiveContainer width="100%" height={220}>
                     <BarChart
-                      data={mockActivityData}
+                      data={activityChartData}
                       margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                     >
                       <CartesianGrid
@@ -3510,37 +3500,38 @@ const UserDetailModal = ({ user: u, onClose }) => {
                     {[
                       {
                         label: "Total Sessions Scheduled",
-                        val: "24",
+                        val: activityData.sessionsTotal || 0,
                         icon: "📅",
                         color: "#1B2A4A",
                       },
                       {
                         label: "Sessions Attended",
-                        val: "19",
+                        val: activityData.sessionsAttended || 0,
                         icon: "✅",
                         color: "#27ae60",
                       },
                       {
                         label: "Sessions Missed",
-                        val: "5",
+                        val:  Math.max(0,(activityData.sessionsTotal || 0) -
+      (activityData.sessionsAttended || 0)),
                         icon: "❌",
                         color: "#dc4545",
                       },
                       {
                         label: "Attendance Rate",
-                        val: "79%",
+                        val: activityData.attendanceRate? `${activityData.attendanceRate}%` : "0%",
                         icon: "📊",
                         color: "#2196C9",
                       },
                       {
                         label: "Avg Session Duration",
-                        val: "55 min",
+                        val: activityData.avgSessionDuration? `${activityData.avgSessionDuration} min`: "0 min",
                         icon: "⏱️",
                         color: "#e67e22",
                       },
                       {
                         label: "Practice Hours Total",
-                        val: "68h",
+                        val: activityData.practiceHours? `${activityData.practiceHours}h`: "0h",
                         icon: "💻",
                         color: "#6c3483",
                       },

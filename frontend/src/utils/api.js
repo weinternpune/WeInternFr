@@ -40,6 +40,7 @@ export const getProfile = () => API.get('/user/profile');
 export const updateProfile = (data) => API.put('/user/profile', data);
 export const changePassword = (data) => API.put('/user/change-password', data);
 export const getDashboardStats = () => API.get('/user/dashboard-stats');
+export const getDashboardAnalytics = () => API.get('/user/dashboard-analytics');
 export const trackActivity = (data) => API.post('/user/track-activity', data);
 export const initializeProgress = () => API.post('/user/initialize-progress');
 
