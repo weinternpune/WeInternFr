@@ -1,3 +1,644 @@
+#!/bin/bash
+set -e
+
+# ============================================================
+# WeIntern - Blog feature (admin post + public blog with history)
+# + Internships dropdown: Projects -> our projects section,
+#   Placement -> homepage (as requested)
+# Run from your project ROOT:
+#   cd ~/path/to/WeInternFr
+#   bash add-blog-feature.sh
+# ============================================================
+
+if [ ! -f "backend/src/server.js" ]; then
+  echo "Cannot find backend/src/server.js -- run this from your project root."
+  exit 1
+fi
+
+echo "[1/10] Writing backend/src/models/Blog.js ..."
+mkdir -p "backend/src/models"
+cat > "backend/src/models/Blog.js" << 'FILEEOF1'
+const mongoose = require('mongoose');
+
+const blogSchema = new mongoose.Schema({
+  title: { type: String, required: true, trim: true },
+  slug: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  excerpt: { type: String, required: true, trim: true },
+  content: { type: String, required: true },
+  coverImageUrl: { type: String, default: '' },
+  tags: [{ type: String, trim: true }],
+  author: {
+    id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    name: { type: String, default: 'WeIntern Team' },
+  },
+  published: { type: Boolean, default: true },
+}, { timestamps: true });
+
+blogSchema.index({ createdAt: -1 });
+
+module.exports = mongoose.model('Blog', blogSchema);
+FILEEOF1
+
+echo "[2/10] Writing backend/src/routes/blog.js ..."
+mkdir -p "backend/src/routes"
+cat > "backend/src/routes/blog.js" << 'FILEEOF2'
+const express = require('express');
+const router = express.Router();
+const { protect, adminOnly } = require('../middleware/auth');
+const Blog = require('../models/Blog');
+
+const slugify = (str = '') =>
+  str
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+// ---- Public: list all published posts (blog history) ----------------------
+router.get('/', async (req, res) => {
+  try {
+    const posts = await Blog.find({ published: true })
+      .sort({ createdAt: -1 })
+      .select('title slug excerpt coverImageUrl tags author createdAt');
+    res.json({ success: true, data: posts });
+  } catch (err) {
+    console.error('Blog list error:', err.message);
+    res.status(500).json({ success: false, message: 'Failed to load blog posts' });
+  }
+});
+
+// ---- Admin: list all posts including unpublished ---------------------------
+router.get('/admin/all', protect, adminOnly, async (req, res) => {
+  try {
+    const posts = await Blog.find().sort({ createdAt: -1 });
+    res.json({ success: true, data: posts });
+  } catch (err) {
+    console.error('Blog admin list error:', err.message);
+    res.status(500).json({ success: false, message: 'Failed to load posts' });
+  }
+});
+
+// ---- Public: single post by slug ------------------------------------------
+router.get('/:slug', async (req, res) => {
+  try {
+    const post = await Blog.findOne({ slug: req.params.slug, published: true });
+    if (!post) {
+      return res.status(404).json({ success: false, message: 'Post not found' });
+    }
+    res.json({ success: true, data: post });
+  } catch (err) {
+    console.error('Blog detail error:', err.message);
+    res.status(500).json({ success: false, message: 'Failed to load post' });
+  }
+});
+
+// ---- Admin: create a post ---------------------------------------------------
+router.post('/', protect, adminOnly, async (req, res) => {
+  try {
+    const { title, excerpt, content, coverImageUrl, tags, published } = req.body;
+    if (!title || !excerpt || !content) {
+      return res.status(400).json({ success: false, message: 'Title, excerpt, and content are required' });
+    }
+
+    let slug = slugify(title);
+    const existing = await Blog.findOne({ slug });
+    if (existing) slug = `${slug}-${Date.now().toString().slice(-5)}`;
+
+    const post = await Blog.create({
+      title,
+      slug,
+      excerpt,
+      content,
+      coverImageUrl: coverImageUrl || '',
+      tags: Array.isArray(tags) ? tags : (tags || '').split(',').map((t) => t.trim()).filter(Boolean),
+      author: { id: req.user._id, name: req.user.name || 'WeIntern Team' },
+      published: published !== false,
+    });
+
+    res.status(201).json({ success: true, data: post });
+  } catch (err) {
+    console.error('Blog create error:', err.message);
+    res.status(500).json({ success: false, message: 'Failed to create post' });
+  }
+});
+
+// ---- Admin: update a post ---------------------------------------------------
+router.put('/:id', protect, adminOnly, async (req, res) => {
+  try {
+    const { title, excerpt, content, coverImageUrl, tags, published } = req.body;
+    const update = { excerpt, content, coverImageUrl, published };
+    if (title) update.title = title;
+    if (tags) update.tags = Array.isArray(tags) ? tags : tags.split(',').map((t) => t.trim()).filter(Boolean);
+
+    const post = await Blog.findByIdAndUpdate(req.params.id, update, { new: true });
+    if (!post) return res.status(404).json({ success: false, message: 'Post not found' });
+
+    res.json({ success: true, data: post });
+  } catch (err) {
+    console.error('Blog update error:', err.message);
+    res.status(500).json({ success: false, message: 'Failed to update post' });
+  }
+});
+
+// ---- Admin: delete a post ----------------------------------------------------
+router.delete('/:id', protect, adminOnly, async (req, res) => {
+  try {
+    const post = await Blog.findByIdAndDelete(req.params.id);
+    if (!post) return res.status(404).json({ success: false, message: 'Post not found' });
+    res.json({ success: true, message: 'Post deleted' });
+  } catch (err) {
+    console.error('Blog delete error:', err.message);
+    res.status(500).json({ success: false, message: 'Failed to delete post' });
+  }
+});
+
+module.exports = router;
+FILEEOF2
+
+echo "[3/10] Writing backend/src/server.js ..."
+mkdir -p "backend/src"
+cat > "backend/src/server.js" << 'FILEEOF3'
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const passport = require("passport");
+
+const connectDB = require("./config/database");
+const { generalLimiter } = require("./middleware/rateLimiter");
+
+// Routes
+const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/user");
+const applicationRoutes = require("./routes/application");
+const courseRoutes = require("./routes/course");
+const paymentRoutes = require("./routes/payment");
+const adminRoutes = require("./routes/admin");
+const contactRoutes = require("./routes/contact");
+const blogRoutes = require("./routes/blog");
+
+// Passport config
+require("./config/passport");
+
+const app = express();
+app.set('trust proxy', 1);
+app.set('trust proxy', 1);
+
+// Connect Database
+connectDB();
+
+// Security Middleware
+app.use(helmet());
+
+// CORS Configuration (Production Ready)
+const allowedOrigins = [
+  // Local development
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:5000',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5000',
+
+  // Production
+  'https://we-intern.in',
+  'https://www.we-intern.in',
+
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests without origin (Postman, mobile apps)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      // Remove trailing slash issue
+      const cleanOrigin = origin.replace(/\/$/, "");
+
+      const isAllowed = allowedOrigins.some(
+        (allowed) => allowed && cleanOrigin === allowed.replace(/\/$/, ""),
+      );
+
+      if (isAllowed) {
+        return callback(null, true);
+      }
+
+      console.log("❌ Blocked by CORS:", origin);
+
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    exposedHeaders: ["set-cookie"],
+  }),
+);
+
+// Preflight requests
+app.options("*", cors());
+
+// Body Parsers
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true }));
+
+// Passport
+app.use(passport.initialize());
+
+// Rate Limiting
+app.use("/api/", generalLimiter);
+
+// Health Check
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "OK",
+    timestamp: new Date(),
+  });
+});
+
+// API Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/applications", applicationRoutes);
+app.use("/api/courses", courseRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/contact", contactRoutes);
+app.use("/api/blog", blogRoutes);
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
+});
+
+// Start Server
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 WeIntern Server running on port ${PORT}`);
+});
+
+module.exports = app;
+FILEEOF3
+
+echo "[4/10] Writing frontend/src/pages/Blog.jsx ..."
+mkdir -p "frontend/src/pages"
+cat > "frontend/src/pages/Blog.jsx" << 'FILEEOF4'
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Icon } from '@iconify/react';
+import Navbar from '../components/Layout/Navbar';
+import { getBlogPosts } from '../utils/api';
+import './Blog.css';
+
+const formatDate = (d) =>
+  new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+const Blog = () => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await getBlogPosts();
+        setPosts(res.data?.data || []);
+      } catch (err) {
+        console.error('Failed to load blog posts:', err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  return (
+    <div className="blog-page">
+      <Navbar />
+      <div className="blog-hero">
+        <span className="blog-eyebrow">— From the WeIntern Team —</span>
+        <h1>WeIntern Blog</h1>
+        <p>Updates, guides, and stories from our student and mentor community.</p>
+      </div>
+
+      <div className="blog-body">
+        {loading && (
+          <div className="blog-empty">
+            <Icon icon="mdi:loading" width={28} height={28} className="blog-spin" />
+            <p>Loading posts…</p>
+          </div>
+        )}
+
+        {!loading && error && (
+          <div className="blog-empty">
+            <Icon icon="mdi:alert-circle-outline" width={28} height={28} />
+            <p>Couldn't load blog posts right now. Please try again shortly.</p>
+          </div>
+        )}
+
+        {!loading && !error && posts.length === 0 && (
+          <div className="blog-empty">
+            <Icon icon="mdi:notebook-outline" width={28} height={28} />
+            <p>No posts yet — check back soon!</p>
+          </div>
+        )}
+
+        {!loading && !error && posts.length > 0 && (
+          <div className="blog-grid">
+            {posts.map((post) => (
+              <Link to={`/blog/${post.slug}`} className="blog-card" key={post._id}>
+                <div className="blog-card-cover">
+                  {post.coverImageUrl ? (
+                    <img src={post.coverImageUrl} alt={post.title} />
+                  ) : (
+                    <div className="blog-card-cover-fallback">
+                      <Icon icon="mdi:file-document-outline" width={32} height={32} />
+                    </div>
+                  )}
+                </div>
+                <div className="blog-card-body">
+                  {!!post.tags?.length && (
+                    <div className="blog-card-tags">
+                      {post.tags.slice(0, 2).map((t) => <span key={t}>{t}</span>)}
+                    </div>
+                  )}
+                  <h3>{post.title}</h3>
+                  <p>{post.excerpt}</p>
+                  <div className="blog-card-meta">
+                    <span>{post.author?.name || 'WeIntern Team'}</span>
+                    <span>·</span>
+                    <span>{formatDate(post.createdAt)}</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Blog;
+FILEEOF4
+
+echo "[5/10] Writing frontend/src/pages/BlogPost.jsx ..."
+mkdir -p "frontend/src/pages"
+cat > "frontend/src/pages/BlogPost.jsx" << 'FILEEOF5'
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { Icon } from '@iconify/react';
+import Navbar from '../components/Layout/Navbar';
+import { getBlogPost } from '../utils/api';
+import './Blog.css';
+
+const formatDate = (d) =>
+  new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+
+const BlogPost = () => {
+  const { slug } = useParams();
+  const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    setNotFound(false);
+    (async () => {
+      try {
+        const res = await getBlogPost(slug);
+        setPost(res.data?.data || null);
+      } catch (err) {
+        setNotFound(true);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="blog-page">
+        <Navbar />
+        <div className="blog-empty" style={{ minHeight: '50vh' }}>
+          <Icon icon="mdi:loading" width={28} height={28} className="blog-spin" />
+          <p>Loading…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (notFound || !post) {
+    return (
+      <div className="blog-page">
+        <Navbar />
+        <div className="blog-empty" style={{ minHeight: '50vh' }}>
+          <Icon icon="mdi:file-remove-outline" width={28} height={28} />
+          <p>Post not found.</p>
+          <Link to="/blog" className="blog-back-link">← Back to Blog</Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="blog-page">
+      <Navbar />
+      <article className="blog-post">
+        <Link to="/blog" className="blog-back-link"><Icon icon="mdi:arrow-left" width={16} height={16} /> Back to Blog</Link>
+
+        {!!post.tags?.length && (
+          <div className="blog-card-tags" style={{ marginTop: 20 }}>
+            {post.tags.map((t) => <span key={t}>{t}</span>)}
+          </div>
+        )}
+
+        <h1 className="blog-post-title">{post.title}</h1>
+        <div className="blog-card-meta">
+          <span>{post.author?.name || 'WeIntern Team'}</span>
+          <span>·</span>
+          <span>{formatDate(post.createdAt)}</span>
+        </div>
+
+        {post.coverImageUrl && (
+          <div className="blog-post-cover">
+            <img src={post.coverImageUrl} alt={post.title} />
+          </div>
+        )}
+
+        <div className="blog-post-content">
+          {post.content.split('\n').map((para, i) => (para.trim() ? <p key={i}>{para}</p> : null))}
+        </div>
+      </article>
+    </div>
+  );
+};
+
+export default BlogPost;
+FILEEOF5
+
+echo "[6/10] Writing frontend/src/pages/Blog.css ..."
+mkdir -p "frontend/src/pages"
+cat > "frontend/src/pages/Blog.css" << 'FILEEOF6'
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+.blog-page { min-height: 100vh; background: #fbfcfe; font-family: 'Inter', sans-serif; }
+.blog-page * { font-family: 'Inter', sans-serif; }
+
+.blog-hero {
+  padding: 120px 24px 50px;
+  text-align: center;
+  background: linear-gradient(120deg, #ff8a4c 0%, #ff6b35 55%, #6366f1 130%);
+  color: #fff;
+}
+.blog-eyebrow { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.85; margin-bottom: 10px; }
+.blog-hero h1 { font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 800; margin: 0 0 10px; letter-spacing: -0.02em; }
+.blog-hero p { font-size: 1rem; opacity: 0.92; margin: 0; }
+
+.blog-body { max-width: 1080px; margin: 0 auto; padding: 48px 24px 90px; }
+
+.blog-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; color: #6b7280; padding: 60px 24px; text-align: center;
+}
+.blog-spin { animation: blogSpin 0.9s linear infinite; }
+@keyframes blogSpin { to { transform: rotate(360deg); } }
+
+.blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 22px; }
+
+.blog-card {
+  display: block; text-decoration: none; color: inherit;
+  background: #fff; border: 1px solid #eef0f5; border-radius: 18px; overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.blog-card:hover { transform: translateY(-4px); box-shadow: 0 16px 34px rgba(0,0,0,0.08); }
+.blog-card-cover { height: 170px; background: linear-gradient(135deg, #fff0e6, #ffe0cc); }
+.blog-card-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.blog-card-cover-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #ff6b35; }
+.blog-card-body { padding: 18px 20px; }
+.blog-card-tags { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.blog-card-tags span {
+  background: rgba(255,107,53,0.1); color: #ff6b35; font-size: 11px; font-weight: 700;
+  padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.02em;
+}
+.blog-card-body h3 { font-size: 17px; font-weight: 700; color: #1a2036; margin: 0 0 8px; line-height: 1.35; }
+.blog-card-body p { font-size: 13.5px; color: #6b7280; line-height: 1.6; margin: 0 0 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.blog-card-meta { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #9aa0b4; font-weight: 500; }
+
+/* ── Single post ─────────────────────────────────────── */
+.blog-post { max-width: 760px; margin: 0 auto; padding: 120px 24px 90px; }
+.blog-back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: #ff6b35; font-weight: 600; font-size: 13.5px; text-decoration: none; margin-bottom: 10px;
+}
+.blog-back-link:hover { text-decoration: underline; }
+.blog-post-title { font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 800; color: #1a2036; line-height: 1.25; margin: 14px 0 14px; letter-spacing: -0.02em; }
+.blog-post-cover { margin: 24px 0; border-radius: 16px; overflow: hidden; }
+.blog-post-cover img { width: 100%; display: block; }
+.blog-post-content { margin-top: 24px; }
+.blog-post-content p { font-size: 16px; line-height: 1.85; color: #374151; margin: 0 0 18px; }
+
+@media (max-width: 640px) {
+  .blog-hero { padding: 100px 18px 40px; }
+  .blog-body { padding: 36px 18px 70px; }
+  .blog-post { padding: 100px 18px 70px; }
+}
+FILEEOF6
+
+echo "[7/10] Writing frontend/src/utils/api.js ..."
+mkdir -p "frontend/src/utils"
+cat > "frontend/src/utils/api.js" << 'FILEEOF7'
+import axios from 'axios';
+
+const API = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || '/api',
+  withCredentials: true
+});
+
+// Attach token
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem('wi_token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+// Handle 401
+API.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem('wi_token');
+      localStorage.removeItem('wi_user');
+      window.location.href = '/login';
+    }
+    return Promise.reject(err);
+  }
+);
+
+export default API;
+
+// Auth
+export const register = (data) => API.post('/auth/register', data);
+export const login = (data) => API.post('/auth/login', data);
+export const verifyOTP = (data) => API.post('/auth/verify-otp', data);
+export const resendOTP = (data) => API.post('/auth/resend-otp', data);
+export const forgotPassword = (data) => API.post('/auth/forgot-password', data);
+export const resetPassword = (data) => API.post('/auth/reset-password', data);
+
+// User
+export const getProfile = () => API.get('/user/profile');
+export const updateProfile = (data) => API.put('/user/profile', data);
+export const changePassword = (data) => API.put('/user/change-password', data);
+export const getDashboardStats = () => API.get('/user/dashboard-stats');
+export const trackActivity = (data) => API.post('/user/track-activity', data);
+export const initializeProgress = () => API.post('/user/initialize-progress');
+
+// Applications
+export const submitApplication = (data) => API.post('/applications', data);
+export const getMyApplications = () => API.get('/applications/my');
+
+// Courses
+export const enrollCourse = (data) => API.post('/courses/enroll', data);
+export const getMyEnrollments = () => API.get('/courses/my');
+
+// Payments
+export const createOrder = (data) => API.post('/payments/create-order', data);
+export const verifyPayment = (data) => API.post('/payments/verify', data);
+
+// Contact
+export const submitHireRequest = (data) => API.post('/contact/hire', data);
+
+// Admin
+export const getAdminStats = () => API.get('/admin/stats');
+export const getAdminApplications = (params) => API.get('/admin/applications', { params });
+export const updateApplicationStatus = (id, data) => API.patch(`/admin/applications/${id}`, data);
+export const getAdminEnrollments = (params) => API.get('/admin/enrollments', { params });
+export const getAdminHireRequests = () => API.get('/admin/hire-requests');
+export const updateHireRequest = (id, data) => API.patch(`/admin/hire-requests/${id}`, data);
+export const getAdminUsers = (params) => API.get('/admin/users', { params });
+export const getUserActivity = (userId) => API.get(`/admin/users/${userId}/activity`);
+
+// Blog
+export const getBlogPosts = () => API.get('/blog');
+export const getBlogPost = (slug) => API.get(`/blog/${slug}`);
+export const getAdminBlogPosts = () => API.get('/blog/admin/all');
+export const createBlogPost = (data) => API.post('/blog', data);
+export const updateBlogPost = (id, data) => API.put(`/blog/${id}`, data);
+export const deleteBlogPost = (id) => API.delete(`/blog/${id}`);
+FILEEOF7
+
+echo "[8/10] Writing frontend/src/components/Admin/Admin.jsx ..."
+mkdir -p "frontend/src/components/Admin"
+cat > "frontend/src/components/Admin/Admin.jsx" << 'FILEEOF8'
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
@@ -4352,3 +4993,948 @@ const AdminBlog = () => {
     </div>
   );
 };
+FILEEOF8
+
+echo "[9/10] Writing frontend/src/components/Layout/Navbar.jsx ..."
+mkdir -p "frontend/src/components/Layout"
+cat > "frontend/src/components/Layout/Navbar.jsx" << 'FILEEOF9'
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useAuth } from '../../context/AuthContext';
+import {
+  ChevronDown,
+  ChevronRight,
+  Monitor,
+  Database,
+  Coffee,
+  Cpu,
+  Globe2,
+  Bot,
+  TrendingUp,
+  Terminal,
+  ShieldCheck,
+  PenTool,
+  Palette,
+  Megaphone,
+  Rocket,
+  Code2,
+  BarChart3,
+  Sparkles,
+  Briefcase,
+  Award,
+  Users,
+} from 'lucide-react';
+import './Navbar.css';
+
+// ---- Courses mega-menu data ------------------------------------------------
+const COURSE_COLUMNS = [
+  {
+    key: 'development',
+    title: 'Development',
+    icon: Code2,
+    items: [
+      { num: 1, label: 'Full Stack Development', desc: 'MERN, REST APIs & deployment', icon: Monitor, color: 'text-sky-400', badge: 'Popular' },
+      { num: 2, label: 'MERN Stack Development', desc: 'MongoDB, Express, React, Node', icon: Database, color: 'text-emerald-400' },
+      { num: 3, label: 'Java Development', desc: 'Core Java to Spring Boot', icon: Coffee, color: 'text-amber-400' },
+      { num: 4, label: 'C / C++ Programming', desc: 'DSA & systems fundamentals', icon: Cpu, color: 'text-violet-400' },
+      { num: 5, label: 'Web Development', desc: 'HTML, CSS & modern JS', icon: Globe2, color: 'text-blue-400' },
+    ],
+  },
+  {
+    key: 'data-ai',
+    title: 'Data & AI',
+    icon: BarChart3,
+    items: [
+      { num: 6, label: 'AI / ML', desc: 'Models, training & deployment', icon: Bot, color: 'text-purple-400', badge: 'Popular' },
+      { num: 7, label: 'Data Science', desc: 'Statistics, EDA & storytelling', icon: TrendingUp, color: 'text-orange-400' },
+      { num: 8, label: 'Python Development', desc: 'Scripting, backend & automation', icon: Terminal, color: 'text-yellow-400' },
+      { num: 9, label: 'Cyber Security', desc: 'Network & app security basics', icon: ShieldCheck, color: 'text-cyan-400' },
+      { num: 10, label: 'Data Analytics', desc: 'SQL, dashboards & reporting', icon: Database, color: 'text-fuchsia-400' },
+    ],
+  },
+  {
+    key: 'design-other',
+    title: 'Design & Other',
+    icon: Palette,
+    items: [
+      { num: 11, label: 'UI / UX Design', desc: 'Figma, wireframes & prototyping', icon: PenTool, color: 'text-pink-400', badge: 'Popular' },
+      { num: 12, label: 'Graphic Design', desc: 'Visual identity & branding', icon: Sparkles, color: 'text-orange-400' },
+      { num: 13, label: 'Digital Marketing', desc: 'SEO, ads & social growth', icon: Megaphone, color: 'text-sky-400' },
+    ],
+  },
+];
+
+// Hover-intent timing
+const OPEN_DELAY = 60;
+const CLOSE_DELAY = 220;
+
+const panelVariants = {
+  hidden: { opacity: 0, y: -6, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1], staggerChildren: 0.035, delayChildren: 0.03 },
+  },
+  exit: { opacity: 0, y: -6, scale: 0.98, transition: { duration: 0.12, ease: 'easeIn' } },
+};
+
+const columnVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2, ease: 'easeOut' } },
+};
+
+// Per-item entrance, staggered inside each column
+const itemListVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.025, delayChildren: 0.04 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -6 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.16, ease: [0.16, 1, 0.3, 1] } },
+};
+
+// Subtle icon-chip "pop" on row hover — restrained, no bounce
+const iconChipVariants = {
+  rest: { scale: 1 },
+  hover: { scale: 1.08, transition: { duration: 0.15, ease: [0.16, 1, 0.3, 1] } },
+};
+
+const CoursesDropdown = ({ onNavigate, id, onMouseEnter, onMouseLeave }) => (
+  <motion.div
+    id={id}
+    role="menu"
+    variants={panelVariants}
+    initial="hidden"
+    animate="visible"
+    exit="exit"
+    onMouseEnter={onMouseEnter}
+    onMouseLeave={onMouseLeave}
+    className="
+      absolute left-1/2 top-full z-50 mt-3 flex w-[94vw] max-w-[1000px] -translate-x-1/2
+      flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1626]
+      shadow-[0_24px_60px_-12px_rgba(0,0,0,0.65)]
+      sm:w-[90vw] md:w-[88vw] lg:w-[min(80vw,1000px)]
+    "
+    style={{ maxHeight: 'min(80vh, 640px)' }}
+  >
+    <motion.div
+      className="h-[3px] w-full shrink-0 bg-gradient-to-r from-[#00d68f]/0 via-[#00d68f] to-[#00d68f]/0"
+      initial={{ scaleX: 0, opacity: 0 }}
+      animate={{ scaleX: 1, opacity: 1 }}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      style={{ transformOrigin: 'center' }}
+    />
+
+    <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="grid grid-cols-1 gap-x-6 gap-y-8 p-5 sm:grid-cols-2 sm:p-6 lg:grid-cols-3 lg:gap-x-8 lg:p-7">
+        {COURSE_COLUMNS.map((col, colIdx) => (
+          <motion.div
+            key={col.key}
+            variants={columnVariants}
+            className={`
+              ${colIdx > 0 ? 'sm:border-l sm:border-white/[0.06] sm:pl-6 lg:pl-8' : ''}
+              ${colIdx === 2 ? 'sm:col-span-2 sm:border-l-0 sm:border-t sm:border-white/[0.06] sm:pl-0 sm:pt-6 lg:col-span-1 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0' : ''}
+            `}
+          >
+            <div className="mb-4 flex items-center gap-2 text-[#00d68f]">
+              <col.icon size={15} strokeWidth={2.25} />
+              <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">
+                {col.title}
+              </span>
+            </div>
+
+            <motion.div variants={itemListVariants} className="flex flex-col gap-1">
+              {col.items.map((item) => (
+                <motion.button
+                  key={item.num}
+                  variants={itemVariants}
+                  initial="rest"
+                  whileHover="hover"
+                  whileTap={{ scale: 0.985 }}
+                  role="menuitem"
+                  onClick={() => onNavigate(item)}
+                  className="
+                    group/item relative flex w-full items-start gap-3 rounded-xl px-2.5 py-2.5
+                    text-left transition-colors duration-150
+                    hover:bg-white/[0.05] focus-visible:bg-white/[0.05]
+                    focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#00d68f]/50
+                  "
+                >
+                  <motion.span
+                    variants={iconChipVariants}
+                    className={`
+                      mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+                      bg-white/[0.04] ${item.color}
+                      group-hover/item:bg-white/[0.08]
+                    `}
+                    style={{ transition: 'background-color 150ms' }}
+                  >
+                    <item.icon size={15} strokeWidth={2} />
+                  </motion.span>
+
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2">
+                      <span className="truncate text-[13.5px] font-medium text-white/90 group-hover/item:text-white">
+                        {item.num}. {item.label}
+                      </span>
+                      {item.badge && (
+                        <span className="shrink-0 rounded-full bg-[#00d68f]/15 px-1.5 py-[1px] text-[9.5px] font-semibold tracking-wide text-[#00d68f]">
+                          {item.badge}
+                        </span>
+                      )}
+                    </span>
+                    <span className="mt-0.5 block truncate text-[11.5px] text-white/40">
+                      {item.desc}
+                    </span>
+                  </span>
+
+                  <ChevronRight
+                    size={14}
+                    className="mt-1.5 shrink-0 text-white/20 opacity-0 transition-all duration-150 group-hover/item:translate-x-0.5 group-hover/item:text-white/50 group-hover/item:opacity-100"
+                  />
+                </motion.button>
+              ))}
+            </motion.div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+
+    <motion.div
+      variants={columnVariants}
+      className="
+        flex shrink-0 flex-col items-start justify-between gap-4 border-t border-white/[0.06]
+        bg-white/[0.015] px-5 py-4 sm:flex-row sm:items-center sm:px-6 sm:py-5 lg:px-7
+      "
+    >
+      <div className="flex items-center gap-3">
+        <motion.span
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#00d68f]/10 text-[#00d68f]"
+          animate={{ y: [0, -2, 0] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <Rocket size={16} />
+        </motion.span>
+        <div>
+          <p className="text-[13.5px] font-semibold text-white">
+            Can&rsquo;t decide which course is right for you?
+          </p>
+          <p className="text-[11.5px] text-white/45">
+            Answer a few questions and we&rsquo;ll suggest the perfect course for your goals.
+          </p>
+        </div>
+      </div>
+
+      <motion.button
+        onClick={() => onNavigate({ findMyCourse: true })}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.97 }}
+        transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        className="
+          group/cta flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-[#00d68f] px-4 py-2.5
+          text-[13px] font-semibold text-[#04160f] shadow-sm shadow-[#00d68f]/20
+          transition-shadow duration-150 hover:brightness-110 hover:shadow-md hover:shadow-[#00d68f]/25
+          sm:w-auto
+        "
+      >
+        Find My Course
+        <ChevronRight size={15} className="transition-transform duration-150 group-hover/cta:translate-x-0.5" />
+      </motion.button>
+    </motion.div>
+  </motion.div>
+);
+
+// -----------------------------------------------------------------------------
+
+const Navbar = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [coursesOpen, setCoursesOpen] = useState(false);
+  const [mobileCoursesOpen, setMobileCoursesOpen] = useState(false);
+  const [internshipsOpen, setInternshipsOpen] = useState(false);
+  const [mobileInternshipsOpen, setMobileInternshipsOpen] = useState(false);
+  const internshipsRef = useRef(null);
+  const internshipsCloseTimer = useRef(null);
+  const [canHover, setCanHover] = useState(false);
+  const coursesRef = useRef(null);
+  const coursesTriggerRef = useRef(null);
+  const openTimer = useRef(null);
+  const closeTimer = useRef(null);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Detect true hover-capable pointers (desktop/laptop) vs touch devices
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
+    setCanHover(mq.matches);
+    const listener = (e) => setCanHover(e.matches);
+    mq.addEventListener ? mq.addEventListener('change', listener) : mq.addListener(listener);
+    return () => {
+      mq.removeEventListener ? mq.removeEventListener('change', listener) : mq.removeListener(listener);
+    };
+  }, []);
+
+  const clearTimers = () => {
+    if (openTimer.current) clearTimeout(openTimer.current);
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  };
+
+  const openCourses = useCallback(() => {
+    clearTimers();
+    openTimer.current = setTimeout(() => setCoursesOpen(true), OPEN_DELAY);
+  }, []);
+
+  const scheduleCloseCourses = useCallback(() => {
+    clearTimers();
+    closeTimer.current = setTimeout(() => setCoursesOpen(false), CLOSE_DELAY);
+  }, []);
+
+  useEffect(() => clearTimers, []);
+
+  // Close the Courses dropdown on outside click / Escape, restore focus on Escape
+  useEffect(() => {
+    const onClick = (e) => {
+      if (coursesRef.current && !coursesRef.current.contains(e.target)) {
+        setCoursesOpen(false);
+      }
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape' && coursesOpen) {
+        clearTimers();
+        setCoursesOpen(false);
+        coursesTriggerRef.current?.focus();
+      }
+    };
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [coursesOpen]);
+
+  // Lock body scroll while mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [menuOpen]);
+
+  const scrollTo = (id) => {
+    setMenuOpen(false);
+    setCoursesOpen(false);
+    const NAV_H = 74;
+    const doScroll = () => {
+      const el = document.getElementById(id);
+      if (el) {
+        const top = el.getBoundingClientRect().top + window.scrollY - NAV_H;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    };
+    if (window.location.pathname !== '/') {
+      navigate('/');
+      setTimeout(doScroll, 400);
+    } else {
+      doScroll();
+    }
+  };
+
+  const handleLogout = () => { logout(); navigate('/'); };
+
+  const handleCourseNavigate = useCallback((item) => {
+    clearTimers();
+    setCoursesOpen(false);
+    setMenuOpen(false);
+    if (item.findMyCourse) {
+      navigate('/find-my-course');
+      return;
+    }
+    navigate(`/courses/${item.key || item.label.toLowerCase().replace(/[\s/]+/g, '-')}`);
+  }, [navigate]);
+
+  const handleTriggerClick = () => {
+    clearTimers();
+    setCoursesOpen((o) => !o);
+  };
+
+  const openInternships = useCallback(() => {
+    if (internshipsCloseTimer.current) clearTimeout(internshipsCloseTimer.current);
+    setInternshipsOpen(true);
+  }, []);
+  const scheduleCloseInternships = useCallback(() => {
+    if (internshipsCloseTimer.current) clearTimeout(internshipsCloseTimer.current);
+    internshipsCloseTimer.current = setTimeout(() => setInternshipsOpen(false), 200);
+  }, []);
+
+  const INTERNSHIP_COLUMNS = [
+    {
+      key: 'projects', title: 'Projects', icon: Code2,
+      items: [
+        { label: 'Live Client Projects', desc: 'Work on real projects from WeNexa', icon: Briefcase },
+        { label: 'Portfolio Building', desc: 'Ship work you can show employers', icon: Award },
+      ],
+      target: 'projects',
+    },
+    {
+      key: 'placement', title: 'Placement', icon: Users,
+      items: [
+        { label: 'Stipend & Earnings', desc: '75% of project value goes to students', icon: TrendingUp },
+        { label: 'Career Support', desc: 'Mentor-guided growth into full-time roles', icon: Rocket },
+      ],
+      target: 'home',
+    },
+  ];
+
+  const NAV_LINKS = [
+    { label: 'Courses',      id: 'courses', dropdown: true },
+    { label: 'Internships',  id: 'internships', simpleDropdown: true },
+    { label: 'Events',       id: 'journey', scrollTo: true },
+    { label: 'Blog',         id: 'blog', isRoute: true },
+    { label: 'About Us',     id: 'about', isRoute: true },
+    { label: 'Contact',      id: 'contact', scrollTo: true },
+  ];
+
+  return (
+    <nav className={`nav${scrolled ? ' scrolled' : ''}`} id="nav">
+      <div className="nav-inner">
+        <Link to="/" className="logo-link">
+          <img src="/welogo.png" alt="WeIntern" className="nav-logo" />
+        </Link>
+
+        <ul className="nav-links">
+          {NAV_LINKS.map(l => {
+            if (l.dropdown) {
+              return (
+                <li
+                  key={l.id}
+                  ref={coursesRef}
+                  className="relative"
+                  onMouseEnter={canHover ? openCourses : undefined}
+                  onMouseLeave={canHover ? scheduleCloseCourses : undefined}
+                >
+                  <button
+                    ref={coursesTriggerRef}
+                    className="nav-link relative inline-flex items-center gap-1"
+                    onClick={handleTriggerClick}
+                    onFocus={openCourses}
+                    aria-expanded={coursesOpen}
+                    aria-haspopup="menu"
+                    aria-controls="courses-mega-menu"
+                  >
+                    <span className={coursesOpen ? 'text-[#00d68f]' : ''}>{l.label}</span>
+                    <motion.span
+                      animate={{ rotate: coursesOpen ? 180 : 0 }}
+                      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                      className="flex"
+                    >
+                      <ChevronDown size={14} className={coursesOpen ? 'text-[#00d68f]' : ''} />
+                    </motion.span>
+                    <motion.span
+                      className="absolute -bottom-1 left-0 h-[2px] rounded-full bg-[#00d68f]"
+                      initial={false}
+                      animate={{ width: coursesOpen ? '100%' : '0%', opacity: coursesOpen ? 1 : 0 }}
+                      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    />
+                  </button>
+                  <AnimatePresence>
+                    {coursesOpen && (
+                      <CoursesDropdown
+                        id="courses-mega-menu"
+                        onNavigate={handleCourseNavigate}
+                        onMouseEnter={canHover ? openCourses : undefined}
+                        onMouseLeave={canHover ? scheduleCloseCourses : undefined}
+                      />
+                    )}
+                  </AnimatePresence>
+                </li>
+              );
+            }
+            if (l.simpleDropdown) {
+              return (
+                <li
+                  key={l.id}
+                  ref={internshipsRef}
+                  className="relative"
+                  onMouseEnter={canHover ? openInternships : undefined}
+                  onMouseLeave={canHover ? scheduleCloseInternships : undefined}
+                >
+                  <button
+                    className="nav-link relative inline-flex items-center gap-1"
+                    onClick={() => setInternshipsOpen((o) => !o)}
+                    aria-expanded={internshipsOpen}
+                    aria-haspopup="menu"
+                  >
+                    <span className={internshipsOpen ? 'text-[#00d68f]' : ''}>{l.label}</span>
+                    <ChevronDown size={14} className={internshipsOpen ? 'text-[#00d68f]' : ''} style={{ transform: internshipsOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+                  </button>
+                  <AnimatePresence>
+                    {internshipsOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        transition={{ duration: 0.16 }}
+                        className="internships-dropdown"
+                        onMouseEnter={canHover ? openInternships : undefined}
+                        onMouseLeave={canHover ? scheduleCloseInternships : undefined}
+                      >
+                        {INTERNSHIP_COLUMNS.map((col) => (
+                          <div className="internships-col" key={col.key}>
+                            <div className="internships-col-head">
+                              <col.icon size={14} strokeWidth={2.25} />
+                              <span>{col.title}</span>
+                            </div>
+                            {col.items.map((item) => (
+                              <button
+                                key={item.label}
+                                className="internships-item"
+                                onClick={() => { setInternshipsOpen(false); col.target === 'home' ? navigate('/') : scrollTo(col.target); }}
+                              >
+                                <span className="internships-item-icon"><item.icon size={14} /></span>
+                                <span>
+                                  <span className="internships-item-label">{item.label}</span>
+                                  <span className="internships-item-desc">{item.desc}</span>
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </li>
+              );
+            }
+            return (
+              <li key={l.id}>
+                {l.isRoute ? (
+                  <Link to={`/${l.id}`} className="nav-link">
+                    {l.label}
+                  </Link>
+                ) : (
+                  <button className="nav-link" onClick={() => scrollTo(l.id)}>{l.label}</button>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className="nav-ctas">
+          {user ? (
+            <>
+              <div className="nav-user-info">
+                <div className="nav-avatar">{user.name?.[0]?.toUpperCase()}</div>
+                <span className="nav-user-type">
+                  {user.role === 'admin' ? 'Admin' : 'Student'}
+                </span>
+              </div>
+              {user.role === 'admin'
+                ? <Link to="/admin" className="btn btn-outline" style={{fontSize:'.82rem',padding:'.5rem 1rem'}}>⚙️ Admin</Link>
+                : <Link to="/dashboard" className="btn btn-outline" style={{fontSize:'.82rem',padding:'.5rem 1rem'}}>Dashboard</Link>
+              }
+              <button onClick={handleLogout} className="btn btn-outline" style={{fontSize:'.82rem',padding:'.5rem 1rem'}}>Logout</button>
+            </>
+          ) : (
+            <>
+              <div className="nav-students-count">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>4k+ Students</span>
+              </div>
+              <div className="nav-for-biz">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                <span>For Businesses</span>
+              </div>
+              <Link to="/login" className="btn-nav-login">Login / Sign Up</Link>
+            </>
+          )}
+        </div>
+
+        <button className={`hamburger${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(!menuOpen)}>
+          <span /><span /><span />
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+            className="mobile-menu overflow-y-auto"
+            style={{ maxHeight: 'calc(100vh - 74px)' }}
+          >
+            {NAV_LINKS.map(l => {
+              if (l.dropdown) {
+                return (
+                  <div key={l.id} className="flex flex-col">
+                    <button
+                      className="mobile-nav-link inline-flex items-center justify-between"
+                      onClick={() => setMobileCoursesOpen((o) => !o)}
+                      aria-expanded={mobileCoursesOpen}
+                    >
+                      {l.label}
+                      <motion.span
+                        animate={{ rotate: mobileCoursesOpen ? 180 : 0 }}
+                        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                        className="flex"
+                      >
+                        <ChevronDown size={16} />
+                      </motion.span>
+                    </button>
+                    <AnimatePresence>
+                      {mobileCoursesOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.18, ease: 'easeInOut' }}
+                          className="overflow-hidden px-3 pb-4 pt-1 sm:px-4"
+                        >
+                          <motion.div
+                            variants={{
+                              hidden: {},
+                              visible: { transition: { staggerChildren: 0.04, delayChildren: 0.05 } },
+                            }}
+                            initial="hidden"
+                            animate="visible"
+                            className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:p-4"
+                          >
+                            {COURSE_COLUMNS.map((col) => (
+                              <motion.div
+                                key={col.key}
+                                variants={{ hidden: { opacity: 0, y: 6 }, visible: { opacity: 1, y: 0, transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } } }}
+                              >
+                                <div className="mb-2 flex items-center gap-2 text-[#00d68f]">
+                                  <col.icon size={14} strokeWidth={2.25} />
+                                  <span className="text-[11px] font-semibold uppercase tracking-wider">
+                                    {col.title}
+                                  </span>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  {col.items.map((item) => (
+                                    <motion.button
+                                      key={item.num}
+                                      onClick={() => handleCourseNavigate(item)}
+                                      whileTap={{ scale: 0.97 }}
+                                      transition={{ duration: 0.1 }}
+                                      className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2.5 text-left text-sm text-white/90 active:bg-white/[0.06]"
+                                    >
+                                      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.04] ${item.color}`}>
+                                        <item.icon size={14} />
+                                      </span>
+                                      <span className="min-w-0 flex-1">
+                                        <span className="flex items-center gap-2">
+                                          <span className="truncate">{item.num}. {item.label}</span>
+                                          {item.badge && (
+                                            <span className="shrink-0 rounded-full bg-[#00d68f]/15 px-1.5 py-0.5 text-[9px] font-semibold text-[#00d68f]">
+                                              {item.badge}
+                                            </span>
+                                          )}
+                                        </span>
+                                      </span>
+                                    </motion.button>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            ))}
+                            <motion.button
+                              variants={{ hidden: { opacity: 0, y: 6 }, visible: { opacity: 1, y: 0, transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } } }}
+                              whileTap={{ scale: 0.97 }}
+                              onClick={() => handleCourseNavigate({ findMyCourse: true })}
+                              className="flex items-center justify-center gap-2 rounded-lg bg-[#00d68f] px-4 py-2.5 text-sm font-semibold text-[#04160f]"
+                            >
+                              <Rocket size={15} />
+                              Find My Course
+                            </motion.button>
+                          </motion.div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              }
+              if (l.simpleDropdown) {
+                return (
+                  <div key={l.id} className="flex flex-col">
+                    <button
+                      className="mobile-nav-link inline-flex items-center justify-between"
+                      onClick={() => setMobileInternshipsOpen((o) => !o)}
+                      aria-expanded={mobileInternshipsOpen}
+                    >
+                      {l.label}
+                      <ChevronDown size={16} style={{ transform: mobileInternshipsOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+                    </button>
+                    <AnimatePresence>
+                      {mobileInternshipsOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.18 }}
+                          className="overflow-hidden px-3 pb-4 pt-1 sm:px-4"
+                        >
+                          <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:p-4">
+                            {INTERNSHIP_COLUMNS.map((col) => (
+                              <div key={col.key}>
+                                <div className="mb-2 flex items-center gap-2 text-[#00d68f]">
+                                  <col.icon size={14} strokeWidth={2.25} />
+                                  <span className="text-[11px] font-semibold uppercase tracking-wider">{col.title}</span>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  {col.items.map((item) => (
+                                    <button
+                                      key={item.label}
+                                      onClick={() => { setMenuOpen(false); setMobileInternshipsOpen(false); col.target === 'home' ? navigate('/') : scrollTo(col.target); }}
+                                      className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2.5 text-left text-sm text-white/90 active:bg-white/[0.06]"
+                                    >
+                                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.04]">
+                                        <item.icon size={14} />
+                                      </span>
+                                      <span className="min-w-0 flex-1">
+                                        <span className="block truncate">{item.label}</span>
+                                        <span className="block truncate text-xs text-white/50">{item.desc}</span>
+                                      </span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              }
+              return l.isRoute ? (
+                <Link key={l.id} to={`/${l.id}`} className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
+                  {l.label}
+                </Link>
+              ) : (
+                <button key={l.id} className="mobile-nav-link" onClick={() => scrollTo(l.id)}>{l.label}</button>
+              );
+            })}
+            {user ? (
+              <>
+                {user.role === 'admin'
+                  ? <Link to="/admin" onClick={() => setMenuOpen(false)} className="mobile-nav-link">Admin Panel</Link>
+                  : <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="mobile-nav-link">Dashboard</Link>
+                }
+                <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="mobile-cta-btn">Logout</button>
+              </>
+            ) : (
+              <Link to="/login" onClick={() => setMenuOpen(false)} className="mobile-cta-btn">Login / Sign Up</Link>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </nav>
+  );
+};
+
+export default Navbar;
+FILEEOF9
+
+echo "[10/10] Writing frontend/src/App.jsx ..."
+mkdir -p "frontend/src"
+cat > "frontend/src/App.jsx" << 'FILEEOF10'
+/* eslint-disable no-unused-vars */
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { AdminProvider } from './context/AdminContext';
+
+// Layout
+import Navbar from './components/Layout/Navbar';
+import Footer from './components/Layout/Footer';
+
+// Pages
+import Home from './pages/Home';
+import AboutUs from './pages/AboutUs';
+import { LoginPage, RegisterPage, OTPPage, ForgotPasswordPage, ResetPasswordPage, AuthCallback } from './components/Auth/AuthPages';
+import Dashboard from './components/Dashboard/Dashboard';
+import Admin from './components/Admin/Admin';
+import CoursePage from './pages/CoursePage';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
+
+// Global styles
+import './styles/global.css';
+import OAuthCallback from './components/Auth/OAuthCallback';
+import StudentProjects from './components/Sections/StudentProjects';
+import TestimonialsSection from './components/Sections/Testimonials';
+import { useSanitySEO } from './hooks/useSanity';
+import { CoursesProvider } from './context/CoursesContext';
+
+// WhatsApp float
+const WAFloat = () => (
+  <a href="https://wa.me/917414974582" className="wa-float" target="_blank" rel="noreferrer" title="Chat on WhatsApp">
+    <svg viewBox="0 0 24 24" fill="white" width="26" height="26">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+    </svg>
+  </a>
+);
+
+// Protected route wrapper
+const ProtectedRoute = ({ children, adminOnly = false }) => {
+  const { user, loading } = useAuth();
+  if (loading) return (
+    <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--cream)' }}>
+      <div style={{ width:44, height:44, border:'3px solid #e8a820', borderTopColor:'transparent', borderRadius:'50%', animation:'spin .8s linear infinite' }} />
+    </div>
+  );
+  if (!user) return <Navigate to="/login" replace />;
+  if (adminOnly && user.role !== 'admin') return <Navigate to="/dashboard" replace />;
+  return children;
+};
+
+// Layout wrapper with nav + footer
+const WithLayout = ({ children }) => {
+  return (
+    <>
+      <Navbar />
+      {children}
+      <Footer />
+      <WAFloat />
+    </>
+  );
+};
+
+// Auth pages (no footer)
+const AuthLayout = ({ children }) => (
+  <>
+    {children}
+  </>
+);
+
+function AppRoutes() {
+  return (
+    <Routes>
+      {/* Public with layout */}
+      <Route path="/" element={<WithLayout><Home /></WithLayout>} />
+      
+      {/* Course detail page - standalone, opens in a new tab */}
+      <Route path="/courses/:slug" element={<CoursePage />} />
+      <Route path="/blog" element={<Blog />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
+
+      {/* About Us - standalone page without footer */}
+      <Route path="/about" element={<AboutUs />} />
+
+      {/* Auth pages */}
+      <Route path="/auth/callback" element={<OAuthCallback />} />
+        <Route path="/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
+      <Route path="/register" element={<AuthLayout><RegisterPage /></AuthLayout>} />
+      <Route path="/verify-otp" element={<AuthLayout><OTPPage /></AuthLayout>} />
+      <Route path="/forgot-password" element={<AuthLayout><ForgotPasswordPage /></AuthLayout>} />
+      <Route path="/reset-password" element={<AuthLayout><ResetPasswordPage /></AuthLayout>} />
+
+      {/* Protected */}
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
+
+const SEOHead = () => {
+  const { seo } = useSanitySEO();
+  useEffect(() => {
+    if (!seo) return;
+    if (seo.siteTitle) document.title = seo.siteTitle;
+    const setMeta = (name, content) => {
+      let el = document.querySelector(`meta[name="${name}"]`);
+      if (!el) { el = document.createElement('meta'); el.name = name; document.head.appendChild(el); }
+      el.content = content;
+    };
+    const setOG = (prop, content) => {
+      let el = document.querySelector(`meta[property="${prop}"]`);
+      if (!el) { el = document.createElement('meta'); el.setAttribute('property', prop); document.head.appendChild(el); }
+      el.content = content;
+    };
+    if (seo.siteDescription) setMeta('description', seo.siteDescription);
+    if (seo.keywords) setMeta('keywords', seo.keywords);
+    if (seo.ogTitle) setOG('og:title', seo.ogTitle);
+    if (seo.ogDescription) setOG('og:description', seo.ogDescription);
+  }, [seo]);
+  return null;
+};
+
+function App() {
+  return (
+    <BrowserRouter>
+      <CoursesProvider>
+        <SEOHead />
+        <AuthProvider>
+          <AdminProvider>
+            <AppRoutes />
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                duration: 4500,
+                style: { 
+                  fontFamily: "'DM Sans', sans-serif", 
+                  fontWeight: 600, 
+                  borderRadius: 10, 
+                  fontSize: '.9rem',
+                  maxWidth: '500px',
+                  padding: '0.9rem 1.2rem',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+                },
+                success: { 
+                  iconTheme: { primary: '#E8A820', secondary: '#1B2A4A' },
+                  style: {
+                    background: 'white',
+                    color: '#1B2A4A',
+                    border: '2px solid #E8A820'
+                  }
+                },
+                error: {
+                  style: {
+                    background: '#dc4545',
+                    color: 'white',
+                    fontWeight: 700
+                  }
+                }
+              }}
+            />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          </AdminProvider>
+        </AuthProvider>
+      </CoursesProvider>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+FILEEOF10
+
+echo ""
+echo "Done. Next steps:"
+echo "   1. Restart your backend (Node process) so the new /api/blog routes load."
+echo "   2. cd frontend && npm start"
+echo "   3. Log in as an admin -> Admin panel -> Blog tab -> New Post to publish one."
+echo "   4. Visit /blog on the site to see it listed (all posts stay there permanently"
+echo "      as your blog history unless you delete them from the admin panel)."
+echo ""
+echo "To deploy:"
+echo "   git add ."
+echo "   git commit -m \"feat: add blog (admin post + public history), fix internships routing\""
+echo "   git push origin main"
+echo ""
+echo "IMPORTANT for production: after pushing to main, also pull/redeploy the backend"
+echo "on your MilesWeb server (SSH + restart the Node app) so /api/blog exists there too."
