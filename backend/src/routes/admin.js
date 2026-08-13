@@ -13,119 +13,286 @@ router.use(protect, adminOnly);
 // Dashboard stats
 router.get('/stats', async (req, res) => {
   try {
-    const [totalUsers, totalApplications, totalEnrollments, totalHireRequests,
-      pendingApplications, paidEnrollments, totalAdmins, acceptedApplications, reviewingApplications, rejectedApplications] = await Promise.all([
+    const [
+      totalUsers,
+      totalApplications,
+      totalEnrollments,
+      totalHireRequests,
+      pendingApplications,
+      paidEnrollments,
+      pendingEnrollments,
+      totalAdmins,
+      acceptedApplications,
+      reviewingApplications,
+      rejectedApplications
+    ] = await Promise.all([
       User.countDocuments({ role: 'student' }),
       Application.countDocuments(),
       Enrollment.countDocuments(),
       HireRequest.countDocuments(),
       Application.countDocuments({ status: 'pending' }),
       Enrollment.countDocuments({ paymentStatus: 'paid' }),
+      Enrollment.countDocuments({
+        paymentStatus: { $in: ['pending', 'emi_1', 'emi_2'] }
+      }),
       User.countDocuments({ role: 'admin' }),
-      Application.countDocuments({ status: "accepted" }),
-      Application.countDocuments({ status: "reviewing" }),
-      Application.countDocuments({ status: "rejected" }),
+      Application.countDocuments({ status: 'accepted' }),
+      Application.countDocuments({ status: 'reviewing' }),
+      Application.countDocuments({ status: 'rejected' })
     ]);
 
-    // Calculate real revenue from paid enrollments
-    const paidEnrollmentsData = await Enrollment.find({ paymentStatus: 'paid' }).select('coursePrice createdAt');
-    const totalRevenue = paidEnrollmentsData.reduce((sum, enrollment) => sum + (enrollment.coursePrice || 0), 0);
+    /*
+     * Revenue MUST come from successful payment events, not from
+     * Enrollment.coursePrice. This is important for EMI and coupons.
+     *
+     * New records use paymentHistory.
+     * The fallback keeps old MongoDB records working.
+     */
+    const enrollments = await Enrollment.find({})
+      .select(
+        'coursePrice finalPrice paymentStatus createdAt amountPaid paymentHistory emiInstallments'
+      )
+      .lean();
 
-    // Calculate monthly data for the last 8 months
-    const monthlyData = [];
-    const currentDate = new Date();
-    
-    for (let i = 7; i >= 0; i--) {
-      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-      const nextDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i + 1, 1);
-      
-      const monthApplications = await Application.countDocuments({
-        createdAt: { $gte: date, $lt: nextDate }
-      });
-      
-      const monthEnrollments = await Enrollment.countDocuments({
-        createdAt: { $gte: date, $lt: nextDate }
-      });
-      
-      const monthRevenue = await Enrollment.aggregate([
-        {
-          $match: {
-            paymentStatus: 'paid',
-            createdAt: { $gte: date, $lt: nextDate }
-          }
-        },
-        {
-          $group: {
-            _id: null,
-            total: { $sum: '$coursePrice' }
+    const paymentEvents = [];
+
+    for (const enrollment of enrollments) {
+      if (Array.isArray(enrollment.paymentHistory) &&
+          enrollment.paymentHistory.length > 0) {
+        for (const payment of enrollment.paymentHistory) {
+          if (Number(payment.amount) > 0) {
+            paymentEvents.push({
+              amount: Number(payment.amount),
+              paidAt: payment.paidAt || enrollment.createdAt
+            });
           }
         }
-      ]);
+        continue;
+      }
+
+      // Legacy EMI records
+      if (Array.isArray(enrollment.emiInstallments)) {
+        for (const payment of enrollment.emiInstallments) {
+          if (
+            payment.status === 'paid' &&
+            Number(payment.amount) > 0
+          ) {
+            paymentEvents.push({
+              amount: Number(payment.amount),
+              paidAt: payment.paidAt || enrollment.createdAt
+            });
+          }
+        }
+      }
+
+      // Legacy full-payment records
+      if (
+        enrollment.paymentStatus === 'paid' &&
+        (!enrollment.emiInstallments ||
+          enrollment.emiInstallments.length === 0)
+      ) {
+        paymentEvents.push({
+          amount: Number(
+            enrollment.finalPrice ||
+            enrollment.coursePrice ||
+            0
+          ),
+          paidAt: enrollment.createdAt
+        });
+      }
+    }
+
+    const totalRevenue = paymentEvents.reduce(
+      (sum, payment) => sum + payment.amount,
+      0
+    );
+
+    const now = new Date();
+    const monthStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      1
+    );
+    const nextMonthStart = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      1
+    );
+
+    const currentMonthRevenue = paymentEvents
+      .filter(
+        payment =>
+          new Date(payment.paidAt) >= monthStart &&
+          new Date(payment.paidAt) < nextMonthStart
+      )
+      .reduce(
+        (sum, payment) => sum + payment.amount,
+        0
+      );
+
+    // Last 8 calendar months
+    const monthlyData = [];
+
+    for (let i = 7; i >= 0; i--) {
+      const date = new Date(
+        now.getFullYear(),
+        now.getMonth() - i,
+        1
+      );
+
+      const nextDate = new Date(
+        now.getFullYear(),
+        now.getMonth() - i + 1,
+        1
+      );
+
+      const [monthApplications, monthEnrollments] =
+        await Promise.all([
+          Application.countDocuments({
+            createdAt: {
+              $gte: date,
+              $lt: nextDate
+            }
+          }),
+
+          Enrollment.countDocuments({
+            createdAt: {
+              $gte: date,
+              $lt: nextDate
+            }
+          })
+        ]);
+
+      const monthRevenue = paymentEvents
+        .filter(payment => {
+          const paidAt = new Date(payment.paidAt);
+          return paidAt >= date && paidAt < nextDate;
+        })
+        .reduce(
+          (sum, payment) => sum + payment.amount,
+          0
+        );
 
       monthlyData.push({
-        month: date.toLocaleDateString('en-US', { month: 'short' }),
+        month: date.toLocaleDateString('en-US', {
+          month: 'short'
+        }),
         applications: monthApplications,
         enrollments: monthEnrollments,
-        revenue: monthRevenue[0]?.total || 0
+        revenue: monthRevenue
       });
     }
 
-    const recentApplications = await Application.find().sort('-createdAt').limit(5);
-    const recentEnrollments = await Enrollment.find().sort('-createdAt').limit(5).populate('user', 'name email');
-    
-    // Calculate real new student signups for the last 7 days
-const weeklyUsers = [];
+    // Students per course
+    const courseGroups = await Enrollment.aggregate([
+      {
+        $group: {
+          _id: '$courseName',
+          students: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { students: -1 }
+      }
+    ]);
 
-for (let i = 6; i >= 0; i--) {
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-    startOfDay.setDate(startOfDay.getDate() - i);
+    const chartColors = [
+      '#2196C9',
+      '#E8A820',
+      '#27ae60',
+      '#6c3483',
+      '#dc4545',
+      '#1B2A4A'
+    ];
 
-    const endOfDay = new Date(startOfDay);
-    endOfDay.setDate(endOfDay.getDate() + 1);
+    const courseData = courseGroups.map(
+      (course, index) => ({
+        name: course._id,
+        students: course.students,
+        color:
+          chartColors[index % chartColors.length]
+      })
+    );
 
-    const users = await User.countDocuments({
-        role: 'student',
-        createdAt: {
+    const recentApplications =
+      await Application.find()
+        .sort('-createdAt')
+        .limit(5)
+        .lean();
+
+    const recentEnrollments =
+      await Enrollment.find()
+        .sort('-createdAt')
+        .limit(10)
+        .populate('user', 'name email phone')
+        .lean();
+
+    // New student registrations for the last 7 days
+    const weeklyUsers = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+      startOfDay.setDate(
+        startOfDay.getDate() - i
+      );
+
+      const endOfDay = new Date(startOfDay);
+      endOfDay.setDate(
+        endOfDay.getDate() + 1
+      );
+
+      const users =
+        await User.countDocuments({
+          role: 'student',
+          createdAt: {
             $gte: startOfDay,
             $lt: endOfDay
-        }
-    });
+          }
+        });
 
-    weeklyUsers.push({
-        day: startOfDay.toLocaleDateString('en-US', {
-            weekday: 'short'
-        }),
+      weeklyUsers.push({
+        day: startOfDay.toLocaleDateString(
+          'en-US',
+          { weekday: 'short' }
+        ),
         users
-    });
-}
+      });
+    }
+
     res.json({
       success: true,
       data: {
-        stats: { 
-          totalUsers, 
-          totalApplications, 
-          totalEnrollments, 
-          totalHireRequests, 
-          pendingApplications, 
-          paidEnrollments, 
+        stats: {
+          totalUsers,
+          totalApplications,
+          totalEnrollments,
+          pendingEnrollments,
+          totalHireRequests,
+          pendingApplications,
+          paidEnrollments,
           totalAdmins,
           totalRevenue,
+          currentMonthRevenue,
           acceptedApplications,
           reviewingApplications,
-          rejectedApplications,
+          rejectedApplications
         },
         monthlyData,
         weeklyUsers,
+        courseData,
         recentApplications,
         recentEnrollments
       }
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    console.error('Admin stats error:', err);
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
   }
 });
-
 
 // Get all applications
 router.get('/applications', async (req, res) => {
@@ -333,7 +500,7 @@ router.get('/payment-details', async (req, res) => {
     const enrollments = await Enrollment.find(query)
       .populate('user', 'name email phone')
       .sort('-createdAt')
-      .select('name email phone college courseName coursePrice paymentStatus paymentType emiInstallments couponApplied couponCode originalPrice discountAmount finalPrice createdAt paymentId');
+      .select('name email phone college courseName coursePrice paymentStatus paymentType emiInstallments amountPaid paymentHistory couponApplied couponCode originalPrice discountAmount finalPrice createdAt paymentId');
 
     // Summary counts
     const [fullPaid, emi1, emi2, emi3, pending] = await Promise.all([

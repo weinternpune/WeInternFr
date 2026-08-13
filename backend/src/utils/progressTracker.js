@@ -282,24 +282,13 @@ const trackActivity = async (
 // =====================================================
 
 const getUserStats = async (userId) => {
-
   try {
-
-    // -------------------------------------------------
-    // 1. Find user progress
-    // -------------------------------------------------
-
     let progress =
       await UserProgress.findOne({
         user: userId
       });
 
-    // -------------------------------------------------
-    // 2. Create progress if it doesn't exist
-    // -------------------------------------------------
-
     if (!progress) {
-
       progress =
         new UserProgress({
           user: userId
@@ -308,15 +297,56 @@ const getUserStats = async (userId) => {
       await progress.save();
     }
 
-    // -------------------------------------------------
-    // 3. Calculate attendance percentage
-    // -------------------------------------------------
+    // UserActivity is the source of truth for time.
+    // This avoids stale/double-counted totals in UserProgress.
+    const activities =
+      await UserActivity.find({
+        user: userId
+      })
+      .select('activityType duration details createdAt')
+      .lean();
+
+    const studyTypes = new Set([
+      'course_progress',
+      'practice_completed',
+      'session_attended',
+      'assignment_completed'
+    ]);
+
+    const totalStudyMinutes =
+      activities.reduce(
+        (total, activity) => {
+          if (
+            studyTypes.has(
+              activity.activityType
+            )
+          ) {
+            return (
+              total +
+              Number(activity.duration || 0)
+            );
+          }
+
+          return total;
+        },
+        0
+      );
+
+    const totalHours =
+      Math.round(
+        (totalStudyMinutes / 60) * 10
+      ) / 10;
 
     const sessionsAttended =
-      progress.sessionsAttended || 0;
+      activities.filter(
+        activity =>
+          activity.activityType ===
+          'session_attended'
+      ).length;
 
     const sessionsTotal =
-      progress.sessionsTotal || 0;
+      Number(progress.sessionsTotal || 0) ||
+      sessionsAttended;
 
     const attendanceRate =
       sessionsTotal > 0
@@ -327,49 +357,60 @@ const getUserStats = async (userId) => {
           )
         : 0;
 
-    // -------------------------------------------------
-    // 4. Convert study minutes to hours
-    // -------------------------------------------------
-
-    const totalStudyMinutes =
-      Number(
-        progress.totalStudyHours || 0
+    const practiceActivities =
+      activities.filter(
+        activity =>
+          activity.activityType ===
+          'practice_completed'
       );
 
-    const totalHours =
+    const practiceSolved =
+      practiceActivities.length;
+
+    const assignmentActivities =
+      activities.filter(
+        activity =>
+          activity.activityType ===
+          'assignment_completed'
+      );
+
+    const scores =
+      assignmentActivities
+        .map(activity =>
+          Number(
+            activity.details?.score
+          )
+        )
+        .filter(score =>
+          Number.isFinite(score)
+        );
+
+    const averageScore =
+      scores.length
+        ? Math.round(
+            scores.reduce(
+              (sum, score) =>
+                sum + score,
+              0
+            ) / scores.length
+          )
+        : 0;
+
+    const practiceMinutes =
+      practiceActivities.reduce(
+        (total, activity) =>
+          total +
+          Number(activity.duration || 0),
+        0
+      );
+
+    const practiceHours =
       Math.round(
-        (totalStudyMinutes / 60) *
-        10
+        (practiceMinutes / 60) * 10
       ) / 10;
 
-    // -------------------------------------------------
-    // 5. Practice statistics
-    // -------------------------------------------------
-
-    const practiceSolved =
-      progress.practiceProblems?.solved || 0;
-
-    /*
-     * Your current Practice page has 6 hardcoded
-     * problems.
-     *
-     * Later:
-     *
-     * total = await PracticeProblem.countDocuments({
-     *   active: true
-     * });
-     */
-
-    const practiceTotal = 6;
-
-    // -------------------------------------------------
-    // 6. Return dashboard statistics
-    // -------------------------------------------------
-
     return {
-
-      totalStudyHours:
-        totalHours,
+      totalStudyHours: totalHours,
 
       currentStreak:
         progress.currentStreak || 0,
@@ -378,23 +419,22 @@ const getUserStats = async (userId) => {
         progress.longestStreak || 0,
 
       sessionsAttended,
-
+      sessionsTotal,
       attendanceRate,
 
       assignmentsCompleted:
-        progress.assignmentsCompleted || 0,
+        assignmentActivities.length,
 
-      averageScore:
-        progress.averageScore || 0,
+      averageScore,
+
+      practiceHours,
 
       practiceProblems: {
         solved: practiceSolved,
-        total: practiceTotal
+        total: 6
       }
     };
-
   } catch (error) {
-
     console.error(
       'Error getting user stats:',
       error
@@ -403,7 +443,6 @@ const getUserStats = async (userId) => {
     throw error;
   }
 };
-
 
 // =====================================================
 // INITIALIZE USER PROGRESS

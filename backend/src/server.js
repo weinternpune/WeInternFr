@@ -15,6 +15,7 @@ const courseRoutes = require("./routes/course");
 const paymentRoutes = require("./routes/payment");
 const adminRoutes = require("./routes/admin");
 const contactRoutes = require("./routes/contact");
+const mentorRoutes = require("./routes/mentor");
 
 // Passport config
 require("./config/passport");
@@ -106,6 +107,7 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/mentor", mentorRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

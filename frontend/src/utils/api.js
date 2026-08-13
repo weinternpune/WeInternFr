@@ -68,3 +68,42 @@ export const getAdminHireRequests = () => API.get('/admin/hire-requests');
 export const updateHireRequest = (id, data) => API.patch(`/admin/hire-requests/${id}`, data);
 export const getAdminUsers = (params) => API.get('/admin/users', { params });
 export const getUserActivity = (userId) => API.get(`/admin/users/${userId}/activity`);
+
+
+// Mentor
+export const getMentorDashboard = () => API.get('/mentor/dashboard');
+export const getMentorStudents = () => API.get('/mentor/students');
+export const getMentorStudent = (studentId) => API.get(`/mentor/students/${studentId}`);
+export const getMentorClasses = (params) => API.get('/mentor/classes', { params });
+export const createMentorClass = (data) => API.post('/mentor/classes', data);
+export const updateMentorClassStatus = (id, status) => API.patch(`/mentor/classes/${id}/status`, { status });
+export const getMentorAttendance = (params) => API.get('/mentor/attendance', { params });
+export const saveMentorAttendance = (data) => API.post('/mentor/attendance/bulk', data);
+export const getMentorAssignments = () => API.get('/mentor/assignments');
+export const createMentorAssignment = (data) => API.post('/mentor/assignments', data);
+export const getMentorSubmissions = () => API.get('/mentor/submissions');
+export const reviewMentorSubmission = (id, data) => API.patch(`/mentor/submissions/${id}/review`, data);
+export const getMentorProjects = () => API.get('/mentor/projects');
+export const updateMentorProject = (id, data) => API.patch(`/mentor/projects/${id}`, data);
+export const getMentorMessages = () => API.get('/mentor/messages');
+export const sendMentorMessage = (data) => API.post('/mentor/messages', data);
+export const sendMentorAnnouncement = (data) => API.post('/mentor/announcements', data);
+export const getMentorNotifications = () => API.get('/mentor/notifications');
+export const markMentorNotificationRead = (id) => API.patch(`/mentor/notifications/${id}/read`);
+export const getMentorReports = () => API.get('/mentor/reports');
+export const addMentorNote = (studentId, data) => API.post(`/mentor/students/${studentId}/notes`, data);
+export const getMentorNotes = (studentId) => API.get(`/mentor/students/${studentId}/notes`);
+export const createMentorAccount = (data) => API.post('/mentor/admin/create', data);
+export const assignStudentToMentor = (studentId, mentorId) => API.patch(`/mentor/admin/assign-student/${studentId}`, { mentorId });
+export const getStudentMentorClasses = () => API.get('/mentor/student/classes');
+
+export const getMentorProfile = () => API.get('/mentor/profile');
+export const updateMentorProfile = (data) => API.put('/mentor/profile', data);
+export const getAdminMentors = () => API.get('/mentor/admin/list');
+export const updateAdminMentor = (id, data) => API.patch(`/mentor/admin/mentor/${id}`, data);
+export const getStudentMentorAssignments = () => API.get('/mentor/student/assignments');
+export const submitStudentMentorAssignment = (id, data) => API.post(`/mentor/student/assignments/${id}/submit`, data);
+export const getStudentMentorAttendance = () => API.get('/mentor/student/attendance');
+export const getStudentMentorNotifications = () => API.get('/mentor/student/notifications');
+export const getStudentMentorMessages = () => API.get('/mentor/student/messages');
+export const sendStudentMentorMessage = (data) => API.post('/mentor/student/messages', data);

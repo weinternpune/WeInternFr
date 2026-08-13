@@ -51,6 +51,8 @@ const OAuthCallback = () => {
           // Redirect
           if (user.role === 'admin') {
             navigate('/admin', { replace: true });
+          } else if (user.role === 'mentor') {
+            navigate('/mentor/dashboard', { replace: true });
           } else {
             navigate('/dashboard', { replace: true });
           }

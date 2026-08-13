@@ -22,6 +22,9 @@ import {
   updateHireRequest,
   getAdminUsers,
   getUserActivity,
+  getAdminMentors,
+  createMentorAccount,
+  assignStudentToMentor,
 } from "../../utils/api";
 import API from "../../utils/api";
 import toast from "react-hot-toast";
@@ -60,6 +63,7 @@ const ADMIN_TABS = [
   { id: "courses", icon: <FaGraduationCap />, label: "Courses" },
   { id: "projects", icon: <FaRocket />, label: "Projects" },
   { id: "admins", icon: <FaUserShield />, label: "Admins" },
+  { id: "mentors", icon: <FaUsers />, label: "Mentors" },
 ];
 
 const Admin = () => {
@@ -215,6 +219,7 @@ const Admin = () => {
           {tab === "courses" && <AdminCourses />}
           {tab === "projects" && <AdminProjects />}
           {tab === "admins" && <AdminsTab />}
+          {tab === "mentors" && <MentorManagement />}
         </div>
       </main>
     </div>
@@ -249,7 +254,8 @@ const AdminOverview = () => {
   monthlyData = [],
   weeklyUsers = [],
   courseData = [],
-  recentApplications = []
+  recentApplications = [],
+  recentEnrollments = []
 } = statsData;
 
   const statusData = [
@@ -383,11 +389,25 @@ const AdminOverview = () => {
           },
           {
             icon: "💵",
-            num: stats.totalRevenue
-              ? "₹" + (stats.totalRevenue / 100000).toFixed(1) + "L"
-              : "₹0",
+            num: "₹" + Number(
+              stats.totalRevenue || 0
+            ).toLocaleString("en-IN"),
             label: "Total Revenue",
             color: "#1e8449",
+          },
+          {
+            icon: "📅",
+            num: "₹" + Number(
+              stats.currentMonthRevenue || 0
+            ).toLocaleString("en-IN"),
+            label: "Revenue This Month",
+            color: "#0f9d58",
+          },
+          {
+            icon: "⏰",
+            num: stats.pendingEnrollments || 0,
+            label: "Pending Enrollment",
+            color: "#dc4545",
           },
         ].map((s) => (
           <div
@@ -652,6 +672,92 @@ const AdminOverview = () => {
           </div>
         </div>
       </div>
+
+      {/* Recent enrollments */}
+      <div
+        className="chart-card"
+        style={{ marginTop: "1.5rem" }}
+      >
+        <div className="chart-header">
+          <h3>Recent Enrollments</h3>
+          <span className="chart-sub">
+            Latest students
+          </span>
+        </div>
+
+        {recentEnrollments.length === 0 ? (
+          <div
+            style={{
+              padding: "1.5rem",
+              textAlign: "center",
+              color: "var(--muted)"
+            }}
+          >
+            No enrollments yet.
+          </div>
+        ) : (
+          <div className="recent-list">
+            {recentEnrollments
+              .slice(0, 10)
+              .map(enrollment => (
+                <div
+                  key={enrollment._id}
+                  className="recent-item"
+                >
+                  <div className="ri-left">
+                    <div className="ri-avatar">
+                      {enrollment.name?.[0]?.toUpperCase()}
+                    </div>
+
+                    <div>
+                      <strong>
+                        {enrollment.name}
+                      </strong>
+
+                      <span>
+                        {enrollment.courseName}
+                        {" · "}
+                        {enrollment.email}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      textAlign: "right"
+                    }}
+                  >
+                    <strong>
+                      {enrollment.paymentStatus ===
+                      "paid"
+                        ? "Paid"
+                        : enrollment.paymentStatus ===
+                          "pending"
+                        ? "Pending"
+                        : enrollment.paymentStatus
+                            ?.replace("_", " ")
+                            .toUpperCase()}
+                    </strong>
+
+                    <span
+                      style={{
+                        display: "block",
+                        fontSize: ".72rem",
+                        color: "var(--muted)"
+                      }}
+                    >
+                      {new Date(
+                        enrollment.createdAt
+                      ).toLocaleString(
+                        "en-IN"
+                      )}
+                    </span>
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -850,7 +956,15 @@ const AdminEnrollments = () => {
 
   useEffect(() => {
     load();
-  }, [filter]);
+
+    const interval = setInterval(
+      () => load(),
+      5000
+    );
+
+    return () =>
+      clearInterval(interval);
+  }, [filter, search]);
 
   const filtered = enrolls.filter(
     (e) =>
@@ -1097,11 +1211,71 @@ const AdminEnrollments = () => {
                   <td>
                     <div style={{ fontWeight: 700, color: "var(--navy)" }}>
                       ₹
-                      {(e.finalPrice || e.coursePrice)?.toLocaleString("en-IN")}
+                      {Number(
+                        e.finalPrice ||
+                        e.coursePrice ||
+                        0
+                      ).toLocaleString("en-IN")}
                     </div>
+
+                    <div
+                      style={{
+                        fontSize: ".72rem",
+                        color:
+                          Number(e.amountPaid || 0) > 0
+                            ? "#27ae60"
+                            : "var(--muted)"
+                      }}
+                    >
+                      Paid: ₹
+                      {Number(
+                        e.amountPaid || 0
+                      ).toLocaleString("en-IN")}
+                    </div>
+
+                    {Number(
+                      e.finalPrice ||
+                      e.coursePrice ||
+                      0
+                    ) -
+                      Number(e.amountPaid || 0) >
+                      0 && (
+                      <div
+                        style={{
+                          fontSize: ".7rem",
+                          color: "#dc4545"
+                        }}
+                      >
+                        Due: ₹
+                        {Math.max(
+                          0,
+                          Number(
+                            e.finalPrice ||
+                            e.coursePrice ||
+                            0
+                          ) -
+                            Number(
+                              e.amountPaid || 0
+                            )
+                        ).toLocaleString(
+                          "en-IN"
+                        )}
+                      </div>
+                    )}
+
                     {e.discountAmount > 0 && (
-                      <div style={{ fontSize: ".7rem", color: "#27ae60" }}>
-                        Saved ₹{e.discountAmount?.toLocaleString("en-IN")}
+                      <div
+                        style={{
+                          fontSize: ".7rem",
+                          color: "#27ae60"
+                        }}
+                      >
+                        Saved ₹
+                        {Number(
+                          e.discountAmount
+                        ).toLocaleString(
+                          "en-IN"
+                        )}
                       </div>
                     )}
                   </td>
@@ -1460,6 +1634,14 @@ const AdminUsers = () => {
   };
   useEffect(() => {
     load();
+
+    const interval = setInterval(
+      () => load(),
+      5000
+    );
+
+    return () =>
+      clearInterval(interval);
   }, [search, limit, page, viewAll]);
 
   const deleteUser = async (id, name) => {
@@ -3422,37 +3604,6 @@ const UserDetailModal = ({ user: u, onClose }) => {
     </div>
   </div>
 ))}
-                  .map((c, i) = (
-                    <div key={i} className="ec-card">
-                      <div className="ec-info">
-                        <h4>{c.name}</h4>
-                        <div className="ec-meta">
-                          <span>Started: {c.start}</span>
-                          <span className={`ec-badge ${c.status}`}>
-                            {c.status}
-                          </span>
-                          <span
-                            className={`ec-badge ${c.paid ? "paid" : "pending"}`}
-                          >
-                            {c.paid ? "Paid" : "Pending Payment"}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="ec-progress">
-                        <div className="ec-pct">{c.progress}%</div>
-                        <div className="ec-bar">
-                          <div
-                            className="ec-fill"
-                            style={{
-                              width: `${c.progress}%`,
-                              background:
-                                c.progress === 100 ? "#27ae60" : "#2196C9",
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))
                 </div>
               </div>
             </div>
@@ -4163,6 +4314,103 @@ const AdminsTab = () => {
       )}
     </div>
   );
+};
+
+
+// ── Mentor Management ────────────────────────────────────
+const MentorManagement = () => {
+  const [mentors, setMentors] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [form, setForm] = useState({
+    name:'', email:'', password:'', phone:'', expertise:'', skills:'', assignedCourses:'', assignedBatches:''
+  });
+  const [assign, setAssign] = useState({ studentId:'', mentorId:'' });
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    try {
+      const [m, u] = await Promise.all([getAdminMentors(), getAdminUsers({ limit: 100 })]);
+      setMentors(m.data.data || []);
+      const users = u.data.data?.users || u.data.data || [];
+      setStudents(users.filter(x => x.role === 'student'));
+    } catch (e) {
+      toast.error(e.response?.data?.message || 'Unable to load mentors');
+    } finally { setLoading(false); }
+  };
+  useEffect(() => { load(); }, []);
+
+  const create = async (e) => {
+    e.preventDefault();
+    try {
+      await createMentorAccount({
+        ...form,
+        expertise: form.expertise.split(',').map(x=>x.trim()).filter(Boolean),
+        skills: form.skills.split(',').map(x=>x.trim()).filter(Boolean),
+        assignedCourses: form.assignedCourses.split(',').map(x=>x.trim()).filter(Boolean),
+        assignedBatches: form.assignedBatches.split(',').map(x=>x.trim()).filter(Boolean)
+      });
+      toast.success('Mentor account created');
+      setForm({name:'',email:'',password:'',phone:'',expertise:'',skills:'',assignedCourses:'',assignedBatches:''});
+      load();
+    } catch(e) { toast.error(e.response?.data?.message || 'Unable to create mentor'); }
+  };
+
+  const assignStudent = async () => {
+    if (!assign.studentId || !assign.mentorId) return toast.error('Select a mentor and student');
+    try {
+      await assignStudentToMentor(assign.studentId, assign.mentorId);
+      toast.success('Student assigned to mentor');
+      setAssign({studentId:'',mentorId:''});
+      load();
+    } catch(e) { toast.error(e.response?.data?.message || 'Unable to assign student'); }
+  };
+
+  if (loading) return <div className="dash-loading"><div className="dash-spinner"/></div>;
+
+  return <div>
+    <div className="overview-welcome">
+      <div><h2>Mentor Management</h2><p>Create mentor accounts and assign students to the correct mentor.</p></div>
+      <button className="btn btn-outline" onClick={load}>Refresh</button>
+    </div>
+
+    <div className="charts-row">
+      <div className="chart-card" style={{flex:1}}>
+        <h3 style={{marginBottom:'1rem'}}>Create Mentor Account</h3>
+        <form className="admin-filters" onSubmit={create} style={{display:'grid',gridTemplateColumns:'1fr 1fr'}}>
+          <input className="admin-search" required placeholder="Full name" value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/>
+          <input className="admin-search" required type="email" placeholder="Email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/>
+          <input className="admin-search" required type="password" minLength="6" placeholder="Temporary password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})}/>
+          <input className="admin-search" placeholder="Phone" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/>
+          <input className="admin-search" placeholder="Expertise (comma separated)" value={form.expertise} onChange={e=>setForm({...form,expertise:e.target.value})}/>
+          <input className="admin-search" placeholder="Skills (comma separated)" value={form.skills} onChange={e=>setForm({...form,skills:e.target.value})}/>
+          <input className="admin-search" placeholder="Courses (comma separated)" value={form.assignedCourses} onChange={e=>setForm({...form,assignedCourses:e.target.value})}/>
+          <input className="admin-search" placeholder="Batches (comma separated)" value={form.assignedBatches} onChange={e=>setForm({...form,assignedBatches:e.target.value})}/>
+          <button className="btn btn-primary" type="submit" style={{gridColumn:'1 / -1'}}>Create Mentor</button>
+        </form>
+      </div>
+
+      <div className="chart-card" style={{flex:1}}>
+        <h3 style={{marginBottom:'1rem'}}>Assign Student</h3>
+        <div style={{display:'grid',gap:'.8rem'}}>
+          <select className="admin-select" value={assign.mentorId} onChange={e=>setAssign({...assign,mentorId:e.target.value})}>
+            <option value="">Select mentor</option>
+            {mentors.map(m=><option key={m._id} value={m._id}>{m.name} ({m.studentCount} students)</option>)}
+          </select>
+          <select className="admin-select" value={assign.studentId} onChange={e=>setAssign({...assign,studentId:e.target.value})}>
+            <option value="">Select student</option>
+            {students.map(st=><option key={st._id} value={st._id}>{st.name} — {st.email}</option>)}
+          </select>
+          <button className="btn btn-primary" onClick={assignStudent}>Assign Student</button>
+        </div>
+      </div>
+    </div>
+
+    <div className="chart-card" style={{marginTop:'1.5rem'}}>
+      <div className="chart-header"><h3>Mentors</h3><span className="chart-sub">{mentors.length} accounts</span></div>
+      <div className="table-wrap"><table className="data-table"><thead><tr><th>Mentor</th><th>Email</th><th>Expertise</th><th>Courses</th><th>Students</th><th>Status</th></tr></thead>
+      <tbody>{mentors.map(m=><tr key={m._id}><td><strong>{m.name}</strong></td><td>{m.email}</td><td>{(m.expertise||[]).join(', ') || '—'}</td><td>{(m.assignedCourses||[]).join(', ') || '—'}</td><td>{m.studentCount}</td><td><span className={`badge-status badge-${m.isBlocked?'blocked':'active'}`}>{m.isBlocked?'Blocked':'Active'}</span></td></tr>)}</tbody></table></div>
+    </div>
+  </div>;
 };
 
 export default Admin;

@@ -2,15 +2,39 @@ const express = require('express');
 const router = express.Router();
 const { Enrollment } = require('../models/Enrollment');
 const { protect } = require('../middleware/auth');
-const { sendEnrollmentConfirmation } = require('../utils/email');
+const User = require('../models/User');
 
 // Enroll in course
 router.post('/enroll', protect, async (req, res) => {
   try {
     const { courseName, coursePrice, name, email, phone, college, degree, year } = req.body;
-    const enrollment = await Enrollment.create({ user: req.user._id, courseName, coursePrice, name, email, phone, college, degree, year });
-    await sendEnrollmentConfirmation(email, name, courseName);
-    res.status(201).json({ success: true, message: 'Enrolled successfully!', data: enrollment });
+    const enrollment = await Enrollment.create({
+      user: req.user._id,
+      courseName,
+      coursePrice,
+      name,
+      email,
+      phone,
+      college,
+      degree,
+      year
+    });
+
+    await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $addToSet: {
+          enrolledCourses: enrollment._id
+        }
+      }
+    );
+
+    res.status(201).json({
+      success: true,
+      message:
+        'Enrollment created. Payment is pending.',
+      data: enrollment
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -25,8 +49,6 @@ router.get('/my', protect, async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
-
-module.exports = router;
 
 // Delete enrollment (pending only)
 router.delete('/enroll/:id', protect, async (req, res) => {
@@ -45,3 +67,5 @@ router.delete('/enroll/:id', protect, async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
+module.exports = router;

@@ -27,6 +27,16 @@ const enrollmentSchema = new mongoose.Schema({
     paidAt: { type: Date },
     status: { type: String, enum: ['pending', 'paid'], default: 'pending' }
   }],
+  // Financial source of truth for new payments.
+  amountPaid: { type: Number, default: 0 },
+  paymentHistory: [{
+    amount: { type: Number, required: true },
+    paymentId: { type: String, required: true },
+    orderId: { type: String },
+    paymentType: { type: String, enum: ['full', 'emi'] },
+    installment: { type: Number },
+    paidAt: { type: Date, default: Date.now }
+  }],
   status: { type: String, enum: ['enrolled', 'in_progress', 'completed', 'dropped'], default: 'enrolled' }
 }, { timestamps: true });
 

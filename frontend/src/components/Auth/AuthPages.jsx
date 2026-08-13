@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { login, register, verifyOTP, resendOTP, forgotPassword, resetPassword, getProfile } from '../../utils/api';
 import toast from 'react-hot-toast';
@@ -57,6 +57,8 @@ export const LoginPage = () => {
   const [error, setError] = useState('');
   const { loginUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const mentorLogin = location.pathname === '/mentor/login';
   const handleChange = (e) => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
     setError(''); // Clear error when user types
@@ -79,7 +81,13 @@ export const LoginPage = () => {
       const res = await login(form);
       loginUser(res.data.token, res.data.user);
       toast.success(`Welcome back, ${res.data.user.name}! 👋`);
-      navigate(res.data.user.role === 'admin' ? '/admin' : '/dashboard');
+      navigate(
+        res.data.user.role === 'admin'
+          ? '/admin'
+          : res.data.user.role === 'mentor'
+            ? '/mentor/dashboard'
+            : '/dashboard'
+      );
     } catch (err) {
       console.error('Login error:', err);
       const data = err.response?.data;
@@ -109,7 +117,7 @@ export const LoginPage = () => {
   };
 
   return (
-    <AuthLayout title="Welcome Back 👋" subtitle="Sign in to your WeIntern account">
+    <AuthLayout title={mentorLogin ? "Mentor Login 👨‍🏫" : "Welcome Back 👋"} subtitle={mentorLogin ? "Sign in to your WeIntern mentor account" : "Sign in to your WeIntern account"}>
       <form onSubmit={handleSubmit} className="auth-form">
         {error && (
           <div style={{

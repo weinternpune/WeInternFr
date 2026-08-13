@@ -15,6 +15,8 @@ import AboutUs from './pages/AboutUs';
 import { LoginPage, RegisterPage, OTPPage, ForgotPasswordPage, ResetPasswordPage, AuthCallback } from './components/Auth/AuthPages';
 import Dashboard from './components/Dashboard/Dashboard';
 import Admin from './components/Admin/Admin';
+import MentorDashboard from './components/Mentor/MentorDashboard';
+import './components/Mentor/MentorDashboard.css';
 
 // Global styles
 import './styles/global.css';
@@ -34,7 +36,7 @@ const WAFloat = () => (
 );
 
 // Protected route wrapper
-const ProtectedRoute = ({ children, adminOnly = false }) => {
+const ProtectedRoute = ({ children, adminOnly = false, mentorOnly = false }) => {
   const { user, loading } = useAuth();
   if (loading) return (
     <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--cream)' }}>
@@ -42,7 +44,9 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     </div>
   );
   if (!user) return <Navigate to="/login" replace />;
-  if (adminOnly && user.role !== 'admin') return <Navigate to="/dashboard" replace />;
+  if (adminOnly && user.role !== 'admin') return <Navigate to={user.role === 'mentor' ? '/mentor/dashboard' : '/dashboard'} replace />;
+  if (mentorOnly && user.role !== 'mentor') return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+  if (!adminOnly && !mentorOnly && user.role === 'mentor') return <Navigate to="/mentor/dashboard" replace />;
   return children;
 };
 
@@ -77,6 +81,7 @@ function AppRoutes() {
       {/* Auth pages */}
       <Route path="/auth/callback" element={<OAuthCallback />} />
         <Route path="/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
+      <Route path="/mentor/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
       <Route path="/register" element={<AuthLayout><RegisterPage /></AuthLayout>} />
       <Route path="/verify-otp" element={<AuthLayout><OTPPage /></AuthLayout>} />
       <Route path="/forgot-password" element={<AuthLayout><ForgotPasswordPage /></AuthLayout>} />
@@ -85,6 +90,7 @@ function AppRoutes() {
       {/* Protected */}
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
+      <Route path="/mentor/dashboard" element={<ProtectedRoute mentorOnly><MentorDashboard /></ProtectedRoute>} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
