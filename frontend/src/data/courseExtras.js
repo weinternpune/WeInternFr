@@ -1,7 +1,6 @@
 // Generated helper data for the per-course detail page.
-// PLACEHOLDER CONTENT: mentor emails, video links, and material
-// download URLs below are placeholders so the page renders correctly.
-// Replace them with your real data -- search for "REPLACE ME" markers.
+// PLACEHOLDER CONTENT still to REPLACE ME: mentor emails, the dummy demo
+// video, and material download URLs. Search for "REPLACE ME" markers.
 
 export const slugify = (str = '') =>
   str
@@ -9,6 +8,14 @@ export const slugify = (str = '') =>
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
+
+export const getInitials = (name = '') =>
+  name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join('');
 
 const hashStr = (str = '') =>
   str.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -127,7 +134,13 @@ export const getRoadmap = (course, details) => {
 };
 
 // ── Demo lecture videos ──────────────────────────────────────────
-// REPLACE ME: set videoUrl to your real YouTube/Vimeo links.
+// A working DUMMY sample video is used by default (small public-domain
+// clip, commonly used for HTML5 <video> demos) so the player actually
+// works out of the box. REPLACE DUMMY_VIDEO_URL below with your real
+// hosted lecture recordings once available, or set a per-video
+// `videoUrl` to override an individual card.
+export const DUMMY_VIDEO_URL = 'https://www.w3schools.com/html/mov_bbb.mp4'; // REPLACE ME
+
 export const getVideos = (course, details) => {
   const source = details?.curriculum?.slice(0, 3) || [
     { title: 'Course Introduction' },
@@ -137,7 +150,8 @@ export const getVideos = (course, details) => {
   return source.map((c, i) => ({
     title: `${c.title} — Demo Lecture`,
     duration: ['08:45', '14:20', '11:05'][i] || '10:00',
-    videoUrl: '', // REPLACE ME
+    videoUrl: DUMMY_VIDEO_URL, // REPLACE ME with a real lecture recording URL
+    isDummy: true, // flips off automatically once you set a real videoUrl per item
   }));
 };
 

@@ -67,3 +67,11 @@ export const getAdminHireRequests = () => API.get('/admin/hire-requests');
 export const updateHireRequest = (id, data) => API.patch(`/admin/hire-requests/${id}`, data);
 export const getAdminUsers = (params) => API.get('/admin/users', { params });
 export const getUserActivity = (userId) => API.get(`/admin/users/${userId}/activity`);
+
+// Blog
+export const getBlogPosts = () => API.get('/blog');
+export const getBlogPost = (slug) => API.get(`/blog/${slug}`);
+export const getAdminBlogPosts = () => API.get('/blog/admin/all');
+export const createBlogPost = (data) => API.post('/blog', data);
+export const updateBlogPost = (id, data) => API.put(`/blog/${id}`, data);
+export const deleteBlogPost = (id) => API.delete(`/blog/${id}`);

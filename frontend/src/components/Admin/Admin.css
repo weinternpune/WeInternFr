@@ -1202,3 +1202,6 @@
         transform:scale(1);
     }
 }
+@media (max-width: 480px) {
+  .modal-box { padding: 1.5rem 1.25rem; border-radius: 14px; }
+}

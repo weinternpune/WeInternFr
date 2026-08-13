@@ -438,7 +438,7 @@ const StudentProjectsSection = () => {
   }, [showAll]);
 
   return (
-    <section className="student-projects-section">
+    <section className="student-projects-section" id="projects">
       <div className="container">
 
         <div className="section-header">

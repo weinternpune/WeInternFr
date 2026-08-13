@@ -21,6 +21,9 @@ import {
   Code2,
   BarChart3,
   Sparkles,
+  Briefcase,
+  Award,
+  Users,
 } from 'lucide-react';
 import './Navbar.css';
 
@@ -253,6 +256,10 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [coursesOpen, setCoursesOpen] = useState(false);
   const [mobileCoursesOpen, setMobileCoursesOpen] = useState(false);
+  const [internshipsOpen, setInternshipsOpen] = useState(false);
+  const [mobileInternshipsOpen, setMobileInternshipsOpen] = useState(false);
+  const internshipsRef = useRef(null);
+  const internshipsCloseTimer = useRef(null);
   const [canHover, setCanHover] = useState(false);
   const coursesRef = useRef(null);
   const coursesTriggerRef = useRef(null);
@@ -359,12 +366,41 @@ const Navbar = () => {
     setCoursesOpen((o) => !o);
   };
 
+  const openInternships = useCallback(() => {
+    if (internshipsCloseTimer.current) clearTimeout(internshipsCloseTimer.current);
+    setInternshipsOpen(true);
+  }, []);
+  const scheduleCloseInternships = useCallback(() => {
+    if (internshipsCloseTimer.current) clearTimeout(internshipsCloseTimer.current);
+    internshipsCloseTimer.current = setTimeout(() => setInternshipsOpen(false), 200);
+  }, []);
+
+  const INTERNSHIP_COLUMNS = [
+    {
+      key: 'projects', title: 'Projects', icon: Code2,
+      items: [
+        { label: 'Live Client Projects', desc: 'Work on real projects from WeNexa', icon: Briefcase },
+        { label: 'Portfolio Building', desc: 'Ship work you can show employers', icon: Award },
+      ],
+      target: 'projects',
+    },
+    {
+      key: 'placement', title: 'Placement', icon: Users,
+      items: [
+        { label: 'Stipend & Earnings', desc: '75% of project value goes to students', icon: TrendingUp },
+        { label: 'Career Support', desc: 'Mentor-guided growth into full-time roles', icon: Rocket },
+      ],
+      target: 'home',
+    },
+  ];
+
   const NAV_LINKS = [
-    { label: 'Courses',         id: 'courses', dropdown: true },
-    { label: 'How It Works',    id: 'ecosystem', scrollTo: true },
-    { label: 'For Colleges',    id: 'story', scrollTo: true },
-    { label: 'Success Stories', id: 'testimonials', scrollTo: true },
-    { label: 'About Us',        id: 'about', isRoute: true },
+    { label: 'Courses',      id: 'courses', dropdown: true },
+    { label: 'Internships',  id: 'internships', simpleDropdown: true },
+    { label: 'Events',       id: 'journey', scrollTo: true },
+    { label: 'Blog',         id: 'blog', isRoute: true },
+    { label: 'About Us',     id: 'about', isRoute: true },
+    { label: 'Contact',      id: 'contact', scrollTo: true },
   ];
 
   return (
@@ -417,6 +453,62 @@ const Navbar = () => {
                         onMouseEnter={canHover ? openCourses : undefined}
                         onMouseLeave={canHover ? scheduleCloseCourses : undefined}
                       />
+                    )}
+                  </AnimatePresence>
+                </li>
+              );
+            }
+            if (l.simpleDropdown) {
+              return (
+                <li
+                  key={l.id}
+                  ref={internshipsRef}
+                  className="relative"
+                  onMouseEnter={canHover ? openInternships : undefined}
+                  onMouseLeave={canHover ? scheduleCloseInternships : undefined}
+                >
+                  <button
+                    className="nav-link relative inline-flex items-center gap-1"
+                    onClick={() => setInternshipsOpen((o) => !o)}
+                    aria-expanded={internshipsOpen}
+                    aria-haspopup="menu"
+                  >
+                    <span className={internshipsOpen ? 'text-[#00d68f]' : ''}>{l.label}</span>
+                    <ChevronDown size={14} className={internshipsOpen ? 'text-[#00d68f]' : ''} style={{ transform: internshipsOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+                  </button>
+                  <AnimatePresence>
+                    {internshipsOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        transition={{ duration: 0.16 }}
+                        className="internships-dropdown"
+                        onMouseEnter={canHover ? openInternships : undefined}
+                        onMouseLeave={canHover ? scheduleCloseInternships : undefined}
+                      >
+                        {INTERNSHIP_COLUMNS.map((col) => (
+                          <div className="internships-col" key={col.key}>
+                            <div className="internships-col-head">
+                              <col.icon size={14} strokeWidth={2.25} />
+                              <span>{col.title}</span>
+                            </div>
+                            {col.items.map((item) => (
+                              <button
+                                key={item.label}
+                                className="internships-item"
+                                onClick={() => { setInternshipsOpen(false); col.target === 'home' ? navigate('/') : scrollTo(col.target); }}
+                              >
+                                <span className="internships-item-icon"><item.icon size={14} /></span>
+                                <span>
+                                  <span className="internships-item-label">{item.label}</span>
+                                  <span className="internships-item-desc">{item.desc}</span>
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        ))}
+                      </motion.div>
                     )}
                   </AnimatePresence>
                 </li>
@@ -565,6 +657,59 @@ const Navbar = () => {
                               Find My Course
                             </motion.button>
                           </motion.div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              }
+              if (l.simpleDropdown) {
+                return (
+                  <div key={l.id} className="flex flex-col">
+                    <button
+                      className="mobile-nav-link inline-flex items-center justify-between"
+                      onClick={() => setMobileInternshipsOpen((o) => !o)}
+                      aria-expanded={mobileInternshipsOpen}
+                    >
+                      {l.label}
+                      <ChevronDown size={16} style={{ transform: mobileInternshipsOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+                    </button>
+                    <AnimatePresence>
+                      {mobileInternshipsOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.18 }}
+                          className="overflow-hidden px-3 pb-4 pt-1 sm:px-4"
+                        >
+                          <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:p-4">
+                            {INTERNSHIP_COLUMNS.map((col) => (
+                              <div key={col.key}>
+                                <div className="mb-2 flex items-center gap-2 text-[#00d68f]">
+                                  <col.icon size={14} strokeWidth={2.25} />
+                                  <span className="text-[11px] font-semibold uppercase tracking-wider">{col.title}</span>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  {col.items.map((item) => (
+                                    <button
+                                      key={item.label}
+                                      onClick={() => { setMenuOpen(false); setMobileInternshipsOpen(false); col.target === 'home' ? navigate('/') : scrollTo(col.target); }}
+                                      className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2.5 text-left text-sm text-white/90 active:bg-white/[0.06]"
+                                    >
+                                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.04]">
+                                        <item.icon size={14} />
+                                      </span>
+                                      <span className="min-w-0 flex-1">
+                                        <span className="block truncate">{item.label}</span>
+                                        <span className="block truncate text-xs text-white/50">{item.desc}</span>
+                                      </span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </motion.div>
                       )}
                     </AnimatePresence>

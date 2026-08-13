@@ -9,6 +9,7 @@ import Navbar from '../components/Layout/Navbar';
 import toast from 'react-hot-toast';
 import {
   slugify,
+  getInitials,
   getMentor,
   getRoadmap,
   getVideos,
@@ -59,6 +60,7 @@ const CoursePage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [enrollCourseData, setEnrollCourseData] = useState(null);
+  const [playingVideo, setPlayingVideo] = useState(null);
 
   const course = activeCourses.find((c) => slugify(c.title) === slug);
 
@@ -128,17 +130,18 @@ const CoursePage = () => {
             </div>
           </div>
 
+          {/* Colorful glass illustration cluster */}
           <div className="cp-hero-right">
             <div className="cp-hero-illustration">
-              <div className="cp-hi-glow" />
-              <div className="cp-hi-monitor">
-                <div className="cp-hi-monitor-bar" />
-                <div className="cp-hi-lines">
-                  {[...Array(6)].map((_, i) => <div key={i} className="cp-hi-line" style={{ width: `${55 + (i % 3) * 15}%` }} />)}
-                </div>
+              <div className="cp-hi-blob cp-hi-blob-1" />
+              <div className="cp-hi-blob cp-hi-blob-2" />
+              <div className="cp-hi-glass">
+                <Icon icon={details.icon} width={64} height={64} />
               </div>
-              <div className="cp-hi-tag cp-hi-tag-1"><Icon icon="mdi:code-tags" width={20} height={20} /></div>
-              <div className="cp-hi-tag cp-hi-tag-2"><Icon icon={details.icon} width={20} height={20} /></div>
+              <div className="cp-hi-badge cp-hi-badge-1"><Icon icon="mdi:certificate" width={18} height={18} /></div>
+              <div className="cp-hi-badge cp-hi-badge-2"><Icon icon="mdi:star-four-points" width={18} height={18} /></div>
+              <div className="cp-hi-badge cp-hi-badge-3"><Icon icon="mdi:rocket-launch" width={18} height={18} /></div>
+              <div className="cp-hi-badge cp-hi-badge-4"><Icon icon="mdi:code-tags" width={18} height={18} /></div>
             </div>
           </div>
         </div>
@@ -215,22 +218,27 @@ const CoursePage = () => {
           </div>
         </section>
 
-        {/* Demo Lecture Videos */}
+        {/* Demo Lecture Videos — real playable dummy video */}
         <section className="cp-section">
           <span className="cp-section-eyebrow">Preview</span>
           <h2 className="cp-section-title">Demo Lecture Videos</h2>
           <div className="cp-video-grid">
             {videos.map((v, i) => (
               <div className="cp-video-card" key={i}>
-                <div className="cp-video-thumb">
-                  {v.videoUrl ? (
-                    <a href={v.videoUrl} target="_blank" rel="noopener noreferrer" className="cp-video-play">
-                      <Icon icon="mdi:play-circle" width={44} height={44} />
-                    </a>
-                  ) : (
-                    <span className="cp-video-soon">Demo coming soon</span>
-                  )}
-                </div>
+                {playingVideo === i ? (
+                  <video
+                    className="cp-video-player"
+                    src={v.videoUrl}
+                    controls
+                    autoPlay
+                    onEnded={() => setPlayingVideo(null)}
+                  />
+                ) : (
+                  <button className="cp-video-thumb" onClick={() => setPlayingVideo(i)} aria-label={`Play ${v.title}`}>
+                    <span className="cp-video-play"><Icon icon="mdi:play-circle" width={44} height={44} /></span>
+                    {v.isDummy && <span className="cp-video-sample-tag">Sample Preview</span>}
+                  </button>
+                )}
                 <div className="cp-video-info">
                   <p className="cp-video-title">{v.title}</p>
                   <span className="cp-video-duration">{v.duration}</span>
@@ -263,7 +271,7 @@ const CoursePage = () => {
           <h2 className="cp-section-title">Free Study Materials</h2>
           <div className="cp-materials-grid">
             {materials.map((m, i) => (
-              <div className="cp-material-card" key={i}>
+              <div className={`cp-material-card cp-material-${m.type.toLowerCase()}`} key={i}>
                 <Icon icon="mdi:file-download-outline" width={22} height={22} />
                 <span className="cp-material-title">{m.title}</span>
                 {m.downloadUrl ? (
@@ -285,8 +293,13 @@ const CoursePage = () => {
               <div className="cp-testimonial-card" key={i}>
                 <Stars count={t.rating} />
                 <p className="cp-testimonial-quote">"{t.quote}"</p>
-                <p className="cp-testimonial-name">{t.name}</p>
-                <p className="cp-testimonial-batch">{t.batch}</p>
+                <div className="cp-testimonial-footer">
+                  <div className="cp-testimonial-avatar">{getInitials(t.name)}</div>
+                  <div>
+                    <p className="cp-testimonial-name">{t.name}</p>
+                    <p className="cp-testimonial-batch">{t.batch}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
