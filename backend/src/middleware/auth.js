@@ -53,7 +53,15 @@ const adminOnly = (req, res, next) => {
   next();
 };
 
-module.exports = {
-  protect,
-  adminOnly
+const studentOnly = (req, res, next) => {
+  if (req.user.role !== "student") {
+    return res.status(403).json({
+      success: false,
+      message: "Only students can submit cohort applications.",
+    });
+  }
+
+  next();
 };
+
+module.exports = { protect, adminOnly ,studentOnly };

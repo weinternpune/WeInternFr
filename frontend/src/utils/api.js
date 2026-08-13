@@ -75,3 +75,7 @@ export const getAdminBlogPosts = () => API.get('/blog/admin/all');
 export const createBlogPost = (data) => API.post('/blog', data);
 export const updateBlogPost = (id, data) => API.put(`/blog/${id}`, data);
 export const deleteBlogPost = (id) => API.delete(`/blog/${id}`);
+
+
+export const submitCohortApplication = (data) =>
+  API.post('/applications/cohort', data);

@@ -17,6 +17,8 @@ import { useAdmin } from "../../context/AdminContext";
 import {
   getAdminApplications,
   updateApplicationStatus,
+  getAdminCohortApplications,
+  updateCohortStatus,
   getAdminEnrollments,
   getAdminHireRequests,
   updateHireRequest,
@@ -57,6 +59,7 @@ const statusBadge = (s) => (
 const ADMIN_TABS = [
   { id: "overview", icon: <FaChartBar />, label: "Overview" },
   { id: "applications", icon: <FaFileAlt />, label: "Applications" },
+   { id: "cohort", icon: <FaGraduationCap />, label: "Cohort" },
   { id: "enrollments", icon: <FaBook />, label: "Enrollments" },
   { id: "hire", icon: <FaBuilding />, label: "Hire Requests" },
   { id: "users", icon: <FaUsers />, label: "Users" },
@@ -82,6 +85,8 @@ const Admin = () => {
       return;
     }
   }, [user, navigate]);
+
+  
 
   if (!user || user.role !== "admin") return null;
 
@@ -220,8 +225,149 @@ const Admin = () => {
           {tab === "blog" && <AdminBlog />}
           {tab === "projects" && <AdminProjects />}
           {tab === "admins" && <AdminsTab />}
+          {tab === "cohort" && <AdminCohortApplications />}
         </div>
       </main>
+    </div>
+  );
+};
+
+// ── Cohort Applications ─────────────────────────────────────
+
+const AdminCohortApplications = () => {
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [updating, setUpdating] = useState(null);
+
+  const load = async () => {
+    setLoading(true);
+
+    try {
+      const r = await getAdminCohortApplications({
+        search,
+        status: statusFilter,
+      });
+
+      setApplications(r.data.data || []);
+    } catch (error) {
+      console.error("Failed to load cohort applications:", error);
+      toast.error("Failed to load cohort applications");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, [search, statusFilter]);
+
+  return (
+    <div>
+
+      {/* Filters */}
+      <div className="admin-filters">
+
+        <input
+          className="admin-search"
+          placeholder="Search name, email, college..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <select
+          className="admin-select"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="all">All</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="rejected">Rejected</option>
+        </select>
+
+      </div>
+
+      {/* Total */}
+      <div className="admin-meta">
+        Total: <strong>{applications.length}</strong>
+      </div>
+
+      {/* Loading */}
+      {loading ? (
+        <div className="dash-loading">
+          <div className="dash-spinner" />
+        </div>
+      ) : (
+
+        <div className="table-wrap">
+
+          <table className="data-table">
+
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>College</th>
+                <th>Domain</th>
+                <th>Day</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {applications.map((application) => (
+
+                <tr key={application._id}>
+
+                  <td>
+                    <strong>{application.name}</strong>
+                  </td>
+
+                  <td>
+                    <a
+                      href={`mailto:${application.email}`}
+                      className="email-link"
+                    >
+                      {application.email}
+                    </a>
+                  </td>
+
+                  <td>
+                    {application.phone}
+                  </td>
+
+                  <td>
+                    {application.college}
+                  </td>
+
+                  <td>
+                    {application.domain}
+                  </td>
+
+                  <td>
+                    {application.day}
+                  </td>
+
+                  <td>
+                    {statusBadge(application.status)}
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      )}
+
     </div>
   );
 };
@@ -704,6 +850,7 @@ const AdminApplications = () => {
       setLoading(false);
     }
   };
+  
   useEffect(() => {
     load();
   }, [search, statusFilter, page]);

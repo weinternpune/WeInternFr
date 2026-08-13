@@ -9,6 +9,7 @@ import platform from "../../assets/platform.jpg";
 import food_delivery from "../../assets/food_delivery.jpg";
 import job_portal from "../../assets/job_portal.jpg";
 import travel_booking from "../../assets/travel_booking.jpg";
+import Trading from "../../assets/Trading-image.jpg";
 import "./StudentProjects.css";
 const projectData = [
   {
@@ -93,10 +94,10 @@ const projectData = [
 
   {
     id: 11,
-    image: travel_booking,
-    title: "Travel Booking Platform",
-    subtitle: "Built for Travel Agency",
-    tech: ["React", "Express", "Stripe"],
+    image: Trading,
+    title: "Trading Platform",
+    subtitle: "Built for Trading Agency",
+    tech: ["React", "Express", "Stripe" , "MongoDB"],
   },
   {
   id: 12,
