@@ -9,6 +9,7 @@ import StudentProjects from '../components/Sections/StudentProjects';
 import TestimonialsSection from '../components/Sections/Testimonials';
 import '../components/Sections/Sections.css';
 import '../components/Sections/Forms.css';
+import PartnersMarquee from '../components/Sections/PartnersMarquee';
 
 const Home = () => {
   const { user } = useAuth();
@@ -52,8 +53,10 @@ const Home = () => {
       <HowItWorks />
       <EcosystemSection />
       <Vision />
+      <PartnersMarquee/>
       <ApplySection />
       <StudentProjects />
+      
       <TestimonialsSection />
     </>
   );

@@ -1,14 +1,19 @@
-/* eslint-disable no-unused-vars */
-// ===== Problem Section =====
+
 
 import React, { useState, useEffect, useRef } from 'react';
-import API from '../../utils/api';
+import API, { submitCohortApplication } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import useReveal from '../../hooks/useReveal';
 import './Sections.css';
 import './LiveJourney.css';
+import { Target } from "lucide-react";
+import { Quote, ChartNoAxesCombined } from "lucide-react";
+import { motion,AnimatePresence } from "framer-motion";
+import { GraduationCap, Building2, Check, X } from 'lucide-react';
+import { Lock, MapPin, Users, Gift, CheckCircle2, ArrowRight, Loader2 ,Layers , Calendar} from "lucide-react";
+
 
 import ai_chatbot from "../../assets/ai_chatbot.jpg";
 import analytics from "../../assets/analytics.jpg";
@@ -26,42 +31,699 @@ import cohortLiveImg from "../../assets/cohort-live.jpg";
 import cohortUpcomingImg from "../../assets/cohort-upcoming.jpg";
 import cohortFutureImg from "../../assets/cohort-future.jpg";
 
+
+
 export const Problem = () => {
   const q1 = useReveal(); const q2 = useReveal(); const q3 = useReveal(); const q4 = useReveal();
   return (
     <section className="problem" id="story">
       <div className="container">
-        <div className="section-label">The Reality</div>
-        <h2 className="section-title">The Gap No One Talks About</h2>
-        <div className="gap-visual">
-          <div className="gap-side gap-student reveal" ref={q1}>
-            <div className="gap-icon">🎓</div>
-            <h3>Students Graduate With</h3>
-            <ul>
-              {['Certificates & degrees','Completed courses','Good grades'].map(i => <li key={i} className="good">✓ {i}</li>)}
-              {['Real client experience','Deadline pressure skills','Team collaboration','Confidence to execute'].map(i => <li key={i} className="bad">✗ {i}</li>)}
-            </ul>
-          </div>
-          <div className="gap-bridge reveal" ref={q2}>
-            <div className="gap-chasm"><div className="chasm-label">THE GAP</div><div className="chasm-sub">Frustration.<br />Self-doubt.<br />Missed chances.</div></div>
-            <div className="bridge-connector"><div className="bc-line" /><div className="bc-badge">WeIntern</div><div className="bc-line" /></div>
-          </div>
-          <div className="gap-side gap-industry reveal" ref={q3}>
-            <div className="gap-icon">🏢</div>
-            <h3>Industry Demands</h3>
-            <ul>
-              {['Real project execution','Deadline management','Team collaboration','Problem solving','Communication skills','Industry tools'].map(i => <li key={i} className="good">✓ {i}</li>)}
-              <li className="bad">✗ "No freshers please"</li>
-            </ul>
-          </div>
-        </div>
-        <div className="problem-quote reveal" ref={q4}>
-          <blockquote>"They graduate with theory.<br />Industry demands execution."</blockquote>
-        </div>
+        <div className="section-label text-center">
+  The Reality
+</div>
+
+<h2
+  className="
+    section-title
+    text-center
+    text-[20px]
+    sm:text-[20px]
+    md:text-[30px]
+    lg:text-[30px]
+  "
+>
+  The Gap No One Talks About
+</h2>
+       <div className="flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-10 lg:gap-0 w-full max-w-6xl mx-auto px-4">
+  {/* LEFT CARD */}
+  <motion.div
+  ref={q1}
+  initial={{ opacity: 0, y: 24 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true, margin: '-80px' }}
+  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+  whileHover={{ y: -4 }}
+  className="group relative w-full max-w-md lg:max-w-none lg:flex-1 overflow-hidden rounded-2xl border border-emerald-100/60 bg-white shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] p-7 sm:p-9 transition-shadow duration-500 hover:shadow-[0_20px_45px_-14px_rgba(16,185,129,0.22)]"
+>
+
+
+  {/* content */}
+  <div className="relative z-10">
+    <div className="flex items-center gap-4 mb-7">
+      <motion.div
+        initial={{ scale: 0.7, opacity: 0 }}
+        whileInView={{ scale: 1, opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+        className="relative w-[52px] h-[52px] rounded-xl bg-gradient-to-br from-emerald-50 to-white ring-1 ring-emerald-100 flex items-center justify-center shrink-0 shadow-[0_2px_10px_-2px_rgba(16,185,129,0.25)] transition-transform duration-500 group-hover:scale-105"
+      >
+        <GraduationCap className="w-6 h-6 text-emerald-700" strokeWidth={1.6} />
+      </motion.div>
+      <div>
+        <h3 className="text-base sm:text-lg font-semibold text-slate-900 tracking-tight">Students Graduate With</h3>
+        <motion.span
+          initial={{ width: 0 }}
+          whileInView={{ width: 32 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4, delay: 0.35 }}
+          className="block h-[3px] rounded-full bg-gradient-to-r from-emerald-400 to-emerald-300 mt-2"
+        />
+      </div>
+    </div>
+
+    <motion.ul
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08, delayChildren: 0.3 } } }}
+      className="divide-y divide-slate-100"
+    >
+      {['Certificates & degrees', 'Completed courses', 'Good grades'].map((item) => (
+        <motion.li
+          key={item}
+          variants={{ hidden: { opacity: 0, x: -12 }, visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: 'easeOut' } } }}
+          className="flex items-center gap-3 py-3"
+        >
+          <span className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+            <Check className="w-3 h-3 text-white" strokeWidth={3} />
+          </span>
+          <span className="text-slate-600 text-sm sm:text-[15px]">{item}</span>
+        </motion.li>
+      ))}
+      {['Real client experience', 'Deadline pressure skills', 'Team collaboration', 'Confidence to execute'].map((item) => (
+        <motion.li
+          key={item}
+          variants={{ hidden: { opacity: 0, x: -12 }, visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: 'easeOut' } } }}
+          className="flex items-center gap-3 py-3"
+        >
+          <span className="w-5 h-5 rounded-full bg-rose-400 flex items-center justify-center shrink-0">
+            <X className="w-3 h-3 text-white" strokeWidth={3} />
+          </span>
+          <span className="text-slate-500 text-sm sm:text-[15px]">{item}</span>
+        </motion.li>
+      ))}
+    </motion.ul>
+  </div>
+</motion.div>
+  {/* CENTER — GAP + CONNECTORS */}
+  <div ref={q2} className="flex items-center justify-center shrink-0 lg:w-[280px] py-8 lg:py-0">
+  {/* LEFT CONNECTOR */}
+  <div className="hidden lg:flex items-center flex-1 -mr-2 relative">
+    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+    <div className="relative flex-1 h-px">
+      <motion.span
+        initial={{ scaleX: 0 }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
+        style={{ transformOrigin: 'left' }}
+        className="absolute inset-0 border-t border-dashed border-emerald-300"
+      />
+      {[0, 0.7, 1.4].map((delay, i) => (
+        <motion.span
+          key={i}
+          initial={{ left: '0%', opacity: 0 }}
+          animate={{ left: '100%', opacity: [0, 1, 1, 0] }}
+          transition={{ duration: 2.2, repeat: Infinity, delay: 1.4 + delay, ease: 'linear' }}
+          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_1px_rgba(16,185,129,0.5)]"
+        />
+      ))}
+    </div>
+  </div>
+
+  {/* GAP CIRCLE */}
+  <motion.div
+    initial={{ opacity: 0, scale: 0.85 }}
+    whileInView={{ opacity: 1, scale: 1 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+    className="flex flex-col items-center"
+  >
+    <div className="relative w-52 h-52 sm:w-60 sm:h-60 rounded-full border border-slate-200 flex items-center justify-center">
+      <motion.div
+        animate={{ scale: [1, 1.06, 1], opacity: [0.45, 0.15, 0.45] }}
+        transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute inset-0 rounded-full bg-rose-400/20 blur-xl"
+      />
+      {/* orbit ring accent */}
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+        className="absolute inset-2 rounded-full border border-dashed border-slate-200/70"
+      />
+
+      <div className="relative w-40 h-40 sm:w-44 sm:h-44 rounded-full bg-gradient-to-br from-rose-500 via-rose-600 to-red-700 shadow-[0_20px_45px_-12px_rgba(225,29,72,0.5)] flex flex-col items-center justify-center text-white text-center px-4">
+        <motion.div
+          initial={{ scale: 0.6, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center mb-2"
+        >
+          <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 text-white" strokeWidth={1.75} stroke="currentColor">
+            <path d="M2 20h20M4 20v-6c0-1 .5-2 2-2s2 1 2 2v6M9 20v-8c0-1 .5-2 2-2s2 1 2 2v8M14 20v-8c0-1 .5-2 2-2s2 1 2 2v8M19 20v-6c0-1-.5-2-2-2s-2 1-2 2v6" />
+          </svg>
+        </motion.div>
+        <span className="font-semibold text-[15px] sm:text-base tracking-wide">THE GAP</span>
+        <p className="text-[11px] sm:text-xs text-white/85 mt-2 leading-relaxed">
+          Frustration.
+          <br />
+          Self-doubt.
+          <br />
+          Missed chances.
+        </p>
+      </div>
+    </div>
+
+   <motion.span
+      initial={{ opacity: 0, y: 8 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4, delay: 0.9 }}
+      whileHover={{ scale: 1.04 }}
+      className="group relative mt-5 inline-block overflow-hidden rounded-full bg-gradient-to-r from-amber-100 to-amber-50 border border-amber-200/80 px-6 py-2 font-semibold text-slate-800 shadow-sm text-sm tracking-tight cursor-default"
+    >
+      <motion.span
+        animate={{ x: ['-150%', '250%'] }}
+        transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
+        className="pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/70 to-transparent skew-x-[-20deg]"
+      />
+      <motion.span
+        animate={{ boxShadow: ['0 0 0px rgba(217,119,6,0)', '0 0 12px rgba(217,119,6,0.25)', '0 0 0px rgba(217,119,6,0)'] }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+        className="pointer-events-none absolute inset-0 rounded-full"
+      />
+      <span className="relative z-10">WeIntern</span>
+    </motion.span>
+  </motion.div>
+
+  {/* RIGHT CONNECTOR */}
+  <div className="hidden lg:flex items-center flex-1 -ml-2 relative">
+    <div className="relative flex-1 h-px">
+      <motion.span
+        initial={{ scaleX: 0 }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
+        style={{ transformOrigin: 'right' }}
+        className="absolute inset-0 border-t border-dashed border-blue"
+      />
+      {[0, 0.7, 1.4].map((delay, i) => (
+        <motion.span
+          key={i}
+          initial={{ left: '100%', opacity: 0 }}
+          animate={{ left: '0%', opacity: [0, 1, 1, 0] }}
+          transition={{ duration: 2.2, repeat: Infinity, delay: 1.4 + delay, ease: 'linear' }}
+          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_1px_rgba(16,185,129,0.5)]"
+        />
+      ))}
+    </div>
+    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+  </div>
+</div>
+
+  {/* RIGHT CARD */}
+  <motion.div
+  ref={q3}
+  initial={{ opacity: 0, y: 24 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true, margin: '-80px' }}
+  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+  whileHover={{ y: -4 }}
+  className="group relative w-full max-w-md lg:max-w-none lg:flex-1 overflow-hidden rounded-2xl border border-sky-100/60 bg-white shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] p-7 sm:p-9 transition-shadow duration-500 hover:shadow-[0_20px_45px_-14px_rgba(14,165,233,0.22)]"
+>
+  {/* crystal facets — background layer */}
+  <div className="pointer-events-none absolute inset-0 -z-0">
+    <motion.div
+      animate={{ opacity: [0.5, 0.8, 0.5] }}
+      transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+      className="absolute -top-24 -right-16 w-56 h-56 bg-gradient-to-br from-sky-200/40 via-sky-100/20 to-transparent blur-2xl"
+      style={{ clipPath: 'polygon(30% 0%, 100% 15%, 85% 90%, 10% 100%)' }}
+    />
+    <motion.div
+      animate={{ opacity: [0.3, 0.55, 0.3] }}
+      transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+      className="absolute -bottom-20 -left-10 w-40 h-40 bg-gradient-to-tr from-cyan-100/40 to-transparent blur-2xl"
+      style={{ clipPath: 'polygon(15% 10%, 90% 0%, 100% 85%, 5% 100%)' }}
+    />
+    <div
+      className="absolute top-0 right-0 w-32 h-32 opacity-[0.07]"
+      style={{
+        background: 'linear-gradient(135deg, transparent 40%, #0ea5e9 40%, #0ea5e9 42%, transparent 42%), linear-gradient(45deg, transparent 60%, #0ea5e9 60%, #0ea5e9 62%, transparent 62%)',
+      }}
+    />
+    <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/85 to-white" />
+  </div>
+
+  {/* content */}
+  <div className="relative z-10">
+    <div className="flex items-center gap-4 mb-7">
+      <motion.div
+        initial={{ scale: 0.7, opacity: 0 }}
+        whileInView={{ scale: 1, opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+        className="relative w-[52px] h-[52px] rounded-xl bg-gradient-to-br from-sky-50 to-white ring-1 ring-sky-100 flex items-center justify-center shrink-0 shadow-[0_2px_10px_-2px_rgba(14,165,233,0.25)] transition-transform duration-500 group-hover:scale-105"
+      >
+        <Building2 className="w-6 h-6 text-sky-700" strokeWidth={1.6} />
+      </motion.div>
+      <div>
+        <h3 className="text-base sm:text-lg font-semibold text-slate-900 tracking-tight">Industry Demands</h3>
+        <motion.span
+          initial={{ width: 0 }}
+          whileInView={{ width: 32 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4, delay: 0.35 }}
+          className="block h-[3px] rounded-full bg-gradient-to-r from-sky-400 to-sky-300 mt-2"
+        />
+      </div>
+    </div>
+
+    <motion.ul
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08, delayChildren: 0.3 } } }}
+      className="divide-y divide-slate-100"
+    >
+      {[
+        'Real project execution',
+        'Deadline management',
+        'Team collaboration',
+        'Problem solving',
+        'Communication skills',
+        'Industry tools',
+      ].map((item) => (
+        <motion.li
+          key={item}
+          variants={{ hidden: { opacity: 0, x: -12 }, visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: 'easeOut' } } }}
+          className="flex items-center gap-3 py-3"
+        >
+          <span className="w-5 h-5 rounded-full bg-sky-500 flex items-center justify-center shrink-0">
+            <Check className="w-3 h-3 text-white" strokeWidth={3} />
+          </span>
+          <span className="text-slate-600 text-sm sm:text-[15px]">{item}</span>
+        </motion.li>
+      ))}
+      <motion.li
+        variants={{ hidden: { opacity: 0, x: -12 }, visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: 'easeOut' } } }}
+        className="flex items-center gap-3 py-3"
+      >
+        <span className="w-5 h-5 rounded-full bg-rose-400 flex items-center justify-center shrink-0">
+          <X className="w-3 h-3 text-white" strokeWidth={3} />
+        </span>
+        <span className="text-slate-500 text-sm sm:text-[15px]">"No freshers please"</span>
+      </motion.li>
+    </motion.ul>
+  </div>
+</motion.div>
+</div>
+
+<motion.div
+  ref={q4}
+  initial={{ opacity: 0, y: 25, scale: 0.985 }}
+  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+  viewport={{ once: true, amount: 0.25 }}
+  transition={{
+    duration: 0.7,
+    ease: [0.22, 1, 0.36, 1],
+  }}
+  whileHover={{
+    y: -3,
+    transition: {
+      duration: 0.3,
+      ease: "easeOut",
+    },
+  }}
+  className="
+    group
+    relative
+    mx-auto
+    mt-10
+    w-full
+    max-w-[1050px]
+    overflow-hidden
+    rounded-[18px]
+    border
+    border-[#E2E8F0]
+    bg-[#F8FBFF]
+    px-5
+    py-5
+    font-['Inter',sans-serif]
+    shadow-[0_4px_20px_rgba(15,23,42,0.05)]
+    transition-shadow
+    duration-500
+    hover:shadow-[0_16px_40px_rgba(15,23,42,0.09)]
+    sm:px-7
+    sm:py-5
+    lg:px-8
+  "
+>
+  {/* Animated top accent */}
+  <motion.div
+    initial={{ scaleX: 0 }}
+    whileInView={{ scaleX: 1 }}
+    viewport={{ once: true }}
+    transition={{
+      delay: 0.15,
+      duration: 0.8,
+      ease: [0.22, 1, 0.36, 1],
+    }}
+    className="
+      absolute
+      left-0
+      top-0
+      h-[2px]
+      w-full
+      origin-left
+      bg-[#2563EB]
+    "
+  />
+
+  {/* Floating background glow */}
+  <motion.div
+    animate={{
+      x: [0, 30, 0],
+      y: [0, 10, 0],
+      scale: [1, 1.08, 1],
+    }}
+    transition={{
+      duration: 7,
+      repeat: Infinity,
+      ease: "easeInOut",
+    }}
+    className="
+      pointer-events-none
+      absolute
+      -right-20
+      -top-24
+      h-48
+      w-48
+      rounded-full
+      bg-[#DBEAFE]/70
+      blur-3xl
+    "
+  />
+
+  {/* Main content */}
+  <div
+    className="
+      relative
+      z-10
+      flex
+      flex-col
+      gap-5
+      sm:flex-row
+      sm:items-center
+      sm:gap-6
+      lg:gap-8
+    "
+  >
+    {/* Quote Icon */}
+    <motion.div
+      initial={{
+        opacity: 0,
+        scale: 0.65,
+        rotate: -10,
+      }}
+      whileInView={{
+        opacity: 1,
+        scale: 1,
+        rotate: 0,
+      }}
+      viewport={{ once: true }}
+      transition={{
+        delay: 0.2,
+        duration: 0.6,
+        type: "spring",
+        stiffness: 180,
+        damping: 12,
+      }}
+      whileHover={{
+        scale: 1.08,
+        rotate: 6,
+      }}
+      className="
+        relative
+        flex
+        h-11
+        w-11
+        shrink-0
+        items-center
+        justify-center
+        rounded-full
+        border
+        border-[#BFDBFE]
+        bg-[#EFF6FF]
+        text-[#2563EB]
+        shadow-[0_4px_12px_rgba(37,99,235,0.08)]
+        sm:h-12
+        sm:w-12
+      "
+    >
+      <Quote
+        size={21}
+        strokeWidth={2}
+        className="rotate-180"
+      />
+
+      {/* Orbit ring */}
+      <motion.span
+        animate={{
+          rotate: 360,
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+        className="
+          absolute
+          inset-[-4px]
+          rounded-full
+          border
+          border-dashed
+          border-[#93C5FD]
+          opacity-0
+          transition-opacity
+          duration-300
+          group-hover:opacity-100
+        "
+      />
+    </motion.div>
+
+    {/* Main Quote */}
+    <motion.blockquote
+      initial={{
+        opacity: 0,
+        x: -18,
+      }}
+      whileInView={{
+        opacity: 1,
+        x: 0,
+      }}
+      viewport={{ once: true }}
+      transition={{
+        delay: 0.3,
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className="
+        min-w-0
+        flex-1
+        font-['Inter',sans-serif]
+        text-[18px]
+        font-semibold
+        leading-[1.35]
+        tracking-[-0.03em]
+        text-[#0F172A]
+        sm:text-[20px]
+        lg:text-[22px]
+      "
+    >
+      They graduate with theory.
+
+      <span className="text-[#64748B]">
+        {" "}Industry demands{" "}
+      </span>
+
+      {/* Execution */}
+      <motion.span
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{
+          delay: 0.65,
+          duration: 0.45,
+        }}
+        className="
+          relative
+          inline-block
+          font-['Inter',sans-serif]
+          font-bold
+          text-[#2563EB]
+        "
+      >
+        execution.
+
+        {/* Animated underline */}
+        <motion.span
+          initial={{ scaleX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          viewport={{ once: true }}
+          transition={{
+            delay: 0.8,
+            duration: 0.55,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          className="
+            absolute
+            -bottom-1
+            left-0
+            h-[2px]
+            w-full
+            origin-left
+            rounded-full
+            bg-[#2563EB]
+          "
+        />
+      </motion.span>
+    </motion.blockquote>
+
+    {/* Divider */}
+    <motion.div
+      initial={{
+        scaleY: 0,
+        opacity: 0,
+      }}
+      whileInView={{
+        scaleY: 1,
+        opacity: 1,
+      }}
+      viewport={{ once: true }}
+      transition={{
+        delay: 0.42,
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className="
+        hidden
+        h-9
+        w-px
+        shrink-0
+        origin-center
+        bg-[#E2E8F0]
+        sm:block
+      "
+    />
+
+    {/* Supporting content */}
+    <motion.div
+      initial={{
+        opacity: 0,
+        x: 18,
+      }}
+      whileInView={{
+        opacity: 1,
+        x: 0,
+      }}
+      viewport={{ once: true }}
+      transition={{
+        delay: 0.46,
+        duration: 0.55,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className="
+        shrink-0
+        font-['Inter',sans-serif]
+        sm:max-w-[220px]
+        lg:max-w-[240px]
+      "
+    >
+      <p
+        className="
+          font-['Inter',sans-serif]
+          text-[10px]
+          font-bold
+          uppercase
+          tracking-[0.16em]
+          text-[#0F172A]
+          sm:text-[11px]
+        "
+      >
+         The Missing Layer
+      </p>
+
+      <p
+        className="
+          mt-1
+          font-['Inter',sans-serif]
+          text-xs
+          leading-5
+          text-[#64748B]
+        "
+      >
+          Turning knowledge into real-world capability
+      </p>
+    </motion.div>
+
+    {/* Status indicator */}
+    <motion.div
+      initial={{
+        opacity: 0,
+        scale: 0.7,
+      }}
+      whileInView={{
+        opacity: 1,
+        scale: 1,
+      }}
+      viewport={{ once: true }}
+      transition={{
+        delay: 0.58,
+        duration: 0.45,
+        type: "spring",
+        stiffness: 200,
+      }}
+      className="
+        hidden
+        shrink-0
+        items-center
+        gap-2
+        font-['Inter',sans-serif]
+        lg:flex
+      "
+    >
+
+      
+    </motion.div>
+  </div>
+
+  {/* Animated hover sweep */}
+  <motion.div
+    initial={{ x: "-120%" }}
+    whileHover={{ x: "120%" }}
+    transition={{
+      duration: 0.8,
+      ease: [0.22, 1, 0.36, 1],
+    }}
+    className="
+      pointer-events-none
+      absolute
+      inset-y-0
+      left-0
+      z-0
+      w-1/3
+      -skew-x-12
+      bg-white/60
+      blur-xl
+    "
+  />
+</motion.div>
       </div>
     </section>
   );
 };
+
 
 // ===== HowItWorks =====
 export const HowItWorks = () => {
@@ -81,90 +743,6 @@ export const HowItWorks = () => {
     { num:'03', icon:'🚀', title:'Receive Quality Output', desc:'High-quality, tested, delivered products — cost-effective without compromising standards.' },
     { num:'04', icon:'🔄', title:'Continuous Support', desc:'Post-delivery support included. Long-term partnership, not just a one-time delivery.' }
   ];
-  // const ECO_NODES = ['Students','Businesses','Experience','Income','Growth','Partners'];
-
-  // return (
-  //   <section className="how" id="how" id="how">
-  //     <div className="container">
-  //       <div className="section-label">The Solution</div>
-  //       <h2 className="section-title">How WeIntern Works</h2>
-  //       <p className="section-sub">A sustainable ecosystem where everyone wins.</p>
-  //       <div className="audience-tabs">
-  //         {[['students','👨‍💻 For Students'],['businesses','🏢 For Businesses'],['partners','🤝 For Partners']].map(([k,l]) => (
-  //           <button key={k} className={`tab-btn${tab===k?' active':''}`} onClick={() => setTab(k)}>{l}</button>
-  //         ))}
-  //       </div>
-  //       {tab === 'students' && (
-  //         <div>
-  //           <div className="steps">
-  //             {STEPS.map((s,i) => (
-  //               <React.Fragment key={s.num}>
-  //                 {i > 0 && <div className="step-connector"><div className="sc-arrow">→</div></div>}
-  //                 <div className="step reveal">
-  //                   <div className="step-num">{s.num}</div>
-  //                   <div className="step-icon">{s.icon}</div>
-  //                   <h4>{s.title}</h4>
-  //                   <p>{s.desc}</p>
-  //                 </div>
-  //               </React.Fragment>
-  //             ))}
-  //           </div>
-  //           <div className="transformation reveal">
-  //             <div className="tf-before">
-  //               <span className="tf-label tf-label-before">Before WeIntern</span>
-  //               {['"I have completed a course."','"I am looking for experience."','"I hope someone gives me a chance."'].map(t => <div key={t} className="tf-item">{t}</div>)}
-  //             </div>
-  //             <div className="tf-arrow"><div className="tf-arrow-line" /><div className="tf-arrow-head">→</div></div>
-  //             <div className="tf-after">
-  //               <span className="tf-label tf-label-after">After WeIntern</span>
-  //               {['"I built 4 live projects for real clients."','"I have verified industry experience."','"I create my own opportunities."'].map(t => <div key={t} className="tf-item tf-item-good">{t}</div>)}
-  //             </div>
-  //           </div>
-  //         </div>
-  //       )}
-  //       {tab === 'businesses' && (
-  //         <div>
-  //           <div className="biz-grid">
-  //             {BIZ.map(b => (
-  //               <div key={b.num} className="biz-card reveal">
-  //                 <div className="biz-num">{b.num}</div>
-  //                 <div className="biz-icon">{b.icon}</div>
-  //                 <h4>{b.title}</h4>
-  //                 <p>{b.desc}</p>
-  //               </div>
-  //             ))}
-  //           </div>
-  //           <div className="biz-why reveal">
-  //             <h3>Why Businesses Choose WeIntern</h3>
-  //             <div className="why-grid">
-  //               {['Cost-effective supervised development','Energetic, passionate teams','Modern tech stack expertise','Transparent communication','You\'re also helping a student\'s career','Continuous post-delivery support'].map(w => (
-  //                 <div key={w} className="why-item"><span className="why-icon">✓</span>{w}</div>
-  //               ))}
-  //             </div>
-  //           </div>
-  //         </div>
-  //       )}
-  //       {tab === 'partners' && (
-  //         <div className="partner-layout">
-  //           <div className="partner-text reveal">
-  //             <h3>Invest in the Future of Work</h3>
-  //             <p>WeIntern is more than a company — it's a movement. As a partner or investor, you become part of building a generation of professionals who are confident, capable, and career-ready from day one.</p>
-  //             <p>We're creating a scalable ecosystem where education meets real industry, and the gap between college and career simply doesn't exist.</p>
-  //             <a href="#contact" className="btn btn-primary" style={{ marginTop: '1.5rem' }}>Connect With Us →</a>
-  //           </div>
-  //           <div className="ecosystem reveal">
-  //             <div className="eco-center">WeIntern</div>
-  //             <div className="eco-orbit">
-  //               {ECO_NODES.map((n, i) => (
-  //                 <div key={n} className="eco-node" style={{ '--deg': `${i * 60}deg` }}>{n}</div>
-  //               ))}
-  //             </div>
-  //           </div>
-  //         </div>
-  //       )}
-  //     </div>
-  //   </section>
-  // );
 };
 
 // ===== EcosystemSection =====
@@ -228,13 +806,22 @@ export const EcosystemSection = () => {
         <h2 className="eco-title">
           How the <span className="eco-title-brand">Weintern</span> Ecosystem Works
         </h2>
-        <p className="eco-subtitle">From learning to earning — a journey that changes your future.</p>
+
+<div className="flex items-center justify-center gap-3 w-full">
+  <div className="h-px flex-1 max-w-[120px] bg-slate-300" />
+
+  <div className="h-2 w-2 rounded-full bg-blue-500" />
+
+  <div className="h-px flex-1 max-w-[120px] bg-slate-300" />
+</div>
+
+        <p className="eco-subtitle mt-5">From learning to earning — a journey that changes your future.</p>
       </div>
 
       {/* Steps + Mission side by side */}
       <div className="eco-top-body">
         {/* Steps */}
-        <div className="eco-steps">
+        <div className="eco-steps" >
           {STEP_LABELS.map((s, i) => (
             <React.Fragment key={s.num}>
               <div className="eco-step-card">
@@ -260,8 +847,14 @@ export const EcosystemSection = () => {
         </div>
 
         {/* Mission box */}
-        <div className="eco-mission">
-          <h4 className="eco-mission-head">Our Mission</h4>
+       <div className="eco-mission" >
+         <div className="flex items-center gap-3">
+  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#01153e]">
+    <Target className="h-5 w-5 text-green-100" />
+  </div>
+
+  <h4 className="eco-mission-head">Our Mission</h4>
+</div>
           <p className="eco-mission-body">
             To empower every student with practical skills, real experience and financial independence through meaningful work.
           </p>
@@ -276,7 +869,7 @@ export const EcosystemSection = () => {
 
       {/* ── BOTTOM: Dark Impact Banner ── */}
       <div className="eco-bottom">
-        <div className="eco-bottom-inner">
+        <div className="eco-bottom-inner"style={{backgroundColor:'#01153e'}}>
 
           {/* Left: heading */}
           <div className="eco-b-left">
@@ -321,7 +914,7 @@ export const EcosystemSection = () => {
                   <circle cx="20" cy="25" r="2" fill="currentColor" stroke="none"/>
                 </svg>
               </div>
-              <h4 className="eco-b-title">Financial<br/>Independence</h4>
+              <h4 className="eco-b-title">Financial Independence</h4>
               <p className="eco-b-desc">Students earn real income through their skills and hard work.</p>
             </div>
 
@@ -336,7 +929,7 @@ export const EcosystemSection = () => {
                   <line x1="27" y1="34" x2="27" y2="29"/>
                 </svg>
               </div>
-              <h4 className="eco-b-title">Industry<br/>Experience</h4>
+              <h4 className="eco-b-title">Industry Experience</h4>
               <p className="eco-b-desc">Work on real projects and gain experience before graduation.</p>
             </div>
 
@@ -348,7 +941,7 @@ export const EcosystemSection = () => {
                   <polyline points="30,8 36,8 36,14"/>
                 </svg>
               </div>
-              <h4 className="eco-b-title">Career<br/>Growth</h4>
+              <h4 className="eco-b-title">Career Growth</h4>
               <p className="eco-b-desc">Build confidence, strong portfolio and better career opportunities.</p>
             </div>
 
@@ -364,23 +957,256 @@ export const EcosystemSection = () => {
                   <path d="M28 25c2.21 0 4 3.582 4 8"/>
                 </svg>
               </div>
-              <h4 className="eco-b-title">Better<br/>Future</h4>
+              <h4 className="eco-b-title">Better Future</h4>
               <p className="eco-b-desc">Empowered students create a stronger and better India.</p>
             </div>
 
           </div>
         </div>
 
-        {/* Bottom note */}
-        <div className="eco-b-note">
-          <span>🔒</span>
-          When you learn with Weintern, you don't just get a course – you get opportunities that pay.
-        </div>
+       
       </div>
 
+<motion.div
+  initial={{ opacity: 0, y: 18 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true, amount: 0.4 }}
+  transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+  whileHover={{ y: -2 }}
+  className="
+    group relative mx-auto mt-10 w-full max-w-[1050px]
+    overflow-hidden rounded-[17px]
+    border border-[#dce8f3]
+    bg-[#f5faff]
+    px-4 py-3
+    sm:px-5 sm:py-3
+    md:px-8 md:py-[15px]
+    shadow-[0_1px_4px_rgba(30,100,160,0.04)]
+    transition-shadow duration-500
+    hover:shadow-[0_8px_30px_rgba(37,141,221,0.10)]
+  "
+>
+  {/* Animated Glow */}
+  <motion.div
+    animate={{
+      x: ["-100%", "200%"],
+    }}
+    transition={{
+      duration: 5,
+      repeat: Infinity,
+      repeatDelay: 3,
+      ease: "easeInOut",
+    }}
+    className="
+      pointer-events-none absolute inset-y-0 left-0
+      w-[30%]
+      bg-gradient-to-r from-transparent via-white/50 to-transparent
+      skew-x-[-20deg]
+    "
+  />
+
+  {/* ================= MOBILE ================= */}
+  <div className="relative flex flex-col gap-2 md:hidden">
+
+    {/* First Row */}
+    <div className="flex items-center gap-2">
+      <motion.div
+        animate={{
+          y: [0, -2, 0],
+          rotate: [0, -2, 0],
+        }}
+        transition={{
+          duration: 3.5,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="shrink-0"
+      >
+        <Quote
+          className="h-[25px] w-[25px] fill-[#258ddd] text-[#258ddd]"
+          strokeWidth={0}
+        />
+      </motion.div>
+
+      <p className="text-[12px] font-medium italic leading-tight tracking-[-0.01em] text-[#172033]">
+        When you learn with WeIntern, you don’t just get a course –
+      </p>
+    </div>
+
+    {/* Second Row */}
+    <div className="flex items-center justify-center gap-2">
+      <p className="text-center text-[12px] font-medium italic leading-tight tracking-[-0.01em] text-[#172033]">
+        you get{" "}
+        <motion.span
+          animate={{
+            opacity: [0.8, 1, 0.8],
+          }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="relative font-bold text-[#2189dc]"
+        >
+          opportunities that pay.
+
+          <motion.span
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{
+              delay: 0.5,
+              duration: 0.8,
+              ease: "easeOut",
+            }}
+            className="
+              absolute -bottom-1 left-0
+              h-[1.5px] w-full
+              origin-left rounded-full
+              bg-[#2189dc]/30
+            "
+          />
+        </motion.span>
+      </p>
+
+      <motion.div
+        animate={{
+          y: [0, -2, 0],
+        }}
+        transition={{
+          duration: 2.8,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="shrink-0"
+      >
+        <motion.div
+          animate={{
+            scale: [1, 1.06, 1],
+          }}
+          transition={{
+            duration: 2.2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        >
+          <ChartNoAxesCombined
+            className="
+              h-[25px] w-[25px]
+              text-[#258ddd]
+              transition-transform duration-300
+            "
+            strokeWidth={1.7}
+          />
+        </motion.div>
+      </motion.div>
+    </div>
+  </div>
+
+
+  {/* ================= TABLET + DESKTOP ================= */}
+  <div className="relative hidden min-h-[40px] items-center md:flex">
+
+    {/* Quote */}
+    <motion.div
+      animate={{
+        y: [0, -3, 0],
+        rotate: [0, -2, 0],
+      }}
+      transition={{
+        duration: 3.5,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+      className="flex w-[70px] items-center justify-start"
+    >
+      <Quote
+        className="h-[38px] w-[38px] fill-[#258ddd] text-[#258ddd]"
+        strokeWidth={0}
+      />
+    </motion.div>
+
+    {/* Center Text */}
+    <div className="flex flex-1 items-center justify-center">
+      <p className="text-center text-[17px] font-medium italic tracking-[-0.01em] text-[#172033]">
+        When you learn with WeIntern, you don’t just get a course – you get{" "}
+
+        <motion.span
+          animate={{
+            opacity: [0.8, 1, 0.8],
+          }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="relative font-bold text-[#2189dc]"
+        >
+          opportunities that pay.
+
+          <motion.span
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{
+              delay: 0.5,
+              duration: 0.8,
+              ease: "easeOut",
+            }}
+            className="
+              absolute -bottom-1 left-0
+              h-[2px] w-full
+              origin-left rounded-full
+              bg-[#2189dc]/30
+            "
+          />
+        </motion.span>
+      </p>
+    </div>
+
+    {/* Growth Icon */}
+    <motion.div
+      animate={{
+        y: [0, -3, 0],
+      }}
+      transition={{
+        duration: 2.8,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+      className="flex w-[70px] items-center justify-end"
+    >
+      <motion.div
+        animate={{
+          scale: [1, 1.06, 1],
+        }}
+        transition={{
+          duration: 2.2,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <ChartNoAxesCombined
+          className="
+            h-[38px] w-[38px]
+            text-[#258ddd]
+            transition-transform duration-300
+            group-hover:scale-110
+          "
+          strokeWidth={1.7}
+        />
+      </motion.div>
+    </motion.div>
+
+  </div>
+</motion.div>
     </section>
+    
+    
   );
+  
 };
+
 
 // student project
 
@@ -553,43 +1379,7 @@ export const Vision = () => {
       document.head.appendChild(style);
     }
   }, []);
-  // return (
-  //   <section className="vision" id="vision" id="vision">
-  //     <style>{`@keyframes particleFloat{0%,100%{transform:translateY(0px) scale(1);opacity:.4}50%{transform:translateY(-30px) scale(1.2);opacity:.8}}`}</style>
-  //     <div className="vision-particles" id="visionParticles" />
-  //     <div className="container">
-  //       <div className="vision-inner">
-  //         <div className="vision-left reveal">
-  //           <span className="section-label light">Our Vision</span>
-  //           <h2 className="section-title light">Building a Generation<br />That's Ready.</h2>
-  //           <p className="vision-p">To create a generation of professionals who are not afraid of interviews, not confused about skills, and not dependent only on degrees.</p>
-  //           <div className="vision-flow">
-  //             {[['📚','Learning'],['💼','Experience'],['💰','Income'],['🚀','Future']].map(([e,l],i) => (
-  //               <React.Fragment key={l}>
-  //                 {i>0 && <div className="vf-arr">→</div>}
-  //                 <div className="vf-item">{e} <span>{l}</span></div>
-  //               </React.Fragment>
-  //             ))}
-  //           </div>
-  //         </div>
-  //         <div className="vision-right reveal">
-  //           <div className="founder-card">
-  //             <div className="founder-glow" />
-  //             <div className="founder-top">
-  //               <div className="founder-av">AW</div>
-  //               <div className="founder-meta"><strong>Ashwin</strong><span>Founder, WeIntern</span></div>
-  //             </div>
-  //             <blockquote className="founder-q">"I started WeIntern because I saw talented students being rejected — not for lack of skill, but lack of opportunity. We're changing that, one intern at a time."</blockquote>
-  //             <div className="founder-links">
-  //               <a href="#" className="flink">LinkedIn ↗</a>
-  //               <a href="#" className="flink">Instagram ↗</a>
-  //             </div>
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   </section>
-  // );
+ 
 };
 
 // ===== Live Journey Section =====
@@ -711,163 +1501,1381 @@ export const LiveJourney = () => {
       toast.error('Error: ' + (err.response?.data?.message || err.message), { id: 'cohort-pay' });
     }
   };
+  const [showBooking, setShowBooking] = useState(false);
+    const [bookingStep, setBookingStep] = useState("form"); // form | submitting | success
+    const [form, setForm] = useState({
+      name: "",
+      email: "",
+      phone: "",
+      college: "",
+      domain: "",
+      day: "",
+      year: "",
+    });
+    const [errors, setErrors] = useState({});
+ 
+    const TOTAL_SEATS = 10;
+    const SEATS_TAKEN = 6;
+ 
+    const DOMAINS = [
+      "Web Development",
+      "App Development",
+      "UI/UX Design",
+      "Data Science & AI",
+      "Digital Marketing",
+      "Other",
+    ];
+ 
+    const updateField = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
+    const setDay = (day) => setForm((f) => ({ ...f, day }));
+ 
+    const validateBooking = () => {
+      const e = {};
+      if (!form.name.trim()) e.name = "Enter your full name";
+      if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
+      if (!/^\d{10}$/.test(form.phone.replace(/\s/g, ""))) e.phone = "Enter a 10-digit phone number";
+      if (!form.college.trim()) e.college = "Enter your college or university";
+      if (!form.domain) e.domain = "Choose a domain";
+      if (!form.day) e.day = "Pick Saturday or Sunday";
+      setErrors(e);
+      return Object.keys(e).length === 0;
+    };
+ 
+   const handleBookingSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!validateBooking()) return;
+
+  setBookingStep("submitting");
+
+  try {
+    const response = await submitCohortApplication({
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      college: form.college,
+      domain: form.domain,
+      year: form.year,
+      day: form.day,
+    });
+
+    if (response.data.success) {
+      setBookingStep("success");
+
+      toast.success("Seat reserved successfully!");
+    } else {
+      setBookingStep("form");
+
+      toast.error(
+        response.data.message || "Failed to reserve your seat."
+      );
+    }
+  } catch (error) {
+    console.error("Cohort booking error:", error);
+
+    setBookingStep("form");
+
+    toast.error(
+      error.response?.data?.message ||
+      "Something went wrong. Please try again."
+    );
+  }
+};
 
   return (
-    <section className="live-journey" id="journey">
-      <div className="container">
-        <div className="section-label">Your Journey</div>
-        <h2 className="section-title">Learn. Build. Grow.</h2>
-        <p className="section-sub">Discover workshops, skill cohorts, hackathons, webinars, and networking events designed to make you industry-ready.</p>
+   <>
+<section id="journey" className="relative overflow-hidden bg-gradient-to-b from-neutral-50 via-white to-neutral-100 py-24 lg:py-32">
+  {/* Ambient glass blobs */}
+  <div className="pointer-events-none absolute -top-24 -left-24 h-96 w-96 rounded-full bg-neutral-300/30 blur-3xl" />
+  <div className="pointer-events-none absolute top-1/2 -right-32 h-[28rem] w-[28rem] rounded-full bg-neutral-200/40 blur-3xl" />
+ 
+  <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
+    {/* Header */}
+    <div className="mx-auto mb-16 w-full max-w-4xl px-4 text-center sm:mb-20">
+  {/* Section Label */}
+  <div className="mb-5 flex items-center justify-center gap-2">
+    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.45)]" />
 
-        <div className="journey-cards">
-          {/* Card 1: Cohort Live */}
-          <div className="journey-card card-live reveal" ref={j1}>
-            <div className="journey-card-image">
-              <img src={cohortLiveImg} alt="Cohort Live" />
-              <div className="journey-badge badge-live">
-                <span className="badge-pulse"></span>
-                LIVE NOW
-              </div>
-            </div>
-            <div className="journey-card-body">
-              <h3 className="journey-card-category">🚀 Cohort</h3>
-              <h2 className="journey-card-title">Cohort is Live!</h2>
-              <ul className="journey-card-list">
-                <li>💰 Course Fee: ₹199</li>
-                <li>🎯 Only 10 Seats Available</li>
-                <li>⚡ Limited time offer</li>
-              </ul>
-              <button className="journey-view-btn" onClick={handleViewDetails}>View details</button>
-            </div>
-          </div>
+    <span
+      className="
+        text-[10px]
+        font-bold
+        uppercase
+        tracking-[0.22em]
+        text-neutral-500
+        sm:text-[11px]
+      "
+    >
+      Your Journey
+    </span>
 
-          {/* Card 2: Coming Next */}
-          <div className="journey-card card-next reveal" ref={j2}>
-            <div className="journey-card-image">
-              <img src={cohortUpcomingImg} alt="Coming Next" />
-              <div className="journey-badge badge-next">
-                NEXT IN PIPELINE
-              </div>
-              <div className="journey-lock-icon">🔒</div>
-            </div>
-            <div className="journey-card-body">
-              <h3 className="journey-card-category">📅 Upcoming</h3>
-              <h2 className="journey-card-title">Coming Up Next</h2>
-              <ul className="journey-card-list">
-                <li>8 Upcoming Projects</li>
-                <li>Starting in 2-3 weeks</li>
-                <li>Early bird registration open</li>
-              </ul>
-              <button className="journey-view-btn" disabled>View details</button>
-            </div>
-          </div>
+    <span className="h-px w-8 bg-neutral-200" />
+  </div>
 
-          {/* Card 3: Future Opportunities */}
-          <div className="journey-card card-future reveal" ref={j3}>
-            <div className="journey-card-image">
-              <img src={cohortFutureImg} alt="Future Opportunities" />
-              <div className="journey-badge badge-future">
-                COMING SOON
-              </div>
-              <div className="journey-lock-icon">🔒</div>
-            </div>
-            <div className="journey-card-body">
-              <h3 className="journey-card-category">🌟 Future</h3>
-              <h2 className="journey-card-title">What's Ahead</h2>
-              <ul className="journey-card-list">
-                <li>20+ New Opportunities</li>
-                <li>International Projects</li>
-                <li>Advanced Technologies</li>
-              </ul>
-              <button className="journey-view-btn" disabled>View details</button>
-            </div>
-          </div>
-        </div>
+  {/* Main Heading */}
+  <h2
+    className="
+      font-display
+      text-[30px]
+      font-bold
+      leading-[1.02]
+      tracking-[-0.045em]
+      bg-gradient-to-r from-emerald-500 to-emerald-600 bg-clip-text text-transparent
+      sm:text-5xl
+      md:text-6xl
+      lg:text-[38px]
+    "
+  >
+    Learn.
+    <span className="mx-2 text-blue-700 sm:mx-3">Build.</span>
+    <span className="bg-gradient-to-r from-purple-500 to-purple-600 bg-clip-text text-transparent">
+      Grow.
+    </span>
+  </h2>
 
-        {/* Bottom Note */}
-        <div className="journey-note">
-          <span className="note-icon">💡</span>
-          <p>Every project means real experience, real portfolio, and real income for our students</p>
-        </div>
+  {/* Description */}
+  <p
+  className="
+    mx-auto
+    mt-1
+    max-w-2xl
+    text-[11px]
+    leading-5
+    text-neutral-500
+    sm:mt-5
+    sm:text-xs
+    sm:leading-8
+    lg:text-base
+    lg:leading-7
+  "
+>
+  Workshops, skill cohorts, hackathons, and networking events designed
+  to help you build real skills, gain practical experience, and become
+  industry-ready.
+</p>
+
+
+</div>
+ 
+    {/* Cards */}
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
+      {/* Card 1: Cohort Live */}
+      <div
+  className="
+    group relative isolate overflow-hidden rounded-[24px]
+    border border-emerald-100/80
+    bg-white/75
+    shadow-[0_10px_40px_rgba(16,185,129,0.08)]
+    backdrop-blur-xl
+    transition-all duration-500
+    hover:-translate-y-2
+    hover:border-emerald-200
+    hover:shadow-[0_25px_60px_rgba(16,185,129,0.16)]
+  "
+>
+  {/* Animated background glow */}
+  <div
+    className="
+      pointer-events-none absolute -right-16 -top-16
+      h-40 w-40 rounded-full
+      bg-emerald-400/15 blur-3xl
+      transition-all duration-700
+      group-hover:scale-150 group-hover:bg-emerald-400/25
+    "
+  />
+
+  <div
+    className="
+      pointer-events-none absolute -bottom-20 -left-16
+      h-40 w-40 rounded-full
+      bg-green-300/10 blur-3xl
+      transition-all duration-700
+      group-hover:scale-125
+    "
+  />
+
+  {/* Image */}
+  <div className="relative h-48 overflow-hidden bg-emerald-50">
+    <img
+      src={cohortLiveImg}
+      alt="Cohort Live"
+      className="
+        h-full w-full object-cover
+        transition-transform duration-700
+        ease-out
+        group-hover:scale-110
+      "
+    />
+
+    {/* Image overlay */}
+    <div
+      className="
+        absolute inset-0
+        bg-gradient-to-t
+        from-emerald-950/40
+        via-transparent
+        to-emerald-900/5
+      "
+    />
+
+    {/* Animated shine */}
+    <div
+      className="
+        pointer-events-none absolute inset-y-0 -left-[120%]
+        w-[60%]
+        skew-x-[-20deg]
+        bg-gradient-to-r
+        from-transparent
+        via-white/25
+        to-transparent
+        transition-all duration-1000
+        group-hover:left-[140%]
+      "
+    />
+
+    {/* Live Badge */}
+    <div
+      className="
+        absolute left-4 top-4
+        inline-flex items-center gap-2
+        rounded-full
+        border border-emerald-200/60
+        bg-white/90
+        px-3.5 py-1.5
+        text-xs font-bold
+        text-emerald-700
+        shadow-[0_4px_15px_rgba(16,185,129,0.15)]
+        backdrop-blur-md
+      "
+    >
+      <span className="relative flex h-2 w-2">
+        <span
+          className="
+            absolute inline-flex h-full w-full
+            animate-ping rounded-full
+            bg-emerald-500 opacity-60
+          "
+        />
+        <span
+          className="
+            relative inline-flex h-2 w-2
+            rounded-full bg-emerald-500
+          "
+        />
+      </span>
+
+      Live now
+    </div>
+
+    {/* Small floating label */}
+    <div
+      className="
+        absolute bottom-4 right-4
+        rounded-full
+        border border-white/30
+        bg-black/20
+        px-3 py-1
+        text-[11px] font-semibold
+        text-white
+        backdrop-blur-md
+        transition-all duration-300
+        group-hover:bg-emerald-500/80
+      "
+    >
+      Free Cohort
+    </div>
+  </div>
+
+  {/* Content */}
+  <div className="relative p-6 lg:p-7">
+    {/* Eyebrow */}
+    <div className="mb-3 flex items-center gap-2">
+      <span className="h-px w-6 bg-emerald-400" />
+
+      <h3
+        className="
+          text-[11px]
+          font-bold
+          uppercase
+          tracking-[0.18em]
+          text-emerald-600
+        "
+      >
+        Cohort
+      </h3>
+    </div>
+
+    {/* Heading */}
+    <h3
+      className="
+        mb-5
+        text-1xl
+        font-bold
+        tracking-[-0.03em]
+        text-slate-950
+        transition-colors duration-300
+        group-hover:text-emerald-700
+      "
+    >
+      Cohort is Live!
+    </h3>
+
+    {/* Features */}
+    <div className="space-y-0">
+      <div
+        className="
+          flex items-center justify-between
+          border-b border-slate-200/80
+          py-3
+        "
+      >
+        <span className="text-sm text-slate-600">
+          Seats per batch
+        </span>
+
+        <span
+          className="
+            rounded-full
+            bg-emerald-50
+            px-2.5 py-1
+            text-xs font-bold
+            text-emerald-700
+          "
+        >
+          10 seats
+        </span>
       </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div className="journey-modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="journey-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="journey-modal-close" onClick={() => setShowModal(false)}>×</button>
-            
-            <div className="journey-modal-content">
-              <h2 className="journey-modal-title">WeIntern Weekly Skill Cohort</h2>
-              <p className="journey-modal-subtitle">Learn. Build. Grow.</p>
-              
-              <p className="journey-modal-description">
-                Join an exclusive offline hands-on workshop designed for college students to learn trending industry skills from experts.
+      <div
+        className="
+          flex items-center justify-between
+          border-b border-slate-200/80
+          py-3
+        "
+      >
+        <span className="text-sm text-slate-600">
+          Registration
+        </span>
+
+        <span className="text-sm font-semibold text-emerald-600">
+          Free
+        </span>
+      </div>
+
+      <div
+        className="
+          flex items-center justify-between
+          py-3
+        "
+      >
+        <span className="text-sm text-slate-600">
+          Availability
+        </span>
+
+        <span className="flex items-center gap-1.5 text-xs font-semibold text-amber-600">
+          <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+          Closing soon
+        </span>
+      </div>
+    </div>
+
+    {/* CTA */}
+    <button
+      onClick={() => setShowBooking(true)}
+      className="
+        group/btn relative mt-6 flex w-full
+        items-center justify-center gap-2
+        overflow-hidden rounded-xl
+        bg-emerald-600
+        py-3.5
+        text-sm font-bold text-white
+        shadow-[0_8px_20px_rgba(16,185,129,0.20)]
+        transition-all duration-300
+        hover:bg-emerald-700
+        hover:shadow-[0_12px_30px_rgba(16,185,129,0.30)]
+        active:scale-[0.98]
+      "
+    >
+      {/* Button shine */}
+      <span
+        className="
+          absolute inset-y-0 -left-full
+          w-1/2 skew-x-[-20deg]
+          bg-gradient-to-r
+          from-transparent
+          via-white/20
+          to-transparent
+          transition-all duration-700
+          group-hover/btn:left-[130%]
+        "
+      />
+
+      <span className="relative">
+        Book your seat
+      </span>
+
+      <ArrowRight
+        className="
+          relative h-4 w-4
+          transition-transform duration-300
+          group-hover/btn:translate-x-1
+        "
+      />
+    </button>
+
+    {/* Bottom micro-copy */}
+    <p className="mt-3 text-center text-[11px] text-slate-400">
+      Limited seats · Free to attend
+    </p>
+  </div>
+</div>
+ 
+      {/* Card 2: Coming Next */}
+      <div
+  className="
+    group relative isolate overflow-hidden rounded-[24px]
+    border border-blue-100/80
+    bg-white/70
+    shadow-[0_10px_40px_rgba(59,130,246,0.07)]
+    backdrop-blur-xl
+    transition-all duration-500
+    hover:-translate-y-2
+    hover:border-blue-200
+    hover:shadow-[0_25px_60px_rgba(59,130,246,0.14)]
+  "
+>
+  {/* Ambient blue glow */}
+  <div
+    className="
+      pointer-events-none absolute -right-16 -top-16
+      h-40 w-40 rounded-full
+      bg-blue-400/10 blur-3xl
+      transition-all duration-700
+      group-hover:scale-150
+      group-hover:bg-blue-400/20
+    "
+  />
+
+  <div
+    className="
+      pointer-events-none absolute -bottom-20 -left-16
+      h-40 w-40 rounded-full
+      bg-sky-300/10 blur-3xl
+      transition-all duration-700
+      group-hover:scale-125
+    "
+  />
+
+  {/* Image */}
+  <div className="relative h-48 overflow-hidden bg-blue-50">
+    <img
+      src={cohortUpcomingImg}
+      alt="Coming Next"
+      className="
+        h-full w-full object-cover
+        opacity-65
+        
+        transition-all duration-700
+        ease-out
+        group-hover:scale-110
+        group-hover:opacity-75
+      "
+    />
+
+    {/* Blue image overlay */}
+    
+
+    {/* Animated shine */}
+    <div
+      className="
+        pointer-events-none absolute inset-y-0 -left-[120%]
+        w-[60%]
+        skew-x-[-20deg]
+        bg-gradient-to-r
+        from-transparent
+        via-white/20
+        to-transparent
+        transition-all duration-1000
+        group-hover:left-[140%]
+      "
+    />
+
+    {/* Pipeline badge */}
+    <div
+      className="
+        absolute left-4 top-4
+        inline-flex items-center gap-2
+        rounded-full
+        border border-blue-200/60
+        bg-blue-950/80
+        px-3.5 py-1.5
+        text-xs font-bold
+        text-white
+        shadow-[0_5px_20px_rgba(30,64,175,0.18)]
+        backdrop-blur-md
+      "
+    >
+      <span className="relative flex h-2 w-2">
+        <span
+          className="
+            absolute inline-flex h-full w-full
+            animate-ping rounded-full
+            bg-blue-300 opacity-60
+          "
+        />
+        <span
+          className="
+            relative inline-flex h-2 w-2
+            rounded-full bg-blue-300
+          "
+        />
+      </span>
+
+      Next in pipeline
+    </div>
+
+    {/* Lock icon */}
+    <div
+      className="
+        absolute right-4 top-4
+        flex h-8 w-8 items-center justify-center
+        rounded-full
+        border border-white/60
+        bg-white/85
+        text-blue-600
+        shadow-[0_4px_15px_rgba(30,64,175,0.12)]
+        backdrop-blur-md
+        transition-all duration-300
+        group-hover:rotate-[-8deg]
+        group-hover:scale-110
+      "
+    >
+      <Lock className="h-3.5 w-3.5" />
+    </div>
+
+    {/* Coming soon label */}
+    <div
+      className="
+        absolute bottom-4 right-4
+        rounded-full
+        border border-white/30
+        bg-blue-950/30
+        px-3 py-1
+        text-[11px] font-semibold
+        text-white
+        backdrop-blur-md
+        transition-all duration-300
+        group-hover:bg-blue-600/70
+      "
+    >
+      Coming soon
+    </div>
+  </div>
+
+  {/* Content */}
+  <div className="relative p-6 lg:p-7">
+    {/* Eyebrow */}
+    <div className="mb-3 flex items-center gap-2">
+      <span className="h-px w-6 bg-blue-400" />
+
+      <h3
+        className="
+          text-[11px]
+          font-bold
+          uppercase
+          tracking-[0.18em]
+          text-blue-600
+        "
+      >
+        Upcoming
+      </h3>
+    </div>
+
+    {/* Heading */}
+    <h2
+      className="
+        mb-5
+        text-1xl
+        font-bold
+        tracking-[-0.03em]
+        text-slate-950
+        transition-colors duration-300
+        group-hover:text-blue-700
+      "
+    >
+      Coming Up Next
+    </h2>
+
+    {/* Features */}
+    <div className="space-y-0">
+      <div
+        className="
+          flex items-center justify-between
+          border-b border-slate-200/80
+          py-3
+        "
+      >
+        <span className="text-sm text-slate-600">
+          Upcoming projects
+        </span>
+
+        <span
+          className="
+            rounded-full
+            bg-blue-50
+            px-2.5 py-1
+            text-xs font-bold
+            text-blue-700
+          "
+        >
+          8 projects
+        </span>
+      </div>
+
+      <div
+        className="
+          flex items-center justify-between
+          border-b border-slate-200/80
+          py-3
+        "
+      >
+        <span className="text-sm text-slate-600">
+          Expected launch
+        </span>
+
+        <span className="text-sm font-semibold text-blue-600">
+          2–3 weeks
+        </span>
+      </div>
+
+      <div
+        className="
+          flex items-center justify-between
+          py-3
+        "
+      >
+        <span className="text-sm text-slate-600">
+          Access
+        </span>
+
+        <span className="flex items-center gap-1.5 text-xs font-semibold text-sky-600">
+          <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
+          Opening soon
+        </span>
+      </div>
+    </div>
+
+    {/* Locked CTA */}
+    <button
+      disabled
+      className="
+        mt-6 flex w-full
+        cursor-not-allowed
+        items-center justify-center gap-2
+        rounded-xl
+        border border-blue-100
+        bg-blue-50/70
+        py-3.5
+        text-sm font-bold
+        text-blue-300
+        backdrop-blur-md
+        transition-all duration-300
+        group-hover:border-blue-200
+        group-hover:bg-blue-50
+        group-hover:text-blue-400
+      "
+    >
+      <Lock className="h-4 w-4" />
+      Locked
+    </button>
+
+    {/* Micro-copy */}
+    <p className="mt-3 text-center text-[11px] text-slate-400">
+      Early access will open soon
+    </p>
+  </div>
+</div>
+ 
+      {/* Card 3: Future Opportunities */}
+      <div
+  className="
+    group relative isolate overflow-hidden rounded-[24px]
+    border border-violet-100/80
+    bg-white/70
+    shadow-[0_10px_40px_rgba(139,92,246,0.07)]
+    backdrop-blur-xl
+    transition-all duration-500
+    hover:-translate-y-2
+    hover:border-violet-200
+    hover:shadow-[0_25px_60px_rgba(139,92,246,0.15)]
+  "
+>
+  {/* Ambient purple glow */}
+  <div
+    className="
+      pointer-events-none absolute -right-16 -top-16
+      h-40 w-40 rounded-full
+      bg-violet-400/10 blur-3xl
+      transition-all duration-700
+      group-hover:scale-150
+      group-hover:bg-violet-400/20
+    "
+  />
+
+  <div
+    className="
+      pointer-events-none absolute -bottom-20 -left-16
+      h-40 w-40 rounded-full
+      bg-purple-300/10 blur-3xl
+      transition-all duration-700
+      group-hover:scale-125
+    "
+  />
+
+  {/* Image */}
+  <div className="relative h-48 overflow-hidden ">
+    <img
+      src={cohortFutureImg}
+      alt="Future Opportunities"
+      className="
+        h-full w-full object-cover
+        transition-all duration-700
+        ease-out
+        group-hover:scale-110
+      "
+    />
+
+    {/* Animated shine */}
+    <div
+      className="
+        pointer-events-none absolute inset-y-0 -left-[120%]
+        w-[60%]
+        skew-x-[-20deg]
+        bg-gradient-to-r
+        from-transparent
+        via-white/20
+        to-transparent
+        transition-all duration-1000
+        group-hover:left-[140%]
+      "
+    />
+
+    {/* Coming soon badge */}
+    <div
+      className="
+        absolute left-4 top-4
+        inline-flex items-center gap-2
+        rounded-full
+        border border-violet-200/50
+        bg-violet-950/80
+        px-3.5 py-1.5
+        text-xs font-bold
+        text-white
+        shadow-[0_5px_20px_rgba(109,40,217,0.18)]
+        backdrop-blur-md
+      "
+    >
+      <span className="relative flex h-2 w-2">
+        <span
+          className="
+            absolute inline-flex h-full w-full
+            animate-ping rounded-full
+            bg-violet-300 opacity-60
+          "
+        />
+        <span
+          className="
+            relative inline-flex h-2 w-2
+            rounded-full bg-violet-300
+          "
+        />
+      </span>
+
+      Coming soon
+    </div>
+
+    {/* Lock */}
+    <div
+      className="
+        absolute right-4 top-4
+        flex h-8 w-8 items-center justify-center
+        rounded-full
+        border border-white/60
+        bg-white/85
+        text-violet-600
+        shadow-[0_4px_15px_rgba(109,40,217,0.12)]
+        backdrop-blur-md
+        transition-all duration-300
+        group-hover:rotate-[-8deg]
+        group-hover:scale-110
+      "
+    >
+      <Lock className="h-3.5 w-3.5" />
+    </div>
+
+    {/* Future label */}
+    <div
+      className="
+        absolute bottom-4 right-4
+        rounded-full
+        border border-white/30
+        bg-violet-950/30
+        px-3 py-1
+        text-[11px] font-semibold
+        text-white
+        backdrop-blur-md
+        transition-all duration-300
+        group-hover:bg-violet-600/70
+      "
+    >
+      Future track
+    </div>
+  </div>
+
+  {/* Content */}
+  <div className="relative p-6 lg:p-7">
+    {/* Eyebrow */}
+    <div className="mb-3 flex items-center gap-2">
+      <span className="h-px w-6 bg-violet-400" />
+
+      <h3
+        className="
+          text-[11px]
+          font-bold
+          uppercase
+          tracking-[0.18em]
+          text-violet-600
+        "
+      >
+        Future
+      </h3>
+    </div>
+
+    {/* Heading */}
+    <h2
+      className="
+        mb-5
+        text-1xl
+        font-bold
+        tracking-[-0.03em]
+        text-slate-950
+        transition-colors duration-300
+        group-hover:text-violet-700
+      "
+    >
+      What's Ahead
+    </h2>
+
+    {/* Features */}
+    <div className="space-y-0">
+      <div
+        className="
+          flex items-center justify-between
+          border-b border-slate-200/80
+          py-3
+        "
+      >
+        <span className="text-sm text-slate-600">
+          New opportunities
+        </span>
+
+        <span
+          className="
+            rounded-full
+            bg-violet-50
+            px-2.5 py-1
+            text-xs font-bold
+            text-violet-700
+          "
+        >
+          20+ opportunities
+        </span>
+      </div>
+
+      <div
+        className="
+          flex items-center justify-between
+          border-b border-slate-200/80
+          py-3
+        "
+      >
+        <span className="text-sm text-slate-600">
+          Project scope
+        </span>
+
+        <span className="text-sm font-semibold text-violet-600">
+          International
+        </span>
+      </div>
+
+      <div
+        className="
+          flex items-center justify-between
+          py-3
+        "
+      >
+        <span className="text-sm text-slate-600">
+          Learning tracks
+        </span>
+
+        <span className="flex items-center gap-1.5 text-xs font-semibold text-purple-600">
+          <span className="h-1.5 w-1.5 rounded-full bg-purple-500" />
+          Advanced tech
+        </span>
+      </div>
+    </div>
+
+    {/* Locked CTA */}
+    <button
+      disabled
+      className="
+        mt-6 flex w-full
+        cursor-not-allowed
+        items-center justify-center gap-2
+        rounded-xl
+        border border-violet-100
+        bg-violet-50/70
+        py-3.5
+        text-sm font-bold
+        text-violet-300
+        backdrop-blur-md
+        transition-all duration-300
+        group-hover:border-violet-200
+        group-hover:bg-violet-50
+        group-hover:text-violet-400
+      "
+    >
+      <Lock className="h-4 w-4" />
+      Locked
+    </button>
+
+    {/* Micro-copy */}
+    <p className="mt-3 text-center text-[11px] text-slate-400">
+      More opportunities are on the way
+    </p>
+  </div>
+</div>
+    </div>
+ 
+    {/* Bottom Note */}
+    <div
+  className="
+    group relative mx-auto mt-14 flex max-w-3xl
+    items-center justify-center gap-4
+    overflow-hidden
+    border-y border-emerald-100
+    px-6 py-5
+    transition-all duration-500
+    hover:border-emerald-200
+  "
+>
+  {/* Animated top glow line */}
+  <span
+    className="
+      absolute left-[-20%] top-0 h-px w-[40%]
+      bg-gradient-to-r
+      from-transparent
+      via-emerald-400
+      to-transparent
+      opacity-0
+      transition-all duration-1000
+      group-hover:left-[80%]
+      group-hover:opacity-100
+    "
+  />
+
+  {/* Animated bottom glow line */}
+  <span
+    className="
+      absolute right-[-20%] bottom-0 h-px w-[40%]
+      bg-gradient-to-r
+      from-transparent
+      via-emerald-300
+      to-transparent
+      opacity-0
+      transition-all duration-1000
+      group-hover:right-[80%]
+      group-hover:opacity-100
+    "
+  />
+
+  {/* Soft ambient glow */}
+  <span
+    className="
+      pointer-events-none absolute left-1/2 top-1/2
+      h-24 w-48 -translate-x-1/2 -translate-y-1/2
+      rounded-full
+      bg-emerald-400/5
+      blur-3xl
+      opacity-0
+      transition-all duration-700
+      group-hover:scale-150
+      group-hover:opacity-100
+    "
+  />
+
+  {/* Icon */}
+  <div className="relative shrink-0">
+    {/* Pulsing glow */}
+    <span
+      className="
+        absolute inset-0
+        rounded-full
+        bg-emerald-400/20
+        blur-md
+        opacity-0
+        transition-all duration-500
+        group-hover:scale-150
+        group-hover:opacity-100
+        group-hover:animate-pulse
+      "
+    />
+
+    <Gift
+      className="
+        relative h-5 w-5
+        text-emerald-500
+        transition-all duration-500
+        group-hover:-translate-y-1
+        group-hover:rotate-[-8deg]
+        group-hover:scale-110
+      "
+    />
+  </div>
+
+  {/* Quote */}
+  <p
+    className="
+      relative text-center
+      text-sm font-medium
+      leading-relaxed
+      text-slate-600
+      transition-all duration-500
+      group-hover:-translate-y-0.5
+      sm:text-[15px]
+    "
+  >
+    Every project means{" "}
+
+    <span
+      className="
+        relative font-semibold text-slate-950
+        transition-colors duration-300
+        group-hover:text-emerald-700
+      "
+    >
+      real experience
+    </span>
+
+    , a{" "}
+
+    <span
+      className="
+        relative font-semibold text-slate-950
+        transition-colors duration-300
+        group-hover:text-emerald-700
+      "
+    >
+      real portfolio
+    </span>
+
+    , and{" "}
+
+    <span
+      className="
+        relative font-semibold text-emerald-600
+        transition-all duration-300
+        group-hover:text-emerald-500
+      "
+    >
+      real income
+    </span>
+    .
+  </p>
+
+  {/* Shimmer sweep */}
+  <span
+    className="
+      pointer-events-none absolute inset-y-0
+      left-[-100%] w-1/3
+      skew-x-[-20deg]
+      bg-gradient-to-r
+      from-transparent
+      via-white/50
+      to-transparent
+      opacity-0
+      transition-all duration-1000
+      group-hover:left-[120%]
+      group-hover:opacity-100
+    "
+  />
+</div>
+  </div>
+ 
+  {/* Booking Modal */}
+  <AnimatePresence>
+    {showBooking && (
+      <motion.div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 px-4 py-8 backdrop-blur-md"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={() => setShowBooking(false)}
+      >
+        <motion.div
+          className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-white/60 bg-white/80 shadow-[0_25px_80px_rgba(0,0,0,0.25)] backdrop-blur-2xl"
+          initial={{ opacity: 0, scale: 0.96, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96, y: 12 }}
+          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={() => setShowBooking(false)}
+            className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 transition-colors hover:bg-neutral-900/5 hover:text-neutral-900"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+ 
+          {bookingStep !== "success" ? (
+            <div className="p-7 lg:p-8">
+              <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                Weekly Skill Cohort
+              </div>
+              <h2 className="mb-1 font-display text-2xl font-bold text-neutral-900">
+                Reserve your seat
+              </h2>
+              <p className="mb-6 text-sm text-neutral-500">
+                Hands-on, offline workshop for students who want to build real,
+                industry-ready skills.
               </p>
-
-              <div className="journey-modal-info">
-                <div className="journey-modal-info-item">
-                  <span className="info-icon">📍</span>
-                  <div>
-                    <strong>Venue:</strong> WeIntern Office, City Vista, Kharadi, Pune
-                  </div>
+ 
+              {/* Info strip */}
+              <div className="mb-6 grid grid-cols-1 gap-3 rounded-xl border border-white/60 bg-white/50 p-4 backdrop-blur-md sm:grid-cols-2">
+                <div className="flex items-start gap-2 text-sm text-neutral-600">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400" />
+                  <span>City Vista, Kharadi, Pune</span>
                 </div>
-                <div className="journey-modal-info-item">
-                  <span className="info-icon">💰</span>
-                  <div>
-                    <strong>Registration Fee:</strong> ₹199 Only
-                  </div>
+                <div className="flex items-start gap-2 text-sm text-neutral-600">
+                  <Users className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400" />
+                  <span>{TOTAL_SEATS - SEATS_TAKEN} of {TOTAL_SEATS} seats left</span>
                 </div>
-                <div className="journey-modal-info-item">
-                  <span className="info-icon">👥</span>
-                  <div>
-                    <strong>Batch Size:</strong> Only 10 Seats Per Batch
-                  </div>
+                <div className="flex items-start gap-2 text-sm sm:col-span-2">
+                  <Gift className="mt-0.5 h-4 w-4 shrink-0 text-neutral-900" />
+                  <span className="text-neutral-600">
+                    <span className="mr-1.5 text-neutral-400 line-through">₹199</span>
+                    <span className="font-semibold text-neutral-900">Free for this batch</span>
+                  </span>
                 </div>
               </div>
-
-              <div className="journey-modal-section">
-                <h3>Why Join?</h3>
-                <ul className="journey-modal-benefits">
-                  <li>✅ Hands-on Practical Learning</li>
-                  <li>✅ Industry Mentorship</li>
-                  <li>✅ Certificate of Participation</li>
-                  <li>✅ Career Guidance</li>
-                  <li>✅ Networking with Students</li>
-                  <li>✅ Internship Opportunities at WeIntern</li>
-                </ul>
+ 
+              {/* Seats progress */}
+              <div className="mb-6">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200/70">
+                  <div
+                    className="h-full rounded-full bg-neutral-900"
+                    style={{ width: `${(SEATS_TAKEN / TOTAL_SEATS) * 100}%` }}
+                  />
+                </div>
               </div>
-
-              <div className="journey-modal-section">
-                <h3>Who Can Join?</h3>
-                <p>Perfect for Engineering, BCA, MCA, B.Sc., M.Sc., Diploma, MBA students, Freshers, and anyone eager to build practical skills.</p>
-              </div>
-
-              <div className="journey-modal-section">
-                <h3>Registration Process</h3>
-                <ol className="journey-modal-steps">
-                  <li>Fill out the registration form</li>
-                  <li>Complete the ₹199 payment</li>
-                  <li>Receive confirmation on WhatsApp</li>
-                  <li>Attend the workshop and start learning</li>
-                </ol>
-              </div>
-
-              <div className="journey-modal-highlight">
-                ⚡ Limited to just 10 students per batch to ensure personalized mentoring.
-              </div>
-
-              <div className="journey-modal-cta">
-                <h3>Ready to Upskill?</h3>
-                <p>Register now and reserve your seat before the batch is full.</p>
-                <button className="journey-modal-enroll-btn" onClick={handleEnrollNow}>
-                  Enroll Now →
+ 
+              <form onSubmit={handleBookingSubmit} className="space-y-4">
+                <label className="block">
+                  <span className="mb-1.5 block text-xs font-medium text-neutral-600">
+                    Full name
+                  </span>
+                  <input
+                    type="text"
+                    value={form.name}
+                    onChange={updateField("name")}
+                    placeholder="Ananya Sharma"
+                    className={`w-full rounded-lg border bg-white/70 px-3.5 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none backdrop-blur-md transition-colors focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200 ${errors.name ? "border-rose-300" : "border-neutral-200"}`}
+                  />
+                  {errors.name && <span className="mt-1 block text-xs text-rose-500">{errors.name}</span>}
+                </label>
+ 
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs font-medium text-neutral-600">Email</span>
+                    <input
+                      type="email"
+                      value={form.email}
+                      onChange={updateField("email")}
+                      placeholder="you@college.edu"
+                      className={`w-full rounded-lg border bg-white/70 px-3.5 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none backdrop-blur-md transition-colors focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200 ${errors.email ? "border-rose-300" : "border-neutral-200"}`}
+                    />
+                    {errors.email && <span className="mt-1 block text-xs text-rose-500">{errors.email}</span>}
+                  </label>
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs font-medium text-neutral-600">
+                      Phone number
+                    </span>
+                    <input
+                      type="tel"
+                      value={form.phone}
+                      onChange={updateField("phone")}
+                      placeholder="98765 43210"
+                      className={`w-full rounded-lg border bg-white/70 px-3.5 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none backdrop-blur-md transition-colors focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200 ${errors.phone ? "border-rose-300" : "border-neutral-200"}`}
+                    />
+                    {errors.phone && <span className="mt-1 block text-xs text-rose-500">{errors.phone}</span>}
+                  </label>
+                </div>
+ 
+                <label className="block">
+                  <span className="mb-1.5 block text-xs font-medium text-neutral-600">
+                    College / University
+                  </span>
+                  <input
+                    type="text"
+                    value={form.college}
+                    onChange={updateField("college")}
+                    placeholder="e.g. COEP Technological University"
+                    className={`w-full rounded-lg border bg-white/70 px-3.5 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none backdrop-blur-md transition-colors focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200 ${errors.college ? "border-rose-300" : "border-neutral-200"}`}
+                  />
+                  {errors.college && <span className="mt-1 block text-xs text-rose-500">{errors.college}</span>}
+                </label>
+ 
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <label className="block">
+                    <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-neutral-600">
+                      <Layers className="h-3.5 w-3.5 text-neutral-400" />
+                      Choose your domain
+                    </span>
+                    <select
+                      value={form.domain}
+                      onChange={updateField("domain")}
+                      className={`w-full appearance-none rounded-lg border bg-white/70 px-3.5 py-2.5 text-sm text-neutral-900 outline-none backdrop-blur-md transition-colors focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200 ${errors.domain ? "border-rose-300" : "border-neutral-200"}`}
+                    >
+                      <option value="" disabled>
+                        Select a domain
+                      </option>
+                      {DOMAINS.map((d) => (
+                        <option key={d} value={d}>
+                          {d}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.domain && <span className="mt-1 block text-xs text-rose-500">{errors.domain}</span>}
+                  </label>
+ 
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs font-medium text-neutral-600">
+                      Year of study (optional)
+                    </span>
+                    <select
+                      value={form.year}
+                      onChange={updateField("year")}
+                      className="w-full appearance-none rounded-lg border border-neutral-200 bg-white/70 px-3.5 py-2.5 text-sm text-neutral-900 outline-none backdrop-blur-md transition-colors focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                    >
+                      <option value="">Select year</option>
+                      <option value="1st Year">1st Year</option>
+                      <option value="2nd Year">2nd Year</option>
+                      <option value="3rd Year">3rd Year</option>
+                      <option value="Final Year">Final Year</option>
+                      <option value="Graduate">Graduate</option>
+                    </select>
+                  </label>
+                </div>
+ 
+                <div>
+                  <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-neutral-600">
+                    <Calendar className="h-3.5 w-3.5 text-neutral-400" />
+                    Preferred day
+                  </span>
+                  <div className="grid grid-cols-2 gap-3">
+                    {["Saturday", "Sunday"].map((d) => (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => setDay(d)}
+                        className={`rounded-lg border px-4 py-2.5 text-sm font-medium backdrop-blur-md transition-all ${
+                          form.day === d
+                            ? "border-neutral-900 bg-neutral-900 text-white shadow-sm"
+                            : "border-neutral-200 bg-white/70 text-neutral-600 hover:border-neutral-300"
+                        }`}
+                      >
+                        {d}
+                      </button>
+                    ))}
+                  </div>
+                  {errors.day && <span className="mt-1 block text-xs text-rose-500">{errors.day}</span>}
+                  <p className="mt-1.5 text-xs text-neutral-400">
+                    Sessions run weekends only — pick the day that works for you.
+                  </p>
+                </div>
+ 
+                <button
+                  type="submit"
+                  disabled={bookingStep === "submitting"}
+                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-black disabled:opacity-70"
+                >
+                  {bookingStep === "submitting" ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Reserving your seat…
+                    </>
+                  ) : (
+                    <>
+                      Reserve my free seat
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
                 </button>
-              </div>
+                <p className="text-center text-xs text-neutral-400">
+                  No payment required. We'll confirm your seat on WhatsApp.
+                </p>
+              </form>
             </div>
-          </div>
-        </div>
-      )}
-    </section>
+          ) : (
+            <div className="flex flex-col items-center px-8 py-14 text-center">
+              <motion.div
+                initial={{ scale: 0.6, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-white/60 bg-white/70 backdrop-blur-md"
+              >
+                <CheckCircle2 className="h-7 w-7 text-neutral-900" />
+              </motion.div>
+              <h2 className="mb-2 font-display text-2xl font-bold text-neutral-900">
+                You're in, {form.name.split(" ")[0]}!
+              </h2>
+              <p className="mb-6 max-w-sm text-sm leading-relaxed text-neutral-500">
+                Your seat for the WeIntern Weekly Skill Cohort is reserved. We've
+                sent the workshop details and WhatsApp group link to{" "}
+                <span className="font-medium text-neutral-700">{form.email}</span>.
+              </p>
+              <div className="mb-6 w-full rounded-xl border border-white/60 bg-white/50 p-4 text-left text-sm text-neutral-600 backdrop-blur-md">
+                <div className="flex justify-between border-b border-neutral-200/70 py-1.5">
+                  <span>Domain</span>
+                  <span className="font-medium text-neutral-800">{form.domain}</span>
+                </div>
+                <div className="flex justify-between border-b border-neutral-200/70 py-1.5">
+                  <span>Day</span>
+                  <span className="font-medium text-neutral-800">{form.day}</span>
+                </div>
+                <div className="flex justify-between border-b border-neutral-200/70 py-1.5">
+                  <span>Venue</span>
+                  <span className="font-medium text-neutral-800">City Vista, Kharadi, Pune</span>
+                </div>
+                <div className="flex justify-between py-1.5">
+                  <span>Fee</span>
+                  <span className="font-medium text-neutral-900">Free</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowBooking(false)}
+                className="w-full rounded-lg bg-neutral-900 py-3 text-sm font-semibold text-white transition-colors hover:bg-black"
+              >
+                Done
+              </button>
+            </div>
+          )}
+        </motion.div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+</section>
+   </>
   );
 };

@@ -5,6 +5,8 @@ const Application = require('../models/Application');
 const { Enrollment, HireRequest } = require('../models/Enrollment');
 const User = require('../models/User');
 const { UserActivity, UserProgress } = require('../models/UserActivity');
+const CohortApplication = require('../models/CohortApplication');
+
 
 // All admin routes require auth + admin role
 router.use(protect, adminOnly);
@@ -112,6 +114,57 @@ router.get('/applications', async (req, res) => {
     res.json({ success: true, data: applications, total, pages: Math.ceil(total / limit) });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Get all cohort applications
+router.get('/cohort-applications', async (req, res) => {
+  try {
+    const {
+      status,
+      page = 1,
+      limit = 20,
+      search,
+    } = req.query;
+
+    const query = {};
+
+    // Filter by status
+    if (status && status !== 'all') {
+      query.status = status;
+    }
+
+    // Search
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { college: { $regex: search, $options: 'i' } },
+        { domain: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const total = await CohortApplication.countDocuments(query);
+
+    const applications = await CohortApplication.find(query)
+      .populate('user', 'name email phone role')
+      .sort('-createdAt')
+      .skip((page - 1) * limit)
+      .limit(Number(limit));
+
+    res.json({
+      success: true,
+      data: applications,
+      total,
+      pages: Math.ceil(total / limit),
+    });
+  } catch (err) {
+    console.error('Get cohort applications error:', err);
+
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 });
 
