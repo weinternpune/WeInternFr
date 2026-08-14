@@ -6,9 +6,9 @@ import { enrollCourse } from "../../utils/api";
 import API from "../../utils/api";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import CourseDetailModal from "./CourseDetail";
 import PhoneGate from "../PhoneGate/PhoneGate";
 import { Icon } from "@iconify/react";
+import { slugify, getTechIcon } from "../../data/courseExtras";
 import "./Courses.css";
 
 /* ─── Razorpay loader (original, untouched) ─── */
@@ -25,28 +25,28 @@ const loadRazorpaySDK = () =>
 /* ─── Header gradients ─── */
 const HEADER_GRADIENTS = {
   green:  "linear-gradient(135deg, #4ade80 0%, #bbf7d0 50%, #ffffff 100%)",
-  blue:   "linear-gradient(135deg, #60a5fa 0%, #bfdbfe 50%, #ffffff 100%)",
-  purple: "linear-gradient(135deg, #a78bfa 0%, #ddd6fe 50%, #ffffff 100%)",
+  blue:   "linear-gradient(135deg, #ffd23f 0%, #bfdbfe 50%, #ffffff 100%)",
+  purple: "linear-gradient(135deg, #ffd23f 0%, #ddd6fe 50%, #ffffff 100%)",
   amber:  "linear-gradient(135deg, #fbbf24 0%, #fde68a 50%, #ffffff 100%)",
   teal:   "linear-gradient(135deg, #2dd4bf 0%, #99f6e4 50%, #ffffff 100%)",
   pink:   "linear-gradient(135deg, #f472b6 0%, #fbcfe8 50%, #ffffff 100%)",
   rose:   "linear-gradient(135deg, #fb7185 0%, #fecdd3 50%, #ffffff 100%)",
-  sky:    "linear-gradient(135deg, #38bdf8 0%, #bae6fd 50%, #ffffff 100%)",
+  sky:    "linear-gradient(135deg, #ffd23f 0%, #ffd23f 50%, #ffffff 100%)",
   slate:  "linear-gradient(135deg, #94a3b8 0%, #e2e8f0 50%, #ffffff 100%)",
 };
 
 const COURSE_META = [
   { keys: ["web","full stack","fullstack","mern"],   icon: "lucide:code-2",             bg: HEADER_GRADIENTS.green,  iconColor: "#16a34a", border: "#bbf7d0", dot: "#16a34a",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#fff7ed", badgeText: "#ea580c" },
-  { keys: ["app","mobile","flutter","android"],       icon: "lucide:smartphone",         bg: HEADER_GRADIENTS.blue,   iconColor: "#2563eb", border: "#bfdbfe", dot: "#2563eb",  badge: "Trending",   badgeIcon: "lucide:trending-up", badgeColor: "#eff6ff", badgeText: "#2563eb" },
+  { keys: ["app","mobile","flutter","android"],       icon: "lucide:smartphone",         bg: HEADER_GRADIENTS.blue,   iconColor: "#ffd23f", border: "#bfdbfe", dot: "#ffd23f",  badge: "Trending",   badgeIcon: "lucide:trending-up", badgeColor: "#eff6ff", badgeText: "#ffd23f" },
   { keys: ["ai","machine","deep learning","nlp","automation"], icon: "lucide:brain-circuit", bg: HEADER_GRADIENTS.purple, iconColor: "#7c3aed", border: "#ddd6fe", dot: "#7c3aed", badge: "New",       badgeIcon: "lucide:sparkles", badgeColor: "#faf5ff", badgeText: "#7c3aed" },
   { keys: ["data","sql","analytics"],                 icon: "lucide:database",           bg: HEADER_GRADIENTS.amber,  iconColor: "#d97706", border: "#fde68a", dot: "#d97706",  badge: "In Demand",  badgeIcon: "lucide:zap",      badgeColor: "#fffbeb", badgeText: "#d97706" },
   { keys: ["python"],                                 icon: "lucide:code",               bg: HEADER_GRADIENTS.purple, iconColor: "#7c3aed", border: "#ddd6fe", dot: "#7c3aed",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#faf5ff", badgeText: "#7c3aed" },
   { keys: ["java"],                                   icon: "lucide:coffee",             bg: HEADER_GRADIENTS.green,  iconColor: "#16a34a", border: "#bbf7d0", dot: "#16a34a",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#fff7ed", badgeText: "#ea580c" },
-  { keys: ["c++","cpp","c/c++"],                      icon: "lucide:terminal",           bg: HEADER_GRADIENTS.sky,    iconColor: "#0ea5e9", border: "#bae6fd", dot: "#0ea5e9",  badge: "In Demand",  badgeIcon: "lucide:zap",      badgeColor: "#f0f9ff", badgeText: "#0ea5e9" },
+  { keys: ["c++","cpp","c/c++"],                      icon: "lucide:terminal",           bg: HEADER_GRADIENTS.sky,    iconColor: "#ffd23f", border: "#ffd23f", dot: "#ffd23f",  badge: "In Demand",  badgeIcon: "lucide:zap",      badgeColor: "#f0f9ff", badgeText: "#ffd23f" },
   { keys: ["marketing","seo","digital"],              icon: "lucide:megaphone",          bg: HEADER_GRADIENTS.teal,   iconColor: "#0d9488", border: "#99f6e4", dot: "#0d9488",  badge: "Trending",   badgeIcon: "lucide:trending-up", badgeColor: "#f0fdfa", badgeText: "#0d9488" },
   { keys: ["ui","ux","design","figma"],               icon: "lucide:pencil-ruler",       bg: HEADER_GRADIENTS.pink,   iconColor: "#ec4899", border: "#fbcfe8", dot: "#ec4899",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#fdf2f8", badgeText: "#ec4899" },
   { keys: ["video","editing","content","premiere"],   icon: "lucide:clapperboard",       bg: HEADER_GRADIENTS.rose,   iconColor: "#e11d48", border: "#fecdd3", dot: "#e11d48",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#fff1f2", badgeText: "#e11d48" },
-  { keys: ["cloud"],                                  icon: "lucide:cloud",              bg: HEADER_GRADIENTS.sky,    iconColor: "#0ea5e9", border: "#bae6fd", dot: "#0ea5e9",  badge: "In Demand",  badgeIcon: "lucide:zap",      badgeColor: "#f0f9ff", badgeText: "#0ea5e9" },
+  { keys: ["cloud"],                                  icon: "lucide:cloud",              bg: HEADER_GRADIENTS.sky,    iconColor: "#ffd23f", border: "#ffd23f", dot: "#ffd23f",  badge: "In Demand",  badgeIcon: "lucide:zap",      badgeColor: "#f0f9ff", badgeText: "#ffd23f" },
   { keys: ["devops","docker","kubernetes"],           icon: "lucide:settings-2",         bg: HEADER_GRADIENTS.slate,  iconColor: "#475569", border: "#e2e8f0", dot: "#475569",  badge: "In Demand",  badgeIcon: "lucide:zap",      badgeColor: "#f8fafc", badgeText: "#475569" },
   { keys: ["game","unity"],                           icon: "lucide:gamepad-2",          bg: HEADER_GRADIENTS.purple, iconColor: "#7c3aed", border: "#ddd6fe", dot: "#7c3aed",  badge: "New",        badgeIcon: "lucide:sparkles", badgeColor: "#faf5ff", badgeText: "#7c3aed" },
   { keys: ["business","analytics","excel","power bi"],icon: "lucide:briefcase-business", bg: HEADER_GRADIENTS.green,  iconColor: "#16a34a", border: "#bbf7d0", dot: "#16a34a",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#fff7ed", badgeText: "#ea580c" },
@@ -56,9 +56,9 @@ const getCourseMeta = (title = "") => {
   const t = title.toLowerCase();
   return (
     COURSE_META.find(({ keys }) => keys.some((k) => t.includes(k))) || {
-      icon: "lucide:laptop", bg: HEADER_GRADIENTS.sky, iconColor: "#1a91c9",
-      border: "#bfdfef", dot: "#1a91c9", badge: "In Demand",
-      badgeIcon: "lucide:zap", badgeColor: "#f0f9ff", badgeText: "#0ea5e9",
+      icon: "lucide:laptop", bg: HEADER_GRADIENTS.sky, iconColor: "#E8A820",
+      border: "#bfdfef", dot: "#E8A820", badge: "In Demand",
+      badgeIcon: "lucide:zap", badgeColor: "#f0f9ff", badgeText: "#ffd23f",
     }
   );
 };
@@ -97,7 +97,7 @@ const BENEFITS = [
 /* ══════════════════════════════════════════════════════════════
    EnrollModal  —  with offer system
 ══════════════════════════════════════════════════════════════ */
-const EnrollModal = ({ course, onClose }) => {
+export const EnrollModal = ({ course, onClose }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -445,7 +445,6 @@ const EnrollModal = ({ course, onClose }) => {
    Main Courses Component
 ══════════════════════════════════════════════════════════════ */
 const Courses = () => {
-  const [detailCourse, setDetailCourse] = useState(null);
   const [enrollCourseData, setEnrollCourseData] = useState(null);
   const [activeTab, setActiveTab] = useState("Technology");
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -478,7 +477,6 @@ const Courses = () => {
       } else {
         // User is logged in, proceed with enrollment
         console.log('✅ User logged in - proceeding with enrollment');
-        setDetailCourse(null);
         setEnrollCourseData(pendingCourse);
       }
       setPendingCourse(null);
@@ -499,7 +497,6 @@ const Courses = () => {
     
     // User is logged in - proceed directly with enrollment
     console.log('✅ User logged in - proceeding with enrollment');
-    setDetailCourse(null);
     setEnrollCourseData(course);
   };
 
@@ -677,7 +674,7 @@ const Courses = () => {
                   key={c.id || c.title}
                   className="cs-card"
                   style={{ "--crd-border": meta.border, "--enroll-color": meta.iconColor }}
-                  onClick={() => setDetailCourse(c)}
+                  onClick={() => navigate(`/courses/${slugify(c.title)}`)}
                 >
                   {/* Gradient icon zone */}
                   <div className="cs-card-icon-zone" style={{ background: meta.bg }}>
@@ -704,6 +701,15 @@ const Courses = () => {
                     {/* Icon box */}
                     <div className="cs-card-icon-wrap" style={{ color: meta.iconColor }}>
                       <Icon icon={meta.icon} width={26} height={26} strokeWidth={1.8} />
+                    </div>
+
+                    {/* Colorful tech icon row, like the reference design */}
+                    <div className="cs-tech-row">
+                      {tools.slice(0, 4).map((t) => (
+                        <span className="cs-tech-badge" key={t} title={t}>
+                          <Icon icon={getTechIcon(t)} width={16} height={16} />
+                        </span>
+                      ))}
                     </div>
                   </div>
 
@@ -741,6 +747,14 @@ const Courses = () => {
                   >
                     Enroll Now
                     <Icon icon="lucide:arrow-right" width={12} height={12} className="cs-enroll-arrow" />
+                  </button>
+
+                  {/* Join Now link, matching the reference design */}
+                  <button
+                    className="cs-join-now"
+                    onClick={(e) => { e.stopPropagation(); navigate(`/courses/${slugify(c.title)}`); }}
+                  >
+                    Join Now <Icon icon="lucide:arrow-right" width={13} height={13} />
                   </button>
 
                   {/* Rating row */}
@@ -802,13 +816,6 @@ const Courses = () => {
       </div>
 
       {/* ── Modals — all original logic intact ── */}
-      {detailCourse && (
-        <CourseDetailModal
-          course={detailCourse}
-          onClose={() => setDetailCourse(null)}
-          onEnroll={() => handleEnroll(detailCourse)}
-        />
-      )}
       {enrollCourseData && (
         <EnrollModal
           course={enrollCourseData}

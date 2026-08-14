@@ -17,6 +17,9 @@ import Dashboard from './components/Dashboard/Dashboard';
 import Admin from './components/Admin/Admin';
 import MentorDashboard from './components/Mentor/MentorDashboard';
 import './components/Mentor/MentorDashboard.css';
+import CoursePage from './pages/CoursePage';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
 
 // Global styles
 import './styles/global.css';
@@ -75,6 +78,11 @@ function AppRoutes() {
       {/* Public with layout */}
       <Route path="/" element={<WithLayout><Home /></WithLayout>} />
       
+      {/* Course detail page - standalone, opens in a new tab */}
+      <Route path="/courses/:slug" element={<CoursePage />} />
+      <Route path="/blog" element={<Blog />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
+
       {/* About Us - standalone page without footer */}
       <Route path="/about" element={<AboutUs />} />
 

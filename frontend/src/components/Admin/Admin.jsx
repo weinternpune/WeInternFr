@@ -25,6 +25,9 @@ import {
   getAdminMentors,
   createMentorAccount,
   assignStudentToMentor,
+  getAdminBlogPosts,
+  createBlogPost,
+  deleteBlogPost,
 } from "../../utils/api";
 import API from "../../utils/api";
 import toast from "react-hot-toast";
@@ -62,6 +65,7 @@ const ADMIN_TABS = [
   { id: "users", icon: <FaUsers />, label: "Users" },
   { id: "courses", icon: <FaGraduationCap />, label: "Courses" },
   { id: "projects", icon: <FaRocket />, label: "Projects" },
+  { id: "blog", icon: <FaFileAlt />, label: "Blog" },
   { id: "admins", icon: <FaUserShield />, label: "Admins" },
   { id: "mentors", icon: <FaUsers />, label: "Mentors" },
 ];
@@ -217,6 +221,7 @@ const Admin = () => {
           {tab === "hire" && <AdminHireRequests />}
           {tab === "users" && <AdminUsers />}
           {tab === "courses" && <AdminCourses />}
+          {tab === "blog" && <AdminBlog />}
           {tab === "projects" && <AdminProjects />}
           {tab === "admins" && <AdminsTab />}
           {tab === "mentors" && <MentorManagement />}
@@ -236,6 +241,7 @@ const AdminOverview = () => {
     lastUpdated,
   } = useAdmin();
 
+
   useEffect(() => {
     if (!statsData) {
       loadStats();
@@ -250,14 +256,13 @@ const AdminOverview = () => {
     );
 
   const {
-  stats,
-  monthlyData = [],
-  weeklyUsers = [],
-  courseData = [],
-  recentApplications = [],
-  recentEnrollments = []
-} = statsData;
-
+    stats,
+    monthlyData = [],
+    weeklyUsers = [],
+    courseData = [],
+    recentApplications = [],
+    recentEnrollments = []
+  } = statsData;
   const statusData = [
   {
     name: "Accepted",
@@ -313,6 +318,7 @@ const AdminOverview = () => {
     return null;
   };
 
+ 
   return (
     <div className="analytics-wrapper">
       <div className="overview-welcome">
@@ -4414,3 +4420,173 @@ const MentorManagement = () => {
 };
 
 export default Admin;
+const AdminBlog = () => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState({ title: "", excerpt: "", content: "", coverImageUrl: "", tags: "" });
+  const [saving, setSaving] = useState(false);
+
+  const loadPosts = async () => {
+    setLoading(true);
+    try {
+      const res = await getAdminBlogPosts();
+      setPosts(res.data?.data || []);
+    } catch (err) {
+      toast.error("Failed to load blog posts");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { loadPosts(); }, []);
+
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.title || !form.excerpt || !form.content) {
+      toast.error("Title, excerpt, and content are required");
+      return;
+    }
+    setSaving(true);
+    try {
+      await createBlogPost(form);
+      toast.success("Blog post published!");
+      setShowModal(false);
+      setForm({ title: "", excerpt: "", content: "", coverImageUrl: "", tags: "" });
+      loadPosts();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to publish post");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this post? This cannot be undone.")) return;
+    try {
+      await deleteBlogPost(id);
+      toast.success("Post deleted");
+      loadPosts();
+    } catch (err) {
+      toast.error("Failed to delete post");
+    }
+  };
+
+  return (
+    <div>
+      <div className="tab-header">
+        <div>
+          <h2>Blog Management</h2>
+          <p style={{ color: "var(--muted)", fontSize: ".85rem" }}>
+            Published posts appear on the public Blog page, newest first. All posts stay listed here as your blog history.
+          </p>
+        </div>
+        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+          + New Post
+        </button>
+      </div>
+
+      {loading ? (
+        <p style={{ color: "var(--muted)" }}>Loading…</p>
+      ) : posts.length === 0 ? (
+        <p style={{ color: "var(--muted)" }}>No blog posts yet. Click "New Post" to publish your first one.</p>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {posts.map((p) => (
+            <div
+              key={p._id}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                background: "#fff", border: "1px solid var(--border)", borderRadius: "12px",
+                padding: "14px 18px",
+              }}
+            >
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: ".95rem", marginBottom: "3px" }}>{p.title}</div>
+                <div style={{ fontSize: ".78rem", color: "var(--muted)" }}>
+                  {new Date(p.createdAt).toLocaleDateString()} · {p.author?.name || "WeIntern Team"}
+                  {!p.published && <span style={{ color: "#dc2626", fontWeight: 700 }}> · Unpublished</span>}
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
+                <a
+                  href={`/blog/${p.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-outline"
+                  style={{ fontSize: ".78rem", padding: ".4rem .8rem" }}
+                >
+                  View
+                </a>
+                <button
+                  className="btn btn-outline"
+                  style={{ fontSize: ".78rem", padding: ".4rem .8rem", color: "#dc2626", borderColor: "#dc2626" }}
+                  onClick={() => handleDelete(p._id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "640px" }}>
+            <h3 style={{ marginBottom: "1rem" }}>New Blog Post</h3>
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <div className="form-group">
+                <label>Title *</label>
+                <input
+                  type="text" value={form.title}
+                  onChange={(e) => set("title", e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Excerpt * (shown on the blog listing card)</label>
+                <textarea
+                  value={form.excerpt}
+                  onChange={(e) => set("excerpt", e.target.value)}
+                  rows={2}
+                />
+              </div>
+              <div className="form-group">
+                <label>Content * (each blank line becomes a new paragraph)</label>
+                <textarea
+                  value={form.content}
+                  onChange={(e) => set("content", e.target.value)}
+                  rows={8}
+                />
+              </div>
+              <div className="form-group">
+                <label>Cover image URL (optional)</label>
+                <input
+                  type="text" value={form.coverImageUrl}
+                  onChange={(e) => set("coverImageUrl", e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Tags, comma separated (optional)</label>
+                <input
+                  type="text" value={form.tags}
+                  onChange={(e) => set("tags", e.target.value)}
+                />
+              </div>
+              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "6px" }}>
+                <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={saving}>
+                  {saving ? "Publishing…" : "Publish Post"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

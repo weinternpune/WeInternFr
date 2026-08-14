@@ -69,7 +69,6 @@ export const updateHireRequest = (id, data) => API.patch(`/admin/hire-requests/$
 export const getAdminUsers = (params) => API.get('/admin/users', { params });
 export const getUserActivity = (userId) => API.get(`/admin/users/${userId}/activity`);
 
-
 // Mentor
 export const getMentorDashboard = () => API.get('/mentor/dashboard');
 export const getMentorStudents = () => API.get('/mentor/students');
@@ -107,3 +106,14 @@ export const getStudentMentorAttendance = () => API.get('/mentor/student/attenda
 export const getStudentMentorNotifications = () => API.get('/mentor/student/notifications');
 export const getStudentMentorMessages = () => API.get('/mentor/student/messages');
 export const sendStudentMentorMessage = (data) => API.post('/mentor/student/messages', data);
+
+// Blog
+export const getBlogPosts = () => API.get('/blog');
+export const getBlogPost = (slug) => API.get(`/blog/${slug}`);
+export const getAdminBlogPosts = () => API.get('/blog/admin/all');
+export const createBlogPost = (data) => API.post('/blog', data);
+export const updateBlogPost = (id, data) => API.put(`/blog/${id}`, data);
+export const deleteBlogPost = (id) => API.delete(`/blog/${id}`);
+
+// Cohort Application
+export const submitCohortApplication = (data) => API.post('/applications/cohort', data);

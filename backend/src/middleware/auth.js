@@ -4,41 +4,41 @@ const User = require('../models/User');
 const protect = async (req, res, next) => {
   try {
     console.log("========== PROTECT ==========");
-    console.log("Authorization Header:", req.headers.authorization);
 
     const token = req.headers.authorization?.split(" ")[1];
 
-    console.log("Extracted Token:", token);
-
     if (!token) {
       console.log("❌ No token received");
-      return res.status(401).json({ success: false, message: "Not authorized" });
+      return res.status(401).json({
+        success: false,
+        message: "Not authorized"
+      });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    console.log("Decoded JWT:", decoded);
 
     const user = await User.findById(decoded.id).select(
       "-password -otp -resetPasswordToken"
     );
 
-    console.log("User Found:", user);
-
     if (!user) {
       console.log("❌ User not found");
-      return res.status(401).json({ success: false, message: "User not found" });
+      return res.status(401).json({
+        success: false,
+        message: "User not found"
+      });
     }
 
     req.user = user;
 
-    console.log("✅ Protect Passed");
-    console.log("============================");
-
     next();
   } catch (err) {
-    console.log("❌ Protect Error:", err);
-    res.status(401).json({ success: false, message: "Invalid token" });
+    console.error("❌ Auth error:", err.message);
+
+    return res.status(401).json({
+      success: false,
+      message: "Invalid token"
+    });
   }
 };
 
@@ -79,8 +79,12 @@ const optionalProtect = async (req, res, next) => {
 
 const adminOnly = (req, res, next) => {
   if (req.user?.role !== 'admin') {
-    return res.status(403).json({ success: false, message: 'Admin access required' });
+    return res.status(403).json({
+      success: false,
+      message: 'Admin access required'
+    });
   }
+
   next();
 };
 
@@ -98,4 +102,14 @@ const mentorOrAdmin = (req, res, next) => {
   next();
 };
 
-module.exports = { protect, optionalProtect, adminOnly, mentorOnly, mentorOrAdmin };
+const studentOnly = (req, res, next) => {
+  if (req.user?.role !== 'student') {
+    return res.status(403).json({
+      success: false,
+      message: 'Only students can submit cohort applications.',
+    });
+  }
+  next();
+};
+
+module.exports = { protect, optionalProtect, adminOnly, mentorOnly, mentorOrAdmin, studentOnly };

@@ -83,7 +83,7 @@
 }
 
 .cs-tab:hover {
-  border-color: #c4b5fd;
+  border-color: #ffd23f;
   color: #6d28d9;
 }
 
@@ -544,7 +544,7 @@
 }
 
 .cs-benefit:hover .cs-benefit-ico {
-  color: #2563eb;
+  color: #ffd23f;
   transform: scale(1.12);
 }
 
@@ -1408,3 +1408,46 @@
   border-top: 1px solid var(--border); margin-top: .25rem;
 }
 .cps-total strong { color: var(--gold); font-size: 1rem; }
+
+/* ── Popular-programs style redesign: colorful icon zones,
+   cycling card accent colors, tech-icon row, Join Now link ── */
+.cs-tech-row {
+  position: absolute;
+  bottom: 10px;
+  left: 14px;
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+.cs-tech-badge {
+  width: 30px; height: 30px; border-radius: 9px;
+  background: rgba(255,255,255,0.92);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+  color: #14192e;
+}
+
+.cs-join-now {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+  padding: 0 1.1rem .9rem;
+  font-size: .82rem; font-weight: 700;
+  color: #E8A820;
+  transition: gap .15s ease, opacity .15s ease;
+}
+.cs-join-now:hover { gap: 9px; opacity: .85; }
+
+/* Cycle icon-zone background: navy / soft blue-gray / gold / navy ... */
+.cs-card:nth-child(4n+2) .cs-card-icon-zone {
+  background: linear-gradient(150deg, #7d97ad, #4b6478) !important;
+}
+.cs-card:nth-child(4n+3) .cs-card-icon-zone {
+  background: linear-gradient(150deg, #ffd23f, #E8A820) !important;
+}
+.cs-card:nth-child(4n+3) .cs-card-badge { background: rgba(20,25,46,0.16) !important; color: #14192e !important; }
+.cs-card:nth-child(4n+3) .cs-card-icon-wrap { color: #14192e !important; }
+.cs-card:nth-child(4n+3) .cs-join-now { color: #14192e; }
+.cs-card:nth-child(4n+1) .cs-card-icon-zone,
+.cs-card:nth-child(4n) .cs-card-icon-zone {
+  background: linear-gradient(150deg, #1c2444, #0e1428) !important;
+}

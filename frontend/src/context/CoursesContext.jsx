@@ -7,7 +7,7 @@ const DEFAULT_COURSES = [
   { id:1, icon:'mdi:web', title:'Full Stack Web Development', desc:'Build production-grade websites from scratch. HTML to React, Node.js to deployment — 4 real client projects included.', duration:'12 Weeks', level:'beginner', tools:['HTML/CSS','JavaScript','React','Node.js','MongoDB'], price:7999, originalPrice:9999, colors:{h1:'#e76f51',h2:'#f4a261'}, status:'active' },
   { id:2, icon:'mdi:cellphone', title:'Mobile App Development', desc:'Design and ship cross-platform apps. Learn Flutter and build apps that go live on the Play Store and App Store.', duration:'10 Weeks', level:'intermediate', tools:['Flutter','Dart','Firebase','REST APIs','Android/iOS'], price:12999, originalPrice:15999, colors:{h1:'#2a9d8f',h2:'#264653'}, status:'active' },
   { id:3, icon:'mdi:robot-outline', title:'AI & Automation', desc:'Master AI tools, LLMs, and workflow automation. Build chatbots, AI pipelines, and smart automations for real businesses.', duration:'8 Weeks', level:'intermediate', tools:['Python','OpenAI API','LangChain','n8n','Make'], price:7999, originalPrice:9999, colors:{h1:'#6c3483',h2:'#a569bd'}, status:'active' },
-  { id:4, icon:'mdi:cloud-cog-outline', title:'Cloud Solutions & DevOps', desc:'Learn cloud infrastructure, containerization, CI/CD pipelines, and deploy scalable systems.', duration:'10 Weeks', level:'intermediate', tools:['AWS','Docker','Kubernetes','CI/CD','Linux'], price:12999, originalPrice:15999, colors:{h1:'#1a6b8a',h2:'#2196f3'}, status:'active' },
+  { id:4, icon:'mdi:cloud-cog-outline', title:'Cloud Solutions & DevOps', desc:'Learn cloud infrastructure, containerization, CI/CD pipelines, and deploy scalable systems.', duration:'10 Weeks', level:'intermediate', tools:['AWS','Docker','Kubernetes','CI/CD','Linux'], price:12999, originalPrice:15999, colors:{h1:'#E8A820',h2:'#ffd23f'}, status:'active' },
   { id:5, icon:'mdi:palette-outline', title:'UI/UX Design', desc:'From wireframes to pixel-perfect interfaces. Learn design thinking, user research, and prototyping.', duration:'8 Weeks', level:'beginner', tools:['Figma','Adobe XD','Prototyping','User Research','Design Systems'], price:3999, colors:{h1:'#c0392b',h2:'#e74c3c'}, status:'active' },
   { id:6, icon:'mdi:bullhorn-outline', title:'Digital Marketing', desc:'Master SEO, social media, paid ads, email campaigns, and content strategy. Run real campaigns.', duration:'6 Weeks', level:'beginner', tools:['Google Ads','Meta Ads','SEO','Canva','Analytics'], price:2999, colors:{h1:'#e67e22',h2:'#f39c12'}, status:'active' },
   { id:7, icon:'mdi:chart-bar', title:'Data Science & Analytics', desc:'Turn raw data into business decisions. Data cleaning, visualization, machine learning, and pipelines.', duration:'12 Weeks', level:'intermediate', tools:['Python','Pandas','Scikit-learn','Tableau','SQL'], price:7999, originalPrice:9999, colors:{h1:'#1e8449',h2:'#27ae60'}, status:'active' },
@@ -33,7 +33,7 @@ const DEFAULT_COURSES = [
   level:'intermediate',
   tools:['AWS','Azure','Docker','Linux','Cloud Deployment'],
   price:6499,
-  colors:{h1:'#0369a1',h2:'#0ea5e9'},
+  colors:{h1:'#E8A820',h2:'#ffd23f'},
   status:'active'
 },
 
@@ -87,7 +87,7 @@ const DEFAULT_COURSES = [
   tools:['C Basics','C++ OOP','Data Structures','Algorithms','Memory Management'],
   price:3999,
   originalPrice:5999,
-  colors:{h1:'#0369a1',h2:'#0ea5e9'},
+  colors:{h1:'#E8A820',h2:'#ffd23f'},
   status:'active'
 },
 ];
@@ -182,9 +182,9 @@ const [courses, setCourses] = useState(() => {
 
   const COLOR_PRESETS = [
     {h1:'#e76f51',h2:'#f4a261'},{h1:'#2a9d8f',h2:'#264653'},
-    {h1:'#6c3483',h2:'#a569bd'},{h1:'#1a6b8a',h2:'#2196f3'},
+    {h1:'#6c3483',h2:'#a569bd'},{h1:'#E8A820',h2:'#ffd23f'},
     {h1:'#c0392b',h2:'#e74c3c'},{h1:'#e67e22',h2:'#f39c12'},
-    {h1:'#1e8449',h2:'#27ae60'},{h1:'#2c3e50',h2:'#3498db'},
+    {h1:'#1e8449',h2:'#27ae60'},{h1:'#2c3e50',h2:'#ffd23f'},
   ];
 
   const addCourse = (form, colorIdx = 0) => {

@@ -1,13 +1,13 @@
 .nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-  background: rgba(10,22,40,0.85);
+  background: rgba(90,94,105,0.35);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255,255,255,0.08);
   transition: all .3s;
 }
 .nav.scrolled {
-  background: rgba(10,22,40,0.97);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  background: rgba(55,58,66,0.82);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
   border-bottom: 1px solid rgba(255,255,255,0.12);
 }
 .nav::after {
@@ -209,4 +209,54 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ── Internships simple dropdown ─────────────────────── */
+.internships-dropdown {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 460px;
+  max-width: 90vw;
+  background: rgba(30,32,38,0.98);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  padding: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  z-index: 1100;
+}
+.internships-col-head {
+  display: flex; align-items: center; gap: 7px;
+  color: #E8A820; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+.internships-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  width: 100%; text-align: left;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+.internships-item:hover { background: rgba(232,168,32,0.1); border-color: rgba(232,168,32,0.3); }
+.internships-item-icon {
+  width: 26px; height: 26px; flex-shrink: 0; border-radius: 7px;
+  background: rgba(255,255,255,0.06);
+  color: #E8A820;
+  display: flex; align-items: center; justify-content: center;
+}
+.internships-item-label { display: block; font-size: 13px; font-weight: 600; color: #fff; }
+.internships-item-desc { display: block; font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 2px; line-height: 1.4; }
+
+@media (max-width: 960px) {
+  .internships-dropdown { display: none; }
 }
