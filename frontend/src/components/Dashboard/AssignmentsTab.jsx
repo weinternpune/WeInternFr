@@ -397,7 +397,7 @@ const AssignmentsTab = () => {
 
                       <strong>
                         {assignment.mentor?.name ||
-                          'Demo Mentor'}
+                          'Assigned Mentor'}
                       </strong>
 
                     </div>
@@ -552,7 +552,7 @@ const AssignmentsTab = () => {
 
                   <strong>
                     {selectedAssignment.mentor?.name ||
-                      'Demo Mentor'}
+                      'Assigned Mentor'}
                   </strong>
                 </div>
 

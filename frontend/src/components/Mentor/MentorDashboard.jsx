@@ -291,8 +291,18 @@ function MentorDashboard() {
     return students.filter(s => [s.name, s.email, s.batch, s.course, s.status].join(' ').toLowerCase().includes(q));
   }, [students, search]);
 
-  const activeMentor = allMentors.find(m => m._id === selectedMentorId) || data?.mentor || user || {};
-  const mentor = data?.mentor || activeMentor || {};
+  const activeMentor = !isAdmin
+    ? user
+    : (allMentors.find(m => m._id === selectedMentorId) || data?.mentor || (allMentors[0] || null));
+
+  const mentor = !isAdmin
+    ? (data?.mentor || user || {})
+    : (activeMentor || data?.mentor || {});
+
+  const mentorDisplayName = !isAdmin
+    ? (user?.name || 'Mentor')
+    : (mentor?.name || (allMentors.length === 0 ? 'No Mentors Registered' : 'Select a Mentor'));
+
   const stats = data?.stats || {};
   const todayClasses = data?.todaysClasses || [];
   const atRisk = (data?.students || []).filter(s => s.status === 'At Risk');
@@ -319,10 +329,10 @@ function MentorDashboard() {
         </div>
 
         <div className="mentor-profile-mini">
-          <div className="mentor-avatar">{initials(mentor.name || (isAdmin ? 'Admin' : 'Mentor'))}</div>
+          <div className="mentor-avatar">{initials(mentorDisplayName)}</div>
           <div>
-            <strong>{mentor.name || 'Mentor'}</strong>
-            <small>{isAdmin ? '👑 Supervised by Admin' : 'Mentor'}</small>
+            <strong>{mentorDisplayName}</strong>
+            <small>{isAdmin ? (mentor?.email ? `👑 ${mentor.email}` : '👑 Supervised by Admin') : (user?.email || 'Mentor')}</small>
           </div>
         </div>
 
@@ -357,24 +367,33 @@ function MentorDashboard() {
             <div className="admin-mentor-topbar-left">
               <span className="admin-badge"><Shield size={13}/> ADMIN SUPERVISION</span>
               <span className="admin-viewing-text">
-                Active Mentor: <strong>{mentor.name || 'Select Mentor'}</strong>
+                Active Mentor: <strong>{mentor?.name || (allMentors.length === 0 ? 'No Mentors Created Yet' : 'None Selected')}</strong>
               </span>
-              {mentor.email && <span className="admin-mentor-email">({mentor.email})</span>}
+              {mentor?.email && <span className="admin-mentor-email">({mentor.email})</span>}
             </div>
 
             <div className="admin-mentor-topbar-right">
-              <label className="admin-select-label">Switch Mentor:</label>
-              <select
-                className="admin-mentor-dropdown"
-                value={selectedMentorId}
-                onChange={(e) => handleSwitchMentor(e.target.value)}
-              >
-                {allMentors.map(m => (
-                  <option key={m._id} value={m._id}>
-                    {m.name} ({m.studentCount || 0} students) — {(m.expertise || []).join(', ') || m.email}
-                  </option>
-                ))}
-              </select>
+              {allMentors.length > 0 ? (
+                <>
+                  <label className="admin-select-label">Switch Mentor:</label>
+                  <select
+                    className="admin-mentor-dropdown"
+                    value={selectedMentorId || ''}
+                    onChange={(e) => handleSwitchMentor(e.target.value)}
+                  >
+                    <option value="">-- Choose Mentor --</option>
+                    {allMentors.map(m => (
+                      <option key={m._id} value={m._id}>
+                        {m.name} ({m.studentCount || 0} students) — {(m.expertise || []).join(', ') || m.email}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              ) : (
+                <Link to="/admin" className="admin-exit-btn" style={{ background: '#e8a820', color: '#12233f', fontWeight: 800 }}>
+                  + Create Mentor in Admin Panel
+                </Link>
+              )}
 
               <button
                 className="admin-exit-btn"
@@ -397,11 +416,13 @@ function MentorDashboard() {
             <button className="mentor-menu" onClick={() => setMobileOpen(true)}><Menu size={22}/></button>
             <div>
               <div className="mentor-breadcrumb">
-                {isAdmin ? `Admin Mode / Mentors / ${mentor.name || 'Overview'}` : 'Mentor Portal'} / {baseNav.find(n => n[0] === active)?.[1]}
+                {isAdmin ? `Admin Mode / Mentors / ${mentor?.name || 'Overview'}` : 'Mentor Portal'} / {baseNav.find(n => n[0] === active)?.[1]}
               </div>
               <h1>
                 {active === 'dashboard'
-                  ? `Welcome, ${mentor.name?.split(' ')[0] || 'Mentor'} 👋`
+                  ? (isAdmin
+                      ? (mentor?.name ? `Dashboard of ${mentor.name}` : 'Mentor Dashboard')
+                      : `Welcome, ${user?.name?.split(' ')[0] || user?.name || 'Mentor'} 👋`)
                   : active === 'all-mentors'
                   ? 'All Mentors & Activity Overview'
                   : baseNav.find(n => n[0] === active)?.[1]}
@@ -427,8 +448,8 @@ function MentorDashboard() {
             </button>
 
             <div className="mentor-header-user" onClick={() => changePage('profile')}>
-              <div className="mentor-avatar small">{initials(mentor.name)}</div>
-              <span>{mentor.name}</span>
+              <div className="mentor-avatar small">{initials(isAdmin ? user?.name : mentorDisplayName)}</div>
+              <span>{isAdmin ? `${user?.name} (Admin)` : mentorDisplayName}</span>
             </div>
           </div>
         </header>
