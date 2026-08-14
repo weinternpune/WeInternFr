@@ -195,45 +195,44 @@ function MentorDashboard() {
     }
   };
 
-  const loadAll = async (silent = false, customMentorId) => {
+  const loadDashboardData = async (silent = false, customMentorId) => {
     const targetParams = (isAdmin && (customMentorId || selectedMentorId))
       ? { mentorId: customMentorId || selectedMentorId }
       : {};
 
     try {
       if (!silent) setLoading(true);
-      const [d, s, c, a, p, m, n, r] = await Promise.all([
+      else setRefreshing(true);
+      const [d, s] = await Promise.all([
         getMentorDashboard(targetParams),
-        getMentorStudents(targetParams),
-        getMentorClasses(targetParams),
-        getMentorAssignments(targetParams),
-        getMentorProjects(targetParams),
-        getMentorMessages(targetParams),
-        getMentorNotifications(targetParams),
-        getMentorReports(targetParams)
+        getMentorStudents(targetParams)
       ]);
       setData(d.data?.data);
       setStudents(s.data?.data || []);
-      setClasses(c.data?.data || []);
-      setAssignments(a.data?.data || []);
-      setSubmissions((await getMentorSubmissions(targetParams)).data?.data || []);
-      setProjects(p.data?.data || []);
-      setMessages(m.data?.data || []);
-      setNotifications(n.data?.data || []);
-      setReports(r.data?.data || null);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Unable to load mentor data');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  // Re-load when selected mentor changes
+  const loadAll = (silent = false, customId) => loadDashboardData(silent, customId);
+
+  // Re-load when selected mentor or active tab changes
   useEffect(() => {
-    if (!isAdmin || selectedMentorId) {
-      loadAll(false, selectedMentorId);
+    if (active === 'all-mentors') {
+      loadOverview();
+    } else if (!isAdmin || selectedMentorId) {
+      loadDashboardData(false, selectedMentorId);
+      if (active === 'schedule' || active === 'attendance') loadClasses();
+      if (active === 'assignments') loadAssignments();
+      if (active === 'projects') loadProjects();
+      if (active === 'messages') loadMessages();
+      if (active === 'notifications') loadNotifications();
+      if (active === 'reports') loadReports();
     }
-  }, [selectedMentorId]);
+  }, [selectedMentorId, active]);
 
   // Handle mentor switch by Admin
   const handleSwitchMentor = (newMentorId) => {
