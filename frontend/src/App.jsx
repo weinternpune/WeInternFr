@@ -48,7 +48,7 @@ const ProtectedRoute = ({ children, adminOnly = false, mentorOnly = false }) => 
   );
   if (!user) return <Navigate to="/login" replace />;
   if (adminOnly && user.role !== 'admin') return <Navigate to={user.role === 'mentor' ? '/mentor/dashboard' : '/dashboard'} replace />;
-  if (mentorOnly && user.role !== 'mentor') return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+  if (mentorOnly && user.role !== 'mentor' && user.role !== 'admin') return <Navigate to="/dashboard" replace />;
   if (!adminOnly && !mentorOnly && user.role === 'mentor') return <Navigate to="/mentor/dashboard" replace />;
   return children;
 };

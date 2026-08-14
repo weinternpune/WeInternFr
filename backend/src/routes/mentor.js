@@ -23,14 +23,43 @@ const studentFilterForMentor = (mentorId) => ({
   isBlocked: { $ne: true }
 });
 
+async function resolveTargetMentorId(req) {
+  if (req.user?.role === 'mentor') {
+    return req.user._id;
+  }
+  if (req.user?.role === 'admin') {
+    const requestedMentorId = req.query?.mentorId || req.body?.mentorId || req.headers['x-target-mentor-id'];
+    if (requestedMentorId && requestedMentorId !== 'all') {
+      if (mongoose.Types.ObjectId.isValid(requestedMentorId)) {
+        const found = await User.findOne({ _id: requestedMentorId, role: 'mentor' });
+        if (found) return found._id;
+      }
+    }
+    // Fallback for admin: find the first active mentor
+    const firstMentor = await User.findOne({ role: 'mentor', isBlocked: { $ne: true } }).sort({ createdAt: 1 });
+    return firstMentor ? firstMentor._id : null;
+  }
+  return null;
+}
+
+async function getMentorUser(mentorId) {
+  if (!mentorId) return null;
+  return User.findById(mentorId).select('-password -otp -otpExpiry -resetPasswordToken -resetPasswordExpiry');
+}
+
 async function getAssignedStudents(mentorId) {
+  if (!mentorId) return [];
   return User.find(studentFilterForMentor(mentorId))
     .select('-password -otp -otpExpiry -resetPasswordToken -resetPasswordExpiry')
     .sort({ name: 1 });
 }
 
-async function assertAssignedStudent(mentorId, studentId) {
+async function assertAssignedStudent(mentorId, studentId, isAdmin = false) {
   if (!mongoose.Types.ObjectId.isValid(studentId)) return null;
+  if (isAdmin) {
+    return User.findOne({ _id: studentId, role: 'student' });
+  }
+  if (!mentorId) return null;
   return User.findOne({ _id: studentId, ...studentFilterForMentor(mentorId) });
 }
 
@@ -43,9 +72,34 @@ async function createNotification(recipient, type, title, message, data = {}) {
 }
 
 // Dashboard overview
-router.get('/dashboard', protect, mentorOnly, async (req, res) => {
+router.get('/dashboard', protect, mentorOrAdmin, async (req, res) => {
   try {
-    const mentorId = req.user._id;
+    const mentorId = await resolveTargetMentorId(req);
+    if (!mentorId) {
+      return res.json({
+        success: true,
+        data: {
+          mentor: { id: null, name: 'No Mentor Available', email: '' },
+          stats: {
+            totalStudents: 0,
+            activeStudents: 0,
+            todaysClasses: 0,
+            pendingAssignments: 0,
+            averageProgress: 0,
+            atRiskStudents: 0,
+            unreadNotifications: 0
+          },
+          todaysClasses: [],
+          students: [],
+          pendingReviews: [],
+          projects: [],
+          activity: [],
+          updatedAt: new Date()
+        }
+      });
+    }
+
+    const mentorUser = await getMentorUser(mentorId);
     const students = await getAssignedStudents(mentorId);
     const studentIds = students.map(s => s._id);
 
@@ -95,7 +149,7 @@ router.get('/dashboard', protect, mentorOnly, async (req, res) => {
       const activity = progressByStudent[id] || { minutes: 0, lastActivity: null };
       const studentAssignments = assignments.filter(a => a.students.length === 0 || a.students.some(x => String(x) === id));
       const completedAssignments = submissions.filter(s => String(s.student) === id && ['reviewed','approved'].includes(s.status)).length;
-      const progress = Math.min(100, Math.round((activity.minutes / 600) * 100)); // 10 hours = 100% activity baseline
+      const progress = Math.min(100, Math.round((activity.minutes / 600) * 100));
       const attendancePercent = att.total ? Math.round((att.present / att.total) * 100) : 0;
       const pending = Math.max(0, studentAssignments.length - completedAssignments);
       const inactiveDays = activity.lastActivity ? Math.floor((Date.now() - new Date(activity.lastActivity).getTime()) / 86400000) : 999;
@@ -140,13 +194,13 @@ router.get('/dashboard', protect, mentorOnly, async (req, res) => {
       success: true,
       data: {
         mentor: {
-          id: req.user._id,
-          name: req.user.name,
-          email: req.user.email,
-          avatar: req.user.avatar,
-          expertise: req.user.expertise || [],
-          skills: req.user.skills || [],
-          experience: req.user.experience || ''
+          id: mentorUser?._id || mentorId,
+          name: mentorUser?.name || 'Mentor',
+          email: mentorUser?.email || '',
+          avatar: mentorUser?.avatar || '',
+          expertise: mentorUser?.expertise || [],
+          skills: mentorUser?.skills || [],
+          experience: mentorUser?.experience || ''
         },
         stats: {
           totalStudents: students.length,
@@ -172,16 +226,19 @@ router.get('/dashboard', protect, mentorOnly, async (req, res) => {
 });
 
 // Assigned students
-router.get('/students', protect, mentorOnly, async (req, res) => {
+router.get('/students', protect, mentorOrAdmin, async (req, res) => {
   try {
-    const students = await getAssignedStudents(req.user._id);
+    const mentorId = await resolveTargetMentorId(req);
+    if (!mentorId) return res.json({ success: true, data: [] });
+
+    const students = await getAssignedStudents(mentorId);
     const ids = students.map(s => s._id);
 
     const [attendance, activities, submissions, projects] = await Promise.all([
-      Attendance.find({ mentor: req.user._id, student: { $in: ids } }),
+      Attendance.find({ mentor: mentorId, student: { $in: ids } }),
       UserActivity.find({ user: { $in: ids } }).sort({ createdAt: -1 }),
-      Submission.find({ mentor: req.user._id, student: { $in: ids } }),
-      Project.find({ mentor: req.user._id, student: { $in: ids } })
+      Submission.find({ mentor: mentorId, student: { $in: ids } }),
+      Project.find({ mentor: mentorId, student: { $in: ids } })
     ]);
 
     const data = students.map(student => {
@@ -213,18 +270,21 @@ router.get('/students', protect, mentorOnly, async (req, res) => {
   }
 });
 
-// Student detail; mentor can only access assigned students.
-router.get('/students/:studentId', protect, mentorOnly, async (req, res) => {
+// Student detail
+router.get('/students/:studentId', protect, mentorOrAdmin, async (req, res) => {
   try {
-    const student = await assertAssignedStudent(req.user._id, req.params.studentId);
+    const mentorId = await resolveTargetMentorId(req);
+    const student = await assertAssignedStudent(mentorId, req.params.studentId, req.user.role === 'admin');
     if (!student) return res.status(404).json({ success: false, message: 'Student is not assigned to this mentor' });
+
+    const targetMentorId = student.mentor || mentorId;
 
     const [activities, attendance, submissions, projects, notes, enrollments] = await Promise.all([
       UserActivity.find({ user: student._id }).sort({ createdAt: -1 }).limit(100),
-      Attendance.find({ mentor: req.user._id, student: student._id }).populate('classId', 'title date startTime endTime').sort({ markedAt: -1 }),
-      Submission.find({ mentor: req.user._id, student: student._id }).populate('assignment', 'title dueDate maxScore').sort({ submittedAt: -1 }),
-      Project.find({ mentor: req.user._id, student: student._id }).sort({ updatedAt: -1 }),
-      Note.find({ mentor: req.user._id, student: student._id }).sort({ createdAt: -1 }),
+      Attendance.find({ student: student._id }).populate('classId', 'title date startTime endTime').sort({ markedAt: -1 }),
+      Submission.find({ student: student._id }).populate('assignment', 'title dueDate maxScore').sort({ submittedAt: -1 }),
+      Project.find({ student: student._id }).sort({ updatedAt: -1 }),
+      Note.find({ student: student._id }).sort({ createdAt: -1 }),
       Enrollment.find({ user: student._id }).sort({ createdAt: -1 })
     ]);
 
@@ -280,8 +340,11 @@ router.get('/students/:studentId', protect, mentorOnly, async (req, res) => {
 });
 
 // Schedule a class
-router.post('/classes', protect, mentorOnly, async (req, res) => {
+router.post('/classes', protect, mentorOrAdmin, async (req, res) => {
   try {
+    const mentorId = await resolveTargetMentorId(req);
+    if (!mentorId) return res.status(400).json({ success: false, message: 'Mentor not found' });
+
     const {
       title, description, batch, course, studentIds = [], date, startTime, endTime,
       classType, mode, meetingLink, notes, learningMaterialUrl
@@ -293,13 +356,13 @@ router.post('/classes', protect, mentorOnly, async (req, res) => {
 
     const validStudents = [];
     for (const id of studentIds) {
-      const student = await assertAssignedStudent(req.user._id, id);
+      const student = await assertAssignedStudent(mentorId, id, req.user.role === 'admin');
       if (student) validStudents.push(student._id);
     }
 
     const cls = await MentorClass.create({
       title, description, batch, course, students: validStudents, date, startTime, endTime,
-      classType, mode, meetingLink, notes, learningMaterialUrl, mentor: req.user._id
+      classType, mode, meetingLink, notes, learningMaterialUrl, mentor: mentorId
     });
 
     await Promise.all(validStudents.map(studentId =>
@@ -315,9 +378,12 @@ router.post('/classes', protect, mentorOnly, async (req, res) => {
 });
 
 // Get mentor classes
-router.get('/classes', protect, mentorOnly, async (req, res) => {
+router.get('/classes', protect, mentorOrAdmin, async (req, res) => {
   try {
-    const filter = { mentor: req.user._id };
+    const mentorId = await resolveTargetMentorId(req);
+    if (!mentorId) return res.json({ success: true, data: [] });
+
+    const filter = { mentor: mentorId };
     if (req.query.from || req.query.to) {
       filter.date = {};
       if (req.query.from) filter.date.$gte = new Date(req.query.from);
@@ -330,10 +396,12 @@ router.get('/classes', protect, mentorOnly, async (req, res) => {
   }
 });
 
-router.patch('/classes/:id/status', protect, mentorOnly, async (req, res) => {
+router.patch('/classes/:id/status', protect, mentorOrAdmin, async (req, res) => {
   try {
+    const mentorId = await resolveTargetMentorId(req);
+    const query = req.user.role === 'admin' ? { _id: req.params.id } : { _id: req.params.id, mentor: mentorId };
     const cls = await MentorClass.findOneAndUpdate(
-      { _id: req.params.id, mentor: req.user._id },
+      query,
       { status: req.body.status },
       { new: true }
     );
@@ -345,9 +413,12 @@ router.patch('/classes/:id/status', protect, mentorOnly, async (req, res) => {
 });
 
 // Attendance
-router.get('/attendance', protect, mentorOnly, async (req, res) => {
+router.get('/attendance', protect, mentorOrAdmin, async (req, res) => {
   try {
-    const filter = { mentor: req.user._id };
+    const mentorId = await resolveTargetMentorId(req);
+    if (!mentorId) return res.json({ success: true, data: [] });
+
+    const filter = { mentor: mentorId };
     if (req.query.classId) filter.classId = req.query.classId;
     const rows = await Attendance.find(filter)
       .populate('student', 'name email')
@@ -359,10 +430,12 @@ router.get('/attendance', protect, mentorOnly, async (req, res) => {
   }
 });
 
-router.post('/attendance/bulk', protect, mentorOnly, async (req, res) => {
+router.post('/attendance/bulk', protect, mentorOrAdmin, async (req, res) => {
   try {
+    const mentorId = await resolveTargetMentorId(req);
     const { classId, records = [] } = req.body;
-    const cls = await MentorClass.findOne({ _id: classId, mentor: req.user._id });
+    const query = req.user.role === 'admin' ? { _id: classId } : { _id: classId, mentor: mentorId };
+    const cls = await MentorClass.findOne(query);
     if (!cls) return res.status(404).json({ success: false, message: 'Class not found' });
 
     const validIds = new Set(cls.students.map(s => String(s)));
@@ -372,7 +445,7 @@ router.post('/attendance/bulk', protect, mentorOnly, async (req, res) => {
       if (!validIds.has(String(record.studentId))) continue;
       const attendance = await Attendance.findOneAndUpdate(
         { classId, student: record.studentId },
-        { mentor: req.user._id, status: record.status, note: record.note, markedAt: new Date() },
+        { mentor: cls.mentor || mentorId, status: record.status, note: record.note, markedAt: new Date() },
         { new: true, upsert: true }
       );
       results.push(attendance);
@@ -387,11 +460,14 @@ router.post('/attendance/bulk', protect, mentorOnly, async (req, res) => {
 });
 
 // Assignments
-router.get('/assignments', protect, mentorOnly, async (req, res) => {
+router.get('/assignments', protect, mentorOrAdmin, async (req, res) => {
   try {
-    const assignments = await Assignment.find({ mentor: req.user._id }).populate('students', 'name email').sort({ dueDate: 1 });
+    const mentorId = await resolveTargetMentorId(req);
+    if (!mentorId) return res.json({ success: true, data: [] });
+
+    const assignments = await Assignment.find({ mentor: mentorId }).populate('students', 'name email').sort({ dueDate: 1 });
     const ids = assignments.map(a => a._id);
-    const submissions = await Submission.find({ mentor: req.user._id, assignment: { $in: ids } });
+    const submissions = await Submission.find({ mentor: mentorId, assignment: { $in: ids } });
     const data = assignments.map(a => {
       const sub = submissions.filter(s => String(s.assignment) === String(a._id));
       const reviewed = sub.filter(s => typeof s.score === 'number');
@@ -409,17 +485,20 @@ router.get('/assignments', protect, mentorOnly, async (req, res) => {
   }
 });
 
-router.post('/assignments', protect, mentorOnly, async (req, res) => {
+router.post('/assignments', protect, mentorOrAdmin, async (req, res) => {
   try {
+    const mentorId = await resolveTargetMentorId(req);
+    if (!mentorId) return res.status(400).json({ success: false, message: 'Mentor not found' });
+
     const { title, description, batch, course, dueDate, maxScore, studentIds = [] } = req.body;
     if (!title || !dueDate) return res.status(400).json({ success: false, message: 'Title and due date are required' });
     const validStudents = [];
     for (const id of studentIds) {
-      const student = await assertAssignedStudent(req.user._id, id);
+      const student = await assertAssignedStudent(mentorId, id, req.user.role === 'admin');
       if (student) validStudents.push(student._id);
     }
     const assignment = await Assignment.create({
-      title, description, batch, course, dueDate, maxScore, students: validStudents, mentor: req.user._id
+      title, description, batch, course, dueDate, maxScore, students: validStudents, mentor: mentorId
     });
     await Promise.all(validStudents.map(studentId =>
       createNotification(studentId, 'assignment_created', `New assignment: ${title}`,
@@ -431,9 +510,12 @@ router.post('/assignments', protect, mentorOnly, async (req, res) => {
   }
 });
 
-router.get('/submissions', protect, mentorOnly, async (req, res) => {
+router.get('/submissions', protect, mentorOrAdmin, async (req, res) => {
   try {
-    const submissions = await Submission.find({ mentor: req.user._id })
+    const mentorId = await resolveTargetMentorId(req);
+    if (!mentorId) return res.json({ success: true, data: [] });
+
+    const submissions = await Submission.find({ mentor: mentorId })
       .populate('student', 'name email')
       .populate('assignment', 'title dueDate maxScore')
       .sort({ submittedAt: -1 });
@@ -443,11 +525,12 @@ router.get('/submissions', protect, mentorOnly, async (req, res) => {
   }
 });
 
-router.patch('/submissions/:id/review', protect, mentorOnly, async (req, res) => {
+router.patch('/submissions/:id/review', protect, mentorOrAdmin, async (req, res) => {
   try {
+    const mentorId = await resolveTargetMentorId(req);
     const { score, feedback, status = 'reviewed' } = req.body;
-    const submission = await Submission.findOne({ _id: req.params.id, mentor: req.user._id })
-      .populate('student', 'name email');
+    const query = req.user.role === 'admin' ? { _id: req.params.id } : { _id: req.params.id, mentor: mentorId };
+    const submission = await Submission.findOne(query).populate('student', 'name email');
     if (!submission) return res.status(404).json({ success: false, message: 'Submission not found' });
 
     submission.score = Number(score);
@@ -468,9 +551,12 @@ router.patch('/submissions/:id/review', protect, mentorOnly, async (req, res) =>
 });
 
 // Projects
-router.get('/projects', protect, mentorOnly, async (req, res) => {
+router.get('/projects', protect, mentorOrAdmin, async (req, res) => {
   try {
-    const projects = await Project.find({ mentor: req.user._id })
+    const mentorId = await resolveTargetMentorId(req);
+    if (!mentorId) return res.json({ success: true, data: [] });
+
+    const projects = await Project.find({ mentor: mentorId })
       .populate('student', 'name email')
       .sort({ updatedAt: -1 });
     res.json({ success: true, data: projects });
@@ -479,10 +565,12 @@ router.get('/projects', protect, mentorOnly, async (req, res) => {
   }
 });
 
-router.patch('/projects/:id', protect, mentorOnly, async (req, res) => {
+router.patch('/projects/:id', protect, mentorOrAdmin, async (req, res) => {
   try {
+    const mentorId = await resolveTargetMentorId(req);
+    const query = req.user.role === 'admin' ? { _id: req.params.id } : { _id: req.params.id, mentor: mentorId };
     const project = await Project.findOneAndUpdate(
-      { _id: req.params.id, mentor: req.user._id },
+      query,
       { progress: req.body.progress, status: req.body.status, mentorComments: req.body.mentorComments, lastUpdate: new Date() },
       { new: true }
     ).populate('student', 'name email');
@@ -494,25 +582,27 @@ router.patch('/projects/:id', protect, mentorOnly, async (req, res) => {
 });
 
 // Private mentor notes
-router.get('/students/:studentId/notes', protect, mentorOnly, async (req, res) => {
+router.get('/students/:studentId/notes', protect, mentorOrAdmin, async (req, res) => {
   try {
-    if (!await assertAssignedStudent(req.user._id, req.params.studentId)) {
+    const mentorId = await resolveTargetMentorId(req);
+    if (!await assertAssignedStudent(mentorId, req.params.studentId, req.user.role === 'admin')) {
       return res.status(404).json({ success: false, message: 'Student is not assigned to this mentor' });
     }
-    const notes = await Note.find({ mentor: req.user._id, student: req.params.studentId }).sort({ createdAt: -1 });
+    const notes = await Note.find({ student: req.params.studentId }).sort({ createdAt: -1 });
     res.json({ success: true, data: notes });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-router.post('/students/:studentId/notes', protect, mentorOnly, async (req, res) => {
+router.post('/students/:studentId/notes', protect, mentorOrAdmin, async (req, res) => {
   try {
-    if (!await assertAssignedStudent(req.user._id, req.params.studentId)) {
+    const mentorId = await resolveTargetMentorId(req);
+    if (!await assertAssignedStudent(mentorId, req.params.studentId, req.user.role === 'admin')) {
       return res.status(404).json({ success: false, message: 'Student is not assigned to this mentor' });
     }
     if (!req.body.note?.trim()) return res.status(400).json({ success: false, message: 'Note is required' });
-    const note = await Note.create({ mentor: req.user._id, student: req.params.studentId, note: req.body.note.trim() });
+    const note = await Note.create({ mentor: mentorId, student: req.params.studentId, note: req.body.note.trim() });
     res.status(201).json({ success: true, data: note });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -520,10 +610,13 @@ router.post('/students/:studentId/notes', protect, mentorOnly, async (req, res) 
 });
 
 // Messages / announcements
-router.get('/messages', protect, mentorOnly, async (req, res) => {
+router.get('/messages', protect, mentorOrAdmin, async (req, res) => {
   try {
+    const mentorId = await resolveTargetMentorId(req);
+    if (!mentorId) return res.json({ success: true, data: [] });
+
     const messages = await Message.find({
-      $or: [{ sender: req.user._id }, { recipient: req.user._id }]
+      $or: [{ sender: mentorId }, { recipient: mentorId }]
     }).populate('sender recipient', 'name email role').sort({ createdAt: -1 }).limit(100);
     res.json({ success: true, data: messages });
   } catch (err) {
@@ -531,31 +624,35 @@ router.get('/messages', protect, mentorOnly, async (req, res) => {
   }
 });
 
-router.post('/messages', protect, mentorOnly, async (req, res) => {
+router.post('/messages', protect, mentorOrAdmin, async (req, res) => {
   try {
+    const mentorId = await resolveTargetMentorId(req);
     const { recipientId, subject, message, attachmentUrl } = req.body;
-    const student = await assertAssignedStudent(req.user._id, recipientId);
+    const student = await assertAssignedStudent(mentorId, recipientId, req.user.role === 'admin');
     if (!student) return res.status(403).json({ success: false, message: 'Student is not assigned to this mentor' });
     const msg = await Message.create({
-      sender: req.user._id, recipient: student._id, subject, message, attachmentUrl
+      sender: mentorId, recipient: student._id, subject, message, attachmentUrl
     });
-    await createNotification(student._id, 'message', `Message from ${req.user.name}`, message.slice(0, 120), { messageId: msg._id });
+    const senderName = req.user.name || 'Mentor';
+    await createNotification(student._id, 'message', `Message from ${senderName}`, message.slice(0, 120), { messageId: msg._id });
     res.status(201).json({ success: true, data: await msg.populate('recipient', 'name email') });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-router.post('/announcements', protect, mentorOnly, async (req, res) => {
+router.post('/announcements', protect, mentorOrAdmin, async (req, res) => {
   try {
+    const mentorId = await resolveTargetMentorId(req);
     const { studentIds = [], title, message } = req.body;
     const validStudents = [];
     for (const id of studentIds) {
-      const student = await assertAssignedStudent(req.user._id, id);
+      const student = await assertAssignedStudent(mentorId, id, req.user.role === 'admin');
       if (student) validStudents.push(student);
     }
+    const senderName = req.user.name || 'Mentor';
     await Promise.all(validStudents.map(student =>
-      createNotification(student._id, 'message', title || `Announcement from ${req.user.name}`, message, { mentorId: req.user._id })
+      createNotification(student._id, 'message', title || `Announcement from ${senderName}`, message, { mentorId })
     ));
     res.json({ success: true, sent: validStudents.length });
   } catch (err) {
@@ -564,19 +661,24 @@ router.post('/announcements', protect, mentorOnly, async (req, res) => {
 });
 
 // Notifications
-router.get('/notifications', protect, mentorOnly, async (req, res) => {
+router.get('/notifications', protect, mentorOrAdmin, async (req, res) => {
   try {
-    const notifications = await Notification.find({ recipient: req.user._id }).sort({ createdAt: -1 }).limit(100);
+    const mentorId = await resolveTargetMentorId(req);
+    if (!mentorId) return res.json({ success: true, data: [] });
+
+    const notifications = await Notification.find({ recipient: mentorId }).sort({ createdAt: -1 }).limit(100);
     res.json({ success: true, data: notifications });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-router.patch('/notifications/:id/read', protect, mentorOnly, async (req, res) => {
+router.patch('/notifications/:id/read', protect, mentorOrAdmin, async (req, res) => {
   try {
+    const mentorId = await resolveTargetMentorId(req);
+    const query = req.user.role === 'admin' ? { _id: req.params.id } : { _id: req.params.id, recipient: mentorId };
     const notification = await Notification.findOneAndUpdate(
-      { _id: req.params.id, recipient: req.user._id },
+      query,
       { readAt: new Date() },
       { new: true }
     );
@@ -588,15 +690,18 @@ router.patch('/notifications/:id/read', protect, mentorOnly, async (req, res) =>
 });
 
 // Reports
-router.get('/reports', protect, mentorOnly, async (req, res) => {
+router.get('/reports', protect, mentorOrAdmin, async (req, res) => {
   try {
-    const students = await getAssignedStudents(req.user._id);
+    const mentorId = await resolveTargetMentorId(req);
+    if (!mentorId) return res.json({ success: true, data: { totalStudents: 0, attendanceRate: 0, averageScore: 0, totalStudyHours: 0, projects: 0, completedProjects: 0, assignmentsReviewed: 0, generatedAt: new Date() } });
+
+    const students = await getAssignedStudents(mentorId);
     const ids = students.map(s => s._id);
     const [attendance, submissions, activities, projects] = await Promise.all([
-      Attendance.find({ mentor: req.user._id, student: { $in: ids } }),
-      Submission.find({ mentor: req.user._id, student: { $in: ids } }),
+      Attendance.find({ mentor: mentorId, student: { $in: ids } }),
+      Submission.find({ mentor: mentorId, student: { $in: ids } }),
       UserActivity.find({ user: { $in: ids } }),
-      Project.find({ mentor: req.user._id, student: { $in: ids } })
+      Project.find({ mentor: mentorId, student: { $in: ids } })
     ]);
     const present = attendance.filter(a => ['present','late'].includes(a.status)).length;
     const attendanceRate = attendance.length ? Math.round((present / attendance.length) * 100) : 0;
@@ -653,21 +758,74 @@ router.patch('/admin/assign-student/:studentId', protect, adminOnly, async (req,
   }
 });
 
+// Admin: overview of all mentors and their collective activity
+router.get('/admin/all-mentors-overview', protect, adminOnly, async (req, res) => {
+  try {
+    const mentors = await User.find({ role: 'mentor' })
+      .select('-password -otp -otpExpiry -resetPasswordToken -resetPasswordExpiry')
+      .sort({ name: 1 });
+
+    const mentorIds = mentors.map(m => m._id);
+
+    const [classes, assignments, submissions, announcements, totalStudents] = await Promise.all([
+      MentorClass.find({ mentor: { $in: mentorIds }, status: { $ne: 'cancelled' } }).populate('mentor', 'name email avatar').sort({ date: -1 }).limit(20),
+      Assignment.find({ mentor: { $in: mentorIds } }).populate('mentor', 'name email').sort({ createdAt: -1 }).limit(20),
+      Submission.find({ mentor: { $in: mentorIds }, status: 'submitted' }).populate('mentor student', 'name email'),
+      Notification.find({ type: 'message' }).populate('recipient', 'name email').sort({ createdAt: -1 }).limit(30),
+      User.countDocuments({ role: 'student', mentor: { $in: mentorIds } })
+    ]);
+
+    const mentorsSummary = await Promise.all(mentors.map(async m => {
+      const studentCount = await User.countDocuments(studentFilterForMentor(m._id));
+      const classCount = await MentorClass.countDocuments({ mentor: m._id, status: { $ne: 'cancelled' } });
+      const assignmentCount = await Assignment.countDocuments({ mentor: m._id });
+      const pendingCount = await Submission.countDocuments({ mentor: m._id, status: 'submitted' });
+      return {
+        ...m.toObject(),
+        studentCount,
+        classCount,
+        assignmentCount,
+        pendingCount
+      };
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        stats: {
+          totalMentors: mentors.length,
+          totalStudentsMentored: totalStudents,
+          totalClasses: classes.length,
+          totalAssignments: assignments.length,
+          totalPendingSubmissions: submissions.length
+        },
+        mentors: mentorsSummary,
+        recentClasses: classes,
+        recentAssignments: assignments,
+        recentAnnouncements: announcements
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 
 // Mentor profile
-router.get('/profile', protect, mentorOnly, async (req, res) => {
+router.get('/profile', protect, mentorOrAdmin, async (req, res) => {
   try {
-    const mentor = await User.findById(req.user._id).select('-password -otp -otpExpiry -resetPasswordToken -resetPasswordExpiry');
+    const mentorId = await resolveTargetMentorId(req);
+    const mentor = await User.findById(mentorId).select('-password -otp -otpExpiry -resetPasswordToken -resetPasswordExpiry');
     res.json({ success: true, data: mentor });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-router.put('/profile', protect, mentorOnly, async (req, res) => {
+router.put('/profile', protect, mentorOrAdmin, async (req, res) => {
   try {
+    const mentorId = await resolveTargetMentorId(req);
     const allowed = ['name','phone','avatar','expertise','skills','assignedCourses','assignedBatches','experience','bio'];
     const updates = {};
     allowed.forEach(key => { if (req.body[key] !== undefined) updates[key] = req.body[key]; });
-    const mentor = await User.findByIdAndUpdate(req.user._id, updates, { new: true, runValidators: true })
+    const mentor = await User.findByIdAndUpdate(mentorId, updates, { new: true, runValidators: true })
       .select('-password -otp -otpExpiry -resetPasswordToken -resetPasswordExpiry');
     res.json({ success: true, data: mentor });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }

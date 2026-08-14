@@ -25,6 +25,7 @@ import {
   getAdminMentors,
   createMentorAccount,
   assignStudentToMentor,
+  getAllMentorsOverview,
   getAdminBlogPosts,
   createBlogPost,
   deleteBlogPost,
@@ -4327,6 +4328,7 @@ const AdminsTab = () => {
 const MentorManagement = () => {
   const [mentors, setMentors] = useState([]);
   const [students, setStudents] = useState([]);
+  const [overview, setOverview] = useState(null);
   const [form, setForm] = useState({
     name:'', email:'', password:'', phone:'', expertise:'', skills:'', assignedCourses:'', assignedBatches:''
   });
@@ -4335,10 +4337,15 @@ const MentorManagement = () => {
 
   const load = async () => {
     try {
-      const [m, u] = await Promise.all([getAdminMentors(), getAdminUsers({ limit: 100 })]);
+      const [m, u, ov] = await Promise.all([
+        getAdminMentors(),
+        getAdminUsers({ limit: 100 }),
+        getAllMentorsOverview().catch(() => ({ data: { data: null } }))
+      ]);
       setMentors(m.data.data || []);
       const users = u.data.data?.users || u.data.data || [];
       setStudents(users.filter(x => x.role === 'student'));
+      setOverview(ov.data?.data || null);
     } catch (e) {
       toast.error(e.response?.data?.message || 'Unable to load mentors');
     } finally { setLoading(false); }
@@ -4375,9 +4382,43 @@ const MentorManagement = () => {
 
   return <div>
     <div className="overview-welcome">
-      <div><h2>Mentor Management</h2><p>Create mentor accounts and assign students to the correct mentor.</p></div>
-      <button className="btn btn-outline" onClick={load}>Refresh</button>
+      <div>
+        <h2>Mentor Management & Supervision</h2>
+        <p>Create mentor accounts, assign students, and access any mentor's live dashboard, schedule & announcements.</p>
+      </div>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <Link
+          to="/mentor/dashboard"
+          className="btn btn-primary"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none', background: 'linear-gradient(135deg, #e8a820, #f5c453)', color: '#12233f', fontWeight: 800 }}
+        >
+          🚀 Access Mentor Portal
+        </Link>
+        <button className="btn btn-outline" onClick={load}>Refresh</button>
+      </div>
     </div>
+
+    {/* Quick stats cards if overview loaded */}
+    {overview?.stats && (
+      <div className="stats-grid" style={{ marginBottom: '1.5rem' }}>
+        <div className="stat-card">
+          <div className="stat-value">{overview.stats.totalMentors || 0}</div>
+          <div className="stat-label">Total Mentors</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{overview.stats.totalStudentsMentored || 0}</div>
+          <div className="stat-label">Students Mentored</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{overview.stats.totalClasses || 0}</div>
+          <div className="stat-label">Scheduled Classes</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{overview.stats.totalPendingSubmissions || 0}</div>
+          <div className="stat-label">Pending Reviews</div>
+        </div>
+      </div>
+    )}
 
     <div className="charts-row">
       <div className="chart-card" style={{flex:1}}>
@@ -4396,7 +4437,7 @@ const MentorManagement = () => {
       </div>
 
       <div className="chart-card" style={{flex:1}}>
-        <h3 style={{marginBottom:'1rem'}}>Assign Student</h3>
+        <h3 style={{marginBottom:'1rem'}}>Assign Student to Mentor</h3>
         <div style={{display:'grid',gap:'.8rem'}}>
           <select className="admin-select" value={assign.mentorId} onChange={e=>setAssign({...assign,mentorId:e.target.value})}>
             <option value="">Select mentor</option>
@@ -4411,11 +4452,122 @@ const MentorManagement = () => {
       </div>
     </div>
 
+    {/* Mentors Table with Direct Dashboard Access */}
     <div className="chart-card" style={{marginTop:'1.5rem'}}>
-      <div className="chart-header"><h3>Mentors</h3><span className="chart-sub">{mentors.length} accounts</span></div>
-      <div className="table-wrap"><table className="data-table"><thead><tr><th>Mentor</th><th>Email</th><th>Expertise</th><th>Courses</th><th>Students</th><th>Status</th></tr></thead>
-      <tbody>{mentors.map(m=><tr key={m._id}><td><strong>{m.name}</strong></td><td>{m.email}</td><td>{(m.expertise||[]).join(', ') || '—'}</td><td>{(m.assignedCourses||[]).join(', ') || '—'}</td><td>{m.studentCount}</td><td><span className={`badge-status badge-${m.isBlocked?'blocked':'active'}`}>{m.isBlocked?'Blocked':'Active'}</span></td></tr>)}</tbody></table></div>
+      <div className="chart-header">
+        <div>
+          <h3>Active Mentors Roster</h3>
+          <span className="chart-sub">{mentors.length} mentor accounts in system</span>
+        </div>
+      </div>
+      <div className="table-wrap">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Mentor</th>
+              <th>Email</th>
+              <th>Expertise</th>
+              <th>Assigned Courses</th>
+              <th>Students</th>
+              <th>Status</th>
+              <th>Supervision</th>
+            </tr>
+          </thead>
+          <tbody>
+            {mentors.map(m=>(
+              <tr key={m._id}>
+                <td><strong>{m.name}</strong></td>
+                <td>{m.email}</td>
+                <td>{(m.expertise||[]).join(', ') || '—'}</td>
+                <td>{(m.assignedCourses||[]).join(', ') || '—'}</td>
+                <td><span className="badge-status badge-active">{m.studentCount} students</span></td>
+                <td><span className={`badge-status badge-${m.isBlocked?'blocked':'active'}`}>{m.isBlocked?'Blocked':'Active'}</span></td>
+                <td>
+                  <Link
+                    to={`/mentor/dashboard?mentorId=${m._id}`}
+                    className="btn btn-outline"
+                    style={{
+                      fontSize: '.75rem',
+                      padding: '.35rem .75rem',
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      background: '#f8fafc',
+                      color: '#1e40af',
+                      borderColor: '#93c5fd'
+                    }}
+                  >
+                    👁️ View Dashboard →
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
+
+    {/* Collective Activity & Announcements Section */}
+    {overview && (
+      <div className="charts-row" style={{ marginTop: '1.5rem' }}>
+        <div className="chart-card" style={{ flex: 1 }}>
+          <div className="chart-header">
+            <h3>Recent Mentor Announcements</h3>
+            <span className="chart-sub">Messages sent to students</span>
+          </div>
+          {(!overview.recentAnnouncements || overview.recentAnnouncements.length === 0) ? (
+            <p style={{ color: 'var(--muted)', fontSize: '.85rem', padding: '1rem 0' }}>No announcements sent yet.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+              {overview.recentAnnouncements.slice(0, 6).map(a => (
+                <div key={a._id} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px 14px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <strong style={{ fontSize: '.88rem', color: '#1e293b' }}>{a.title}</strong>
+                    <span style={{ fontSize: '.72rem', color: '#64748b' }}>{new Date(a.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <p style={{ fontSize: '.78rem', color: '#475569', margin: '4px 0' }}>{a.message}</p>
+                  <small style={{ fontSize: '.68rem', color: '#94a3b8' }}>
+                    Recipient: {a.recipient?.name || 'Student'} ({a.recipient?.email || ''})
+                  </small>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="chart-card" style={{ flex: 1 }}>
+          <div className="chart-header">
+            <h3>Scheduled Classes Across Mentors</h3>
+            <span className="chart-sub">Upcoming & recent sessions</span>
+          </div>
+          {(!overview.recentClasses || overview.recentClasses.length === 0) ? (
+            <p style={{ color: 'var(--muted)', fontSize: '.85rem', padding: '1rem 0' }}>No scheduled classes yet.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+              {overview.recentClasses.slice(0, 6).map(c => (
+                <div key={c._id} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <strong style={{ fontSize: '.88rem', display: 'block', color: '#1e293b' }}>{c.title}</strong>
+                    <span style={{ fontSize: '.72rem', color: '#64748b' }}>
+                      Mentor: {c.mentor?.name || 'Mentor'} · {new Date(c.date).toLocaleDateString()} ({c.startTime} - {c.endTime})
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <span className="badge-status badge-active" style={{ textTransform: 'capitalize' }}>{c.status}</span>
+                    {c.meetingLink && (
+                      <a href={c.meetingLink} target="_blank" rel="noreferrer" className="btn btn-outline" style={{ fontSize: '.7rem', padding: '.25rem .5rem', textDecoration: 'none' }}>
+                        Join
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    )}
   </div>;
 };
 

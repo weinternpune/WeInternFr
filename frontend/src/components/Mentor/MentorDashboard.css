@@ -48,3 +48,173 @@
 .student-dates{display:flex;gap:12px;flex-wrap:wrap;color:#8a96a7;font-size:.6rem;margin-top:5px}
 
 .mini-action{border:1px solid #dfe6ee;background:#fff;border-radius:6px;padding:4px 7px;font-size:.57rem;font-weight:800;color:#687589;cursor:pointer;text-transform:capitalize}.mini-action:hover{background:#f3f7fa;color:#1e6f92}
+
+/* Admin Supervision Topbar */
+.admin-mentor-topbar {
+  background: linear-gradient(135deg, #0d1b2a, #1b263b);
+  color: #fff;
+  padding: 12px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  border-bottom: 2px solid #e8a820;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 110;
+}
+.admin-mentor-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.admin-badge {
+  background: #e8a820;
+  color: #12233f;
+  font-size: 0.68rem;
+  font-weight: 900;
+  padding: 4px 10px;
+  border-radius: 50px;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.admin-viewing-text {
+  font-size: 0.84rem;
+  color: #e0e6ed;
+}
+.admin-viewing-text strong {
+  color: #fbd24e;
+}
+.admin-mentor-email {
+  font-size: 0.75rem;
+  color: #8fa1bd;
+}
+.admin-mentor-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.admin-select-label {
+  font-size: 0.75rem;
+  color: #c5d3e8;
+  font-weight: 700;
+}
+.admin-mentor-dropdown {
+  background: #22334e;
+  color: #fff;
+  border: 1px solid #3d5170;
+  border-radius: 7px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  max-width: 320px;
+}
+.admin-mentor-dropdown option {
+  background: #172642;
+  color: #fff;
+}
+.admin-exit-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 7px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.2s;
+}
+.admin-exit-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #e8a820;
+}
+
+/* All Mentors Hub styles */
+.all-mentors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.all-mentor-card {
+  background: #fff;
+  border: 1px solid #e1e8ef;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 5px 20px rgba(30, 50, 80, 0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.all-mentor-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(30, 50, 80, 0.08);
+}
+.all-mentor-card.active-mentor {
+  border-color: #e8a820;
+  background: #fffdf8;
+}
+.all-mentor-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.all-mentor-card-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  background: #f7f9fb;
+  border-radius: 8px;
+  padding: 10px 8px;
+  text-align: center;
+}
+.all-mentor-card-stats strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #172642;
+}
+.all-mentor-card-stats span {
+  display: block;
+  font-size: 0.58rem;
+  color: #8895a7;
+  margin-top: 2px;
+}
+.announcement-feed-card {
+  background: #fff;
+  border: 1px solid #e2e8ef;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.announcement-feed-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.announcement-feed-head strong {
+  font-size: 0.85rem;
+  color: #172642;
+}
+.announcement-feed-head span {
+  font-size: 0.68rem;
+  color: #8996a8;
+}
+.announcement-feed-body {
+  font-size: 0.76rem;
+  color: #55657b;
+  line-height: 1.5;
+}
+
