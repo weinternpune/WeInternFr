@@ -34,11 +34,11 @@ const COURSE_COLUMNS = [
     title: 'Development',
     icon: Code2,
     items: [
-      { num: 1, label: 'Full Stack Development', desc: 'MERN, REST APIs & deployment', icon: Monitor, color: 'text-sky-400', badge: 'Popular' },
+      { num: 1, label: 'Full Stack Development', desc: 'MERN, REST APIs & deployment', icon: Monitor, color: 'text-amber-300', badge: 'Popular' },
       { num: 2, label: 'MERN Stack Development', desc: 'MongoDB, Express, React, Node', icon: Database, color: 'text-emerald-400' },
       { num: 3, label: 'Java Development', desc: 'Core Java to Spring Boot', icon: Coffee, color: 'text-amber-400' },
-      { num: 4, label: 'C / C++ Programming', desc: 'DSA & systems fundamentals', icon: Cpu, color: 'text-violet-400' },
-      { num: 5, label: 'Web Development', desc: 'HTML, CSS & modern JS', icon: Globe2, color: 'text-blue-400' },
+      { num: 4, label: 'C / C++ Programming', desc: 'DSA & systems fundamentals', icon: Cpu, color: 'text-orange-400' },
+      { num: 5, label: 'Web Development', desc: 'HTML, CSS & modern JS', icon: Globe2, color: 'text-orange-300' },
     ],
   },
   {
@@ -49,7 +49,7 @@ const COURSE_COLUMNS = [
       { num: 6, label: 'AI / ML', desc: 'Models, training & deployment', icon: Bot, color: 'text-purple-400', badge: 'Popular' },
       { num: 7, label: 'Data Science', desc: 'Statistics, EDA & storytelling', icon: TrendingUp, color: 'text-orange-400' },
       { num: 8, label: 'Python Development', desc: 'Scripting, backend & automation', icon: Terminal, color: 'text-yellow-400' },
-      { num: 9, label: 'Cyber Security', desc: 'Network & app security basics', icon: ShieldCheck, color: 'text-cyan-400' },
+      { num: 9, label: 'Cyber Security', desc: 'Network & app security basics', icon: ShieldCheck, color: 'text-yellow-500' },
       { num: 10, label: 'Data Analytics', desc: 'SQL, dashboards & reporting', icon: Database, color: 'text-fuchsia-400' },
     ],
   },
@@ -60,7 +60,7 @@ const COURSE_COLUMNS = [
     items: [
       { num: 11, label: 'UI / UX Design', desc: 'Figma, wireframes & prototyping', icon: PenTool, color: 'text-pink-400', badge: 'Popular' },
       { num: 12, label: 'Graphic Design', desc: 'Visual identity & branding', icon: Sparkles, color: 'text-orange-400' },
-      { num: 13, label: 'Digital Marketing', desc: 'SEO, ads & social growth', icon: Megaphone, color: 'text-sky-400' },
+      { num: 13, label: 'Digital Marketing', desc: 'SEO, ads & social growth', icon: Megaphone, color: 'text-amber-500' },
     ],
   },
 ];

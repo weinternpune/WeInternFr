@@ -8,13 +8,12 @@ const FEATURES = [
     label: "Mentor Guided",
     icon: (
       <svg
-        width="14"
-        height="14"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
-        className="sm:h-4 sm:w-4"
       >
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
         <circle cx="12" cy="7" r="4" />
@@ -25,13 +24,12 @@ const FEATURES = [
     label: "Live Client Projects",
     icon: (
       <svg
-        width="14"
-        height="14"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
-        className="sm:h-4 sm:w-4"
       >
         <rect x="2" y="3" width="20" height="14" rx="2" />
         <line x1="8" y1="21" x2="16" y2="21" />
@@ -43,13 +41,12 @@ const FEATURES = [
     label: "Stipend Opportunities",
     icon: (
       <svg
-        width="14"
-        height="14"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
-        className="sm:h-4 sm:w-4"
       >
         <line x1="12" y1="1" x2="12" y2="23" />
         <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
@@ -60,13 +57,12 @@ const FEATURES = [
     label: "Real Portfolio",
     icon: (
       <svg
-        width="14"
-        height="14"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
-        className="sm:h-4 sm:w-4"
       >
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
         <polyline points="14 2 14 8 20 8" />
@@ -77,13 +73,12 @@ const FEATURES = [
     label: "Career Growth",
     icon: (
       <svg
-        width="14"
-        height="14"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
-        className="sm:h-4 sm:w-4"
       >
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
       </svg>
@@ -121,13 +116,13 @@ const STATS = [
     label: "Student Impact",
     color: "text-emerald-400",
   },
-  { target: 100, suffix: "+", label: "Live Projects", color: "text-blue-400" },
+  { target: 100, suffix: "+", label: "Live Projects", color: "text-amber-400" },
   {
     target: 5,
     prefix: "₹",
     suffix: " Lakh+",
     label: "Paid in Stipends",
-    color: "text-violet-400",
+    color: "text-orange-400",
   },
   {
     target: 75,
@@ -139,7 +134,7 @@ const STATS = [
     target: 5,
     suffix: "+",
     label: "College Partners",
-    color: "text-violet-400",
+    color: "text-orange-400",
   },
   {
     static: "5/5",
@@ -201,7 +196,7 @@ const Hero = () => {
   return (
     <section
       id="home"
-      className="relative overflow-hidden bg-[#0B1D2E] pt-10 pb-0 sm:pt-24 lg:pt-20"
+      className="relative overflow-hidden bg-[#0B1D2E] pt-14 pb-0 sm:pt-16 lg:pt-20"
     >
       {/* Ambient background — checkered grid + scattered dots + soft glow */}
       <div className="pointer-events-none absolute inset-0 -z-10">
@@ -222,22 +217,22 @@ const Hero = () => {
           />
         ))}
         <motion.div
-          className="absolute -top-24 left-[8%] h-[160px] w-[160px] rounded-full bg-emerald-400/10 blur-[60px] sm:h-[320px] sm:w-[320px] sm:blur-[100px]"
+          className="absolute -top-24 left-[8%] h-[220px] w-[220px] rounded-full bg-emerald-400/10 blur-[80px] sm:h-[320px] sm:w-[320px] sm:blur-[100px]"
           animate={{ x: [0, 25, 0], y: [0, 15, 0] }}
           transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute top-16 right-[6%] h-[140px] w-[140px] rounded-full bg-blue-400/10 blur-[60px] sm:h-[280px] sm:w-[280px] sm:blur-[100px]"
+          className="absolute top-16 right-[6%] h-[190px] w-[190px] rounded-full bg-amber-400/10 blur-[80px] sm:h-[280px] sm:w-[280px] sm:blur-[100px]"
           animate={{ x: [0, -20, 0], y: [0, -12, 0] }}
           transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
+        <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
           {/* Left — copy */}
           <div className="flex flex-col items-start">
-            <div className="mt-6 inline-flex max-w-full items-center gap-1 rounded-full justify-start border border-emerald-400/30 bg-emerald-400/10 px-2.5 py-0.5 text-[8.5px] font-medium tracking-wide text-emerald-300 sm:mt-12 sm:min-w-[220px] sm:gap-1.5 sm:px-3 sm:py-1 sm:text-[11px] lg:mt-20">
+            <div className="mt-8 inline-flex max-w-full items-center gap-1.5 rounded-full justify-start border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-[10px] font-medium tracking-wide text-emerald-300 sm:mt-12 sm:min-w-[220px] sm:text-[11px] lg:mt-20">
               <span className="relative flex h-1.5 w-1.5 shrink-0">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -248,7 +243,7 @@ const Hero = () => {
             </div>
 
           <motion.h1
-  className="mt-3 text-[1.4rem] font-medium leading-[1.15] tracking-tight text-white sm:mt-4 sm:text-[2.5rem] sm:leading-[1.12] lg:text-[2.8rem]"
+  className="mt-4 text-[1.75rem] font-medium leading-[1.12] tracking-tight text-white sm:text-[2.5rem] lg:text-[2.8rem]"
   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
   initial={{
     opacity: 0,
@@ -308,13 +303,13 @@ const Hero = () => {
   </motion.span>
 </motion.h1>
 
-            <p className="mt-3 max-w-xl text-[11.5px] leading-relaxed text-slate-300 sm:mt-4 sm:text-[14px] lg:text-[15px]">
+            <p className="mt-4 max-w-xl text-[13px] leading-relaxed text-slate-300 sm:text-[14px] lg:text-[15px]">
               Mentor-led training, live client projects and stipend
               opportunities — powered by WeIntern.
             </p>
 
-       <div className="mt-4 w-full max-w-[520px] sm:mt-6">
-  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
+       <div className="mt-6 w-full max-w-[520px]">
+  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
   {FEATURES.map((f, i) => (
     <motion.div
       key={i}
@@ -339,7 +334,7 @@ const Hero = () => {
           ease: "easeOut",
         },
       }}
-      className="group flex items-center justify-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1.5 text-[9.5px] font-medium text-slate-200 backdrop-blur-md transition-colors duration-300 hover:border-emerald-400/40 hover:bg-emerald-500/10 sm:gap-2 sm:px-3 sm:py-2 sm:text-xs"
+      className="group flex items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-2 text-[11px] font-medium text-slate-200 backdrop-blur-md transition-colors duration-300 hover:border-emerald-400/40 hover:bg-emerald-500/10 sm:gap-2 sm:px-3 sm:text-xs"
     >
       <motion.span
         className="shrink-0 text-emerald-400"
@@ -362,7 +357,7 @@ const Hero = () => {
 </div>
 </div>
 
-            <div className="mt-4 flex w-full flex-wrap items-center gap-2.5 sm:mt-6 sm:gap-3">
+            <div className="mt-6 flex w-full flex-wrap items-center gap-3">
               <motion.a
   href="#courses"
   onClick={(e) => {
@@ -378,7 +373,7 @@ const Hero = () => {
   whileTap={{
     scale: 0.98,
   }}
-  className="relative inline-flex w-full items-center justify-center gap-1.5 overflow-hidden rounded-xl bg-emerald-500 px-4 py-2.5 text-[13px] font-medium text-[#081521] shadow-lg shadow-emerald-500/25 sm:w-auto sm:justify-start sm:gap-2 sm:px-6 sm:py-3.5 sm:text-base"
+  className="relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-emerald-500 px-5 py-3 text-sm font-medium text-[#081521] shadow-lg shadow-emerald-500/25 sm:w-auto sm:justify-start sm:px-6 sm:py-3.5 sm:text-base"
 >
   {/* Continuous Shine */}
   <motion.div
@@ -444,10 +439,10 @@ const Hero = () => {
           from 0deg,
           transparent 0deg,
           transparent 250deg,
-          #06B6D4 285deg,
-          #67E8F9 305deg,
-          #A5F3FC 325deg,
-          #22D3EE 345deg,
+          #E8A820 285deg,
+          #ffd23f 305deg,
+          #ffd23f 325deg,
+          #ffd23f 345deg,
           transparent 360deg
         )
       `,
@@ -462,7 +457,7 @@ const Hero = () => {
   />
 
   {/* Button */}
-  <div className="relative z-10 inline-flex w-full items-center justify-center gap-1.5 rounded-[10px] border border-white/10 bg-[#0B1220]/95 px-4 py-2.5 text-[13px] font-medium text-white backdrop-blur-md transition-all duration-300 group-hover:bg-[#10192B] sm:w-auto sm:justify-start sm:gap-2 sm:px-6 sm:py-3.5 sm:text-base">
+  <div className="relative z-10 inline-flex w-full items-center justify-center gap-2 rounded-[10px] border border-white/10 bg-[#0B1220]/95 px-5 py-3 text-sm font-medium text-white backdrop-blur-md transition-all duration-300 group-hover:bg-[#10192B] sm:w-auto sm:justify-start sm:px-6 sm:py-3.5 sm:text-base">
     <span>Start Your Journey</span>
 
     <motion.span
@@ -498,7 +493,7 @@ const Hero = () => {
     <img
       src={heroStudents}
       alt="WeIntern students working on live projects"
-      className="h-[190px] w-full object-cover sm:h-[340px] lg:h-[390px]"
+      className="h-[260px] w-full object-cover sm:h-[340px] lg:h-[390px]"
       onError={(e) => {
         e.target.style.display = "none";
         e.target.nextSibling.style.display = "flex";
@@ -512,7 +507,7 @@ const Hero = () => {
 
   {/* Logo Badge */}
   <motion.div
-    className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/60 px-2.5 py-1 backdrop-blur sm:left-3 sm:top-3 sm:px-4 sm:py-2"
+    className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/60 px-3 py-1.5 backdrop-blur sm:px-4 sm:py-2"
     animate={{
       y: [0, -3, 0],
     }}
@@ -525,19 +520,19 @@ const Hero = () => {
     <img
       src="/welogo.png"
       alt="WeIntern"
-      className="h-3 brightness-0 invert sm:h-5"
+      className="h-4 brightness-0 invert sm:h-5"
     />
   </motion.div>
 </motion.div>
         </div>
-       <div className="relative mt-6 mx-auto w-full max-w-8xl overflow-hidden rounded-2xl border border-white/10 bg-white backdrop-blur-md shadow-lg sm:mt-16">
+       <div className="relative mt-10 mx-auto w-full max-w-8xl overflow-hidden rounded-2xl border border-white/10 bg-white backdrop-blur-md shadow-lg sm:mt-16">
 
 
-  <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-3 gap-y-4 px-3 py-4 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-6 sm:px-4 sm:py-6 lg:grid-cols-6 lg:px-4">
+  <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-4 gap-y-6 px-4 py-6 sm:grid-cols-3 lg:grid-cols-6 lg:px-4">
     {STATS.map((s, i) => (
       <div key={i} className="text-center lg:text-left">
         <div
-          className={`text-base font-semibold sm:text-xl md:text-2xl ${s.color}`}
+          className={`text-xl font-semibold sm:text-2xl ${s.color}`}
           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
         >
           {s.static ? (
@@ -552,12 +547,12 @@ const Hero = () => {
         </div>
 
         {s.stars && (
-          <div className="mt-0.5 text-[9px] text-amber-400 sm:text-[10px]">
+          <div className="mt-0.5 text-[10px] text-amber-400">
             ★★★★★
           </div>
         )}
 
-        <div className="mt-0.5 text-[10px] text-slate-500 sm:text-xs md:text-sm">
+        <div className="mt-0.5 text-xs text-slate-500 sm:text-sm">
           {s.label}
         </div>
       </div>

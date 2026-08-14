@@ -13,7 +13,7 @@ const TESTIMONIALS = [
   },
   {
     initials: "AG",
-    color: "#2196C9",
+    color: "#E8A820",
     name: "Aastha Gade",
     role: "WeIntern Student",
     stars: 5,
@@ -53,7 +53,7 @@ const TESTIMONIALS = [
   },
   {
     initials: "PS",
-    color: "#3498DB",
+    color: "#ffd23f",
     name: "Priyankarani Sahu",
     role: "WeIntern Student",
     stars: 5,
@@ -226,8 +226,8 @@ const Testimonials = () => {
             refract — kept soft enough not to fight the copy. */}
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute -top-24 left-[8%] h-[300px] w-[300px] rounded-full bg-emerald-400/10 blur-[120px]" />
-          <div className="absolute top-40 right-[6%] h-[280px] w-[280px] rounded-full bg-sky-400/8 blur-[120px]" />
-          <div className="absolute bottom-0 left-[35%] h-[260px] w-[260px] rounded-full bg-violet-400/7 blur-[120px]" />
+          <div className="absolute top-40 right-[6%] h-[280px] w-[280px] rounded-full bg-yellow-400/8 blur-[120px]" />
+          <div className="absolute bottom-0 left-[35%] h-[260px] w-[260px] rounded-full bg-orange-400/7 blur-[120px]" />
         </div>
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
