@@ -15,6 +15,7 @@ import thinkitive from "../../assets/partners/thinkitive-tieup.png";
 import wenexa from "../../assets/partners/wenexa-tieup.png";
 import Zenture from "../../assets/partners/Zenture-tieup.png";
 
+
 const partners = [
   {
     name: "CodePlateau",

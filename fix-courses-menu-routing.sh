@@ -1,3 +1,24 @@
+#!/bin/bash
+set -e
+
+# ============================================================
+# WeIntern - Fix Courses mega-menu routing (properly this time)
+# The fuzzy-match fix from before got overwritten by later navbar
+# rewrites. Re-applying it on top of the current Navbar.jsx.
+# Run from your project ROOT:
+#   cd ~/path/to/WeInternFr
+#   bash fix-courses-menu-routing.sh
+# ============================================================
+
+SRC="frontend/src"
+
+if [ ! -f "$SRC/components/Layout/Navbar.jsx" ]; then
+  echo "Cannot find $SRC/components/Layout/Navbar.jsx -- run this from your project root."
+  exit 1
+fi
+
+echo "Writing Navbar.jsx ..."
+cat > "$SRC/components/Layout/Navbar.jsx" << 'NAVJSXEOF'
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -769,3 +790,16 @@ const Navbar = () => {
 };
 
 export default Navbar;
+NAVJSXEOF
+
+echo ""
+echo "Done. cd frontend && npm start"
+echo "Click Courses in the navbar, then click any of the 13 items -- each should"
+echo "open its matching real course page (e.g. 'AI / ML' -> 'AI & Automation')."
+echo "Items with no live course match yet scroll to the courses section instead"
+echo "of showing a broken/404 page."
+echo ""
+echo "To deploy:"
+echo "   git add ."
+echo "   git commit -m \"fix: re-apply fuzzy-match routing for courses mega-menu\""
+echo "   git push origin main"

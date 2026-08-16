@@ -197,27 +197,16 @@
 /* ── Gradient icon zone ── */
 .cs-card-icon-zone {
   position: relative;
-  /* Fixed height keeps cards uniform and compact */
-  height: 130px;
-  padding: 0.9rem 0.9rem 1.6rem;
+  height: 92px;
+  padding: 0.9rem;
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   overflow: hidden;
   flex-shrink: 0;
+  background: linear-gradient(150deg, #1c2444, #0e1428);
 }
 
-/* Curved wave bottom edge */
-.cs-card-icon-zone::after {
-  content: "";
-  position: absolute;
-  left: -15%;
-  right: -15%;
-  bottom: -20px;
-  height: 40px;
-  background: #fff;
-  border-radius: 50%;
-  pointer-events: none;
-}
+/* (wave bottom-edge removed for the clean flat-card redesign) */
 
 /* Badge chip top-right */
 .cs-card-badge {
@@ -312,7 +301,7 @@
 
 /* ── Card text content ── */
 .cs-card-content {
-  padding: 0.55rem 0.85rem 0;
+  padding: 0.9rem 0.9rem 0.2rem;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -1111,15 +1100,15 @@
     margin-top: 0.1rem;
   }
 
-  /* Increase card size for mobile */
+  /* Compact icon zone on mobile too */
   .cs-card-icon-zone {
-    height: 170px; /* Increased from 150px */
-    padding: 1.2rem 1.2rem 2rem;
+    height: 100px;
+    padding: 1rem;
   }
 
-  .cs-card-icon-wrap {
-    width: 70px; /* Increased from 60px */
-    height: 70px;
+  .cs-tech-badge {
+    width: 34px;
+    height: 34px;
   }
 
   .cs-card-content {
@@ -1437,17 +1426,34 @@
 }
 .cs-join-now:hover { gap: 9px; opacity: .85; }
 
-/* Cycle icon-zone background: navy / soft blue-gray / gold / navy ... */
-.cs-card:nth-child(4n+2) .cs-card-icon-zone {
+/* Cycle icon-zone + enroll-button background: navy / soft blue-gray / gold / navy ... */
+.cs-card:nth-child(4n+2) .cs-card-icon-zone,
+.cs-card:nth-child(4n+2) .cs-enroll {
   background: linear-gradient(150deg, #7d97ad, #4b6478) !important;
 }
-.cs-card:nth-child(4n+3) .cs-card-icon-zone {
+.cs-card:nth-child(4n+3) .cs-card-icon-zone,
+.cs-card:nth-child(4n+3) .cs-enroll {
   background: linear-gradient(150deg, #ffd23f, #E8A820) !important;
 }
-.cs-card:nth-child(4n+3) .cs-card-badge { background: rgba(20,25,46,0.16) !important; color: #14192e !important; }
-.cs-card:nth-child(4n+3) .cs-card-icon-wrap { color: #14192e !important; }
-.cs-card:nth-child(4n+3) .cs-join-now { color: #14192e; }
+.cs-card:nth-child(4n+3) .cs-join-now { color: #b8860b; }
 .cs-card:nth-child(4n+1) .cs-card-icon-zone,
-.cs-card:nth-child(4n) .cs-card-icon-zone {
+.cs-card:nth-child(4n) .cs-card-icon-zone,
+.cs-card:nth-child(4n+1) .cs-enroll,
+.cs-card:nth-child(4n) .cs-enroll {
   background: linear-gradient(150deg, #1c2444, #0e1428) !important;
+}
+
+.cs-header-row {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+}
+.cs-view-all {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+  color: #E8A820; font-weight: 700; font-size: .88rem;
+  white-space: nowrap; padding-bottom: 4px;
+}
+.cs-view-all:hover { opacity: .8; }
+@media (max-width: 640px) {
+  .cs-header-row { flex-direction: column; align-items: flex-start; }
 }

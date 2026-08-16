@@ -1,3 +1,25 @@
+#!/bin/bash
+set -e
+
+# ============================================================
+# WeIntern - Redesign course cards to match compact reference
+# Removes: category badge, offer-price box, checklist bullets,
+# feature pills. Keeps: Enroll Now (real payment flow), Join
+# Now link, tabs, carousel, all responsive breakpoints.
+# Run from your project ROOT:
+#   cd ~/path/to/WeInternFr
+#   bash redesign-course-cards-v2.sh
+# ============================================================
+
+SRC="frontend/src"
+
+if [ ! -f "$SRC/components/Sections/Courses.jsx" ]; then
+  echo "Cannot find $SRC/components/Sections/Courses.jsx -- run this from your project root."
+  exit 1
+fi
+
+echo "[1/2] Writing components/Sections/Courses.jsx ..."
+cat > "$SRC/components/Sections/Courses.jsx" << 'FILEEOF1'
 /* eslint-disable no-unused-vars */
 import React, { useState, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
@@ -702,18 +724,19 @@ const Courses = () => {
 
                   {/* Enroll button */}
                   <button
-                  style={{}}
                     className="cs-enroll"
                     onClick={(e) => { e.stopPropagation(); handleEnroll(c); }}
                   >
-                    Join Now
+                    Enroll Now
                     <Icon icon="lucide:arrow-right" width={12} height={12} className="cs-enroll-arrow" />
                   </button>
 
                   {/* Join Now link, matching the reference design */}
                   <button
                     className="cs-join-now"
+                    onClick={(e) => { e.stopPropagation(); navigate(`/courses/${slugify(c.title)}`); }}
                   >
+                    Join Now <Icon icon="lucide:arrow-right" width={13} height={13} />
                   </button>
                 </div>
               );
@@ -780,3 +803,1477 @@ const Courses = () => {
 };
 
 export default Courses;
+FILEEOF1
+
+echo "[2/2] Writing components/Sections/Courses.css ..."
+cat > "$SRC/components/Sections/Courses.css" << 'FILEEOF2'
+/* ── Section ── */
+.courses {
+  background: #f0f2f8;
+  padding: 2.8rem 0 0;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ══════════════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════════════ */
+.cs-header {
+  text-align: center;
+  margin-bottom: 1.4rem;
+  padding: 0 4%;
+}
+
+.cs-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #fff;
+  border: 1px solid #e2d9f8;
+  color: #6d28d9;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  margin-bottom: 0.7rem;
+  letter-spacing: 0.01em;
+}
+
+.cs-badge-rocket-icon {
+  flex-shrink: 0;
+  color: #6d28d9;
+}
+
+.cs-main-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+  font-weight: 900;
+  color: #0d1b3e;
+  margin: 0 0 0.4rem;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.cs-title-accent {
+  color: #6d28d9;
+}
+
+.cs-sub {
+  font-size: 0.85rem;
+  color: #6b7a99;
+  margin: 0;
+}
+
+/* ══════════════════════════════════════════════════
+   TABS
+══════════════════════════════════════════════════ */
+.cs-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.6rem;
+  padding: 0 4%;
+}
+
+.cs-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.48rem 1.2rem;
+  border-radius: 999px;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.cs-tab:hover {
+  border-color: #ffd23f;
+  color: #6d28d9;
+}
+
+.cs-tab--active {
+  background: #5b21b6;
+  border-color: #5b21b6;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+}
+
+.cs-tab--active:hover {
+  color: #fff;
+}
+
+/* ══════════════════════════════════════════════════
+   CAROUSEL ROOT
+══════════════════════════════════════════════════ */
+.cs-carousel-root {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 2%;
+  /* Side padding gives space for arrows */
+}
+
+/* ── Arrow buttons ── */
+.cs-arrow {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(13, 27, 62, 0.1);
+  transition: all 0.18s ease;
+  z-index: 2;
+  position: relative;
+}
+
+.cs-arrow:hover:not(:disabled) {
+  background: #5b21b6;
+  border-color: #5b21b6;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(91, 33, 182, 0.3);
+}
+
+.cs-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ── Viewport (masks overflow) ── */
+.cs-carousel-viewport {
+  flex: 1;
+  overflow: hidden;
+  padding: 0.5rem 0.4rem 0.8rem;
+  /* Let the browser treat horizontal drag as a slide gesture,
+     while vertical page scroll still works normally on touch. */
+  touch-action: pan-y;
+}
+
+/* ── Track (sliding strip of all cards) ── */
+.cs-carousel-track {
+  display: flex;
+  gap: 0.85rem;
+  transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Each card takes exactly 1/visible-count of the viewport.
+     NOTE: the per-breakpoint flex-basis below must always equal
+     (100% - (visibleCount - 1) * gap) / visibleCount — this is the
+     same formula the JS translateX step uses in Courses.jsx. Keeping
+     these two in lockstep is what prevents the carousel drifting /
+     clipping cards as you slide. */
+  width: 100%;
+}
+
+/* ══════════════════════════════════════════════════
+   CARDS
+   Target height ≈ 370-380px matching reference.
+   Icon zone: 130px | Content: flex-1 | Footer ~40px
+══════════════════════════════════════════════════ */
+.cs-card {
+  /* Desktop default (>=1200px): 5 visible cards.
+     Each card = (viewport - 4 gaps) / 5 */
+  flex: 0 0 calc((100% - 4 * 0.85rem) / 5);
+  min-width: 0;
+
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid var(--crd-border, #e2e8f0);
+  box-shadow: 0 2px 10px rgba(13, 27, 62, 0.06);
+
+  display: flex;
+  flex-direction: column;
+
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.cs-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(13, 27, 62, 0.12);
+}
+
+/* ── Gradient icon zone ── */
+.cs-card-icon-zone {
+  position: relative;
+  height: 92px;
+  padding: 0.9rem;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: linear-gradient(150deg, #1c2444, #0e1428);
+}
+
+/* (wave bottom-edge removed for the clean flat-card redesign) */
+
+/* Badge chip top-right */
+.cs-card-badge {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  z-index: 1;
+  letter-spacing: 0.01em;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Offer Price Box - Extra Compact, Numbers Only */
+.cs-card-offer-box {
+  position: absolute;
+  top: 2.2rem;
+  right: 0.6rem;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid #e5e7eb;
+  border-radius: 5px;
+  padding: 0.25rem 0.35rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 3;
+  min-width: 55px;
+  backdrop-filter: blur(8px);
+}
+
+.cs-offer-label {
+  display: none;
+}
+
+.cs-offer-label::before {
+  display: none;
+}
+
+.cs-offer-old-price {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.55rem;
+  color: #9ca3af;
+  text-decoration: line-through;
+  font-weight: 500;
+  margin-bottom: 0.12rem;
+  display: block;
+  line-height: 1;
+}
+
+.cs-offer-discount {
+  background: #fef3c7;
+  color: #d97706;
+  font-size: 0.42rem;
+  font-weight: 700;
+  padding: 0.1rem 0.25rem;
+  border-radius: 3px;
+  text-decoration: none;
+  margin: 0.15rem auto;
+  display: inline-block;
+  letter-spacing: 0.01em;
+}
+
+.cs-offer-new-price {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #16a34a;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  display: block;
+  margin-top: 0.12rem;
+}
+
+/* Icon white box */
+.cs-card-icon-wrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(13, 27, 62, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Card text content ── */
+.cs-card-content {
+  padding: 0.9rem 0.9rem 0.2rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.cs-card-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #0d1b3e;
+  line-height: 1.3;
+  margin: 0 0 0.2rem;
+  word-break: break-word;
+}
+
+.cs-card-dur {
+  display: flex;
+  align-items: center;
+  gap: 0.28rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: #6b7a99;
+  margin: 0 0 0.45rem;
+}
+
+.cs-dur-icon {
+  flex-shrink: 0;
+  color: #9aa6bf;
+}
+
+/* Feature list */
+.cs-card-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+
+.cs-card-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.38rem;
+  font-size: 0.72rem;
+  color: #374151;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.cs-bullet-check {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Feature pills row */
+.cs-feature-pills {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 0.4rem;
+}
+
+.cs-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: #475569;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  padding: 0.2rem 0.45rem;
+  white-space: nowrap;
+}
+
+/* ── Enroll button ── */
+.cs-enroll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: calc(100% - 1.7rem);
+  margin: 0.55rem 0.85rem 0;
+  padding: 0.52rem 0.7rem;
+  background: var(--enroll-color, #16a34a);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(13, 27, 62, 0.12);
+  transition: filter 0.18s, box-shadow 0.18s, transform 0.18s;
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
+}
+
+.cs-enroll:hover {
+  filter: brightness(0.9);
+  box-shadow: 0 6px 18px rgba(13, 27, 62, 0.18);
+  transform: translateY(-1px);
+}
+
+.cs-enroll-arrow {
+  flex-shrink: 0;
+}
+
+/* ── Card footer (rating only) ── */
+.cs-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.85rem 0.65rem;
+  flex-shrink: 0;
+}
+
+.cs-star-icon {
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════
+   DOT INDICATORS
+══════════════════════════════════════════════════ */
+.cs-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+}
+
+.cs-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: #cbd5e1;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.22s ease;
+}
+
+.cs-dot--active {
+  background: #5b21b6;
+  width: 22px;
+  border-radius: 4px;
+}
+
+/* ══════════════════════════════════════════════════
+   BENEFITS STRIP  —  UNTOUCHED (copied verbatim)
+══════════════════════════════════════════════════ */
+.cs-benefits-wrap {
+  background: #ffffff;
+  border: 1px solid #e7e9f0;
+  border-radius: 14px;
+  margin: 1.5rem 0 0;
+  padding: 1.4rem 2%;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+
+.cs-benefits-inner {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  max-width: 100%;
+}
+
+.cs-benefits-heading {
+  display: flex;
+  flex-direction: column;
+  font-size: .7rem;
+  font-weight: 800;
+  color: #0d1b3e;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  line-height: 1.4;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-right: 2rem;
+  border-right: 1px solid #e5e7eb;
+  min-width: 120px;
+}
+
+.cs-benefits-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  gap: 0.4rem;
+  flex-wrap: nowrap;
+}
+
+.cs-benefit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  text-align: left;
+  min-width: auto;
+  flex: 1;
+}
+
+.cs-benefit-ico {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cs-benefit-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  display: block;
+}
+
+.cs-benefit:hover .cs-benefit-ico {
+  color: #ffd23f;
+  transform: scale(1.12);
+}
+
+.cs-benefit-lbl {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #374151;
+  line-height: 1.4;
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════════
+   PRESERVED — EnrollModal & form styles (untouched)
+══════════════════════════════════════════════════ */
+.enroll-course-name {
+  text-align: center;
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--navy);
+  background: var(--cream);
+  border-radius: var(--rsm);
+  padding: .6rem 1rem;
+  margin-bottom: .75rem;
+}
+
+.enroll-price {
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+}
+
+.enroll-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--cream, #f9f7f2);
+  border-radius: var(--rsm, 8px);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+.enroll-emoji {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.enroll-price-tag {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--gold, #e8a820);
+  margin-top: 2px;
+}
+
+/* ── New Offer System Styles ── */
+.enroll-price-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.enroll-original-price {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  color: #9ca3af;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.enroll-discount-badge {
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.enroll-offer-price {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f97316;
+}
+
+.enroll-offer-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 1px solid #fbbf24;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+
+.enroll-offer-badge-title {
+  font-weight: 700;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.enroll-offer-badge-subtitle {
+  font-weight: 600;
+  color: #b45309;
+}
+
+.enroll-special-offer {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border: 2px solid #86efac;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.enroll-offer-icon {
+  width: 40px;
+  height: 40px;
+  background: #16a34a;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.enroll-offer-text {
+  flex: 1;
+  font-size: 0.85rem;
+  color: #1B2A4A;
+}
+
+.enroll-offer-text strong {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+  color: #166534;
+}
+
+.enroll-offer-prices {
+  font-size: 0.8rem;
+  color: #4b5563;
+}
+
+.enroll-offer-strike {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+.enroll-offer-highlight {
+  font-weight: 700;
+  color: #16a34a;
+  font-size: 0.9rem;
+}
+
+.enroll-show-price-btn {
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.enroll-show-price-btn:hover {
+  background: #15803d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+.enroll-price-breakdown {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.enroll-price-row-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.enroll-discount-row {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.enroll-total-row {
+  border-top: 2px solid #e5e7eb;
+  margin-top: 0.4rem;
+  padding-top: 0.6rem;
+  font-size: 0.95rem;
+  color: #1B2A4A;
+}
+
+.enroll-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem 1rem;
+}
+
+.enroll-form-grid .form-group {
+  margin-bottom: 0;
+}
+
+.payment-methods-preview {
+  background: #f8fafc;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: var(--rsm, 8px);
+  padding: .85rem 1rem;
+  margin: 1.25rem 0;
+}
+
+.pm-label {
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--muted, #6b7a99);
+  margin-bottom: .6rem;
+}
+
+.pm-icons {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.pm-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: white;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 6px;
+  padding: .3rem .7rem;
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--navy, #0d1b3e);
+}
+
+.enroll-pay-btn {
+  margin-top: .5rem;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  background: linear-gradient(135deg, #E8A820, #f5c842);
+  box-shadow: 0 4px 16px rgba(232, 168, 32, .35);
+}
+
+.enroll-pay-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(232, 168, 32, .45);
+}
+
+.enroll-processing {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.processing-spinner {
+  width: 52px;
+  height: 52px;
+  border: 4px solid var(--border, #e5e7eb);
+  border-top-color: var(--gold, #e8a820);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 1.25rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.enroll-processing h3 {
+  color: var(--navy, #0d1b3e);
+  font-family: 'Playfair Display', serif;
+  margin-bottom: .5rem;
+}
+
+.enroll-processing p {
+  color: var(--muted, #6b7a99);
+  font-size: .9rem;
+  margin-bottom: 1.5rem;
+}
+
+.processing-steps {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  text-align: left;
+  background: var(--cream, #f9f7f2);
+  border-radius: var(--rsm, 8px);
+  padding: 1rem 1.25rem;
+}
+
+.ps-item {
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--muted, #6b7a99);
+}
+
+.ps-item.done {
+  color: #059669;
+}
+
+.ps-item.active {
+  color: var(--gold, #e8a820);
+  font-weight: 700;
+}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+
+   Visible-card tiers (kept in sync with getVisible() in Courses.jsx):
+     >=1200px      → 5 cards  (desktop — default rule above, unchanged)
+     992px–1199px  → 4 cards  (laptop)
+     768px–991px   → 3 cards  (tablet landscape)
+     576px–767px   → 2 cards  (tablet portrait)
+     <576px        → 1 card   (mobile)
+
+   Each tier's .cs-card flex-basis MUST equal
+   (100% - (visibleCount - 1) * 0.85rem) / visibleCount,
+   because that is exactly what the JS translateX step computes.
+   This was the source of the original drift/clipping bug — the old
+   480px tier used `100% - 0.85rem` instead of `100%`, so the slide
+   step (matched to 1 card) overshot the actual card width by one
+   gap on every advance.
+══════════════════════════════════════════════════ */
+
+@media (min-width: 1280px) {
+  .courses {
+    padding: 3rem 0 0;
+  }
+}
+
+/* ── Laptop: 4 cards ── */
+@media (max-width: 1199.98px) {
+  .cs-card {
+    flex: 0 0 calc((100% - 3 * 0.85rem) / 4);
+  }
+}
+
+/* ── Tablet landscape: 3 cards ── */
+@media (max-width: 991.98px) {
+  .cs-card {
+    flex: 0 0 calc((100% - 2 * 0.85rem) / 3);
+  }
+
+  /* Smaller arrows on tablet, as required */
+  .cs-arrow {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+/* ── Tablet portrait: 2 cards ── */
+@media (max-width: 767.98px) {
+  .cs-card {
+    flex: 0 0 calc((100% - 1 * 0.85rem) / 2);
+  }
+
+  .cs-arrow {
+    width: 30px;
+    height: 30px;
+  }
+
+  .cs-tabs {
+    gap: 0.35rem;
+  }
+
+  .cs-tab {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.78rem;
+  }
+
+  /* Benefits responsive (logic preserved verbatim from original) */
+  .cs-benefits-inner {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .cs-benefits-heading {
+    border-right: none;
+    border-bottom: 1px solid #d1d5db;
+    padding-right: 0;
+    padding-bottom: 0.75rem;
+    min-width: auto;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cs-benefits-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem 0.5rem;
+    width: 100%;
+    flex: unset;
+    justify-items: center;
+  }
+
+  .cs-benefit {
+    flex: unset;
+    width: 100%;
+    min-width: unset;
+    align-items: center;
+    text-align: center;
+  }
+
+  .cs-benefit-lbl {
+    white-space: normal;
+    text-align: center;
+    font-size: 0.64rem;
+  }
+}
+
+/* ── Mobile: exactly 1 card, 100% width, auto + manual scroll ── */
+@media (max-width: 575.98px) {
+  .courses {
+    padding: 2rem 0 1rem;
+  }
+
+  .cs-main-title {
+    font-size: 1.5rem;
+  }
+
+  /* Carousel */
+  .cs-carousel-root {
+    position: relative;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+  }
+
+  .cs-carousel-viewport {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.5rem 0.4rem 0.9rem;
+    height: 600px; /* Increased from 550px */
+    width: 100%;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold) var(--cream);
+  }
+
+  /* Webkit scrollbar styling */
+  .cs-carousel-viewport::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .cs-carousel-viewport::-webkit-scrollbar-track {
+    background: var(--cream);
+    border-radius: 10px;
+  }
+
+  .cs-carousel-viewport::-webkit-scrollbar-thumb {
+    background: var(--gold);
+    border-radius: 10px;
+  }
+
+  .cs-carousel-viewport::-webkit-scrollbar-thumb:hover {
+    background: var(--navy);
+  }
+
+  /* Auto-scroll animation for the viewport */
+  .cs-carousel-viewport.auto-scrolling {
+    animation: mobileAutoScroll 50s linear infinite;
+  }
+
+  /* Pause on hover/touch */
+  .cs-carousel-viewport.auto-scrolling:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes mobileAutoScroll {
+    0% {
+      scroll-behavior: auto;
+    }
+    100% {
+      scroll-behavior: auto;
+    }
+  }
+
+  .cs-carousel-track {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Ensure cards are clickable */
+  .cs-card {
+    flex: 0 0 auto;
+    width: 100%;
+    margin-bottom: 0.85rem;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+  
+  /* Offer box responsive on mobile - Extra compact */
+  .cs-card-offer-box {
+    min-width: 50px;
+    padding: 0.22rem 0.32rem;
+    top: 2rem;
+    right: 0.5rem;
+    border-radius: 4px;
+  }
+  
+  .cs-offer-label {
+    display: none;
+  }
+  
+  .cs-offer-old-price {
+    font-size: 0.52rem;
+    margin-bottom: 0.1rem;
+  }
+  
+  .cs-offer-discount {
+    font-size: 0.38rem;
+    padding: 0.08rem 0.22rem;
+    margin: 0.12rem auto;
+  }
+  
+  .cs-offer-new-price {
+    font-size: 0.75rem;
+    margin-top: 0.1rem;
+  }
+
+  /* Compact icon zone on mobile too */
+  .cs-card-icon-zone {
+    height: 100px;
+    padding: 1rem;
+  }
+
+  .cs-tech-badge {
+    width: 34px;
+    height: 34px;
+  }
+
+  .cs-card-content {
+    padding: 0.8rem 1.2rem 0; /* Increased padding */
+  }
+
+  .cs-card-title {
+    font-size: 1.1rem; /* Increased from 1rem */
+    margin: 0 0 0.35rem;
+  }
+
+  .cs-card-dur {
+    font-size: 0.82rem; /* Increased from 0.75rem */
+    margin: 0 0 0.6rem;
+  }
+
+  .cs-card-list {
+    gap: 0.4rem; /* Increased from 0.35rem */
+    margin: 0 0 0.7rem;
+  }
+
+  .cs-card-list li {
+    font-size: 0.85rem; /* Increased from 0.78rem */
+  }
+
+  .cs-card-footer {
+    padding: 0.85rem 1.2rem; /* Increased padding */
+  }
+
+  .cs-card-price {
+    font-size: 1.2rem; /* Increased from 1.1rem */
+  }
+
+  .cs-cta-btn {
+    padding: 0.6rem 1.3rem; /* Increased button size */
+    font-size: 0.85rem;
+  }
+
+  /* Hide arrows for mobile */
+  .cs-arrow {
+    display: none;
+  }
+
+  /* Hide dots for mobile */
+  .cs-dots {
+    display: none;
+  }
+
+  /* Tabs */
+  .cs-tabs {
+    gap: 0.3rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 3%;
+  }
+
+  .cs-tab {
+    font-size: 0.75rem;
+    padding: 0.38rem 0.75rem;
+  }
+
+  /* Modal Form */
+  .enroll-form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Offer system responsive */
+  .enroll-special-offer {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+    padding: 0.85rem;
+  }
+  
+  .enroll-show-price-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .enroll-offer-badge {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.65rem;
+  }
+  
+  .enroll-price-row {
+    justify-content: flex-start;
+  }
+  
+  .enroll-header {
+    flex-wrap: wrap;
+  }
+
+  /* Benefits Section (reduced gap) */
+  .cs-benefits-wrap {
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+
+  .cs-benefits-inner {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .cs-benefits-heading {
+    border-right: none;
+    border-bottom: 1px solid #d1d5db;
+    padding-right: 0;
+    padding-bottom: 0.6rem;
+    min-width: auto;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.7rem;
+  }
+
+  .cs-benefits-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem 0.5rem;
+    width: 100%;
+    justify-items: center;
+  }
+
+  .cs-benefit {
+    width: 100%;
+    min-width: unset;
+    align-items: center;
+    text-align: center;
+    gap: 0.35rem;
+  }
+
+  .cs-benefit-ico {
+    width: 32px;
+    height: 32px;
+  }
+
+  .cs-benefit-img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .cs-benefit-lbl {
+    font-size: 0.62rem;
+    white-space: normal;
+    text-align: center;
+  }
+}
+/* Tiny phones */
+@media (max-width: 400px) {
+  .cs-main-title {
+    font-size: 1.3rem;
+  }
+
+  .cs-benefits-wrap {
+    padding: 0.85rem;
+  }
+
+  .cs-benefits-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem 0.4rem;
+  }
+
+  .cs-benefit {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .cs-benefit-lbl {
+    font-size: 0.6rem;
+    text-align: center;
+  }
+}
+
+/* ── EMI on course card ── */
+.cs-emi-label {
+  font-size: .68rem;
+  color: rgba(255,255,255,0.75);
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+/* ── EMI selector in EnrollModal ── */
+.emi-selector { margin: 1rem 0; }
+.emi-selector-label {
+  font-size: .78rem; font-weight: 700; color: var(--navy);
+  text-transform: uppercase; letter-spacing: .05em; margin-bottom: .65rem;
+}
+.emi-options { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; }
+.emi-option {
+  border: 2px solid var(--border); border-radius: 10px;
+  padding: .85rem .75rem; cursor: pointer; background: white;
+  text-align: left; transition: all .2s; font-family: 'DM Sans', sans-serif;
+}
+.emi-option:hover { border-color: var(--gold); }
+.emi-option.active { border-color: var(--gold); background: rgba(232,168,32,.06); }
+.emi-option-title { font-size: .78rem; font-weight: 700; color: var(--navy); margin-bottom: .2rem; }
+.emi-option-price { font-size: 1rem; font-weight: 800; color: var(--gold); margin-bottom: .15rem; }
+.emi-option-sub { font-size: .68rem; color: var(--muted); }
+.emi-breakdown {
+  background: #f8fafc; border: 1px solid var(--border);
+  border-radius: 10px; padding: .85rem 1rem; margin-top: .65rem;
+}
+.emi-breakdown-title {
+  font-size: .75rem; font-weight: 700; color: var(--navy);
+  margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .05em;
+}
+.emi-breakdown-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: .35rem 0; border-bottom: 1px solid var(--border);
+  font-size: .8rem; color: var(--muted);
+}
+.emi-breakdown-row strong { color: var(--navy); }
+.emi-breakdown-total {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: .5rem; margin-top: .25rem;
+  font-size: .85rem; font-weight: 700; color: var(--navy);
+}
+
+/* ── Coupon Section ── */
+.coupon-section {
+  background: #f8fafc; border: 1.5px dashed #d1d5db;
+  border-radius: 12px; padding: 1rem; margin: 1rem 0;
+}
+.coupon-label {
+  display: flex; align-items: center; gap: .4rem;
+  font-size: .8rem; font-weight: 700; color: var(--navy);
+  margin-bottom: .65rem;
+}
+.coupon-input-row { display: flex; gap: .5rem; }
+.coupon-input {
+  flex: 1; padding: .6rem .85rem; border: 1.5px solid var(--border);
+  border-radius: 8px; font-size: .88rem; font-family: 'Space Mono', monospace;
+  text-transform: uppercase; letter-spacing: .05em; outline: none;
+  transition: border-color .2s;
+}
+.coupon-input:focus { border-color: var(--gold); }
+.coupon-apply-btn {
+  padding: .6rem 1.1rem; background: var(--navy); color: white;
+  border: none; border-radius: 8px; font-weight: 700; font-size: .85rem;
+  cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .2s;
+  white-space: nowrap;
+}
+.coupon-apply-btn:hover:not(:disabled) { background: var(--gold); color: var(--navy); }
+.coupon-apply-btn:disabled { opacity: .6; cursor: not-allowed; }
+.coupon-applied-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(24,180,91,.08); border: 1.5px solid rgba(24,180,91,.3);
+  border-radius: 8px; padding: .65rem .85rem;
+}
+.coupon-applied-info {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: .82rem; color: var(--navy); flex-wrap: wrap;
+}
+.coupon-saved {
+  background: rgba(24,180,91,.15); color: #18b45b;
+  font-size: .72rem; font-weight: 700; padding: .15rem .5rem;
+  border-radius: 50px;
+}
+.coupon-remove-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: .85rem; padding: .2rem .4rem;
+  border-radius: 4px; transition: all .2s; flex-shrink: 0;
+}
+.coupon-remove-btn:hover { background: rgba(220,69,69,.1); color: #dc4545; }
+.coupon-error {
+  font-size: .78rem; color: #dc4545; margin-top: .5rem;
+  display: flex; align-items: center; gap: .35rem;
+}
+.coupon-error::before { content: '⚠'; }
+.coupon-price-summary {
+  margin-top: .75rem; padding-top: .75rem;
+  border-top: 1px solid rgba(24,180,91,.2);
+}
+.cps-row {
+  display: flex; justify-content: space-between;
+  font-size: .82rem; color: var(--muted); padding: .25rem 0;
+}
+.cps-discount { color: #18b45b; }
+.cps-total {
+  display: flex; justify-content: space-between;
+  font-size: .9rem; color: var(--navy); padding-top: .4rem;
+  border-top: 1px solid var(--border); margin-top: .25rem;
+}
+.cps-total strong { color: var(--gold); font-size: 1rem; }
+
+/* ── Popular-programs style redesign: colorful icon zones,
+   cycling card accent colors, tech-icon row, Join Now link ── */
+.cs-tech-row {
+  position: absolute;
+  bottom: 10px;
+  left: 14px;
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+.cs-tech-badge {
+  width: 30px; height: 30px; border-radius: 9px;
+  background: rgba(255,255,255,0.92);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+  color: #14192e;
+}
+
+.cs-join-now {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+  padding: 0 1.1rem .9rem;
+  font-size: .82rem; font-weight: 700;
+  color: #E8A820;
+  transition: gap .15s ease, opacity .15s ease;
+}
+.cs-join-now:hover { gap: 9px; opacity: .85; }
+
+/* Cycle icon-zone + enroll-button background: navy / soft blue-gray / gold / navy ... */
+.cs-card:nth-child(4n+2) .cs-card-icon-zone,
+.cs-card:nth-child(4n+2) .cs-enroll {
+  background: linear-gradient(150deg, #7d97ad, #4b6478) !important;
+}
+.cs-card:nth-child(4n+3) .cs-card-icon-zone,
+.cs-card:nth-child(4n+3) .cs-enroll {
+  background: linear-gradient(150deg, #ffd23f, #E8A820) !important;
+}
+.cs-card:nth-child(4n+3) .cs-join-now { color: #b8860b; }
+.cs-card:nth-child(4n+1) .cs-card-icon-zone,
+.cs-card:nth-child(4n) .cs-card-icon-zone,
+.cs-card:nth-child(4n+1) .cs-enroll,
+.cs-card:nth-child(4n) .cs-enroll {
+  background: linear-gradient(150deg, #1c2444, #0e1428) !important;
+}
+
+.cs-header-row {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+}
+.cs-view-all {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+  color: #E8A820; font-weight: 700; font-size: .88rem;
+  white-space: nowrap; padding-bottom: 4px;
+}
+.cs-view-all:hover { opacity: .8; }
+@media (max-width: 640px) {
+  .cs-header-row { flex-direction: column; align-items: flex-start; }
+}
+FILEEOF2
+
+echo ""
+echo "Done. cd frontend && npm start -- check the Courses section (tabs + carousel)."
+echo "Cards now cycle navy / blue-gray / gold / navy, with tech-icon badges and"
+echo "a Join Now link, matching your reference. Enroll Now (payment) still works."
+echo ""
+echo "To deploy:"
+echo "   git add ."
+echo "   git commit -m \"style: simplify course cards to match compact reference design\""
+echo "   git push origin main"

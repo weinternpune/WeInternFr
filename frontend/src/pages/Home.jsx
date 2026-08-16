@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Hero from '../components/Sections/Hero';
+// import PopularPrograms from '../components/Sections/PopularPrograms';
 import { Problem, HowItWorks, EcosystemSection, Vision, LiveJourney } from '../components/Sections/Sections';
 import Courses from '../components/Sections/Courses';
 import { ApplySection, } from '../components/Sections/Forms';
@@ -37,6 +38,8 @@ const Home = () => {
   return (
     <>
       <Hero />
+      {/* <PopularPrograms /> */}
+
       {/* Marquee */}
       <div className="marquee-strip">
         <div className="marquee-track">
@@ -45,18 +48,17 @@ const Home = () => {
           ].map((t, i) => <span key={i}>{t}</span>)}
         </div>
       </div>
-      
-      {/* All sections visible - no blur */}
+      <PartnersMarquee/>
+
+      {/* All original sections, unchanged */}
       <Courses />
       <LiveJourney />
       <Problem />
       <HowItWorks />
       <EcosystemSection />
       <Vision />
-      <PartnersMarquee/>
       <ApplySection />
       <StudentProjects />
-      
       <TestimonialsSection />
     </>
   );
