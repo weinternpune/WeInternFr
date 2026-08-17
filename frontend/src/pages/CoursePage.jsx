@@ -7,6 +7,8 @@ import { COURSE_DETAILS } from '../components/Sections/CourseDetail';
 import { EnrollModal } from '../components/Sections/Courses';
 import Navbar from '../components/Layout/Navbar';
 import toast from 'react-hot-toast';
+import  PartnersMarquee from '../components/Sections/PartnersMarquee';
+import Footerpage from '../components/Layout/Footer';
 import {
   slugify,
   getInitials,
@@ -17,7 +19,7 @@ import {
   getMaterials,
   getPrerequisites,
   getTechIcon,
-  PARTNERS,
+  // PARTNERS,
   WHY_CHOOSE,
 } from '../data/courseExtras';
 import './CoursePage.css';
@@ -130,19 +132,17 @@ const CoursePage = () => {
             </div>
           </div>
 
-          {/* Colorful glass illustration cluster */}
+          {/* Hero Image */}
           <div className="cp-hero-right">
-            <div className="cp-hero-illustration">
-              <div className="cp-hi-blob cp-hi-blob-1" />
-              <div className="cp-hi-blob cp-hi-blob-2" />
-              <div className="cp-hi-glass">
-                <Icon icon={details.icon} width={64} height={64} />
-              </div>
-              <div className="cp-hi-badge cp-hi-badge-1"><Icon icon="mdi:certificate" width={18} height={18} /></div>
-              <div className="cp-hi-badge cp-hi-badge-2"><Icon icon="mdi:star-four-points" width={18} height={18} /></div>
-              <div className="cp-hi-badge cp-hi-badge-3"><Icon icon="mdi:rocket-launch" width={18} height={18} /></div>
-              <div className="cp-hi-badge cp-hi-badge-4"><Icon icon="mdi:code-tags" width={18} height={18} /></div>
-            </div>
+            <img 
+              src={`/course-images/${slugify(course.title)}.jpg`}
+              alt={`${course.title} Course`}
+              className="cp-hero-img"
+              onError={(e) => {
+                // Fallback to Unsplash if image not found
+                e.target.src = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop';
+              }}
+            />
           </div>
         </div>
       </div>
@@ -169,13 +169,20 @@ const CoursePage = () => {
             <span className="cp-section-eyebrow">— What You'll Learn —</span>
             <h2 className="cp-section-title cp-center">Skills You Will Master</h2>
             <div className="cp-skills-grid">
-              {details.tools.map((t) => (
-                <div className="cp-skill-card" key={t}>
-                  <div className="cp-skill-icon"><Icon icon={getTechIcon(t)} width={30} height={30} /></div>
-                  <h4>{t}</h4>
-                  <p>Build practical skills with {t} used in real projects.</p>
-                </div>
-              ))}
+              {details.tools.map((t) => {
+                const needsDarkBg = ['express', 'openai', 'fastapi', 'github actions'].some(tech => 
+                  t.toLowerCase().includes(tech)
+                );
+                return (
+                  <div className="cp-skill-card" key={t}>
+                    <div className={`cp-skill-icon${needsDarkBg ? ' cp-skill-icon-dark' : ''}`}>
+                      <Icon icon={getTechIcon(t)} width={26} height={26} />
+                    </div>
+                    <h4>{t}</h4>
+                    <p>Build practical skills with {t} used in real projects.</p>
+                  </div>
+                );
+              })}
             </div>
           </section>
         )}
@@ -270,17 +277,29 @@ const CoursePage = () => {
           <span className="cp-section-eyebrow">Resources</span>
           <h2 className="cp-section-title">Free Study Materials</h2>
           <div className="cp-materials-grid">
-            {materials.map((m, i) => (
-              <div className={`cp-material-card cp-material-${m.type.toLowerCase()}`} key={i}>
-                <Icon icon="mdi:file-download-outline" width={22} height={22} />
-                <span className="cp-material-title">{m.title}</span>
-                {m.downloadUrl ? (
-                  <a href={m.downloadUrl} className="cp-material-btn" download>Download</a>
-                ) : (
-                  <span className="cp-material-btn cp-material-btn-disabled">Coming soon</span>
-                )}
-              </div>
-            ))}
+            {materials.map((m, i) => {
+              const isLocked = m.locked || false;
+              
+              return (
+                <div className={`cp-material-card cp-material-${m.type.toLowerCase()}${isLocked ? ' cp-material-locked' : ''}`} key={i}>
+                  {isLocked ? (
+                    <Icon icon="mdi:lock" width={22} height={22} />
+                  ) : (
+                    <Icon icon="mdi:file-download-outline" width={22} height={22} />
+                  )}
+                  <span className="cp-material-title">{m.title}</span>
+                  {isLocked ? (
+                    <span className="cp-material-btn cp-material-btn-locked">
+                      <Icon icon="mdi:lock-outline" width={14} height={14} /> Enroll to Access
+                    </span>
+                  ) : m.downloadUrl ? (
+                    <a href={m.downloadUrl} className="cp-material-btn" download>Download</a>
+                  ) : (
+                    <span className="cp-material-btn cp-material-btn-disabled">Coming soon</span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -304,20 +323,10 @@ const CoursePage = () => {
             ))}
           </div>
         </section>
-
-        {/* Partners */}
-        <section className="cp-section cp-partners-section">
-          <span className="cp-section-eyebrow">Trusted by</span>
-          <h2 className="cp-section-title cp-center">Our Company Partners</h2>
-          <div className="cp-partners-row">
-            {PARTNERS.map((p) => (
-              <div className="cp-partner-chip" key={p.name}>
-                <Icon icon={p.icon} width={20} height={20} /><span>{p.name}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
+       <section>
+        <PartnersMarquee/>
+       </section>
+       
         {/* Bottom CTA */}
         <div className="cp-bottom-cta">
           <div>
@@ -336,5 +345,8 @@ const CoursePage = () => {
     </div>
   );
 };
+<section>
+  <Footerpage/>
+</section>
 
 export default CoursePage;

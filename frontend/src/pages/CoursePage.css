@@ -12,7 +12,7 @@
 .cp-hero {
   position: relative;
   padding: 106px 24px 40px;
-  background: linear-gradient(120deg, #ff8a4c 0%, #ff6b35 55%, #ff5722 100%);
+  background: linear-gradient(135deg, #0a0e27, #1a1f3a, #0f1629);
   overflow: hidden;
 }
 
@@ -90,14 +90,27 @@
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .cp-btn-primary {
-  background: linear-gradient(135deg, #ffd23f, #ff9d1f);
-  color: #1a2036;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, #e8a820, #d4951a);
+  color: #0a0e27;
+  box-shadow: 0 8px 22px rgba(232, 168, 32, 0.25);
 }
-.cp-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22); }
+.cp-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(232, 168, 32, 0.35); }
 
 /* ── Hero illustration (right side) ─────────────────── */
-.cp-hero-right { display: flex; align-items: center; justify-content: center; }
+.cp-hero-right { display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; }
+.cp-hero-img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0;
+  box-shadow: none;
+  object-fit: cover;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  display: block;
+}
 .cp-hero-illustration { position: relative; width: 100%; max-width: 380px; aspect-ratio: 1.1/1; }
 .cp-hi-glow {
   position: absolute; inset: -20px;
@@ -175,6 +188,13 @@
   background: #f7f8fb; display: flex; align-items: center; justify-content: center;
   margin-bottom: 14px;
 }
+.cp-skill-icon-dark {
+  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  border: 1px solid #404040;
+}
+.cp-skill-icon-dark svg {
+  filter: brightness(0) invert(1);
+}
 .cp-skill-card h4 { font-size: 15px; font-weight: 700; color: #1a2036; margin: 0 0 6px; }
 .cp-skill-card p { font-size: 12.5px; color: #6b7280; line-height: 1.5; margin: 0; }
 
@@ -213,6 +233,7 @@
 .cp-video-card { background: #fff; border-radius: 16px; overflow: hidden; border: 1px solid #eef0f5; transition: transform 0.18s ease, box-shadow 0.18s ease; }
 .cp-video-card:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(0,0,0,0.08); }
 .cp-video-thumb {
+  width: 100%;
   height: 128px;
   background: linear-gradient(135deg, #fff0e6, #ffe0cc);
   display: flex; align-items: center; justify-content: center;
@@ -247,13 +268,21 @@
   background: #fff; border: 1px solid #eef0f5; border-radius: 12px; padding: 14px 16px; color: #374151;
 }
 .cp-material-card svg { color: #ff6b35; flex-shrink: 0; }
+.cp-material-locked { opacity: 0.7; background: #f9fafb; }
+.cp-material-locked svg { color: #9aa0b4; }
 .cp-material-title { flex: 1; font-size: 13.5px; font-weight: 600; }
 .cp-material-btn {
   font-size: 11.5px; font-weight: 700;
   background: linear-gradient(135deg, #ffd23f, #ff9d1f);
   color: #1a2036; padding: 6px 12px; border-radius: 8px; text-decoration: none; flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 4px;
 }
 .cp-material-btn-disabled { background: #f1f2f6; color: #9aa0b4; }
+.cp-material-btn-locked { 
+  background: linear-gradient(135deg, #e5e7eb, #d1d5db); 
+  color: #6b7280; 
+  cursor: not-allowed; 
+}
 
 /* ── Testimonials ────────────────────────────────────── */
 .cp-testimonial-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; }
@@ -286,8 +315,9 @@
 /* ── Bottom CTA ──────────────────────────────────────── */
 .cp-bottom-cta {
   display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px;
-  background: linear-gradient(120deg, #ff8a4c, #ff5722);
+  background: linear-gradient(135deg, #0a0e27, #1a1f3a, #0f1629);
   border-radius: 18px; padding: 24px 28px; margin-top: 44px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 .cp-bottom-cta .cp-price-new { color: #fff; }
 .cp-bottom-cta .cp-price-old { color: rgba(255,255,255,0.7); }
@@ -300,7 +330,8 @@
 
 @media (max-width: 900px) {
   .cp-hero-inner { grid-template-columns: 1fr; }
-  .cp-hero-right { order: -1; max-width: 260px; margin: 0 auto 8px; }
+  .cp-hero-right { order: -1; max-width: 100%; margin: 0 auto 24px; }
+  .cp-hero-img { width: 100%; height: 220px; object-fit: cover; }
   .cp-why-inner { grid-template-columns: repeat(2, 1fr); }
 }
 

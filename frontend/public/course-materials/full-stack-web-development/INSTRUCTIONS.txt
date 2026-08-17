@@ -1,0 +1,27 @@
+================================================
+FULL STACK WEB DEVELOPMENT - STUDY MATERIALS
+================================================
+
+Is folder me following PDFs add karo:
+
+1. week-1-2-notes.pdf
+2. week-3-4-notes.pdf
+3. week-5-6-notes.pdf
+4. week-7-8-notes.pdf
+5. week-9-10-notes.pdf
+6. week-11-12-notes.pdf
+7. cheat-sheet.pdf
+8. practice-assignments.zip
+9. reference-links.pdf
+
+FILE NAMING IMPORTANT HAI - EXACTLY SAME RAKHNA!
+
+Example:
+- ✅ Correct: week-1-2-notes.pdf
+- ❌ Wrong: Week 1-2 Notes.pdf
+- ❌ Wrong: week_1_2_notes.pdf
+
+PDFs add karne ke baad website automatically detect kar lega.
+"Coming soon" ke jagah "Download" button aa jayega.
+
+================================================

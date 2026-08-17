@@ -184,22 +184,19 @@ const CourseDetailModal = ({ course, onClose, onEnroll }) => {
   return (
     <div className="cd-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="cd-modal">
-        <div className="cd-header" style={{ background: `linear-gradient(135deg,${details.colors.h1},${details.colors.h2})` }}>
-          <button className="cd-close" onClick={onClose}>x</button>
-          <div className="cd-header-content">
-            <div className="cd-emoji"><Icon icon={details.icon} width="48" height="48" /></div>
-            <div>
-              <div className="cd-badge-row">
-                <span className="cd-badge">{details.level}</span>
-                <span className="cd-badge">{details.duration}</span>
-                <span className="cd-badge">{details.language}</span>
-              </div>
+        <div className="cd-header" style={{ background: 'linear-gradient(135deg, #0a0e27, #1a1f3a, #0f1629)' }}>
+          <button className="cd-close" onClick={onClose}>×</button>
+          <div className="cd-header-wrapper">
+            <div className="cd-header-left">
+              <span className="cd-badge-cert">🎓 CERTIFICATION COURSE</span>
               <h2 className="cd-title">{course.title}</h2>
               <p className="cd-tagline">{details.tagline}</p>
-            </div>
-          </div>
-          <div className="cd-header-bottom">
-            <div className="cd-price-row">
+              <div className="cd-badge-row">
+                <span className="cd-meta-badge"><Icon icon="mdi:clock-outline" width="14" /> {details.duration}</span>
+                <span className="cd-meta-badge"><Icon icon="mdi:signal" width="14" /> {details.level}</span>
+                <span className="cd-meta-badge"><Icon icon="mdi:translate" width="14" /> {details.language}</span>
+                <span className="cd-meta-badge"><Icon icon="mdi:certificate" width="14" /> Certificate</span>
+              </div>
               <div className="cd-price">
                 <span style={{ fontSize: '0.85rem', textDecoration: 'line-through', opacity: 0.6, marginRight: '8px' }}>
                   ₹{originalPrice.toLocaleString('en-IN')}
@@ -211,16 +208,27 @@ const CourseDetailModal = ({ course, onClose, onEnroll }) => {
                   {discount}% OFF
                 </span>
               </div>
-              <div className="cd-perks">
-                <span>Certificate</span>
-                <span>Stipend</span>
-                <span>Live Projects</span>
-              </div>
+              <button onClick={onEnroll} className="cd-enroll-main-btn">
+                Enroll Now <Icon icon="mdi:arrow-right" width="18" />
+              </button>
             </div>
-            <div className="cd-header-btns">
-              <button onClick={onEnroll} className="cd-enroll-btn">Enroll Now</button>
-              <button onClick={downloadCurriculum} className="cd-download-btn"><Icon icon="mdi:download" width="14" height="14" style={{marginRight:4}} />Download PDF</button>
+            <div className="cd-header-right">
+              <img 
+                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop" 
+                alt="Students Learning" 
+                className="cd-hero-img"
+              />
             </div>
+          </div>
+          <div className="cd-header-bottom">
+            <div className="cd-perks-row">
+              <span><Icon icon="mdi:certificate" width="16" /> Certificate</span>
+              <span><Icon icon="mdi:cash" width="16" /> Stipend</span>
+              <span><Icon icon="mdi:briefcase" width="16" /> Live Projects</span>
+            </div>
+            <button onClick={downloadCurriculum} className="cd-download-btn">
+              <Icon icon="mdi:download" width="16" /> Download PDF
+            </button>
           </div>
         </div>
 

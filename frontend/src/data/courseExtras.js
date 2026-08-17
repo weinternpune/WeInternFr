@@ -26,30 +26,42 @@ const TECH_ICON_MAP = {
   html: 'logos:html-5', html5: 'logos:html-5',
   css: 'logos:css-3', css3: 'logos:css-3',
   javascript: 'logos:javascript', js: 'logos:javascript',
+  'javascript es6+': 'logos:javascript', 'javascript es6': 'logos:javascript',
   typescript: 'logos:typescript-icon', ts: 'logos:typescript-icon',
   react: 'logos:react', 'react.js': 'logos:react', reactjs: 'logos:react',
   'react native': 'logos:react',
   vue: 'logos:vue', 'vue.js': 'logos:vue',
   angular: 'logos:angular-icon',
   node: 'logos:nodejs-icon', 'node.js': 'logos:nodejs-icon', nodejs: 'logos:nodejs-icon',
-  express: 'logos:express',
+  express: 'simple-icons:express', 'express.js': 'simple-icons:express', expressjs: 'simple-icons:express',
   mongodb: 'logos:mongodb-icon', mongo: 'logos:mongodb-icon',
   mysql: 'logos:mysql', postgresql: 'logos:postgresql', postgres: 'logos:postgresql',
   firebase: 'logos:firebase',
   python: 'logos:python',
   django: 'logos:django-icon', flask: 'logos:flask',
   java: 'logos:java',
+  'c++': 'logos:c-plusplus', cpp: 'logos:c-plusplus', 'c/c++': 'logos:c-plusplus',
+  c: 'logos:c', 'c language': 'logos:c',
   kotlin: 'logos:kotlin-icon',
   swift: 'logos:swift',
   flutter: 'logos:flutter',
-  android: 'logos:android-icon',
-  ios: 'mdi:apple',
-  git: 'logos:git-icon', github: 'mdi:github',
+  dart: 'logos:dart',
+  android: 'logos:android-icon', 'android studio': 'mdi:android-studio',
+  ios: 'mdi:apple', xcode: 'mdi:apple',
+  'rest apis': 'mdi:api', 'rest api': 'mdi:api', api: 'mdi:api',
+  git: 'logos:git-icon', github: 'mdi:github', 'github actions': 'mdi:github',
   docker: 'logos:docker-icon',
   kubernetes: 'logos:kubernetes',
   aws: 'logos:aws',
   azure: 'logos:microsoft-azure',
   'google cloud': 'logos:google-cloud', gcp: 'logos:google-cloud',
+  'cloud deployment': 'mdi:cloud-upload',
+  vercel: 'logos:vercel-icon',
+  postman: 'logos:postman-icon',
+  terraform: 'logos:terraform-icon',
+  nginx: 'logos:nginx',
+  cloudwatch: 'mdi:cloud-check',
+  'play console': 'mdi:google-play',
   figma: 'logos:figma',
   'adobe xd': 'logos:adobe-xd', xd: 'logos:adobe-xd',
   photoshop: 'logos:adobe-photoshop',
@@ -60,13 +72,56 @@ const TECH_ICON_MAP = {
   graphql: 'logos:graphql',
   jenkins: 'logos:jenkins',
   linux: 'logos:linux-tux',
+  'openai api': 'simple-icons:openai', openai: 'simple-icons:openai',
+  langchain: 'mdi:link-variant',
+  'n8n': 'mdi:workflow',
+  'make.com': 'mdi:auto-fix',
+  pinecone: 'mdi:pine-tree',
+  fastapi: 'simple-icons:fastapi',
   'google ads': 'logos:google-ads', seo: 'mdi:magnify-scan',
   'google analytics': 'logos:google-analytics',
   excel: 'logos:microsoft-excel', 'power bi': 'logos:microsoft-power-bi',
   tableau: 'logos:tableau-icon',
   pandas: 'logos:pandas', numpy: 'logos:numpy',
+  matplotlib: 'mdi:chart-line', 'matplotlib.pyplot': 'mdi:chart-line',
+  seaborn: 'mdi:chart-box-outline',
+  'scikit-learn': 'devicon:scikitlearn', sklearn: 'devicon:scikitlearn',
+  sql: 'mdi:database', mysql: 'logos:mysql', postgresql: 'logos:postgresql', postgres: 'logos:postgresql',
+  jupyter: 'mdi:notebook', 'jupyter notebook': 'mdi:notebook',
   tensorflow: 'logos:tensorflow', pytorch: 'logos:pytorch-icon',
   'machine learning': 'mdi:brain', ml: 'mdi:brain',
+  // Programming concepts
+  'python basics': 'mdi:language-python', 
+  'java basics': 'mdi:language-java',
+  'c basics': 'mdi:language-c', 
+  'c++ oop': 'mdi:language-cpp',
+  'oop': 'mdi:cube-outline',
+  'data structures': 'mdi:file-tree',
+  'libraries': 'mdi:package-variant',
+  'project development': 'mdi:application-brackets',
+  'spring boot': 'logos:spring-icon',
+  'rest apis': 'mdi:api',
+  'algorithms': 'mdi:chart-timeline-variant',
+  'memory management': 'mdi:memory',
+  // Video Editing & Content Creation
+  'premiere pro': 'logos:adobe-premiere',
+  'after effects': 'logos:adobe-after-effects',
+  'capcut': 'mdi:content-cut',
+  'color grading': 'mdi:palette-outline',
+  'content strategy': 'mdi:strategy',
+  // UI/UX Design Tools
+  'figjam': 'mdi:draw',
+  'maze': 'mdi:maze',
+  'notion': 'logos:notion-icon',
+  'zeplin': 'mdi:chart-box',
+  'invision': 'mdi:eye-outline',
+  // Digital Marketing Tools
+  'meta ads manager': 'logos:meta-icon',
+  'semrush': 'mdi:chart-line-variant',
+  'canva': 'logos:canva',
+  'mailchimp': 'logos:mailchimp',
+  'hootsuite': 'mdi:owl',
+  'search console': 'mdi:google-search-console',
 };
 
 export const getTechIcon = (toolName = '') => {
@@ -170,15 +225,28 @@ export const getTestimonials = (course) => [
 ];
 
 // ── Free downloadable study materials ────────────────────────────
-// REPLACE ME: set downloadUrl to your real hosted PDF/resource links.
 export const getMaterials = (course, details) => {
+  const courseSlug = slugify(course.title);
+  const basePath = `/course-materials/${courseSlug}`;
+  
   const weeks = details?.curriculum?.map((c) => c.week) || ['Phase 1', 'Phase 2'];
-  const items = weeks.map((w) => ({ title: `${w} — Notes & Slides (PDF)`, type: 'PDF', downloadUrl: '' }));
+  const items = weeks.map((w, index) => {
+    const weekSlug = w.toLowerCase().replace(/\s+/g, '-');
+    // Only first 2 weeks are free for non-enrolled users
+    const isFree = index < 2;
+    return { 
+      title: `${w} — Notes & Slides (PDF)`, 
+      type: 'PDF', 
+      downloadUrl: isFree ? `${basePath}/${weekSlug}-notes.pdf` : '',
+      locked: !isFree
+    };
+  });
+  
   return [
     ...items,
-    { title: 'Complete Cheat Sheet', type: 'PDF', downloadUrl: '' },
-    { title: 'Practice Assignments', type: 'ZIP', downloadUrl: '' },
-    { title: 'Reference Links & Resources', type: 'DOC', downloadUrl: '' },
+    { title: 'Complete Cheat Sheet', type: 'PDF', downloadUrl: '', locked: true },
+    { title: 'Practice Assignments', type: 'ZIP', downloadUrl: '', locked: true },
+    { title: 'Reference Links & Resources', type: 'PDF', downloadUrl: '', locked: true },
   ];
 };
 
