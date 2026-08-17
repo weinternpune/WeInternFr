@@ -1654,3 +1654,19 @@
 
 }
 
+/* ==========================================================================
+   STUDENT DASHBOARD TYPOGRAPHY (Inter font-family)
+   ========================================================================== */
+.dashboard,
+.dashboard *,
+.dash-sidebar,
+.dash-main,
+.dash-header,
+.tab-hdr,
+.stat-card-custom,
+.assignment-tab-container,
+.courses-container {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+
+

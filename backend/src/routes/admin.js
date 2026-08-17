@@ -17,27 +17,38 @@ router.get('/stats', async (req, res) => {
   try {
     const [
       totalUsers,
+      totalMentors,
+      totalAdmins,
       totalApplications,
       totalEnrollments,
       totalHireRequests,
       pendingApplications,
       paidEnrollments,
+      fullPaidEnrollments,
       pendingEnrollments,
-      totalAdmins,
+      emiEnrollments,
       acceptedApplications,
       reviewingApplications,
       rejectedApplications
     ] = await Promise.all([
       User.countDocuments({ role: 'student' }),
+      User.countDocuments({ role: 'mentor' }),
+      User.countDocuments({ role: 'admin' }),
       Application.countDocuments(),
       Enrollment.countDocuments(),
       HireRequest.countDocuments(),
       Application.countDocuments({ status: 'pending' }),
-      Enrollment.countDocuments({ paymentStatus: 'paid' }),
       Enrollment.countDocuments({
-        paymentStatus: { $in: ['pending', 'emi_1', 'emi_2'] }
+        $or: [
+          { paymentStatus: 'paid' },
+          { paymentStatus: { $in: ['emi_1', 'emi_2', 'emi_3'] } },
+          { amountPaid: { $gt: 0 } },
+          { 'paymentHistory.0': { $exists: true } }
+        ]
       }),
-      User.countDocuments({ role: 'admin' }),
+      Enrollment.countDocuments({ paymentStatus: 'paid' }),
+      Enrollment.countDocuments({ paymentStatus: 'pending' }),
+      Enrollment.countDocuments({ paymentStatus: { $in: ['emi_1', 'emi_2', 'emi_3'] } }),
       Application.countDocuments({ status: 'accepted' }),
       Application.countDocuments({ status: 'reviewing' }),
       Application.countDocuments({ status: 'rejected' })
@@ -267,18 +278,21 @@ router.get('/stats', async (req, res) => {
       data: {
         stats: {
           totalUsers,
+          totalMentors,
+          totalAdmins,
           totalApplications,
           totalEnrollments,
+          paidEnrollments,
+          fullPaidEnrollments,
           pendingEnrollments,
+          emiEnrollments,
           totalHireRequests,
           pendingApplications,
-          paidEnrollments,
-          totalAdmins,
-          totalRevenue,
-          currentMonthRevenue,
           acceptedApplications,
           reviewingApplications,
-          rejectedApplications
+          rejectedApplications,
+          totalRevenue,
+          currentMonthRevenue
         },
         monthlyData,
         weeklyUsers,
@@ -545,10 +559,17 @@ router.get('/payment-details', async (req, res) => {
     const { filter } = req.query;
     let query = {};
     if (filter === 'full') query.paymentStatus = 'paid';
+    else if (filter === 'paid') query.$or = [
+      { paymentStatus: 'paid' },
+      { paymentStatus: { $in: ['emi_1', 'emi_2', 'emi_3'] } },
+      { amountPaid: { $gt: 0 } },
+      { 'paymentHistory.0': { $exists: true } }
+    ];
     else if (filter === 'emi_1') query.paymentStatus = 'emi_1';
     else if (filter === 'emi_2') query.paymentStatus = 'emi_2';
     else if (filter === 'emi_3') query.paymentStatus = 'emi_3';
     else if (filter === 'pending') query.paymentStatus = 'pending';
+    else if (filter === 'failed') query.paymentStatus = 'failed';
 
     const enrollments = await Enrollment.find(query)
       .populate('user', 'name email phone')
@@ -556,15 +577,39 @@ router.get('/payment-details', async (req, res) => {
       .select('name email phone college courseName coursePrice paymentStatus paymentType emiInstallments amountPaid paymentHistory couponApplied couponCode originalPrice discountAmount finalPrice createdAt paymentId');
 
     // Summary counts
-    const [fullPaid, emi1, emi2, emi3, pending] = await Promise.all([
+    const [fullPaid, emi1, emi2, emi3, pending, failed, total] = await Promise.all([
       Enrollment.countDocuments({ paymentStatus: 'paid' }),
       Enrollment.countDocuments({ paymentStatus: 'emi_1' }),
       Enrollment.countDocuments({ paymentStatus: 'emi_2' }),
       Enrollment.countDocuments({ paymentStatus: 'emi_3' }),
       Enrollment.countDocuments({ paymentStatus: 'pending' }),
+      Enrollment.countDocuments({ paymentStatus: 'failed' }),
+      Enrollment.countDocuments({}),
     ]);
 
-    res.json({ success: true, data: enrollments, summary: { fullPaid, emi1, emi2, emi3, pending } });
+    const totalPaid = await Enrollment.countDocuments({
+      $or: [
+        { paymentStatus: 'paid' },
+        { paymentStatus: { $in: ['emi_1', 'emi_2', 'emi_3'] } },
+        { amountPaid: { $gt: 0 } },
+        { 'paymentHistory.0': { $exists: true } }
+      ]
+    });
+
+    res.json({
+      success: true,
+      data: enrollments,
+      summary: {
+        fullPaid,
+        emi1,
+        emi2,
+        emi3,
+        pending,
+        failed,
+        total,
+        totalPaid
+      }
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
