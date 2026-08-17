@@ -324,7 +324,7 @@ const AdminOverview = () => {
     <div className="analytics-wrapper">
       <div className="overview-welcome">
         <div>
-          <h2>Analytics Dashboard</h2>
+          <h2 style={{ fontWeight: 800, fontSize: "1.75rem", letterSpacing: "-0.02em", color: "var(--navy)" }}>Analytics Dashboard</h2>
           <p>Real-time platform insights and performance metrics.</p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>

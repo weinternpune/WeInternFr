@@ -628,7 +628,7 @@
 .dash-spinner { width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg)} }
 .overview-welcome { margin-bottom:2rem; }
-.overview-welcome h2 { font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--navy);margin-bottom:.35rem; }
+.overview-welcome h2 { font-family:'Inter', sans-serif;font-size:1.7rem;font-weight:800;color:var(--navy);margin-bottom:.35rem;letter-spacing:-0.02em; }
 .overview-welcome p { color:var(--muted); }
 .stats-grid { display:grid;gap:1.25rem;margin-bottom:2rem; }
 .stat-card { background:white;border-radius:var(--r);padding:1.5rem;box-shadow:var(--sh);text-align:center;border:1px solid var(--border);transition:var(--ease); }
