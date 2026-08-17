@@ -10,7 +10,34 @@ const userSchema = new mongoose.Schema({
   year: { type: String },
   interest: { type: String },
   avatar: { type: String },
-  role: { type: String, enum: ['student', 'admin'], default: 'student' },
+
+  // Role-based access: students, mentors and admins use the same authentication system.
+  role: {
+    type: String,
+    enum: ['student', 'mentor', 'admin'],
+    default: 'student',
+    index: true
+  },
+
+  // Mentor profile fields
+  expertise: [{ type: String }],
+  skills: [{ type: String }],
+  assignedCourses: [{ type: String }],
+  assignedBatches: [{ type: String }],
+  experience: { type: String },
+  bio: { type: String },
+  internshipProgram: { type: String },
+  startDate: { type: Date },
+  expectedCompletionDate: { type: Date },
+
+  // Student -> assigned mentor relationship
+  mentor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null,
+    index: true
+  },
+
   authProvider: { type: String, enum: ['local', 'google', 'github'], default: 'local' },
   googleId: { type: String },
   githubId: { type: String },

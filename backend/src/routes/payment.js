@@ -122,7 +122,34 @@ router.post('/verify', protect, async (req, res) => {
       .digest('hex');
 
     if (expectedSignature !== razorpay_signature) {
-      return res.status(400).json({ success: false, message: 'Invalid payment signature' });
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid payment signature'
+      });
+    }
+
+    // Never trust the amount sent by the browser.
+    // Read the actual amount from the Razorpay order.
+    const Razorpay = require('razorpay');
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET
+    });
+
+    const verifiedOrder =
+      await razorpay.orders.fetch(
+        razorpay_order_id
+      );
+
+    const verifiedAmount =
+      Number(verifiedOrder.amount || 0) /
+      100;
+
+    if (!verifiedAmount) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid Razorpay order amount'
+      });
     }
 
     let enrollment = null;
@@ -130,11 +157,33 @@ router.post('/verify', protect, async (req, res) => {
     if (enrollmentId && enrollmentId !== 'null') {
       enrollment = await Enrollment.findById(enrollmentId);
 
+      if (!enrollment) {
+        return res.status(404).json({
+          success: false,
+          message: 'Enrollment not found'
+        });
+      }
+
+      // Razorpay may retry a callback. Never count the same payment twice.
+      const alreadyRecorded =
+        (enrollment.paymentHistory || []).some(
+          payment =>
+            payment.paymentId === razorpay_payment_id
+        );
+
+      if (alreadyRecorded) {
+        return res.json({
+          success: true,
+          message: 'Payment already recorded',
+          paymentId: razorpay_payment_id
+        });
+      }
+
       if (paymentType === 'emi' && emiInstallment) {
         const installmentNum = Number(emiInstallment);
         const installmentData = {
           installment: installmentNum,
-          amount: Number(amount),
+          amount: verifiedAmount,
           paymentId: razorpay_payment_id,
           orderId: razorpay_order_id,
           paidAt: new Date(),
@@ -143,7 +192,20 @@ router.post('/verify', protect, async (req, res) => {
 
         const existingCount = enrollment?.emiInstallments?.length || 0;
         const updateData = {
-          $push: { emiInstallments: installmentData },
+          $push: {
+            emiInstallments: installmentData,
+            paymentHistory: {
+              amount: verifiedAmount,
+              paymentId: razorpay_payment_id,
+              orderId: razorpay_order_id,
+              paymentType: 'emi',
+              installment: installmentNum,
+              paidAt: new Date()
+            }
+          },
+          $inc: {
+            amountPaid: verifiedAmount
+          },
           paymentType: 'emi',
         };
 
@@ -166,14 +228,36 @@ router.post('/verify', protect, async (req, res) => {
         enrollment = await Enrollment.findByIdAndUpdate(enrollmentId, updateData, { new: true });
       } else {
         // Full payment
-        enrollment = await Enrollment.findByIdAndUpdate(enrollmentId, {
-          paymentId: razorpay_payment_id,
-          paymentOrderId: razorpay_order_id,
-          paymentStatus: 'paid',
-          paymentType: 'full',
-          status: 'enrolled',
-          ...(couponApplied && { couponApplied: true, couponCode, originalPrice, discountAmount, finalPrice })
-        }, { new: true });
+        enrollment = await Enrollment.findByIdAndUpdate(
+          enrollmentId,
+          {
+            paymentId: razorpay_payment_id,
+            paymentOrderId: razorpay_order_id,
+            paymentStatus: 'paid',
+            paymentType: 'full',
+            status: 'enrolled',
+            $inc: {
+              amountPaid: verifiedAmount
+            },
+            $push: {
+              paymentHistory: {
+                amount: verifiedAmount,
+                paymentId: razorpay_payment_id,
+                orderId: razorpay_order_id,
+                paymentType: 'full',
+                paidAt: new Date()
+              }
+            },
+            ...(couponApplied && {
+              couponApplied: true,
+              couponCode,
+              originalPrice,
+              discountAmount,
+              finalPrice
+            })
+          },
+          { new: true }
+        );
       }
     }
 
@@ -184,7 +268,7 @@ router.post('/verify', protect, async (req, res) => {
           enrollment.email,
           enrollment.name,
           enrollment.courseName,
-          Number(amount),
+          verifiedAmount,
           razorpay_payment_id,
           paymentType || 'full',
           emiInstallment ? Number(emiInstallment) : null

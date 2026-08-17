@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCourses } from '../../context/CoursesContext';
-import { getMyApplications, getMyEnrollments, updateProfile, getDashboardStats, trackActivity } from '../../utils/api';
+import { getMyApplications, getMyEnrollments, updateProfile, getDashboardStats, getDashboardAnalytics, trackActivity, getStudentMentorClasses } from '../../utils/api';
 import API from '../../utils/api';
 import toast from 'react-hot-toast';
 import {
@@ -11,6 +11,7 @@ import {
   Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import './Dashboard.css';
+import AssignmentsTab from './AssignmentsTab';
 
 const statusBadge = (s) => (
   <span className={`badge-status badge-${s}`}>{s?.charAt(0).toUpperCase() + s?.slice(1)}</span>
@@ -37,6 +38,7 @@ const Icons = {
   video: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>,
   code: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>,
   award: <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>,
+  assignments: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>,
   trash: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>,
   check: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
   edit: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
@@ -46,6 +48,7 @@ const TABS = [
   { id: 'overview',     icon: Icons.home,         label: 'Overview' },
   { id: 'analytics',   icon: Icons.analytics,    label: 'Analytics' },
   { id: 'applications',icon: Icons.applications, label: 'My Applications' },
+  { id: 'assignments',icon: Icons.assignments,label: 'Assignments'},
   { id: 'mycourses',   icon: Icons.mycourses,    label: 'My Courses' },
   { id: 'allcourses',  icon: Icons.allcourses,   label: 'Browse Courses' },
   { id: 'sessions',    icon: Icons.sessions,     label: 'Live Sessions' },
@@ -60,6 +63,7 @@ const Dashboard = () => {
   const [tab, setTab] = useState('overview');
   const [applications, setApplications] = useState([]);
   const [enrollments, setEnrollments] = useState([]);
+  const [mentorClasses, setMentorClasses] = useState([]);
   const [dashboardStats, setDashboardStats] = useState({
     totalStudyHours: 0,
     currentStreak: 0,
@@ -69,24 +73,174 @@ const Dashboard = () => {
     averageScore: 0,
     practiceProblems: { solved: 0, total: 6 }
   });
+  const [analyticsData, setAnalyticsData] = useState({
+  weeklyActivity: [],
+  dailyHours: [],
+  assignmentScores: [],
+  practiceResults: [],
+  courseProgress: [],
+  overallProgress: [],
+  recentActivities: [],
+  sessionHistory: []
+});
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+ useEffect(() => {
+  if (!user) {
+    navigate('/login');
+    return;
+  }
+
+  const loadDashboard = async () => {
+    try {
+      const results = await Promise.allSettled([
+        getMyApplications(),
+        getMyEnrollments(),
+        getDashboardStats(),
+        getDashboardAnalytics(),
+        getStudentMentorClasses()
+      ]);
+
+      const [
+        appsResult,
+        enrollmentsResult,
+        statsResult,
+        analyticsResult,
+        mentorClassesResult
+      ] = results;
+
+      if (appsResult.status === 'fulfilled') {
+        setApplications(
+          appsResult.value.data.data || []
+        );
+      } else {
+        console.error(
+          'Applications failed:',
+          appsResult.reason
+        );
+      }
+
+      if (enrollmentsResult.status === 'fulfilled') {
+        setEnrollments(
+          enrollmentsResult.value.data.data || []
+        );
+      } else {
+        console.error(
+          'Enrollments failed:',
+          enrollmentsResult.reason
+        );
+      }
+
+      if (statsResult.status === 'fulfilled') {
+        setDashboardStats(
+          statsResult.value.data.data
+        );
+      } else {
+        console.error(
+          'Dashboard stats failed:',
+          statsResult.reason
+        );
+      }
+
+      if (analyticsResult.status === 'fulfilled') {
+        setAnalyticsData(
+          analyticsResult.value.data.data
+        );
+      } else {
+        console.error(
+          'Analytics failed:',
+          analyticsResult.reason
+        );
+      }
+
+      if (mentorClassesResult.status === 'fulfilled') {
+        setMentorClasses(mentorClassesResult.value.data.data || []);
+      }
+
+    } catch (error) {
+      console.error(
+        'Dashboard loading error:',
+        error
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadDashboard();
+}, [user, navigate]);
+
   useEffect(() => {
-    if (!user) { navigate('/login'); return; }
-    Promise.all([
-      getMyApplications(), 
+
+  if (!user) return;
+
+  const refreshDashboard = async () => {
+  try {
+    const results = await Promise.allSettled([
+      getMyApplications(),
       getMyEnrollments(),
-      getDashboardStats()
-    ])
-      .then(([appsRes, enrollRes, statsRes]) => {
-        setApplications(appsRes.data.data);
-        setEnrollments(enrollRes.data.data);
-        setDashboardStats(statsRes.data.data);
-      })
-      .catch(() => toast.error('Failed to load data'))
-      .finally(() => setLoading(false));
-  }, [user, navigate]);
+      getDashboardStats(),
+      getDashboardAnalytics(),
+      getStudentMentorClasses()
+    ]);
+
+    const [
+      appsResult,
+      enrollmentsResult,
+      statsResult,
+      analyticsResult,
+      mentorClassesResult
+    ] = results;
+
+    if (appsResult.status === 'fulfilled') {
+      setApplications(
+        appsResult.value.data.data || []
+      );
+    }
+
+    if (enrollmentsResult.status === 'fulfilled') {
+      setEnrollments(
+        enrollmentsResult.value.data.data || []
+      );
+    }
+
+    if (statsResult.status === 'fulfilled') {
+      setDashboardStats(
+        statsResult.value.data.data
+      );
+    }
+
+    if (analyticsResult.status === 'fulfilled') {
+      setAnalyticsData(
+        analyticsResult.value.data.data
+      );
+    }
+
+    if (mentorClassesResult.status === 'fulfilled') {
+      setMentorClasses(mentorClassesResult.value.data.data || []);
+    }
+
+  } catch (error) {
+    console.error(
+      'Dashboard refresh failed:',
+      error
+    );
+  }
+};
+
+
+  const interval =
+    setInterval(
+      refreshDashboard,
+      30000
+    );
+
+
+  return () =>
+    clearInterval(interval);
+
+}, [user]);
 
   const handleLogout = () => { logout(); navigate('/'); };
 
@@ -200,13 +354,14 @@ const Dashboard = () => {
         </header>
 
         <div className="dash-content">
-          {tab === 'overview'      && <OverviewTab user={user} applications={applications} enrollments={enrollments} dashboardStats={dashboardStats} setTab={setTab} />}
-          {tab === 'analytics'     && <AnalyticsTab enrollments={enrollments} applications={applications} dashboardStats={dashboardStats} />}
+          {tab === 'overview'      && <OverviewTab user={user} applications={applications} enrollments={enrollments} dashboardStats={dashboardStats} analyticsData={analyticsData} mentorClasses={mentorClasses} setTab={setTab} />}
+          {tab === 'analytics'     && <AnalyticsTab enrollments={enrollments} applications={applications} dashboardStats={dashboardStats} analyticsData={analyticsData} />}
           {tab === 'applications'  && <ApplicationsTab applications={applications} />}
-          {tab === 'mycourses'     && <MyCoursesTab enrollments={enrollments} refresh={refreshEnrollments} />}
+          {tab === 'assignments'   && <AssignmentsTab />}
+          {tab === 'mycourses'     && <MyCoursesTab enrollments={enrollments} analyticsData={analyticsData} refresh={refreshEnrollments} />}
           {tab === 'allcourses'    && <AllCoursesTab />}
           {tab === 'sessions'      && <LiveSessionsTab dashboardStats={dashboardStats} />}
-          {tab === 'practice'      && <PracticeTab dashboardStats={dashboardStats} />}
+          {tab === 'practice'      && <PracticeTab dashboardStats={dashboardStats} analyticsData={analyticsData} />}
           {tab === 'certificates'  && <CertificatesTab enrollments={enrollments} />}
           {tab === 'profile'       && <ProfileTab user={user} setUser={setUser} />}
         </div>
@@ -218,7 +373,7 @@ const Dashboard = () => {
 };
 
 // ── Overview ────────────────────────────────────────────
-const OverviewTab = ({ user, applications, enrollments, dashboardStats, setTab }) => {
+const OverviewTab = ({ user, applications, enrollments, dashboardStats, analyticsData, mentorClasses, setTab }) => {
   const accepted = applications.filter(a => a.status === 'accepted').length;
 
   const STATS = [
@@ -328,20 +483,18 @@ const OverviewTab = ({ user, applications, enrollments, dashboardStats, setTab }
         </div>
 
         <div className="overview-card">
-          <div className="oc-header"><h3>Upcoming Sessions</h3></div>
-          {[
-            { topic:'React Hooks Deep Dive', date:'Today 4:00 PM', instructor:'Ashwin Sir', status:'live' },
-            { topic:'Node.js REST APIs',      date:'Tomorrow 3:00 PM', instructor:'Priya Ma\'am', status:'upcoming' },
-            { topic:'MongoDB Aggregation',    date:'Wed 5:00 PM', instructor:'Rahul Sir', status:'upcoming' },
-          ].map((s, i) => (
-            <div key={i} className="session-row">
+          <div className="oc-header"><h3>My Mentor Classes</h3><span className="oc-link" style={{cursor:'default'}}>Live from database</span></div>
+          {mentorClasses?.length ? mentorClasses.slice(0,4).map((s) => (
+            <div key={s._id} className="session-row">
               <div className="sr-dot" style={{ background: s.status === 'live' ? '#27ae60' : '#E8A820' }} />
-              <div className="sr-info"><strong>{s.topic}</strong><span>{s.date} · {s.instructor}</span></div>
+              <div className="sr-info"><strong>{s.title}</strong><span>{new Date(s.date).toLocaleDateString('en-IN',{day:'numeric',month:'short'})} · {s.startTime}–{s.endTime} · {s.mentor?.name || 'Mentor'}</span></div>
               {s.status === 'live'
-                ? <span className="sr-live">● LIVE</span>
-                : <span className="sr-upcoming">Soon</span>}
+                ? <a href={s.meetingLink || '#'} target="_blank" rel="noreferrer" className="sr-live">● JOIN</a>
+                : <span className="sr-upcoming">{s.status === 'completed' ? 'Done' : 'Soon'}</span>}
             </div>
-          ))}
+          )) : (
+            <div className="oc-empty"><div className="oc-empty-icon">{Icons.sessions}</div><p>No mentor classes scheduled yet.</p></div>
+          )}
         </div>
       </div>
     </div>
@@ -349,43 +502,14 @@ const OverviewTab = ({ user, applications, enrollments, dashboardStats, setTab }
 };
 
 // ── Analytics ────────────────────────────────────────────
-const AnalyticsTab = ({ enrollments, applications, dashboardStats }) => {
-  const weeklyActivity = [
-    { week:'W1', lectures:8,  practice:5,  sessions:2 },
-    { week:'W2', lectures:12, practice:8,  sessions:3 },
-    { week:'W3', lectures:10, practice:12, sessions:2 },
-    { week:'W4', lectures:15, practice:10, sessions:4 },
-    { week:'W5', lectures:11, practice:15, sessions:3 },
-    { week:'W6', lectures:18, practice:18, sessions:5 },
-    { week:'W7', lectures:20, practice:14, sessions:6 },
-    { week:'W8', lectures:16, practice:20, sessions:4 },
-  ];
-
-  const scoreData = [
-    { num:'A1', score:72 },{ num:'A2', score:78 },{ num:'A3', score:85 },
-    { num:'A4', score:80 },{ num:'A5', score:88 },{ num:'A6', score:82 },
-    { num:'A7', score:91 },{ num:'A8', score:88 },
-  ];
-
-  const progressData = [
-    { name:'Completed', value:65, color:'#27ae60' },
-    { name:'In Progress', value:25, color:'#2196C9' },
-    { name:'Pending', value:10, color:'#E8A820' },
-  ];
-
-  const dailyHours = [
-    { day:'Mon', hours:2.5 },{ day:'Tue', hours:1.8 },{ day:'Wed', hours:3.2 },
-    { day:'Thu', hours:2.0 },{ day:'Fri', hours:4.1 },{ day:'Sat', hours:5.5 },{ day:'Sun', hours:3.8 },
-  ];
-
-  const moduleProgress = [
-    { name:'HTML & CSS',   done:0, total:12, color:'#27ae60' },
-    { name:'JavaScript',   done:0, total:24, color:'#2196C9' },
-    { name:'React.js',     done:0, total:20, color:'#6c3483' },
-    { name:'Node.js',      done:0,  total:16, color:'#e67e22' },
-    { name:'MongoDB',      done:0,  total:12, color:'#1e8449' },
-    { name:'Deployment',   done:0,  total:8,  color:'#dc4545' },
-  ];
+const AnalyticsTab = ({ enrollments, applications, dashboardStats, analyticsData }) => {
+  const {
+    weeklyActivity = [],
+    assignmentScores = [],
+    overallProgress = [],
+    dailyHours = [],
+    courseProgress = []
+  } = analyticsData || {};
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload?.length) return (
@@ -446,14 +570,14 @@ const AnalyticsTab = ({ enrollments, applications, dashboardStats }) => {
           <div className="an-chart-header"><h3>Overall Progress</h3></div>
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
-              <Pie data={progressData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} dataKey="value">
-                {progressData.map((e, i) => <Cell key={i} fill={e.color} />)}
+              <Pie data={overallProgress} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} dataKey="value">
+                {overallProgress.map((e, i) => <Cell key={i} fill={e.color} />)}
               </Pie>
               <Tooltip formatter={v => [v + '%', '']} />
             </PieChart>
           </ResponsiveContainer>
           <div className="pie-legend">
-            {progressData.map(s => (
+            {overallProgress.map(s => (
               <div key={s.name} className="pie-legend-item">
                 <div className="pie-dot" style={{ background: s.color }} />
                 <span>{s.name}</span><strong>{s.value}%</strong>
@@ -482,7 +606,7 @@ const AnalyticsTab = ({ enrollments, applications, dashboardStats }) => {
         <div className="an-chart-card" style={{ flex:1 }}>
           <div className="an-chart-header"><h3>Assignment Scores</h3></div>
           <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={scoreData} margin={{ top:10, right:20, left:-20, bottom:0 }}>
+            <LineChart data={assignmentScores} margin={{ top:10, right:20, left:-20, bottom:0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(27,42,74,0.06)" />
               <XAxis dataKey="num" tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} />
               <YAxis domain={[60,100]} tick={{ fontSize:11, fill:'#5a6a82' }} axisLine={false} tickLine={false} unit="%" />
@@ -497,7 +621,7 @@ const AnalyticsTab = ({ enrollments, applications, dashboardStats }) => {
       <div className="an-chart-card" style={{ marginTop:'1.25rem' }}>
         <div className="an-chart-header"><h3>Module Completion Progress</h3></div>
         <div className="module-progress-grid">
-          {moduleProgress.map(m => (
+          {courseProgress.map(m => (
             <div key={m.name} className="mp-item">
               <div className="mp-header">
                 <span className="mp-name">{m.name}</span>
@@ -551,98 +675,416 @@ const ApplicationsTab = ({ applications }) => (
 );
 
 // ── My Courses ────────────────────────────────────────────
-const MyCoursesTab = ({ enrollments, refresh }) => {
-  const handleCourseProgress = async (enrollment) => {
-    try {
-      // Simulate course study session
-      const duration = Math.floor(Math.random() * 60) + 30; // 30-90 minutes
-      
-      await trackActivity({ 
-        activityType: 'course_progress',
-        details: { 
-          duration,
-          courseName: enrollment.courseName,
-          progressPercentage: Math.min(45 + Math.floor(Math.random() * 20), 100) // Simulate progress
+const MyCoursesTab = ({
+  enrollments,
+  analyticsData,
+  refresh
+}) => {
+  const [activeCourseId, setActiveCourseId] =
+    useState(null);
+  const [elapsedSeconds, setElapsedSeconds] =
+    useState(0);
+  const reportedSecondsRef = useRef(0);
+
+  // Real study timer. Nothing is randomly generated.
+  useEffect(() => {
+    if (!activeCourseId) return undefined;
+
+    const interval = setInterval(() => {
+      setElapsedSeconds(seconds => {
+        const next = seconds + 1;
+
+        // Save real elapsed time every 15 seconds.
+        if (
+          next - reportedSecondsRef.current >=
+          15
+        ) {
+          const secondsToSave =
+            next -
+            reportedSecondsRef.current;
+
+          reportedSecondsRef.current = next;
+
+          const enrollment =
+            enrollments.find(
+              item =>
+                String(item._id) ===
+                String(activeCourseId)
+            );
+
+          if (enrollment) {
+            trackActivity({
+              activityType:
+                'course_progress',
+              details: {
+                duration:
+                  secondsToSave / 60,
+                courseName:
+                  enrollment.courseName,
+                enrollmentId:
+                  enrollment._id
+              }
+            }).catch(error =>
+              console.error(
+                'Study time save failed:',
+                error
+              )
+            );
+          }
         }
+
+        return next;
       });
-      
-      toast.success(`Studied ${enrollment.courseName} for ${duration} minutes!`);
-      
-      // Refresh page to show updated stats
-      setTimeout(() => window.location.reload(), 1500);
-    } catch (error) {
-      toast.error('Failed to track course progress');
+    }, 1000);
+
+    return () =>
+      clearInterval(interval);
+  }, [activeCourseId, enrollments]);
+
+  const startLearning = enrollment => {
+    if (
+      enrollment.paymentStatus !== 'paid'
+    ) {
+      toast.error(
+        'Complete payment before starting the course.'
+      );
+      return;
+    }
+
+    reportedSecondsRef.current = 0;
+    setElapsedSeconds(0);
+    setActiveCourseId(enrollment._id);
+
+    toast.success(
+      `Study timer started for ${enrollment.courseName}`
+    );
+  };
+
+  const stopLearning = async () => {
+    if (!activeCourseId) return;
+
+    const enrollment =
+      enrollments.find(
+        item =>
+          String(item._id) ===
+          String(activeCourseId)
+      );
+
+    const unsavedSeconds =
+      elapsedSeconds -
+      reportedSecondsRef.current;
+
+    if (
+      enrollment &&
+      unsavedSeconds > 0
+    ) {
+      try {
+        await trackActivity({
+          activityType:
+            'course_progress',
+          details: {
+            duration:
+              unsavedSeconds / 60,
+            courseName:
+              enrollment.courseName,
+            enrollmentId:
+              enrollment._id
+          }
+        });
+      } catch (error) {
+        toast.error(
+          'Could not save the final study time.'
+        );
+        return;
+      }
+    }
+
+    setActiveCourseId(null);
+    setElapsedSeconds(0);
+    reportedSecondsRef.current = 0;
+
+    toast.success(
+      'Study time saved successfully.'
+    );
+  };
+
+  const deleteEnrollment = async (
+    id,
+    paymentStatus
+  ) => {
+    if (paymentStatus === 'paid') {
+      toast.error(
+        'Cannot delete a paid enrollment. Contact support.'
+      );
+      return;
+    }
+
+    if (
+      !window.confirm(
+        'Delete this pending enrollment?'
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await API.delete(
+        `/courses/enroll/${id}`
+      );
+
+      toast.success(
+        'Enrollment deleted'
+      );
+
+      refresh();
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message ||
+          'Failed to delete'
+      );
     }
   };
 
-  const deleteEnrollment = async (id, paymentStatus) => {
-    if (paymentStatus === 'paid') { toast.error('Cannot delete a paid enrollment. Contact support.'); return; }
-    if (!window.confirm('Delete this pending enrollment?')) return;
-    try {
-      await API.delete(`/courses/enroll/${id}`);
-      toast.success('Enrollment deleted');
-      refresh();
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to delete');
-    }
+  const courseProgressMap = new Map(
+    (analyticsData?.courseProgress || []).map(
+      course => [
+        String(course.id),
+        Number(course.progress || 0)
+      ]
+    )
+  );
+
+  const formatTimer = seconds => {
+    const hours = Math.floor(
+      seconds / 3600
+    );
+
+    const minutes = Math.floor(
+      (seconds % 3600) / 60
+    );
+
+    const secs = seconds % 60;
+
+    return [
+      hours
+        .toString()
+        .padStart(2, '0'),
+      minutes
+        .toString()
+        .padStart(2, '0'),
+      secs
+        .toString()
+        .padStart(2, '0')
+    ].join(':');
   };
 
   return (
     <div>
       <div className="tab-hdr">
-        <div><h2>My Courses</h2><p>{enrollments.length} course{enrollments.length !== 1 ? 's' : ''} enrolled</p></div>
-        <button onClick={() => window.location.href='/#courses'} className="btn btn-primary" style={{ fontSize:'.85rem' }}>Browse More</button>
+        <div>
+          <h2>My Courses</h2>
+          <p>
+            {enrollments.length} course
+            {enrollments.length !== 1
+              ? 's'
+              : ''}{' '}
+            enrolled
+          </p>
+        </div>
+
+        <button
+          onClick={() =>
+            (window.location.href =
+              '/#courses')
+          }
+          className="btn btn-primary"
+          style={{
+            fontSize: '.85rem'
+          }}
+        >
+          Browse More
+        </button>
       </div>
+
       {enrollments.length === 0 ? (
         <div className="empty-state-card">
-          <div className="esc-icon">{Icons.book}</div>
-          <h3>No Courses Enrolled</h3>
-          <p>Browse our courses and enroll to start learning.</p>
-          <a href="/#courses" className="wb-btn-primary">Browse Courses</a>
+          <div className="esc-icon">
+            {Icons.book}
+          </div>
+
+          <h3>
+            No Courses Enrolled
+          </h3>
+
+          <p>
+            Browse our courses and enroll
+            to start learning.
+          </p>
+
+          <a
+            href="/#courses"
+            className="wb-btn-primary"
+          >
+            Browse Courses
+          </a>
         </div>
       ) : (
         <div className="my-course-cards">
-          {enrollments.map(e => (
-            <div key={e._id} className="my-course-card">
-              <div className="mcc-header">
-                <div className="mcc-icon">{Icons.book}</div>
-                <div className="mcc-badges">
-                  {statusBadge(e.paymentStatus)}
-                  {statusBadge(e.status || 'enrolled')}
+          {enrollments.map(e => {
+            const progress =
+              courseProgressMap.get(
+                String(e._id)
+              ) || 0;
+
+            const isActive =
+              String(activeCourseId) ===
+              String(e._id);
+
+            return (
+              <div
+                key={e._id}
+                className="my-course-card"
+              >
+                <div className="mcc-header">
+                  <div className="mcc-icon">
+                    {Icons.book}
+                  </div>
+
+                  <div className="mcc-badges">
+                    {statusBadge(
+                      e.paymentStatus
+                    )}
+                    {statusBadge(
+                      e.status || 'enrolled'
+                    )}
+                  </div>
+                </div>
+
+                <h4>{e.courseName}</h4>
+
+                <div className="mcc-meta">
+                  <span>{e.college}</span>
+
+                  <span>
+                    {e.degree} · {e.year}
+                  </span>
+
+                  <span>
+                    ₹
+                    {Number(
+                      e.coursePrice
+                    ).toLocaleString(
+                      'en-IN'
+                    )}
+                  </span>
+                </div>
+
+                <div className="mcc-progress">
+                  <div className="mcc-prog-label">
+                    <span>
+                      Course Progress
+                    </span>
+
+                    <span>
+                      {progress}%
+                    </span>
+                  </div>
+
+                  <div className="mcc-prog-bar">
+                    <div
+                      className="mcc-prog-fill"
+                      style={{
+                        width: `${progress}%`
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="mcc-footer">
+                  <span className="mcc-date">
+                    Enrolled:{' '}
+                    {new Date(
+                      e.createdAt
+                    ).toLocaleDateString(
+                      'en-IN',
+                      {
+                        day: 'numeric',
+                        month: 'short'
+                      }
+                    )}
+                  </span>
+
+                  <div className="mcc-actions">
+                    {e.paymentStatus ===
+                    'paid' ? (
+                      isActive ? (
+                        <div
+                          style={{
+                            display:
+                              'flex',
+                            alignItems:
+                              'center',
+                            gap: '.5rem'
+                          }}
+                        >
+                          <strong
+                            style={{
+                              color:
+                                '#27ae60',
+                              fontVariantNumeric:
+                                'tabular-nums'
+                            }}
+                          >
+                            {formatTimer(
+                              elapsedSeconds
+                            )}
+                          </strong>
+
+                          <button
+                            className="mcc-btn-continue"
+                            onClick={
+                              stopLearning
+                            }
+                          >
+                            Stop & Save
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          className="mcc-btn-continue"
+                          onClick={() =>
+                            startLearning(
+                              e
+                            )
+                          }
+                        >
+                          Start Learning
+                        </button>
+                      )
+                    ) : (
+                      <>
+                        <button className="mcc-btn-pay">
+                          Complete Payment
+                        </button>
+
+                        <button
+                          className="mcc-btn-delete"
+                          onClick={() =>
+                            deleteEnrollment(
+                              e._id,
+                              e.paymentStatus
+                            )
+                          }
+                        >
+                          {Icons.trash}
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
-              <h4>{e.courseName}</h4>
-              <div className="mcc-meta">
-                <span>{e.college}</span>
-                <span>{e.degree} · {e.year}</span>
-                <span>Rs.{Number(e.coursePrice).toLocaleString('en-IN')}</span>
-              </div>
-              <div className="mcc-progress">
-                <div className="mcc-prog-label">
-                  <span>Course Progress</span>
-                  <span>{e.paymentStatus === 'paid' ? '45%' : '0%'}</span>
-                </div>
-                <div className="mcc-prog-bar">
-                  <div className="mcc-prog-fill" style={{ width: e.paymentStatus === 'paid' ? '45%' : '0%' }} />
-                </div>
-              </div>
-              <div className="mcc-footer">
-                <span className="mcc-date">Enrolled: {new Date(e.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</span>
-                <div className="mcc-actions">
-                  {e.paymentStatus === 'paid' ? (
-                    <button className="mcc-btn-continue" onClick={() => handleCourseProgress(e)}>Continue Learning</button>
-                  ) : (
-                    <>
-                      <button className="mcc-btn-pay">Complete Payment</button>
-                      <button className="mcc-btn-delete" onClick={() => deleteEnrollment(e._id, e.paymentStatus)}>
-                        {Icons.trash}
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
@@ -750,18 +1192,13 @@ const LiveSessionsTab = ({ dashboardStats }) => {
       toast.success(`Joined ${session.topic} session!`);
       
       // Refresh page to show updated stats
-      setTimeout(() => window.location.reload(), 1500);
+      await getDashboardAnalytics();
     } catch (error) {
       toast.error('Failed to track session attendance');
     }
   };
   
-  const UPCOMING = [
-    { topic:'React Hooks & Context API', instructor:'Ashwin Kumar', date:'Today', time:'4:00 PM', duration:'60 min', status:'live', attendees:42 },
-    { topic:'Node.js REST API Design', instructor:'Priya Sharma', date:'Tomorrow', time:'3:00 PM', duration:'55 min', status:'upcoming', attendees:38 },
-    { topic:'MongoDB Aggregation Pipeline', instructor:'Rahul Mehta', date:'Wed, 8 May', time:'5:00 PM', duration:'60 min', status:'upcoming', attendees:29 },
-    { topic:'Docker & Container Basics', instructor:'Sneha Patel', date:'Thu, 9 May', time:'4:30 PM', duration:'50 min', status:'upcoming', attendees:33 },
-  ];
+  const UPCOMING = dashboardStats?.upcomingSessions || [];
 
   const PAST = [];
 
@@ -833,95 +1270,329 @@ const LiveSessionsTab = ({ dashboardStats }) => {
 };
 
 // ── Practice ──────────────────────────────────────────────
-const PracticeTab = ({ dashboardStats }) => {
-  
-  const handlePracticeComplete = async (challenge) => {
-    try {
-      // Simulate completing a practice problem
-      const duration = parseInt(challenge.time.split(' ')[0]); // Extract minutes from "15 min" format
-      const score = Math.floor(Math.random() * 20) + 80; // Random score between 80-100
-      
-      await trackActivity({ 
-        activityType: 'practice_completed',
-        details: { 
-          duration,
-          score,
-          challengeName: challenge.title,
-          difficulty: challenge.difficulty
-        }
-      });
-      
-      toast.success(`Completed ${challenge.title}! Score: ${score}%`);
-      
-      // Refresh page to show updated stats
-      setTimeout(() => window.location.reload(), 1500);
-    } catch (error) {
-      toast.error('Failed to track practice completion');
-    }
-  };
+const PracticeTab = ({
+  dashboardStats,
+  analyticsData
+}) => {
+  const practiceResults =
+    analyticsData?.practiceResults || [];
+
+  const resultMap = new Map(
+    practiceResults.map(result => [
+      result.name,
+      result
+    ])
+  );
+
+  const handlePracticeComplete =
+    async challenge => {
+      try {
+        const duration = parseInt(
+          challenge.time.split(" ")[0],
+          10
+        );
+
+        await trackActivity({
+          activityType:
+            'practice_completed',
+          details: {
+            duration,
+            challengeName:
+              challenge.title,
+            difficulty:
+              challenge.difficulty
+          }
+        });
+
+        toast.success(
+          `Completed ${challenge.title}!`
+        );
+
+        setTimeout(
+          () =>
+            window.location.reload(),
+          500
+        );
+      } catch (error) {
+        console.error(
+          'Practice tracking error:',
+          error
+        );
+
+        toast.error(
+          'Failed to track practice completion'
+        );
+      }
+    };
+
   const CHALLENGES = [
-    { title:'Reverse a String',        difficulty:'Easy',   topic:'JavaScript', time:'15 min', solved: dashboardStats.practiceProblems.solved >= 1,  score: dashboardStats.practiceProblems.solved >= 1 ? '100%' : '—' },
-    { title:'Fibonacci Sequence',      difficulty:'Easy',   topic:'JavaScript', time:'20 min', solved: dashboardStats.practiceProblems.solved >= 2,  score: dashboardStats.practiceProblems.solved >= 2 ? '90%' : '—'  },
-    { title:'Binary Search',           difficulty:'Medium', topic:'Algorithms', time:'30 min', solved: dashboardStats.practiceProblems.solved >= 3,  score: dashboardStats.practiceProblems.solved >= 3 ? '85%' : '—'  },
-    { title:'Build a REST API',        difficulty:'Medium', topic:'Node.js',    time:'45 min', solved: dashboardStats.practiceProblems.solved >= 4, score: dashboardStats.practiceProblems.solved >= 4 ? '88%' : '—'    },
-    { title:'React Todo App',          difficulty:'Medium', topic:'React',      time:'60 min', solved: dashboardStats.practiceProblems.solved >= 5, score: dashboardStats.practiceProblems.solved >= 5 ? '92%' : '—'    },
-    { title:'Database Schema Design',  difficulty:'Hard',   topic:'MongoDB',    time:'45 min', solved: dashboardStats.practiceProblems.solved >= 6, score: dashboardStats.practiceProblems.solved >= 6 ? '94%' : '—'    },
+    {
+      title: 'Reverse a String',
+      difficulty: 'Easy',
+      topic: 'JavaScript',
+      time: '15 min'
+    },
+    {
+      title: 'Fibonacci Sequence',
+      difficulty: 'Easy',
+      topic: 'JavaScript',
+      time: '20 min'
+    },
+    {
+      title: 'Binary Search',
+      difficulty: 'Medium',
+      topic: 'Algorithms',
+      time: '30 min'
+    },
+    {
+      title: 'Build a REST API',
+      difficulty: 'Medium',
+      topic: 'Node.js',
+      time: '45 min'
+    },
+    {
+      title: 'React Todo App',
+      difficulty: 'Medium',
+      topic: 'React',
+      time: '60 min'
+    },
+    {
+      title: 'Database Schema Design',
+      difficulty: 'Hard',
+      topic: 'MongoDB',
+      time: '45 min'
+    }
   ];
 
-  const DIFF_COLOR = { Easy:'#27ae60', Medium:'#e67e22', Hard:'#dc4545' };
+  const DIFF_COLOR = {
+    Easy: '#27ae60',
+    Medium: '#e67e22',
+    Hard: '#dc4545'
+  };
+
+  const solvedCount =
+    dashboardStats.practiceProblems
+      ?.solved || 0;
+
+  const totalProblems =
+    dashboardStats.practiceProblems
+      ?.total || CHALLENGES.length;
+
+  const completion =
+    totalProblems > 0
+      ? Math.round(
+          (solvedCount /
+            totalProblems) *
+            100
+        )
+      : 0;
 
   return (
     <div>
       <div className="tab-hdr">
-        <div><h2>Practice Sessions</h2><p>Sharpen your skills with coding challenges</p></div>
+        <div>
+          <h2>
+            Practice Sessions
+          </h2>
+          <p>
+            Sharpen your skills with
+            coding challenges
+          </p>
+        </div>
+
         <div className="practice-stats-mini">
-          <span><strong>{dashboardStats.practiceProblems.solved}</strong> solved</span>
-          <span><strong>{dashboardStats.practiceProblems.total - dashboardStats.practiceProblems.solved}</strong> pending</span>
-          <span><strong>{Math.round((dashboardStats.practiceProblems.solved / dashboardStats.practiceProblems.total) * 100)}%</strong> completion</span>
+          <span>
+            <strong>
+              {solvedCount}
+            </strong>{' '}
+            solved
+          </span>
+
+          <span>
+            <strong>
+              {Math.max(
+                0,
+                totalProblems -
+                  solvedCount
+              )}
+            </strong>{' '}
+            pending
+          </span>
+
+          <span>
+            <strong>
+              {completion}%
+            </strong>{' '}
+            completion
+          </span>
         </div>
       </div>
 
       <div className="practice-summary">
         {[
-          { label:'Problems Solved', val:`${dashboardStats.practiceProblems.solved}/${dashboardStats.practiceProblems.total}`, color:'#27ae60', w:`${(dashboardStats.practiceProblems.solved/dashboardStats.practiceProblems.total)*100}%` },
-          { label:'Avg Score',       val:`${dashboardStats.averageScore}%`, color:'#2196C9', w:`${dashboardStats.averageScore}%` },
-          { label:'Practice Hours',  val:`${Math.round(dashboardStats.totalStudyHours * 0.3)}h`,  color:'#E8A820', w:'30%' },
+          {
+            label: 'Problems Solved',
+            val: `${solvedCount}/${totalProblems}`,
+            color: '#27ae60',
+            w: `${completion}%`
+          },
+          {
+            label: 'Avg Score',
+            val: `${dashboardStats.averageScore || 0}%`,
+            color: '#2196C9',
+            w: `${dashboardStats.averageScore || 0}%`
+          },
+          {
+            label: 'Practice Hours',
+            val: `${dashboardStats.practiceHours || 0}h`,
+            color: '#E8A820',
+            w: `${Math.min(
+              100,
+              ((dashboardStats.practiceHours || 0) /
+                10) *
+                100
+            )}%`
+          }
         ].map(s => (
-          <div key={s.label} className="ps-card">
-            <div className="ps-val" style={{ color: s.color }}>{s.val}</div>
-            <div className="ps-label">{s.label}</div>
-            <div className="ps-bar"><div className="ps-fill" style={{ width: s.w, background: s.color }}/></div>
+          <div
+            key={s.label}
+            className="ps-card"
+          >
+            <div
+              className="ps-val"
+              style={{
+                color: s.color
+              }}
+            >
+              {s.val}
+            </div>
+
+            <div className="ps-label">
+              {s.label}
+            </div>
+
+            <div className="ps-bar">
+              <div
+                className="ps-fill"
+                style={{
+                  width: s.w,
+                  background: s.color
+                }}
+              />
+            </div>
           </div>
         ))}
       </div>
 
       <div className="challenges-list">
-        {CHALLENGES.map((c, i) => (
-          <div key={i} className={`challenge-card${c.solved ? ' solved' : ''}`}>
-            <div className="cc-num">{String(i+1).padStart(2,'0')}</div>
-            <div className="cc-icon" style={{ background: c.solved ? '#e8f5e9' : '#f4f6fb', color: c.solved ? '#27ae60' : '#1B2A4A' }}>
-              {Icons.code}
-            </div>
-            <div className="cc-info">
-              <h4>{c.title}</h4>
-              <span>{c.topic} · {c.time}</span>
-            </div>
-            <div className="cc-right">
-              <span className="cc-diff" style={{ color: DIFF_COLOR[c.difficulty], background: DIFF_COLOR[c.difficulty]+'18', border:`1px solid ${DIFF_COLOR[c.difficulty]}33` }}>
-                {c.difficulty}
-              </span>
-              {c.solved
-                ? <span className="cc-score">{c.score}</span>
-                : <button className="cc-solve-btn" onClick={() => handlePracticeComplete(c)}>Solve Now</button>
-              }
-            </div>
-          </div>
-        ))}
+        {CHALLENGES.map(
+          (challenge, index) => {
+            const result =
+              resultMap.get(
+                challenge.title
+              );
+
+            const solved = Boolean(
+              result
+            );
+
+            return (
+              <div
+                key={challenge.title}
+                className={`challenge-card${
+                  solved
+                    ? ' solved'
+                    : ''
+                }`}
+              >
+                <div className="cc-num">
+                  {String(
+                    index + 1
+                  ).padStart(2, '0')}
+                </div>
+
+                <div
+                  className="cc-icon"
+                  style={{
+                    background: solved
+                      ? '#e8f5e9'
+                      : '#f4f6fb',
+                    color: solved
+                      ? '#27ae60'
+                      : '#1B2A4A'
+                  }}
+                >
+                  {Icons.code}
+                </div>
+
+                <div className="cc-info">
+                  <h4>
+                    {challenge.title}
+                  </h4>
+
+                  <span>
+                    {challenge.topic} ·{' '}
+                    {challenge.time}
+                  </span>
+                </div>
+
+                <div className="cc-right">
+                  <span
+                    className="cc-diff"
+                    style={{
+                      color:
+                        DIFF_COLOR[
+                          challenge
+                            .difficulty
+                        ],
+                      background:
+                        DIFF_COLOR[
+                          challenge
+                            .difficulty
+                        ] + '18',
+                      border:
+                        `1px solid ${
+                          DIFF_COLOR[
+                            challenge
+                              .difficulty
+                          ]
+                        }33`
+                    }}
+                  >
+                    {challenge.difficulty}
+                  </span>
+
+                  {solved ? (
+                    <span className="cc-score">
+                      {Number.isFinite(
+                        Number(
+                          result.score
+                        )
+                      )
+                        ? `${result.score}%`
+                        : 'Completed'}
+                    </span>
+                  ) : (
+                    <button
+                      className="cc-solve-btn"
+                      onClick={() =>
+                        handlePracticeComplete(
+                          challenge
+                        )
+                      }
+                    >
+                      Complete
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          }
+        )}
       </div>
     </div>
   );
 };
-
 // ── Certificates ──────────────────────────────────────────
 const CertificatesTab = ({ enrollments }) => {
   const ACHIEVEMENTS = [

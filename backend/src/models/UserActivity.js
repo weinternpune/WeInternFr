@@ -10,12 +10,38 @@ const userActivitySchema = new mongoose.Schema({
   },
   duration: { type: Number, default: 0 }, // in minutes
   details: {
-    courseName: String,
-    sessionTopic: String,
-    assignmentName: String,
-    score: Number,
-    progressPercentage: Number
+  courseName: String,
+  courseId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Course'
   },
+
+  sessionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Session'
+  },
+
+  sessionTopic: String,
+  instructor: String,
+
+  assignmentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Assignment'
+  },
+
+  assignmentName: String,
+
+  challengeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'PracticeProblem'
+  },
+
+  challengeName: String,
+
+  score: Number,
+
+  progressPercentage: Number
+},
   date: { type: Date, default: Date.now }
 }, { timestamps: true });
 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { getAdminStats } from '../utils/api';
 import toast from 'react-hot-toast';
 
@@ -17,7 +17,7 @@ export const AdminProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
 
-  const loadStats = async (showToast = false) => {
+  const loadStats = useCallback(async (showToast = false) => {
     if (loading) return;
     
     setLoading(true);
@@ -38,22 +38,22 @@ export const AdminProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const refreshStats = () => {
+  const refreshStats = useCallback(() => {
     loadStats(true);
-  };
+  }, [loadStats]);
 
-  // Auto-refresh every 30 seconds
+  // Auto-refresh every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       if (stats) { // Only refresh if we already have data
         loadStats(false);
       }
-    }, 30000);
+    }, 5000);
 
     return () => clearInterval(interval);
-  }, [stats]);
+  }, [stats, loadStats]);
 
   // Event-driven updates for real-time sync
   useEffect(() => {
@@ -65,7 +65,7 @@ export const AdminProvider = ({ children }) => {
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  }, [loadStats]);
 
   // Trigger update across tabs when data changes
   const triggerGlobalUpdate = () => {

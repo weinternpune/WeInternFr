@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Application = require('../models/Application');
-const { protect } = require('../middleware/auth');
+const { protect, optionalProtect } = require('../middleware/auth');
 const { sendApplicationConfirmation } = require('../utils/email');
 
 // Submit application
-router.post('/', async (req, res) => {
+router.post('/', optionalProtect, async (req, res) => {
   try {
     const { name, email, phone, college, interest, year, duration } = req.body;
     const app = await Application.create({ ...req.body, user: req.user?._id });

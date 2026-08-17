@@ -22,6 +22,10 @@ import {
   updateHireRequest,
   getAdminUsers,
   getUserActivity,
+  getAdminMentors,
+  createMentorAccount,
+  assignStudentToMentor,
+  getAllMentorsOverview,
   getAdminBlogPosts,
   createBlogPost,
   deleteBlogPost,
@@ -64,6 +68,7 @@ const ADMIN_TABS = [
   { id: "projects", icon: <FaRocket />, label: "Projects" },
   { id: "blog", icon: <FaFileAlt />, label: "Blog" },
   { id: "admins", icon: <FaUserShield />, label: "Admins" },
+  { id: "mentors", icon: <FaUsers />, label: "Mentors" },
 ];
 
 const Admin = () => {
@@ -220,6 +225,7 @@ const Admin = () => {
           {tab === "blog" && <AdminBlog />}
           {tab === "projects" && <AdminProjects />}
           {tab === "admins" && <AdminsTab />}
+          {tab === "mentors" && <MentorManagement />}
         </div>
       </main>
     </div>
@@ -250,47 +256,36 @@ const AdminOverview = () => {
       </div>
     );
 
- const { stats, monthlyData, courseData} = statsData;
-
-  // const courseData = [
-  //   { name: "Full Stack", students: 45, color: "#e76f51" },
-  //   { name: "Mobile App", students: 32, color: "#2a9d8f" },
-  //   { name: "AI & Auto", students: 28, color: "#6c3483" },
-  //   { name: "Cloud", students: 20, color: "#1a6b8a" },
-  //   { name: "UI/UX", students: 38, color: "#c0392b" },
-  //   { name: "Marketing", students: 55, color: "#e67e22" },
-  //   { name: "Data Sci", students: 25, color: "#1e8449" },
-  // ];
-
-  // Calculate real status data from applications
+  const {
+    stats,
+    monthlyData = [],
+    weeklyUsers = [],
+    courseData = [],
+    recentApplications = [],
+    recentEnrollments = []
+  } = statsData;
   const statusData = [
-    {
-      name: "Accepted",
-      value: Math.max(1, Math.floor(stats.totalApplications * 0.35)),
-      color: "#27ae60",
-    },
-    { name: "Pending", value: stats.pendingApplications, color: "#E8A820" },
-    {
-      name: "Reviewing",
-      value: Math.max(1, Math.floor(stats.totalApplications * 0.2)),
-      color: "#2196C9",
-    },
-    {
-      name: "Rejected",
-      value: Math.max(1, Math.floor(stats.totalApplications * 0.17)),
-      color: "#dc4545",
-    },
-  ];
-
-  const weeklyUsers = [
-    { day: "Mon", users: Math.floor(stats.totalUsers * 0.08) },
-    { day: "Tue", users: Math.floor(stats.totalUsers * 0.12) },
-    { day: "Wed", users: Math.floor(stats.totalUsers * 0.1) },
-    { day: "Thu", users: Math.floor(stats.totalUsers * 0.18) },
-    { day: "Fri", users: Math.floor(stats.totalUsers * 0.15) },
-    { day: "Sat", users: Math.floor(stats.totalUsers * 0.25) },
-    { day: "Sun", users: Math.floor(stats.totalUsers * 0.2) },
-  ];
+  {
+    name: "Accepted",
+    value: stats.acceptedApplications,
+    color: "#27ae60"
+  },
+  {
+    name: "Pending",
+    value: stats.pendingApplications,
+    color: "#E8AB82"
+  },
+  {
+    name: "Reviewing",
+    value: stats.reviewingApplications,
+    color: "#2196C9"
+  },
+  {
+    name: "Rejected",
+    value: stats.rejectedApplications,
+    color: "#dc4545"
+  }
+];
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -401,11 +396,25 @@ const AdminOverview = () => {
           },
           {
             icon: "💵",
-            num: stats.totalRevenue
-              ? "₹" + (stats.totalRevenue / 100000).toFixed(1) + "L"
-              : "₹0",
+            num: "₹" + Number(
+              stats.totalRevenue || 0
+            ).toLocaleString("en-IN"),
             label: "Total Revenue",
             color: "#1e8449",
+          },
+          {
+            icon: "📅",
+            num: "₹" + Number(
+              stats.currentMonthRevenue || 0
+            ).toLocaleString("en-IN"),
+            label: "Revenue This Month",
+            color: "#0f9d58",
+          },
+          {
+            icon: "⏰",
+            num: stats.pendingEnrollments || 0,
+            label: "Pending Enrollment",
+            color: "#dc4545",
           },
         ].map((s) => (
           <div
@@ -653,7 +662,7 @@ const AdminOverview = () => {
             <span className="chart-sub">Latest 5</span>
           </div>
           <div className="recent-list">
-            {statsData.recentApplications.slice(0, 5).map((a) => (
+            {recentApplications.slice(0, 5).map((a) => (
               <div key={a._id} className="recent-item">
                 <div className="ri-left">
                   <div className="ri-avatar">{a.name?.[0]?.toUpperCase()}</div>
@@ -669,6 +678,92 @@ const AdminOverview = () => {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Recent enrollments */}
+      <div
+        className="chart-card"
+        style={{ marginTop: "1.5rem" }}
+      >
+        <div className="chart-header">
+          <h3>Recent Enrollments</h3>
+          <span className="chart-sub">
+            Latest students
+          </span>
+        </div>
+
+        {recentEnrollments.length === 0 ? (
+          <div
+            style={{
+              padding: "1.5rem",
+              textAlign: "center",
+              color: "var(--muted)"
+            }}
+          >
+            No enrollments yet.
+          </div>
+        ) : (
+          <div className="recent-list">
+            {recentEnrollments
+              .slice(0, 10)
+              .map(enrollment => (
+                <div
+                  key={enrollment._id}
+                  className="recent-item"
+                >
+                  <div className="ri-left">
+                    <div className="ri-avatar">
+                      {enrollment.name?.[0]?.toUpperCase()}
+                    </div>
+
+                    <div>
+                      <strong>
+                        {enrollment.name}
+                      </strong>
+
+                      <span>
+                        {enrollment.courseName}
+                        {" · "}
+                        {enrollment.email}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      textAlign: "right"
+                    }}
+                  >
+                    <strong>
+                      {enrollment.paymentStatus ===
+                      "paid"
+                        ? "Paid"
+                        : enrollment.paymentStatus ===
+                          "pending"
+                        ? "Pending"
+                        : enrollment.paymentStatus
+                            ?.replace("_", " ")
+                            .toUpperCase()}
+                    </strong>
+
+                    <span
+                      style={{
+                        display: "block",
+                        fontSize: ".72rem",
+                        color: "var(--muted)"
+                      }}
+                    >
+                      {new Date(
+                        enrollment.createdAt
+                      ).toLocaleString(
+                        "en-IN"
+                      )}
+                    </span>
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -868,7 +963,15 @@ const AdminEnrollments = () => {
 
   useEffect(() => {
     load();
-  }, [filter]);
+
+    const interval = setInterval(
+      () => load(),
+      5000
+    );
+
+    return () =>
+      clearInterval(interval);
+  }, [filter, search]);
 
   const filtered = enrolls.filter(
     (e) =>
@@ -1115,11 +1218,71 @@ const AdminEnrollments = () => {
                   <td>
                     <div style={{ fontWeight: 700, color: "var(--navy)" }}>
                       ₹
-                      {(e.finalPrice || e.coursePrice)?.toLocaleString("en-IN")}
+                      {Number(
+                        e.finalPrice ||
+                        e.coursePrice ||
+                        0
+                      ).toLocaleString("en-IN")}
                     </div>
+
+                    <div
+                      style={{
+                        fontSize: ".72rem",
+                        color:
+                          Number(e.amountPaid || 0) > 0
+                            ? "#27ae60"
+                            : "var(--muted)"
+                      }}
+                    >
+                      Paid: ₹
+                      {Number(
+                        e.amountPaid || 0
+                      ).toLocaleString("en-IN")}
+                    </div>
+
+                    {Number(
+                      e.finalPrice ||
+                      e.coursePrice ||
+                      0
+                    ) -
+                      Number(e.amountPaid || 0) >
+                      0 && (
+                      <div
+                        style={{
+                          fontSize: ".7rem",
+                          color: "#dc4545"
+                        }}
+                      >
+                        Due: ₹
+                        {Math.max(
+                          0,
+                          Number(
+                            e.finalPrice ||
+                            e.coursePrice ||
+                            0
+                          ) -
+                            Number(
+                              e.amountPaid || 0
+                            )
+                        ).toLocaleString(
+                          "en-IN"
+                        )}
+                      </div>
+                    )}
+
                     {e.discountAmount > 0 && (
-                      <div style={{ fontSize: ".7rem", color: "#27ae60" }}>
-                        Saved ₹{e.discountAmount?.toLocaleString("en-IN")}
+                      <div
+                        style={{
+                          fontSize: ".7rem",
+                          color: "#27ae60"
+                        }}
+                      >
+                        Saved ₹
+                        {Number(
+                          e.discountAmount
+                        ).toLocaleString(
+                          "en-IN"
+                        )}
                       </div>
                     )}
                   </td>
@@ -1478,6 +1641,14 @@ const AdminUsers = () => {
   };
   useEffect(() => {
     load();
+
+    const interval = setInterval(
+      () => load(),
+      5000
+    );
+
+    return () =>
+      clearInterval(interval);
   }, [search, limit, page, viewAll]);
 
   const deleteUser = async (id, name) => {
@@ -2685,15 +2856,23 @@ const AdminProjects = () => {
 const UserDetailModal = ({ user: u, onClose }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [activityData, setActivityData] = useState({
-    courses: 0,
-    hoursLogged: 0,
-    attendance: 0,
-    assignments: 0,
-    averageScore: 0,
-    dayStreak: 0,
-    sessionsAttended: 0,
-    recentActivities: [],
-  });
+  courses: 0,
+  hoursLogged: 0,
+  attendance: 0,
+  assignments: 0,
+  averageScore: 0,
+  dayStreak: 0,
+  sessionsAttended: 0,
+
+  weeklyActivity: [],
+  dailyHours: [],
+  assignmentScores: [],
+  courseProgress: [],
+  overallProgress: [],
+  sessionHistory: [],
+
+  recentActivities: []
+});
   const [loading, setLoading] = useState(true);
 
   // Fetch user activity data when modal opens
@@ -2716,39 +2895,25 @@ const UserDetailModal = ({ user: u, onClose }) => {
     }
   }, [u._id]);
 
-  const mockActivityData = [
-    { week: "Week 1", lectures: 0, practice: 0, sessions: 0 },
-    { week: "Week 2", lectures: 0, practice: 0, sessions: 0 },
-    { week: "Week 3", lectures: 0, practice: 0, sessions: 0 },
-    { week: "Week 4", lectures: 0, practice: 0, sessions: 0 },
-    { week: "Week 5", lectures: 0, practice: 0, sessions: 0 },
-    { week: "Week 6", lectures: 0, practice: 0, sessions: 0 },
-  ];
+  const activityChartData = activityData.weeklyActivity || [];
 
-  const skillData = [
-    { subject: "HTML/CSS", A: 0 },
-    { subject: "JavaScript", A: 0 },
-    { subject: "React", A: 0 },
-    { subject: "Node.js", A: 0 },
-    { subject: "Database", A: 0 },
-    { subject: "Deployment", A: 0 },
-  ];
+  const skillData = activityData.assignmentScores?.map((item) => ({
+  subject: item.name,
+  A: item.score || 0,
+})) || [];
 
-  const dailyLogin = [
-    { day: "Mon", hours: 0 },
-    { day: "Tue", hours: 0 },
-    { day: "Wed", hours: 0 },
-    { day: "Thu", hours: 0 },
-    { day: "Fri", hours: 0 },
-    { day: "Sat", hours: 0 },
-    { day: "Sun", hours: 0 },
-  ];
+  const dailyLogin = activityData.dailyHours || [];
 
-  const progressData = [
-    { name: "Completed", value: 0, color: "#27ae60" },
-    { name: "In Progress", value: 0, color: "#2196C9" },
-    { name: "Pending", value: 100, color: "#E8A820" },
-  ];
+  const progressData =
+  activityData.overallProgress?.map((item) => ({
+    ...item,
+    color:
+      item.name === "Completed"
+        ? "#27ae60"
+        : item.name === "In Progress"
+        ? "#E8A820"
+        : "#dc4545",
+  })) || [];
 
   const TABS = [
     { id: "overview", label: "Overview" },
@@ -2971,7 +3136,7 @@ const UserDetailModal = ({ user: u, onClose }) => {
                   <div className="ud-chart-title">Weekly Learning Activity</div>
                   <ResponsiveContainer width="100%" height={220}>
                     <AreaChart
-                      data={mockActivityData}
+                      data={activityChartData}
                       margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                     >
                       <defs>
@@ -3359,17 +3524,8 @@ const UserDetailModal = ({ user: u, onClose }) => {
                 <div className="ud-chart-card" style={{ flex: 1 }}>
                   <div className="ud-chart-title">Assignment Scores</div>
                   <ResponsiveContainer width="100%" height={260}>
-                    <LineChart
-                      data={[
-                        { num: "A1", score: 72 },
-                        { num: "A2", score: 78 },
-                        { num: "A3", score: 85 },
-                        { num: "A4", score: 80 },
-                        { num: "A5", score: 88 },
-                        { num: "A6", score: 82 },
-                        { num: "A7", score: 91 },
-                        { num: "A8", score: 88 },
-                      ]}
+                     <LineChart
+                     data={activityData.assignmentScores || []}
                       margin={{ top: 10, right: 20, left: -20, bottom: 0 }}
                     >
                       <CartesianGrid
@@ -3417,59 +3573,44 @@ const UserDetailModal = ({ user: u, onClose }) => {
                   Enrolled Courses
                 </div>
                 <div className="enrolled-courses">
-                  {[
-                    {
-                      name: "Full Stack Web Development",
-                      progress: 65,
-                      status: "active",
-                      paid: true,
-                      start: "Jan 2024",
-                    },
-                    {
-                      name: "UI/UX Design",
-                      progress: 100,
-                      status: "completed",
-                      paid: true,
-                      start: "Nov 2023",
-                    },
-                    {
-                      name: "Digital Marketing",
-                      progress: 30,
-                      status: "active",
-                      paid: false,
-                      start: "Feb 2024",
-                    },
-                  ].map((c, i) => (
-                    <div key={i} className="ec-card">
-                      <div className="ec-info">
-                        <h4>{c.name}</h4>
-                        <div className="ec-meta">
-                          <span>Started: {c.start}</span>
-                          <span className={`ec-badge ${c.status}`}>
-                            {c.status}
-                          </span>
-                          <span
-                            className={`ec-badge ${c.paid ? "paid" : "pending"}`}
-                          >
-                            {c.paid ? "Paid" : "Pending Payment"}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="ec-progress">
-                        <div className="ec-pct">{c.progress}%</div>
-                        <div className="ec-bar">
-                          <div
-                            className="ec-fill"
-                            style={{
-                              width: `${c.progress}%`,
-                              background:
-                                c.progress === 100 ? "#27ae60" : "#2196C9",
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                  {(activityData.courseProgress || []).map((c, i) => (
+  <div key={c.id || i} className="ec-card">
+    <div className="ec-info">
+      <h4>{c.name}</h4>
+
+      <div className="ec-meta">
+        <span>Started: {c.start || "—"}</span>
+
+        <span className={`ec-badge ${c.status || ""}`}>
+          {c.status || "In Progress"}
+        </span>
+
+        <span
+          className={`ec-badge ${c.paid ? "paid" : "pending"}`}
+        >
+          {c.paid ? "Paid" : "Pending Payment"}
+        </span>
+      </div>
+    </div>
+
+    <div className="ec-progress">
+      <div className="ec-pct">
+        {c.progress || 0}%
+      </div>
+
+      <div className="ec-bar">
+        <div
+          className="ec-fill"
+          style={{
+            width: `${c.progress || 0}%`,
+            background:
+              c.progress === 100 ? "#27ae60" : "#2196C9",
+          }}
+        />
+      </div>
+    </div>
+  </div>
+))}
                 </div>
               </div>
             </div>
@@ -3482,7 +3623,7 @@ const UserDetailModal = ({ user: u, onClose }) => {
                   <div className="ud-chart-title">Live Sessions Attendance</div>
                   <ResponsiveContainer width="100%" height={220}>
                     <BarChart
-                      data={mockActivityData}
+                      data={activityChartData}
                       margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                     >
                       <CartesianGrid
@@ -3517,37 +3658,38 @@ const UserDetailModal = ({ user: u, onClose }) => {
                     {[
                       {
                         label: "Total Sessions Scheduled",
-                        val: "24",
+                        val: activityData.sessionsTotal || 0,
                         icon: "📅",
                         color: "#1B2A4A",
                       },
                       {
                         label: "Sessions Attended",
-                        val: "19",
+                        val: activityData.sessionsAttended || 0,
                         icon: "✅",
                         color: "#27ae60",
                       },
                       {
                         label: "Sessions Missed",
-                        val: "5",
+                        val:  Math.max(0,(activityData.sessionsTotal || 0) -
+      (activityData.sessionsAttended || 0)),
                         icon: "❌",
                         color: "#dc4545",
                       },
                       {
                         label: "Attendance Rate",
-                        val: "79%",
+                        val: activityData.attendanceRate? `${activityData.attendanceRate}%` : "0%",
                         icon: "📊",
                         color: "#2196C9",
                       },
                       {
                         label: "Avg Session Duration",
-                        val: "55 min",
+                        val: activityData.avgSessionDuration? `${activityData.avgSessionDuration} min`: "0 min",
                         icon: "⏱️",
                         color: "#e67e22",
                       },
                       {
                         label: "Practice Hours Total",
-                        val: "68h",
+                        val: activityData.practiceHours? `${activityData.practiceHours}h`: "0h",
                         icon: "💻",
                         color: "#6c3483",
                       },
@@ -4179,6 +4321,254 @@ const AdminsTab = () => {
       )}
     </div>
   );
+};
+
+
+// ── Mentor Management ────────────────────────────────────
+const MentorManagement = () => {
+  const [mentors, setMentors] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [overview, setOverview] = useState(null);
+  const [form, setForm] = useState({
+    name:'', email:'', password:'', phone:'', expertise:'', skills:'', assignedCourses:'', assignedBatches:''
+  });
+  const [assign, setAssign] = useState({ studentId:'', mentorId:'' });
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    try {
+      const [m, u, ov] = await Promise.all([
+        getAdminMentors(),
+        getAdminUsers({ limit: 100 }),
+        getAllMentorsOverview().catch(() => ({ data: { data: null } }))
+      ]);
+      setMentors(m.data.data || []);
+      const users = u.data.data?.users || u.data.data || [];
+      setStudents(users.filter(x => x.role === 'student'));
+      setOverview(ov.data?.data || null);
+    } catch (e) {
+      toast.error(e.response?.data?.message || 'Unable to load mentors');
+    } finally { setLoading(false); }
+  };
+  useEffect(() => { load(); }, []);
+
+  const create = async (e) => {
+    e.preventDefault();
+    try {
+      await createMentorAccount({
+        ...form,
+        expertise: form.expertise.split(',').map(x=>x.trim()).filter(Boolean),
+        skills: form.skills.split(',').map(x=>x.trim()).filter(Boolean),
+        assignedCourses: form.assignedCourses.split(',').map(x=>x.trim()).filter(Boolean),
+        assignedBatches: form.assignedBatches.split(',').map(x=>x.trim()).filter(Boolean)
+      });
+      toast.success('Mentor account created');
+      setForm({name:'',email:'',password:'',phone:'',expertise:'',skills:'',assignedCourses:'',assignedBatches:''});
+      load();
+    } catch(e) { toast.error(e.response?.data?.message || 'Unable to create mentor'); }
+  };
+
+  const assignStudent = async () => {
+    if (!assign.studentId || !assign.mentorId) return toast.error('Select a mentor and student');
+    try {
+      await assignStudentToMentor(assign.studentId, assign.mentorId);
+      toast.success('Student assigned to mentor');
+      setAssign({studentId:'',mentorId:''});
+      load();
+    } catch(e) { toast.error(e.response?.data?.message || 'Unable to assign student'); }
+  };
+
+  if (loading) return <div className="dash-loading"><div className="dash-spinner"/></div>;
+
+  return <div>
+    <div className="overview-welcome">
+      <div>
+        <h2>Mentor Management & Supervision</h2>
+        <p>Create mentor accounts, assign students, and access any mentor's live dashboard, schedule & announcements.</p>
+      </div>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <Link
+          to="/mentor/dashboard"
+          className="btn btn-primary"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none', background: 'linear-gradient(135deg, #e8a820, #f5c453)', color: '#12233f', fontWeight: 800 }}
+        >
+          🚀 Access Mentor Portal
+        </Link>
+        <button className="btn btn-outline" onClick={load}>Refresh</button>
+      </div>
+    </div>
+
+    {/* Quick stats cards if overview loaded */}
+    {overview?.stats && (
+      <div className="stats-grid" style={{ marginBottom: '1.5rem' }}>
+        <div className="stat-card">
+          <div className="stat-value">{overview.stats.totalMentors || 0}</div>
+          <div className="stat-label">Total Mentors</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{overview.stats.totalStudentsMentored || 0}</div>
+          <div className="stat-label">Students Mentored</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{overview.stats.totalClasses || 0}</div>
+          <div className="stat-label">Scheduled Classes</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{overview.stats.totalPendingSubmissions || 0}</div>
+          <div className="stat-label">Pending Reviews</div>
+        </div>
+      </div>
+    )}
+
+    <div className="charts-row">
+      <div className="chart-card" style={{flex:1}}>
+        <h3 style={{marginBottom:'1rem'}}>Create Mentor Account</h3>
+        <form className="admin-filters" onSubmit={create} style={{display:'grid',gridTemplateColumns:'1fr 1fr'}}>
+          <input className="admin-search" required placeholder="Full name" value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/>
+          <input className="admin-search" required type="email" placeholder="Email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/>
+          <input className="admin-search" required type="password" minLength="6" placeholder="Temporary password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})}/>
+          <input className="admin-search" placeholder="Phone" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/>
+          <input className="admin-search" placeholder="Expertise (comma separated)" value={form.expertise} onChange={e=>setForm({...form,expertise:e.target.value})}/>
+          <input className="admin-search" placeholder="Skills (comma separated)" value={form.skills} onChange={e=>setForm({...form,skills:e.target.value})}/>
+          <input className="admin-search" placeholder="Courses (comma separated)" value={form.assignedCourses} onChange={e=>setForm({...form,assignedCourses:e.target.value})}/>
+          <input className="admin-search" placeholder="Batches (comma separated)" value={form.assignedBatches} onChange={e=>setForm({...form,assignedBatches:e.target.value})}/>
+          <button className="btn btn-primary" type="submit" style={{gridColumn:'1 / -1'}}>Create Mentor</button>
+        </form>
+      </div>
+
+      <div className="chart-card" style={{flex:1}}>
+        <h3 style={{marginBottom:'1rem'}}>Assign Student to Mentor</h3>
+        <div style={{display:'grid',gap:'.8rem'}}>
+          <select className="admin-select" value={assign.mentorId} onChange={e=>setAssign({...assign,mentorId:e.target.value})}>
+            <option value="">Select mentor</option>
+            {mentors.map(m=><option key={m._id} value={m._id}>{m.name} ({m.studentCount} students)</option>)}
+          </select>
+          <select className="admin-select" value={assign.studentId} onChange={e=>setAssign({...assign,studentId:e.target.value})}>
+            <option value="">Select student</option>
+            {students.map(st=><option key={st._id} value={st._id}>{st.name} — {st.email}</option>)}
+          </select>
+          <button className="btn btn-primary" onClick={assignStudent}>Assign Student</button>
+        </div>
+      </div>
+    </div>
+
+    {/* Mentors Table with Direct Dashboard Access */}
+    <div className="chart-card" style={{marginTop:'1.5rem'}}>
+      <div className="chart-header">
+        <div>
+          <h3>Active Mentors Roster</h3>
+          <span className="chart-sub">{mentors.length} mentor accounts in system</span>
+        </div>
+      </div>
+      <div className="table-wrap">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Mentor</th>
+              <th>Email</th>
+              <th>Expertise</th>
+              <th>Assigned Courses</th>
+              <th>Students</th>
+              <th>Status</th>
+              <th>Supervision</th>
+            </tr>
+          </thead>
+          <tbody>
+            {mentors.map(m=>(
+              <tr key={m._id}>
+                <td><strong>{m.name}</strong></td>
+                <td>{m.email}</td>
+                <td>{(m.expertise||[]).join(', ') || '—'}</td>
+                <td>{(m.assignedCourses||[]).join(', ') || '—'}</td>
+                <td><span className="badge-status badge-active">{m.studentCount} students</span></td>
+                <td><span className={`badge-status badge-${m.isBlocked?'blocked':'active'}`}>{m.isBlocked?'Blocked':'Active'}</span></td>
+                <td>
+                  <Link
+                    to={`/mentor/dashboard?mentorId=${m._id}`}
+                    className="btn btn-outline"
+                    style={{
+                      fontSize: '.75rem',
+                      padding: '.35rem .75rem',
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      background: '#f8fafc',
+                      color: '#1e40af',
+                      borderColor: '#93c5fd'
+                    }}
+                  >
+                    👁️ View Dashboard →
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {/* Collective Activity & Announcements Section */}
+    {overview && (
+      <div className="charts-row" style={{ marginTop: '1.5rem' }}>
+        <div className="chart-card" style={{ flex: 1 }}>
+          <div className="chart-header">
+            <h3>Recent Mentor Announcements</h3>
+            <span className="chart-sub">Messages sent to students</span>
+          </div>
+          {(!overview.recentAnnouncements || overview.recentAnnouncements.length === 0) ? (
+            <p style={{ color: 'var(--muted)', fontSize: '.85rem', padding: '1rem 0' }}>No announcements sent yet.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+              {overview.recentAnnouncements.slice(0, 6).map(a => (
+                <div key={a._id} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px 14px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <strong style={{ fontSize: '.88rem', color: '#1e293b' }}>{a.title}</strong>
+                    <span style={{ fontSize: '.72rem', color: '#64748b' }}>{new Date(a.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <p style={{ fontSize: '.78rem', color: '#475569', margin: '4px 0' }}>{a.message}</p>
+                  <small style={{ fontSize: '.68rem', color: '#94a3b8' }}>
+                    Recipient: {a.recipient?.name || 'Student'} ({a.recipient?.email || ''})
+                  </small>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="chart-card" style={{ flex: 1 }}>
+          <div className="chart-header">
+            <h3>Scheduled Classes Across Mentors</h3>
+            <span className="chart-sub">Upcoming & recent sessions</span>
+          </div>
+          {(!overview.recentClasses || overview.recentClasses.length === 0) ? (
+            <p style={{ color: 'var(--muted)', fontSize: '.85rem', padding: '1rem 0' }}>No scheduled classes yet.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+              {overview.recentClasses.slice(0, 6).map(c => (
+                <div key={c._id} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <strong style={{ fontSize: '.88rem', display: 'block', color: '#1e293b' }}>{c.title}</strong>
+                    <span style={{ fontSize: '.72rem', color: '#64748b' }}>
+                      Mentor: {c.mentor?.name || 'Mentor'} · {new Date(c.date).toLocaleDateString()} ({c.startTime} - {c.endTime})
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <span className="badge-status badge-active" style={{ textTransform: 'capitalize' }}>{c.status}</span>
+                    {c.meetingLink && (
+                      <a href={c.meetingLink} target="_blank" rel="noreferrer" className="btn btn-outline" style={{ fontSize: '.7rem', padding: '.25rem .5rem', textDecoration: 'none' }}>
+                        Join
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+  </div>;
 };
 
 export default Admin;
