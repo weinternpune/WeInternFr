@@ -499,26 +499,21 @@
   overflow: hidden;
 }
 
-/* Fix Revenue stat card number overflow */
+/* Revenue and numeric stat card styling (Display full number without truncation) */
 .stat-num {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.6rem;
-  font-weight: 900;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  font-size: 1.5rem;
+  font-weight: 800;
   margin-bottom: .25rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
+  overflow: visible;
+  text-overflow: clip;
 }
 
-/* Shrink revenue card text if too long */
 .stat-card {
-  min-width: 0;
-  overflow: hidden;
-}
-
-/* Fix revenue specifically */
-.stats-grid .stat-card:last-child .stat-num {
-  font-size: 1.3rem;
+  min-width: 170px;
+  overflow: visible;
 }
 
 /* ── Admin Course Cards (home page style) ── */
@@ -634,7 +629,7 @@
 .stat-card { background:white;border-radius:var(--r);padding:1.5rem;box-shadow:var(--sh);text-align:center;border:1px solid var(--border);transition:var(--ease); }
 .stat-card:hover { transform:translateY(-3px);box-shadow:var(--shlg); }
 .stat-icon { font-size:1.8rem;margin-bottom:.5rem; }
-.stat-num { font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;margin-bottom:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.stat-num { font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:.25rem;white-space:normal;word-break:break-word;overflow:visible; }
 .stat-label { font-size:.78rem;color:var(--muted);font-weight:500; }
 .recent-block { background:white;border-radius:var(--r);padding:1.5rem;box-shadow:var(--sh); }
 .recent-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem; }

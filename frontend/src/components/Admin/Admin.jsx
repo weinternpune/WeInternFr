@@ -62,13 +62,13 @@ const ADMIN_TABS = [
   { id: "overview", icon: <FaChartBar />, label: "Overview" },
   { id: "applications", icon: <FaFileAlt />, label: "Applications" },
   { id: "enrollments", icon: <FaBook />, label: "Enrollments" },
+  { id: "mentors", icon: <FaUsers />, label: "Mentors" },
   { id: "hire", icon: <FaBuilding />, label: "Hire Requests" },
   { id: "users", icon: <FaUsers />, label: "Users" },
   { id: "courses", icon: <FaGraduationCap />, label: "Courses" },
   { id: "projects", icon: <FaRocket />, label: "Projects" },
   { id: "blog", icon: <FaFileAlt />, label: "Blog" },
   { id: "admins", icon: <FaUserShield />, label: "Admins" },
-  { id: "mentors", icon: <FaUsers />, label: "Mentors" },
 ];
 
 const Admin = () => {
@@ -149,7 +149,7 @@ const Admin = () => {
 
             <div className="dash-nav-section">
               <div className="dns-label">Management</div>
-              {ADMIN_TABS.slice(1, 5).map((t) => (
+              {ADMIN_TABS.slice(1, 6).map((t) => (
                 <button
                   key={t.id}
                   className={`dash-nav-item${tab === t.id ? " active" : ""}`}
@@ -162,11 +162,27 @@ const Admin = () => {
                   <span>{t.label}</span>
                 </button>
               ))}
+
+              <Link
+                to="/mentor/dashboard"
+                className="dash-nav-item"
+                style={{
+                  textDecoration: "none",
+                  color: "#f5c453",
+                  background: "rgba(232,168,32,0.12)",
+                  border: "1px solid rgba(232,168,32,0.3)",
+                  marginTop: "6px",
+                  borderRadius: "8px"
+                }}
+              >
+                <span className="dni-icon">🚀</span>
+                <span>Mentor Portal →</span>
+              </Link>
             </div>
 
             <div className="dash-nav-section">
               <div className="dns-label">System</div>
-              {ADMIN_TABS.slice(5).map((t) => (
+              {ADMIN_TABS.slice(6).map((t) => (
                 <button
                   key={t.id}
                   className={`dash-nav-item${tab === t.id ? " active" : ""}`}
@@ -361,7 +377,8 @@ const AdminOverview = () => {
       <div
         className="stats-grid"
         style={{
-          gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(185px, 1fr))",
+          gap: "1rem",
           marginBottom: "2rem",
         }}
       >
@@ -434,10 +451,24 @@ const AdminOverview = () => {
           <div
             key={s.label}
             className="stat-card"
-            style={{ borderTop: "3px solid " + s.color }}
+            style={{
+              borderTop: "3px solid " + s.color,
+              overflow: "visible",
+              minWidth: "170px"
+            }}
           >
             <div className="stat-icon">{s.icon}</div>
-            <div className="stat-num" style={{ color: s.color }}>
+            <div
+              className="stat-num"
+              style={{
+                color: s.color,
+                fontSize: "1.45rem",
+                overflow: "visible",
+                textOverflow: "clip",
+                whiteSpace: "normal",
+                wordBreak: "break-word"
+              }}
+            >
               {s.num}
             </div>
             <div className="stat-label">{s.label}</div>
