@@ -1147,7 +1147,7 @@ const Courses = () => {
             <h2 className="cs-main-title">
               Popular <span className="cs-title-accent">Programs</span>
             </h2>
-            <p className="cs-sub">
+            <p className="cs-sub" style={{position:"relative",}}>
               Upskill with Job-Ready Programs &amp; Career-Driven
               Certifications.
             </p>
