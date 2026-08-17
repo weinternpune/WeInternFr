@@ -11,10 +11,26 @@ import { Icon } from "@iconify/react";
 import { slugify, getTechIcon } from "../../data/courseExtras";
 import "./Courses.css";
 
+
+// CourseBanners
+import AIML_Banner from "../../assets/Courses_Banner/AIML-banner.jpeg"
+import FullStack_Banner from "../../assets/Courses_Banner/full-stack-banner.jpeg"
+import C_Banner from "../../assets/Courses_Banner/C-banner.jpeg"
+import DATA_Analyst from "../../assets/Courses_Banner/DATA-Analyst-banner.jpeg"
+import DevOps_Banner from "../../assets/Courses_Banner/DevOps-banner.jpeg"
+import JavaBanner from "../../assets/Courses_Banner/JavaDeveloper.jpeg"
+import PythonBanner from "../../assets/Courses_Banner/PythonDeveloper-banner.jpeg"
+import UI_UXbanner from "../../assets/Courses_Banner/UI_UXbanner.jpeg"
+import Cloud_Banner from "../../assets/Courses_Banner/CloudComputing-banner.jpeg";
+import MobileApp_Banner from "../../assets/Courses_Banner/MobileApp_banner.jpeg";
+
 /* ─── Razorpay loader (original, untouched) ─── */
 const loadRazorpaySDK = () =>
   new Promise((resolve) => {
-    if (window.Razorpay) { resolve(true); return; }
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
     const s = document.createElement("script");
     s.src = "https://checkout.razorpay.com/v1/checkout.js";
     s.onload = () => resolve(true);
@@ -24,78 +40,313 @@ const loadRazorpaySDK = () =>
 
 /* ─── Header gradients ─── */
 const HEADER_GRADIENTS = {
-  green:  "linear-gradient(135deg, #4ade80 0%, #bbf7d0 50%, #ffffff 100%)",
-  blue:   "linear-gradient(135deg, #ffd23f 0%, #bfdbfe 50%, #ffffff 100%)",
+  green: "linear-gradient(135deg, #4ade80 0%, #bbf7d0 50%, #ffffff 100%)",
+  blue: "linear-gradient(135deg, #ffd23f 0%, #bfdbfe 50%, #ffffff 100%)",
   purple: "linear-gradient(135deg, #ffd23f 0%, #ddd6fe 50%, #ffffff 100%)",
-  amber:  "linear-gradient(135deg, #fbbf24 0%, #fde68a 50%, #ffffff 100%)",
-  teal:   "linear-gradient(135deg, #2dd4bf 0%, #99f6e4 50%, #ffffff 100%)",
-  pink:   "linear-gradient(135deg, #f472b6 0%, #fbcfe8 50%, #ffffff 100%)",
-  rose:   "linear-gradient(135deg, #fb7185 0%, #fecdd3 50%, #ffffff 100%)",
-  sky:    "linear-gradient(135deg, #ffd23f 0%, #ffd23f 50%, #ffffff 100%)",
-  slate:  "linear-gradient(135deg, #94a3b8 0%, #e2e8f0 50%, #ffffff 100%)",
+  amber: "linear-gradient(135deg, #fbbf24 0%, #fde68a 50%, #ffffff 100%)",
+  teal: "linear-gradient(135deg, #2dd4bf 0%, #99f6e4 50%, #ffffff 100%)",
+  pink: "linear-gradient(135deg, #f472b6 0%, #fbcfe8 50%, #ffffff 100%)",
+  rose: "linear-gradient(135deg, #fb7185 0%, #fecdd3 50%, #ffffff 100%)",
+  sky: "linear-gradient(135deg, #ffd23f 0%, #ffd23f 50%, #ffffff 100%)",
+  slate: "linear-gradient(135deg, #94a3b8 0%, #e2e8f0 50%, #ffffff 100%)",
 };
 
 const COURSE_META = [
-  { keys: ["web","full stack","fullstack","mern"],   icon: "lucide:code-2",             bg: HEADER_GRADIENTS.green,  iconColor: "#16a34a", border: "#bbf7d0", dot: "#16a34a",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#fff7ed", badgeText: "#ea580c" },
-  { keys: ["app","mobile","flutter","android"],       icon: "lucide:smartphone",         bg: HEADER_GRADIENTS.blue,   iconColor: "#ffd23f", border: "#bfdbfe", dot: "#ffd23f",  badge: "Trending",   badgeIcon: "lucide:trending-up", badgeColor: "#eff6ff", badgeText: "#ffd23f" },
-  { keys: ["ai","machine","deep learning","nlp","automation"], icon: "lucide:brain-circuit", bg: HEADER_GRADIENTS.purple, iconColor: "#7c3aed", border: "#ddd6fe", dot: "#7c3aed", badge: "New",       badgeIcon: "lucide:sparkles", badgeColor: "#faf5ff", badgeText: "#7c3aed" },
-  { keys: ["data","sql","analytics"],                 icon: "lucide:database",           bg: HEADER_GRADIENTS.amber,  iconColor: "#d97706", border: "#fde68a", dot: "#d97706",  badge: "In Demand",  badgeIcon: "lucide:zap",      badgeColor: "#fffbeb", badgeText: "#d97706" },
-  { keys: ["python"],                                 icon: "lucide:code",               bg: HEADER_GRADIENTS.purple, iconColor: "#7c3aed", border: "#ddd6fe", dot: "#7c3aed",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#faf5ff", badgeText: "#7c3aed" },
-  { keys: ["java"],                                   icon: "lucide:coffee",             bg: HEADER_GRADIENTS.green,  iconColor: "#16a34a", border: "#bbf7d0", dot: "#16a34a",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#fff7ed", badgeText: "#ea580c" },
-  { keys: ["c++","cpp","c/c++"],                      icon: "lucide:terminal",           bg: HEADER_GRADIENTS.sky,    iconColor: "#ffd23f", border: "#ffd23f", dot: "#ffd23f",  badge: "In Demand",  badgeIcon: "lucide:zap",      badgeColor: "#f0f9ff", badgeText: "#ffd23f" },
-  { keys: ["marketing","seo","digital"],              icon: "lucide:megaphone",          bg: HEADER_GRADIENTS.teal,   iconColor: "#0d9488", border: "#99f6e4", dot: "#0d9488",  badge: "Trending",   badgeIcon: "lucide:trending-up", badgeColor: "#f0fdfa", badgeText: "#0d9488" },
-  { keys: ["ui","ux","design","figma"],               icon: "lucide:pencil-ruler",       bg: HEADER_GRADIENTS.pink,   iconColor: "#ec4899", border: "#fbcfe8", dot: "#ec4899",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#fdf2f8", badgeText: "#ec4899" },
-  { keys: ["video","editing","content","premiere"],   icon: "lucide:clapperboard",       bg: HEADER_GRADIENTS.rose,   iconColor: "#e11d48", border: "#fecdd3", dot: "#e11d48",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#fff1f2", badgeText: "#e11d48" },
-  { keys: ["cloud"],                                  icon: "lucide:cloud",              bg: HEADER_GRADIENTS.sky,    iconColor: "#ffd23f", border: "#ffd23f", dot: "#ffd23f",  badge: "In Demand",  badgeIcon: "lucide:zap",      badgeColor: "#f0f9ff", badgeText: "#ffd23f" },
-  { keys: ["devops","docker","kubernetes"],           icon: "lucide:settings-2",         bg: HEADER_GRADIENTS.slate,  iconColor: "#475569", border: "#e2e8f0", dot: "#475569",  badge: "In Demand",  badgeIcon: "lucide:zap",      badgeColor: "#f8fafc", badgeText: "#475569" },
-  { keys: ["game","unity"],                           icon: "lucide:gamepad-2",          bg: HEADER_GRADIENTS.purple, iconColor: "#7c3aed", border: "#ddd6fe", dot: "#7c3aed",  badge: "New",        badgeIcon: "lucide:sparkles", badgeColor: "#faf5ff", badgeText: "#7c3aed" },
-  { keys: ["business","analytics","excel","power bi"],icon: "lucide:briefcase-business", bg: HEADER_GRADIENTS.green,  iconColor: "#16a34a", border: "#bbf7d0", dot: "#16a34a",  badge: "Popular",    badgeIcon: "lucide:flame",    badgeColor: "#fff7ed", badgeText: "#ea580c" },
+  {
+    keys: ["web", "full stack", "fullstack", "mern"],
+    icon: "lucide:code-2",
+    bg: HEADER_GRADIENTS.green,
+    iconColor: "#16a34a",
+    border: "#bbf7d0",
+    dot: "#16a34a",
+    badge: "Popular",
+    badgeIcon: "lucide:flame",
+    badgeColor: "#fff7ed",
+    badgeText: "#ea580c",
+  },
+  {
+    keys: ["app", "mobile", "flutter", "android"],
+    icon: "lucide:smartphone",
+    bg: HEADER_GRADIENTS.blue,
+    iconColor: "#ffd23f",
+    border: "#bfdbfe",
+    dot: "#ffd23f",
+    badge: "Trending",
+    badgeIcon: "lucide:trending-up",
+    badgeColor: "#eff6ff",
+    badgeText: "#ffd23f",
+  },
+  {
+    keys: ["ai", "machine", "deep learning", "nlp", "automation"],
+    icon: "lucide:brain-circuit",
+    bg: HEADER_GRADIENTS.purple,
+    iconColor: "#7c3aed",
+    border: "#ddd6fe",
+    dot: "#7c3aed",
+    badge: "New",
+    badgeIcon: "lucide:sparkles",
+    badgeColor: "#faf5ff",
+    badgeText: "#7c3aed",
+  },
+  {
+    keys: ["data", "sql", "analytics"],
+    icon: "lucide:database",
+    bg: HEADER_GRADIENTS.amber,
+    iconColor: "#d97706",
+    border: "#fde68a",
+    dot: "#d97706",
+    badge: "In Demand",
+    badgeIcon: "lucide:zap",
+    badgeColor: "#fffbeb",
+    badgeText: "#d97706",
+  },
+  {
+    keys: ["python"],
+    icon: "lucide:code",
+    bg: HEADER_GRADIENTS.purple,
+    iconColor: "#7c3aed",
+    border: "#ddd6fe",
+    dot: "#7c3aed",
+    badge: "Popular",
+    badgeIcon: "lucide:flame",
+    badgeColor: "#faf5ff",
+    badgeText: "#7c3aed",
+  },
+  {
+    keys: ["java"],
+    icon: "lucide:coffee",
+    bg: HEADER_GRADIENTS.green,
+    iconColor: "#16a34a",
+    border: "#bbf7d0",
+    dot: "#16a34a",
+    badge: "Popular",
+    badgeIcon: "lucide:flame",
+    badgeColor: "#fff7ed",
+    badgeText: "#ea580c",
+  },
+  {
+    keys: ["c++", "cpp", "c/c++"],
+    icon: "lucide:terminal",
+    bg: HEADER_GRADIENTS.sky,
+    iconColor: "#ffd23f",
+    border: "#ffd23f",
+    dot: "#ffd23f",
+    badge: "In Demand",
+    badgeIcon: "lucide:zap",
+    badgeColor: "#f0f9ff",
+    badgeText: "#ffd23f",
+  },
+  {
+    keys: ["marketing", "seo", "digital"],
+    icon: "lucide:megaphone",
+    bg: HEADER_GRADIENTS.teal,
+    iconColor: "#0d9488",
+    border: "#99f6e4",
+    dot: "#0d9488",
+    badge: "Trending",
+    badgeIcon: "lucide:trending-up",
+    badgeColor: "#f0fdfa",
+    badgeText: "#0d9488",
+  },
+  {
+    keys: ["ui", "ux", "design", "figma"],
+    icon: "lucide:pencil-ruler",
+    bg: HEADER_GRADIENTS.pink,
+    iconColor: "#ec4899",
+    border: "#fbcfe8",
+    dot: "#ec4899",
+    badge: "Popular",
+    badgeIcon: "lucide:flame",
+    badgeColor: "#fdf2f8",
+    badgeText: "#ec4899",
+  },
+  {
+    keys: ["video", "editing", "content", "premiere"],
+    icon: "lucide:clapperboard",
+    bg: HEADER_GRADIENTS.rose,
+    iconColor: "#e11d48",
+    border: "#fecdd3",
+    dot: "#e11d48",
+    badge: "Popular",
+    badgeIcon: "lucide:flame",
+    badgeColor: "#fff1f2",
+    badgeText: "#e11d48",
+  },
+  {
+    keys: ["cloud"],
+    icon: "lucide:cloud",
+    bg: HEADER_GRADIENTS.sky,
+    iconColor: "#ffd23f",
+    border: "#ffd23f",
+    dot: "#ffd23f",
+    badge: "In Demand",
+    badgeIcon: "lucide:zap",
+    badgeColor: "#f0f9ff",
+    badgeText: "#ffd23f",
+  },
+  {
+    keys: ["devops", "docker", "kubernetes"],
+    icon: "lucide:settings-2",
+    bg: HEADER_GRADIENTS.slate,
+    iconColor: "#475569",
+    border: "#e2e8f0",
+    dot: "#475569",
+    badge: "In Demand",
+    badgeIcon: "lucide:zap",
+    badgeColor: "#f8fafc",
+    badgeText: "#475569",
+  },
+  {
+    keys: ["game", "unity"],
+    icon: "lucide:gamepad-2",
+    bg: HEADER_GRADIENTS.purple,
+    iconColor: "#7c3aed",
+    border: "#ddd6fe",
+    dot: "#7c3aed",
+    badge: "New",
+    badgeIcon: "lucide:sparkles",
+    badgeColor: "#faf5ff",
+    badgeText: "#7c3aed",
+  },
+  {
+    keys: ["business", "analytics", "excel", "power bi"],
+    icon: "lucide:briefcase-business",
+    bg: HEADER_GRADIENTS.green,
+    iconColor: "#16a34a",
+    border: "#bbf7d0",
+    dot: "#16a34a",
+    badge: "Popular",
+    badgeIcon: "lucide:flame",
+    badgeColor: "#fff7ed",
+    badgeText: "#ea580c",
+  },
 ];
 
 const getCourseMeta = (title = "") => {
   const t = title.toLowerCase();
   return (
     COURSE_META.find(({ keys }) => keys.some((k) => t.includes(k))) || {
-      icon: "lucide:laptop", bg: HEADER_GRADIENTS.sky, iconColor: "#E8A820",
-      border: "#bfdfef", dot: "#E8A820", badge: "In Demand",
-      badgeIcon: "lucide:zap", badgeColor: "#f0f9ff", badgeText: "#ffd23f",
+      icon: "lucide:laptop",
+      bg: HEADER_GRADIENTS.sky,
+      iconColor: "#E8A820",
+      border: "#bfdfef",
+      dot: "#E8A820",
+      badge: "In Demand",
+      badgeIcon: "lucide:zap",
+      badgeColor: "#f0f9ff",
+      badgeText: "#ffd23f",
     }
   );
 };
 
+const COURSE_BANNERS = [
+  { keys: ["web", "full stack", "fullstack", "mern"], image: FullStack_Banner },
+  { keys: ["app", "mobile", "flutter", "android"], image: MobileApp_Banner },
+  { keys: ["ai", "machine", "deep learning", "nlp", "automation"], image: AIML_Banner },
+  { keys: ["data", "sql", "analytics"], image: DATA_Analyst },
+  { keys: ["python"], image: PythonBanner },
+  { keys: ["java"], image: JavaBanner },
+  { keys: ["c++", "cpp", "c/c++"], image: C_Banner },
+  { keys: ["cloud"], image: Cloud_Banner },
+  { keys: ["devops", "docker", "kubernetes"], image: DevOps_Banner },
+  { keys: ["ui", "ux", "design", "figma"], image: UI_UXbanner },
+  {
+    keys: ["video", "editing", "content", "premiere"],
+    image: "https://images.pexels.com/photos/3062541/pexels-photo-3062541.jpeg?cs=srgb&dl=pexels-video-editing-3062541.jpg&fm=jpg",
+  },
+  {
+    keys: ["marketing", "seo", "digital"],
+    image: "https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?cs=srgb&dl=pexels-digital-marketing-265087.jpg&fm=jpg",
+  },
+];
+
+const getCourseBanner = (title = "") => {
+  const t = title.toLowerCase();
+  const match = COURSE_BANNERS.find(({ keys }) => keys.some((k) => t.includes(k)));
+  return match ? match.image : FullStack_Banner; // fallback since you have no dedicated "default" image
+};
+
 const getTools = (tools) => {
   if (Array.isArray(tools)) return tools;
-  if (typeof tools === "string") return tools.split(",").map((t) => t.trim()).filter(Boolean);
+  if (typeof tools === "string")
+    return tools
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
   return [];
 };
 
 /* ─── Tabs ─── */
 const TABS = [
   { label: "Technology", icon: "lucide:monitor" },
-  { label: "Design",     icon: "lucide:palette" },
-  { label: "Marketing",  icon: "lucide:bar-chart-2" },
+  { label: "Design", icon: "lucide:palette" },
+  { label: "Marketing", icon: "lucide:bar-chart-2" },
 ];
 
 const TAB_KEYS = {
-  Technology: ["web","full stack","fullstack","mern","app","mobile","flutter","android","ai","machine","deep learning","nlp","automation","data","python","java","c++","cpp","c/c++","programming","sql","cloud","devops","docker","kubernetes","game","unity","business","analytics","excel","power bi"],
-  Design:     ["ui","ux","design","figma","video","editing","content","premiere"],
-  Marketing:  ["marketing","seo","digital"],
+  Technology: [
+    "web",
+    "full stack",
+    "fullstack",
+    "mern",
+    "app",
+    "mobile",
+    "flutter",
+    "android",
+    "ai",
+    "machine",
+    "deep learning",
+    "nlp",
+    "automation",
+    "data",
+    "python",
+    "java",
+    "c++",
+    "cpp",
+    "c/c++",
+    "programming",
+    "sql",
+    "cloud",
+    "devops",
+    "docker",
+    "kubernetes",
+    "game",
+    "unity",
+    "business",
+    "analytics",
+    "excel",
+    "power bi",
+  ],
+  Design: [
+    "ui",
+    "ux",
+    "design",
+    "figma",
+    "video",
+    "editing",
+    "content",
+    "premiere",
+  ],
+  Marketing: ["marketing", "seo", "digital"],
 };
 
 /* ─── Benefits (UNTOUCHED) ─── */
 const BENEFITS = [
-  { icon: "tabler:user-star",               label: ["Expert-Led", "Training"] },
-  { icon: "tabler:clipboard-list",          label: ["Last Exam", "Practice"] },
-  { icon: "tabler:briefcase",               label: ["Scaled", "Doubt-Solving"] },
+  { icon: "tabler:user-star", label: ["Expert-Led", "Training"] },
+  { icon: "tabler:clipboard-list", label: ["Last Exam", "Practice"] },
+  { icon: "tabler:briefcase", label: ["Scaled", "Doubt-Solving"] },
   { icon: "tabler:presentation-analytics", label: ["Real-World", "Projects"] },
   { icon: "tabler:rosette-discount-check", label: ["1:1 Career", "Support"] },
-  { icon: "tabler:users",                   label: ["Certificate of", "Completion"] },
-  { icon: "tabler:file-description",        label: ["Lifetime Access", "to Resources"] },
-  { icon: "tabler:users-group",             label: ["Placement & Job", "Assistance"] },
+  { icon: "tabler:users", label: ["Certificate of", "Completion"] },
+  {
+    icon: "tabler:file-description",
+    label: ["Lifetime Access", "to Resources"],
+  },
+  { icon: "tabler:users-group", label: ["Placement & Job", "Assistance"] },
 ];
 
 /* ══════════════════════════════════════════════════════════════
-   EnrollModal  —  with offer system
+   EnrollModal  —  with offer system (UNTOUCHED)
 ══════════════════════════════════════════════════════════════ */
 export const EnrollModal = ({ course, onClose }) => {
   const { user } = useAuth();
@@ -103,20 +354,26 @@ export const EnrollModal = ({ course, onClose }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showPrice, setShowPrice] = useState(false);
-  const [paymentType, setPaymentType] = useState('full'); // 'full' or 'emi'
-  const [couponCode, setCouponCode] = useState('');
+  const [paymentType, setPaymentType] = useState("full"); // 'full' or 'emi'
+  const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
-  const [couponError, setCouponError] = useState('');
+  const [couponError, setCouponError] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
   const [form, setForm] = useState({
-    name: user?.name || "", email: user?.email || "", phone: user?.phone || "",
-    college: user?.college || "", degree: "", year: user?.year || "",
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    college: user?.college || "",
+    degree: "",
+    year: user?.year || "",
   });
 
   // Calculate offer details
   const originalPrice = course.originalPrice || Math.round(course.price * 1.2); // 20% markup for original
   const offerPrice = course.price;
-  const discount = Math.round(((originalPrice - offerPrice) / originalPrice) * 100);
+  const discount = Math.round(
+    ((originalPrice - offerPrice) / originalPrice) * 100,
+  );
   const emi1 = Math.ceil(offerPrice * 0.3); // 30% first installment
   const emi2 = Math.ceil((offerPrice - emi1) / 2); // remaining split in 2
   const emi3 = offerPrice - emi1 - emi2;
@@ -125,22 +382,31 @@ export const EnrollModal = ({ course, onClose }) => {
   const finalEmi1 = Math.ceil(finalPrice * 0.3);
   const finalEmi2 = Math.ceil((finalPrice - finalEmi1) / 2);
   const finalEmi3 = finalPrice - finalEmi1 - finalEmi2;
-  const payAmount = paymentType === 'emi' ? finalEmi1 : finalPrice;
+  const payAmount = paymentType === "emi" ? finalEmi1 : finalPrice;
 
-  const VALID_COUPONS = ['WEINTERN10', 'INTERN10', 'WELCOME10', 'LAUNCH10', 'STUDENT10'];
+  const VALID_COUPONS = [
+    "WEINTERN10",
+    "INTERN10",
+    "WELCOME10",
+    "LAUNCH10",
+    "STUDENT10",
+  ];
 
   const applyCoupon = () => {
-    if (!couponCode.trim()) { setCouponError('Please enter a coupon code'); return; }
+    if (!couponCode.trim()) {
+      setCouponError("Please enter a coupon code");
+      return;
+    }
     setCouponLoading(true);
-    setCouponError('');
+    setCouponError("");
     setTimeout(() => {
       if (VALID_COUPONS.includes(couponCode.trim().toUpperCase())) {
         setCouponApplied(true);
-        setCouponError('');
-        toast.success('Coupon applied! 10% discount added 🎉');
+        setCouponError("");
+        toast.success("Coupon applied! 10% discount added 🎉");
       } else {
         setCouponApplied(false);
-        setCouponError('Invalid coupon code. Please check and try again.');
+        setCouponError("Invalid coupon code. Please check and try again.");
       }
       setCouponLoading(false);
     }, 800);
@@ -148,96 +414,194 @@ export const EnrollModal = ({ course, onClose }) => {
 
   const removeCoupon = () => {
     setCouponApplied(false);
-    setCouponCode('');
-    setCouponError('');
-    toast('Coupon removed', { icon: 'ℹ️' });
+    setCouponCode("");
+    setCouponError("");
+    toast("Coupon removed", { icon: "ℹ️" });
   };
 
-  const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const handleChange = (e) =>
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) { toast.error("Please login"); navigate("/login"); return; }
-    if (!form.name || !form.email || !form.phone || !form.college || !form.degree || !form.year) {
-      toast.error("Please fill all fields"); return;
+    if (!user) {
+      toast.error("Please login");
+      navigate("/login");
+      return;
+    }
+    if (
+      !form.name ||
+      !form.email ||
+      !form.phone ||
+      !form.college ||
+      !form.degree ||
+      !form.year
+    ) {
+      toast.error("Please fill all fields");
+      return;
     }
     const RAZORPAY_KEY = process.env.REACT_APP_RAZORPAY_KEY_ID;
-    if (!RAZORPAY_KEY) { toast.error("Payment not configured. Contact support."); return; }
-    setLoading(true); setStep(2);
+    if (!RAZORPAY_KEY) {
+      toast.error("Payment not configured. Contact support.");
+      return;
+    }
+    setLoading(true);
+    setStep(2);
     try {
-      const enrollRes = await enrollCourse({ ...form, courseName: course.title, coursePrice: course.price });
+      const enrollRes = await enrollCourse({
+        ...form,
+        courseName: course.title,
+        coursePrice: course.price,
+      });
       const enrollmentId = enrollRes.data.data._id;
       const sdkLoaded = await loadRazorpaySDK();
-      if (!sdkLoaded) { toast.error("Payment gateway failed."); setStep(1); setLoading(false); return; }
-      const orderRes = await API.post("/payments/create-order", { 
-        amount: payAmount, 
+      if (!sdkLoaded) {
+        toast.error("Payment gateway failed.");
+        setStep(1);
+        setLoading(false);
+        return;
+      }
+      const orderRes = await API.post("/payments/create-order", {
+        amount: payAmount,
         enrollmentId,
         paymentType,
-        emiInstallment: paymentType === 'emi' ? 1 : null,
+        emiInstallment: paymentType === "emi" ? 1 : null,
         couponApplied,
         couponCode: couponApplied ? couponCode : null,
         originalPrice: offerPrice,
         discountAmount: couponDiscount,
-        finalPrice
+        finalPrice,
       });
       const order = orderRes.data.order;
       const rzp = new window.Razorpay({
-        key: RAZORPAY_KEY, amount: order.amount, currency: "INR",
-        name: "WeIntern", description: course.title,
-        image: `${window.location.origin}/welogo.png`, order_id: order.id,
+        key: RAZORPAY_KEY,
+        amount: order.amount,
+        currency: "INR",
+        name: "WeIntern",
+        description: course.title,
+        image: `${window.location.origin}/welogo.png`,
+        order_id: order.id,
         handler: async (response) => {
           try {
-            await API.post("/payments/verify", { 
-              ...response, 
+            await API.post("/payments/verify", {
+              ...response,
               enrollmentId,
               paymentType,
-              emiInstallment: paymentType === 'emi' ? 1 : null,
+              emiInstallment: paymentType === "emi" ? 1 : null,
               amount: payAmount,
               couponApplied,
               couponCode: couponApplied ? couponCode : null,
               originalPrice: offerPrice,
               discountAmount: couponDiscount,
-              finalPrice
+              finalPrice,
             });
-            toast.success("Payment successful! You are now enrolled."); onClose();
-          } catch { toast.error("Verification failed. Contact support."); }
+            toast.success("Payment successful! You are now enrolled.");
+            onClose();
+          } catch {
+            toast.error("Verification failed. Contact support.");
+          }
         },
-        config: { display: { blocks: { upi: { name: "Pay via UPI (Scan QR)", instruments: [{ method: "upi" }] }, other: { name: "Other Payment Methods", instruments: [{ method: "card" }, { method: "netbanking" }, { method: "wallet" }] } }, sequence: ["block.upi","block.other"], preferences: { show_default_blocks: false } } },
+        config: {
+          display: {
+            blocks: {
+              upi: {
+                name: "Pay via UPI (Scan QR)",
+                instruments: [{ method: "upi" }],
+              },
+              other: {
+                name: "Other Payment Methods",
+                instruments: [
+                  { method: "card" },
+                  { method: "netbanking" },
+                  { method: "wallet" },
+                ],
+              },
+            },
+            sequence: ["block.upi", "block.other"],
+            preferences: { show_default_blocks: false },
+          },
+        },
         prefill: { name: form.name, email: form.email, contact: form.phone },
         theme: { color: "#E8A820" },
-        modal: { ondismiss: () => { toast("Cancelled", { icon: "ℹ️" }); setStep(1); setLoading(false); } },
+        modal: {
+          ondismiss: () => {
+            toast("Cancelled", { icon: "ℹ️" });
+            setStep(1);
+            setLoading(false);
+          },
+        },
       });
-      rzp.on("payment.failed", (r) => { toast.error(`Failed: ${r.error.description}`); setStep(1); setLoading(false); });
+      rzp.on("payment.failed", (r) => {
+        toast.error(`Failed: ${r.error.description}`);
+        setStep(1);
+        setLoading(false);
+      });
       rzp.open();
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message || "Error"); setStep(1); setLoading(false);
+      toast.error(err.response?.data?.message || err.message || "Error");
+      setStep(1);
+      setLoading(false);
     }
   };
 
   const meta = getCourseMeta(course.title);
 
   return (
-    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && !loading && onClose()}>
-      <div className="modal-box" style={{ position: "relative", maxWidth: "480px" }}>
-        <button onClick={() => !loading && onClose()} style={{ position:"absolute",top:"1rem",right:"1rem",background:"none",border:"none",fontSize:"1.5rem",cursor:"pointer",color:"var(--muted)",lineHeight:1 }}>×</button>
+    <div
+      className="modal-overlay"
+      onClick={(e) => e.target === e.currentTarget && !loading && onClose()}
+    >
+      <div
+        className="modal-box"
+        style={{ position: "relative", maxWidth: "480px" }}
+      >
+        <button
+          onClick={() => !loading && onClose()}
+          style={{
+            position: "absolute",
+            top: "1rem",
+            right: "1rem",
+            background: "none",
+            border: "none",
+            fontSize: "1.5rem",
+            cursor: "pointer",
+            color: "var(--muted)",
+            lineHeight: 1,
+          }}
+        >
+          ×
+        </button>
 
         <div className="enroll-header">
-          <div className="enroll-emoji" style={{ color: meta.iconColor, background: meta.bg }}>
+          <div
+            className="enroll-emoji"
+            style={{ color: meta.iconColor, background: meta.bg }}
+          >
             <Icon icon={meta.icon} width={28} height={28} />
           </div>
           <div style={{ flex: 1 }}>
-            <h3 style={{ margin:0, fontSize:"1.05rem", color:"var(--navy)" }}>{course.title}</h3>
+            <h3
+              style={{ margin: 0, fontSize: "1.05rem", color: "var(--navy)" }}
+            >
+              {course.title}
+            </h3>
             <div className="enroll-price-row">
-              <span className="enroll-original-price">₹{Number(originalPrice).toLocaleString("en-IN")}</span>
+              <span className="enroll-original-price">
+                ₹{Number(originalPrice).toLocaleString("en-IN")}
+              </span>
               <span className="enroll-discount-badge">{discount}% OFF</span>
-              <span className="enroll-offer-price">₹{Number(offerPrice).toLocaleString("en-IN")}</span>
+              <span className="enroll-offer-price">
+                ₹{Number(offerPrice).toLocaleString("en-IN")}
+              </span>
             </div>
           </div>
           <div className="enroll-offer-badge">
             <Icon icon="lucide:tag" width={12} height={12} />
             <div>
               <div className="enroll-offer-badge-title">OFFER PRICE</div>
-              <div className="enroll-offer-badge-subtitle">Limited Time Offer!</div>
+              <div className="enroll-offer-badge-subtitle">
+                Limited Time Offer!
+              </div>
             </div>
           </div>
         </div>
@@ -245,24 +609,54 @@ export const EnrollModal = ({ course, onClose }) => {
         {step === 1 && (
           <form onSubmit={handleSubmit}>
             <div className="enroll-form-grid">
-              {[["name","Full Name","text"],["email","Email","email"],["phone","Phone","tel"],["college","College","text"]].map(([n,p,t]) => (
+              {[
+                ["name", "Full Name", "text"],
+                ["email", "Email", "email"],
+                ["phone", "Phone", "tel"],
+                ["college", "College", "text"],
+              ].map(([n, p, t]) => (
                 <div className="form-group" key={n}>
                   <label>{p} *</label>
-                  <input type={t} name={n} placeholder={p} value={form[n]} onChange={handleChange} required />
+                  <input
+                    type={t}
+                    name={n}
+                    placeholder={p}
+                    value={form[n]}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
               ))}
               <div className="form-group">
                 <label>Degree *</label>
-                <select name="degree" value={form.degree} onChange={handleChange} required>
+                <select
+                  name="degree"
+                  value={form.degree}
+                  onChange={handleChange}
+                  required
+                >
                   <option value="">Select Degree</option>
-                  {["BCA","MCA","B.Tech","M.Tech","BSc","Other"].map((d) => <option key={d}>{d}</option>)}
+                  {["BCA", "MCA", "B.Tech", "M.Tech", "BSc", "Other"].map(
+                    (d) => (
+                      <option key={d}>{d}</option>
+                    ),
+                  )}
                 </select>
               </div>
               <div className="form-group">
                 <label>Year *</label>
-                <select name="year" value={form.year} onChange={handleChange} required>
+                <select
+                  name="year"
+                  value={form.year}
+                  onChange={handleChange}
+                  required
+                >
                   <option value="">Select Year</option>
-                  {["1st Year","2nd Year","3rd Year","Final Year"].map((y) => <option key={y}>{y}</option>)}
+                  {["1st Year", "2nd Year", "3rd Year", "Final Year"].map(
+                    (y) => (
+                      <option key={y}>{y}</option>
+                    ),
+                  )}
                 </select>
               </div>
             </div>
@@ -275,15 +669,26 @@ export const EnrollModal = ({ course, onClose }) => {
               <div className="enroll-offer-text">
                 <strong>Special Offer for You!</strong>
                 <div className="enroll-offer-prices">
-                  Original Price <span className="enroll-offer-strike">₹{Number(originalPrice).toLocaleString("en-IN")}</span> — Now at Offer Price <span className="enroll-offer-highlight">₹{Number(offerPrice).toLocaleString("en-IN")}</span>
+                  Original Price{" "}
+                  <span className="enroll-offer-strike">
+                    ₹{Number(originalPrice).toLocaleString("en-IN")}
+                  </span>{" "}
+                  — Now at Offer Price{" "}
+                  <span className="enroll-offer-highlight">
+                    ₹{Number(offerPrice).toLocaleString("en-IN")}
+                  </span>
                 </div>
               </div>
-              <button 
+              <button
                 type="button"
                 className="enroll-show-price-btn"
                 onClick={() => setShowPrice(!showPrice)}
               >
-                <Icon icon={showPrice ? "lucide:eye-off" : "lucide:eye"} width={14} height={14} />
+                <Icon
+                  icon={showPrice ? "lucide:eye-off" : "lucide:eye"}
+                  width={14}
+                  height={14}
+                />
                 {showPrice ? "Hide Price" : "Ohh! Price Dekhna"}
               </button>
             </div>
@@ -297,11 +702,20 @@ export const EnrollModal = ({ course, onClose }) => {
                 </div>
                 <div className="enroll-price-row-item enroll-discount-row">
                   <span>Limited Time Discount ({discount}%)</span>
-                  <span>- ₹{Number(originalPrice - offerPrice).toLocaleString("en-IN")}</span>
+                  <span>
+                    - ₹
+                    {Number(originalPrice - offerPrice).toLocaleString("en-IN")}
+                  </span>
                 </div>
                 <div className="enroll-price-row-item enroll-total-row">
-                  <span><strong>Total Amount</strong></span>
-                  <span><strong>₹{Number(offerPrice).toLocaleString("en-IN")}</strong></span>
+                  <span>
+                    <strong>Total Amount</strong>
+                  </span>
+                  <span>
+                    <strong>
+                      ₹{Number(offerPrice).toLocaleString("en-IN")}
+                    </strong>
+                  </span>
                 </div>
               </div>
             )}
@@ -309,7 +723,17 @@ export const EnrollModal = ({ course, onClose }) => {
             {/* Coupon Code */}
             <div className="coupon-section">
               <div className="coupon-label">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                  <line x1="7" y1="7" x2="7.01" y2="7" />
+                </svg>
                 Have a Coupon Code?
               </div>
               {!couponApplied ? (
@@ -319,8 +743,11 @@ export const EnrollModal = ({ course, onClose }) => {
                     className="coupon-input"
                     placeholder="Enter coupon code"
                     value={couponCode}
-                    onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponError(''); }}
-                    onKeyDown={(e) => e.key === 'Enter' && applyCoupon()}
+                    onChange={(e) => {
+                      setCouponCode(e.target.value.toUpperCase());
+                      setCouponError("");
+                    }}
+                    onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
                   />
                   <button
                     type="button"
@@ -328,17 +755,37 @@ export const EnrollModal = ({ course, onClose }) => {
                     onClick={applyCoupon}
                     disabled={couponLoading}
                   >
-                    {couponLoading ? '...' : 'Apply'}
+                    {couponLoading ? "..." : "Apply"}
                   </button>
                 </div>
               ) : (
                 <div className="coupon-applied-row">
                   <div className="coupon-applied-info">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#18b45b" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    <span><strong>{couponCode}</strong> applied — 10% off!</span>
-                    <span className="coupon-saved">You save ₹{Number(couponDiscount).toLocaleString('en-IN')}</span>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#18b45b"
+                      strokeWidth="2"
+                    >
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                      <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    <span>
+                      <strong>{couponCode}</strong> applied — 10% off!
+                    </span>
+                    <span className="coupon-saved">
+                      You save ₹{Number(couponDiscount).toLocaleString("en-IN")}
+                    </span>
                   </div>
-                  <button type="button" className="coupon-remove-btn" onClick={removeCoupon}>✕</button>
+                  <button
+                    type="button"
+                    className="coupon-remove-btn"
+                    onClick={removeCoupon}
+                  >
+                    ✕
+                  </button>
                 </div>
               )}
               {couponError && <div className="coupon-error">{couponError}</div>}
@@ -346,15 +793,19 @@ export const EnrollModal = ({ course, onClose }) => {
                 <div className="coupon-price-summary">
                   <div className="cps-row">
                     <span>Course Fee</span>
-                    <span>₹{Number(offerPrice).toLocaleString('en-IN')}</span>
+                    <span>₹{Number(offerPrice).toLocaleString("en-IN")}</span>
                   </div>
                   <div className="cps-row cps-discount">
                     <span>Coupon Discount (10%)</span>
-                    <span>− ₹{Number(couponDiscount).toLocaleString('en-IN')}</span>
+                    <span>
+                      − ₹{Number(couponDiscount).toLocaleString("en-IN")}
+                    </span>
                   </div>
                   <div className="cps-row cps-total">
                     <span>Final Amount</span>
-                    <strong>₹{Number(finalPrice).toLocaleString('en-IN')}</strong>
+                    <strong>
+                      ₹{Number(finalPrice).toLocaleString("en-IN")}
+                    </strong>
                   </div>
                 </div>
               )}
@@ -366,41 +817,53 @@ export const EnrollModal = ({ course, onClose }) => {
               <div className="emi-options">
                 <button
                   type="button"
-                  className={`emi-option${paymentType === 'full' ? ' active' : ''}`}
-                  onClick={() => setPaymentType('full')}
+                  className={`emi-option${paymentType === "full" ? " active" : ""}`}
+                  onClick={() => setPaymentType("full")}
                 >
                   <div className="emi-option-title">Full Payment</div>
-                  <div className="emi-option-price">₹{Number(finalPrice).toLocaleString('en-IN')}</div>
+                  <div className="emi-option-price">
+                    ₹{Number(finalPrice).toLocaleString("en-IN")}
+                  </div>
                   <div className="emi-option-sub">Pay once, save more</div>
                 </button>
                 <button
                   type="button"
-                  className={`emi-option${paymentType === 'emi' ? ' active' : ''}`}
-                  onClick={() => setPaymentType('emi')}
+                  className={`emi-option${paymentType === "emi" ? " active" : ""}`}
+                  onClick={() => setPaymentType("emi")}
                 >
                   <div className="emi-option-title">3-Part EMI</div>
-                  <div className="emi-option-price">₹{Number(finalEmi1).toLocaleString('en-IN')} now</div>
+                  <div className="emi-option-price">
+                    ₹{Number(finalEmi1).toLocaleString("en-IN")} now
+                  </div>
                   <div className="emi-option-sub">+ 2 more in 20 days</div>
                 </button>
               </div>
-              {paymentType === 'emi' && (
+              {paymentType === "emi" && (
                 <div className="emi-breakdown">
                   <div className="emi-breakdown-title">EMI Schedule</div>
                   <div className="emi-breakdown-row">
                     <span>📅 Today (1st Installment — 30%)</span>
-                    <strong>₹{Number(finalEmi1).toLocaleString('en-IN')}</strong>
+                    <strong>
+                      ₹{Number(finalEmi1).toLocaleString("en-IN")}
+                    </strong>
                   </div>
                   <div className="emi-breakdown-row">
                     <span>📅 After 20 days (2nd Installment)</span>
-                    <strong>₹{Number(finalEmi2).toLocaleString('en-IN')}</strong>
+                    <strong>
+                      ₹{Number(finalEmi2).toLocaleString("en-IN")}
+                    </strong>
                   </div>
                   <div className="emi-breakdown-row">
                     <span>📅 After 40 days (3rd Installment)</span>
-                    <strong>₹{Number(finalEmi3).toLocaleString('en-IN')}</strong>
+                    <strong>
+                      ₹{Number(finalEmi3).toLocaleString("en-IN")}
+                    </strong>
                   </div>
                   <div className="emi-breakdown-total">
                     <span>Total</span>
-                    <strong>₹{Number(finalPrice).toLocaleString('en-IN')}</strong>
+                    <strong>
+                      ₹{Number(finalPrice).toLocaleString("en-IN")}
+                    </strong>
                   </div>
                 </div>
               )}
@@ -409,21 +872,48 @@ export const EnrollModal = ({ course, onClose }) => {
             <div className="payment-methods-preview">
               <div className="pm-label">Accepted Payment Methods</div>
               <div className="pm-icons">
-                <span className="pm-icon"><Icon icon="lucide:smartphone" width={13} height={13} /> UPI</span>
-                <span className="pm-icon"><Icon icon="lucide:credit-card" width={13} height={13} /> Card</span>
-                <span className="pm-icon"><Icon icon="lucide:landmark" width={13} height={13} /> Net Banking</span>
-                <span className="pm-icon"><Icon icon="lucide:wallet" width={13} height={13} /> Wallet</span>
+                <span className="pm-icon">
+                  <Icon icon="lucide:smartphone" width={13} height={13} /> UPI
+                </span>
+                <span className="pm-icon">
+                  <Icon icon="lucide:credit-card" width={13} height={13} /> Card
+                </span>
+                <span className="pm-icon">
+                  <Icon icon="lucide:landmark" width={13} height={13} /> Net
+                  Banking
+                </span>
+                <span className="pm-icon">
+                  <Icon icon="lucide:wallet" width={13} height={13} /> Wallet
+                </span>
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary btn-full enroll-pay-btn">
-              <Icon icon="lucide:lock" width={15} height={15} style={{ marginRight: "0.3rem" }} />
-              {paymentType === 'full' 
-                ? `Pay ₹${Number(finalPrice).toLocaleString('en-IN')} Now`
-                : `Pay EMI 1: ₹${Number(finalEmi1).toLocaleString('en-IN')} Now`}
-              <Icon icon="lucide:arrow-right" width={15} height={15} style={{ marginLeft: "0.3rem" }} />
+            <button
+              type="submit"
+              className="btn btn-primary btn-full enroll-pay-btn"
+            >
+              <Icon
+                icon="lucide:lock"
+                width={15}
+                height={15}
+                style={{ marginRight: "0.3rem" }}
+              />
+              {paymentType === "full"
+                ? `Pay ₹${Number(finalPrice).toLocaleString("en-IN")} Now`
+                : `Pay EMI 1: ₹${Number(finalEmi1).toLocaleString("en-IN")} Now`}
+              <Icon
+                icon="lucide:arrow-right"
+                width={15}
+                height={15}
+                style={{ marginLeft: "0.3rem" }}
+              />
             </button>
-            <button type="button" className="btn btn-outline btn-full" onClick={onClose} style={{ marginTop:".6rem" }}>
+            <button
+              type="button"
+              className="btn btn-outline btn-full"
+              onClick={onClose}
+              style={{ marginTop: ".6rem" }}
+            >
               Cancel
             </button>
           </form>
@@ -454,20 +944,38 @@ const Courses = () => {
   const { activeCourses } = useCourses();
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+
   // Phone verification state (disabled for home page)
   const [showPhoneGate, setShowPhoneGate] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [pendingCourse, setPendingCourse] = useState(null);
 
+  // ── NEW: track whether we're in the mobile slider breakpoint ──
+  const [isMobile, setIsMobile] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 575.98px)").matches,
+  );
+
+  React.useEffect(() => {
+    const mq = window.matchMedia("(max-width: 575.98px)");
+    const handleChange = () => {
+      setIsMobile(mq.matches);
+      setCurrentSlide(0);
+    };
+    handleChange();
+    mq.addEventListener("change", handleChange);
+    return () => mq.removeEventListener("change", handleChange);
+  }, []);
+
   // Note: Phone verification timer is disabled on home page
   // Phone verification only happens during registration/login flow
 
   const handlePhoneVerificationComplete = () => {
-    console.log('✅ Phone verification completed in Courses!');
+    console.log("✅ Phone verification completed in Courses!");
     setShowPhoneGate(false);
     setPhoneVerified(true);
-    
+
     // If there was a pending course
     if (pendingCourse) {
       if (!user) {
@@ -476,7 +984,7 @@ const Courses = () => {
         navigate("/login");
       } else {
         // User is logged in, proceed with enrollment
-        console.log('✅ User logged in - proceeding with enrollment');
+        console.log("✅ User logged in - proceeding with enrollment");
         setEnrollCourseData(pendingCourse);
       }
       setPendingCourse(null);
@@ -484,19 +992,19 @@ const Courses = () => {
   };
 
   const handleEnroll = (course) => {
-    console.log('🎯 Enroll Now clicked for:', course.title);
-    
+    console.log("🎯 Enroll Now clicked for:", course.title);
+
     // Check if user is logged in
     if (!user) {
       // User not logged in - redirect to login directly
-      console.log('❌ User not logged in - redirecting to login/register');
-      toast("Please login or register to enroll", { icon: 'ℹ️' });
+      console.log("❌ User not logged in - redirecting to login/register");
+      toast("Please login or register to enroll", { icon: "ℹ️" });
       navigate("/login");
       return;
     }
-    
+
     // User is logged in - proceed directly with enrollment
-    console.log('✅ User logged in - proceeding with enrollment');
+    console.log("✅ User logged in - proceeding with enrollment");
     setEnrollCourseData(course);
   };
 
@@ -508,22 +1016,21 @@ const Courses = () => {
   });
 
   /* If no matches for tab, fall back to all */
-  const displayCourses = filteredCourses.length > 0 ? filteredCourses : activeCourses;
+  const displayCourses =
+    filteredCourses.length > 0 ? filteredCourses : activeCourses;
 
   // Auto-scroll for mobile using IntersectionObserver
   React.useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) return;
 
-    // Check if mobile using matchMedia (works globally)
-    const isMobile = window.matchMedia('(max-width: 575.98px)').matches;
-    
+    // Only run the auto-scroll slider behavior on mobile now
     if (!isMobile) {
-      console.log('❌ Not mobile - skipping auto-scroll');
+      console.log("❌ Not mobile - skipping auto-scroll");
       return;
     }
 
-    console.log('✅ Mobile detected - starting auto-scroll...');
+    console.log("✅ Mobile detected - starting auto-scroll...");
     let scrollPosition = 0;
     const scrollSpeed = 4; // pixels per frame
     const scrollDelay = 30; // ms between frames
@@ -532,7 +1039,7 @@ const Courses = () => {
 
     const autoScroll = () => {
       if (!viewport || isUserScrolling) return;
-      
+
       scrollPosition += scrollSpeed;
       viewport.scrollTop = scrollPosition;
 
@@ -545,22 +1052,22 @@ const Courses = () => {
 
     // Start auto-scroll
     const intervalId = setInterval(autoScroll, scrollDelay);
-    console.log('🔄 Auto-scroll interval started:', intervalId);
+    console.log("🔄 Auto-scroll interval started:", intervalId);
 
     // Pause on user interaction
     const handleUserInteraction = (e) => {
-      if (e.type === 'wheel' || e.type === 'touchstart') {
-        console.log('👆 User interaction detected - pausing auto-scroll');
+      if (e.type === "wheel" || e.type === "touchstart") {
+        console.log("👆 User interaction detected - pausing auto-scroll");
         isUserScrolling = true;
-        
+
         if (userScrollTimeout) {
           clearTimeout(userScrollTimeout);
         }
-        
+
         // Resume after 5 seconds of no interaction
         userScrollTimeout = setTimeout(() => {
           if (viewport) {
-            console.log('▶️ Resuming auto-scroll');
+            console.log("▶️ Resuming auto-scroll");
             isUserScrolling = false;
             scrollPosition = viewport.scrollTop;
           }
@@ -568,23 +1075,27 @@ const Courses = () => {
       }
     };
 
-    viewport.addEventListener('touchstart', handleUserInteraction, { passive: true });
-    viewport.addEventListener('wheel', handleUserInteraction, { passive: true });
+    viewport.addEventListener("touchstart", handleUserInteraction, {
+      passive: true,
+    });
+    viewport.addEventListener("wheel", handleUserInteraction, {
+      passive: true,
+    });
 
     return () => {
-      console.log('🛑 Cleaning up auto-scroll');
+      console.log("🛑 Cleaning up auto-scroll");
       clearInterval(intervalId);
       if (userScrollTimeout) {
         clearTimeout(userScrollTimeout);
       }
       if (viewport) {
-        viewport.removeEventListener('touchstart', handleUserInteraction);
-        viewport.removeEventListener('wheel', handleUserInteraction);
+        viewport.removeEventListener("touchstart", handleUserInteraction);
+        viewport.removeEventListener("wheel", handleUserInteraction);
       }
     };
-  }, [activeTab, displayCourses.length]);
+  }, [activeTab, displayCourses.length, isMobile]);
 
-  /* ── Responsive visible count matches CSS breakpoints ── */
+  /* ── Responsive visible count matches CSS breakpoints (mobile slider only) ── */
   const getVisible = () => {
     const w = window.innerWidth;
     if (w <= 480) return 1;
@@ -595,12 +1106,17 @@ const Courses = () => {
   };
   const [visible, setVisible] = useState(getVisible);
   React.useEffect(() => {
-    const onResize = () => { setVisible(getVisible()); setCurrentSlide(0); };
+    const onResize = () => {
+      setVisible(getVisible());
+      setCurrentSlide(0);
+    };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const totalSlides = Math.max(0, displayCourses.length - visible);
+  const totalSlides = isMobile
+    ? Math.max(0, displayCourses.length - visible)
+    : 0;
 
   const goTo = (idx) => {
     const clamped = Math.max(0, Math.min(idx, totalSlides));
@@ -615,24 +1131,38 @@ const Courses = () => {
 
   return (
     <section className="courses" id="courses">
-
       {/* ── Header ── */}
       <div className="cs-header">
         <div className="cs-badge-pill">
-          <Icon icon="lucide:rocket" width={13} height={13} className="cs-badge-rocket-icon" /> Industry-Ready Programs
+          <Icon
+            icon="lucide:rocket"
+            width={13}
+            height={13}
+            className="cs-badge-rocket-icon"
+          />{" "}
+          Industry-Ready Programs
         </div>
         <div className="cs-header-row">
           <div>
             <h2 className="cs-main-title">
               Popular <span className="cs-title-accent">Programs</span>
             </h2>
-            <p className="cs-sub">Upskill with Job-Ready Programs &amp; Career-Driven Certifications.</p>
+            <p className="cs-sub">
+              Upskill with Job-Ready Programs &amp; Career-Driven
+              Certifications.
+            </p>
           </div>
           <button
             className="cs-view-all"
-            onClick={() => window.scrollTo({ top: document.getElementById('courses')?.offsetTop - 80, behavior: 'smooth' })}
+            onClick={() =>
+              window.scrollTo({
+                top: document.getElementById("courses")?.offsetTop - 80,
+                behavior: "smooth",
+              })
+            }
           >
-            View All Programs <Icon icon="lucide:arrow-right" width={14} height={14} />
+            View All Programs{" "}
+            <Icon icon="lucide:arrow-right" width={14} height={14} />
           </button>
         </div>
       </div>
@@ -653,87 +1183,96 @@ const Courses = () => {
 
       {/* ── Carousel wrapper ── */}
       <div className="cs-carousel-root">
-        {/* Left arrow */}
-        <button
-          className="cs-arrow cs-arrow--left"
-          onClick={() => goTo(currentSlide - 1)}
-          disabled={currentSlide === 0}
-          aria-label="Previous"
-        >
-          <Icon icon="lucide:chevron-left" width={20} height={20} />
-        </button>
+        {/* Left arrow — mobile slider only */}
+        {isMobile && (
+          <button
+            className="cs-arrow cs-arrow--left"
+            onClick={() => goTo(currentSlide - 1)}
+            disabled={currentSlide === 0}
+            aria-label="Previous"
+          >
+            <Icon icon="lucide:chevron-left" width={20} height={20} />
+          </button>
+        )}
 
         {/* Track */}
-        <div className="cs-carousel-viewport" ref={viewportRef}>
+        <div
+          className="cs-carousel-viewport"
+          ref={viewportRef}
+          style={!isMobile ? { overflow: "visible" } : undefined}
+        >
           <div
             className="cs-carousel-track"
             ref={trackRef}
-            style={{ transform: `translateX(calc(-${currentSlide} * ((100% - ${visible - 1} * 0.85rem) / ${visible} + 0.85rem)))` }}
+            style={
+              isMobile
+                ? {
+                    transform: `translateX(calc(-${currentSlide} * ((100% - ${visible - 1} * 0.85rem) / ${visible} + 0.85rem)))`,
+                  }
+                : { transform: "none", flexWrap: "wrap", rowGap: "1.5rem" }
+            }
           >
             {displayCourses.map((c) => {
               const meta = getCourseMeta(c.title);
               const tools = getTools(c.tools).slice(0, 4);
 
               return (
-                <div
-                  key={c.id || c.title}
-                  className="cs-card"
-                  onClick={() => navigate(`/courses/${slugify(c.title)}`)}
-                >
-                  {/* Compact icon zone: cycling navy/blue-gray/gold background + tech badges */}
-                  <div className="cs-card-icon-zone">
-                    <div className="cs-tech-row">
-                      {tools.slice(0, 4).map((t) => (
-                        <span className="cs-tech-badge" key={t} title={t}>
-                          <Icon icon={getTechIcon(t)} width={16} height={16} />
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+              <div
+  key={c.id || c.title}
+  className="cs-card"
+  onClick={() => navigate(`/courses/${slugify(c.title)}`)}
+>
+  {/* Banner image */}
+ <div className="cs-card-image">
+  <img src={getCourseBanner(c.title)} alt={c.title} loading="lazy" />
+</div>
 
-                  {/* Text content */}
-                  <div className="cs-card-content">
-                    <h3 className="cs-card-title">{c.title}</h3>
-                    <p className="cs-card-dur">
-                      <Icon icon="lucide:clock" width={11} height={11} className="cs-dur-icon" />
-                      {c.duration}
-                    </p>
-                  </div>
+  {/* Text content */}
+  <div className="cs-card-content">
+    <h3 className="cs-card-title">{c.title}</h3>
 
-                  {/* Enroll button */}
-                  <button
-                  style={{}}
-                    className="cs-enroll"
-                    onClick={(e) => { e.stopPropagation(); handleEnroll(c); }}
-                  >
-                    Join Now
-                    <Icon icon="lucide:arrow-right" width={12} height={12} className="cs-enroll-arrow" />
-                  </button>
+    <div className="cs-card-pills">
+      <span className="cs-pill">
+        <Icon icon="lucide:clock" width={13} height={13} />
+        {c.duration}
+      </span>
+      {tools.slice(0, 4).map((t) => (
+        <span className="cs-pill cs-pill--tech" key={t} title={t}>
+          <Icon icon={getTechIcon(t)} width={13} height={13} />
+        </span>
+      ))}
+    </div>
+  </div>
 
-                  {/* Join Now link, matching the reference design */}
-                  <button
-                    className="cs-join-now"
-                  >
-                  </button>
-                </div>
+  {/* Enroll button */}
+  <button
+    className="cs-enroll"
+    onClick={(e) => { e.stopPropagation(); handleEnroll(c); }}
+  >
+    Join Now 
+    <Icon icon="lucide:arrow-right" width={15} height={15} className="cs-enroll-arrow" />
+  </button>
+</div>
               );
             })}
           </div>
         </div>
 
-        {/* Right arrow */}
-        <button
-          className="cs-arrow cs-arrow--right"
-          onClick={() => goTo(currentSlide + 1)}
-          disabled={currentSlide >= totalSlides}
-          aria-label="Next"
-        >
-          <Icon icon="lucide:chevron-right" width={20} height={20} />
-        </button>
+        {/* Right arrow — mobile slider only */}
+        {isMobile && (
+          <button
+            className="cs-arrow cs-arrow--right"
+            onClick={() => goTo(currentSlide + 1)}
+            disabled={currentSlide >= totalSlides}
+            aria-label="Next"
+          >
+            <Icon icon="lucide:chevron-right" width={20} height={20} />
+          </button>
+        )}
       </div>
 
-      {/* ── Dot indicators ── */}
-      {totalSlides > 0 && (
+      {/* ── Dot indicators — mobile slider only ── */}
+      {isMobile && totalSlides > 0 && (
         <div className="cs-dots">
           {Array.from({ length: totalSlides + 1 }).map((_, i) => (
             <button
@@ -745,28 +1284,6 @@ const Courses = () => {
           ))}
         </div>
       )}
-
-      {/* ── Benefits strip — UNTOUCHED ── */}
-      <div className="cs-benefits-wrap">
-        <div className="cs-benefits-inner">
-          <div className="cs-benefits-heading">
-            <span>BENEFITS OF</span>
-            <span>OUR COURSES</span>
-          </div>
-          <div className="cs-benefits-row">
-            {BENEFITS.map(({ icon, label }) => (
-              <div className="cs-benefit" key={label[0]}>
-                <div className="cs-benefit-ico">
-                  <Icon icon={icon} width={32} height={32} color="#16a34a" />
-                </div>
-                <p className="cs-benefit-lbl">
-                  {label[0]}<br />{label[1]}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* ── Modals — all original logic intact ── */}
       {enrollCourseData && (

@@ -6,6 +6,7 @@ import Courses from '../components/Sections/Courses';
 import { ApplySection, } from '../components/Sections/Forms';
 import StudentProjects from '../components/Sections/StudentProjects';
 import TestimonialsSection from '../components/Sections/Testimonials';
+import PartnersMarquee from '../components/Sections/PartnersMarquee';
 import '../components/Sections/Sections.css';
 import '../components/Sections/Forms.css';
 
@@ -26,6 +27,7 @@ const Home = () => {
 
       {/* All original sections, unchanged */}
       <Courses />
+      <PartnersMarquee/>
       <LiveJourney />
       <Problem />
       <HowItWorks />

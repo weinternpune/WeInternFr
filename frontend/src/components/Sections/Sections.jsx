@@ -1584,7 +1584,7 @@ export const LiveJourney = () => {
 
   return (
    <>
-<section id="journey" className="relative overflow-hidden bg-gradient-to-b from-neutral-50 via-white to-neutral-100 py-24 lg:py-32">
+<section id="journey" className="relative overflow-hidden bg-gradient-to-b from-neutral-50 via-white to-neutral-100 py-10 lg:py-10">
   {/* Ambient glass blobs */}
   <div className="pointer-events-none absolute -top-24 -left-24 h-96 w-96 rounded-full bg-neutral-300/30 blur-3xl" />
   <div className="pointer-events-none absolute top-1/2 -right-32 h-[28rem] w-[28rem] rounded-full bg-neutral-200/40 blur-3xl" />
@@ -1660,24 +1660,24 @@ export const LiveJourney = () => {
     {/* Cards */}
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
       {/* Card 1: Cohort Live */}
-      <div
+<div
   className="
-    group relative isolate overflow-hidden rounded-[24px]
+    group relative isolate overflow-hidden rounded-[20px]
     border border-emerald-100/80
     bg-white/75
-    shadow-[0_10px_40px_rgba(16,185,129,0.08)]
+    shadow-[0_8px_30px_rgba(16,185,129,0.08)]
     backdrop-blur-xl
     transition-all duration-500
-    hover:-translate-y-2
+    hover:-translate-y-1.5
     hover:border-emerald-200
-    hover:shadow-[0_25px_60px_rgba(16,185,129,0.16)]
+    hover:shadow-[0_20px_45px_rgba(16,185,129,0.14)]
   "
 >
   {/* Animated background glow */}
   <div
     className="
-      pointer-events-none absolute -right-16 -top-16
-      h-40 w-40 rounded-full
+      pointer-events-none absolute -right-12 -top-12
+      h-32 w-32 rounded-full
       bg-emerald-400/15 blur-3xl
       transition-all duration-700
       group-hover:scale-150 group-hover:bg-emerald-400/25
@@ -1686,8 +1686,8 @@ export const LiveJourney = () => {
 
   <div
     className="
-      pointer-events-none absolute -bottom-20 -left-16
-      h-40 w-40 rounded-full
+      pointer-events-none absolute -bottom-16 -left-12
+      h-32 w-32 rounded-full
       bg-green-300/10 blur-3xl
       transition-all duration-700
       group-hover:scale-125
@@ -1695,7 +1695,7 @@ export const LiveJourney = () => {
   />
 
   {/* Image */}
-  <div className="relative h-48 overflow-hidden bg-emerald-50">
+  <div className="relative h-36 overflow-hidden bg-emerald-50">
     <img
       src={cohortLiveImg}
       alt="Cohort Live"
@@ -1736,19 +1736,19 @@ export const LiveJourney = () => {
     {/* Live Badge */}
     <div
       className="
-        absolute left-4 top-4
-        inline-flex items-center gap-2
+        absolute left-3 top-3
+        inline-flex items-center gap-1.5
         rounded-full
         border border-emerald-200/60
         bg-white/90
-        px-3.5 py-1.5
-        text-xs font-bold
+        px-3 py-1
+        text-[11px] font-bold
         text-emerald-700
-        shadow-[0_4px_15px_rgba(16,185,129,0.15)]
+        shadow-[0_4px_12px_rgba(16,185,129,0.15)]
         backdrop-blur-md
       "
     >
-      <span className="relative flex h-2 w-2">
+      <span className="relative flex h-1.5 w-1.5">
         <span
           className="
             absolute inline-flex h-full w-full
@@ -1758,7 +1758,7 @@ export const LiveJourney = () => {
         />
         <span
           className="
-            relative inline-flex h-2 w-2
+            relative inline-flex h-1.5 w-1.5
             rounded-full bg-emerald-500
           "
         />
@@ -1770,12 +1770,12 @@ export const LiveJourney = () => {
     {/* Small floating label */}
     <div
       className="
-        absolute bottom-4 right-4
+        absolute bottom-3 right-3
         rounded-full
         border border-white/30
         bg-black/20
-        px-3 py-1
-        text-[11px] font-semibold
+        px-2.5 py-0.5
+        text-[10px] font-semibold
         text-white
         backdrop-blur-md
         transition-all duration-300
@@ -1787,14 +1787,15 @@ export const LiveJourney = () => {
   </div>
 
   {/* Content */}
-  <div className="relative p-6 lg:p-7">
+  <div className="relative p-4 lg:p-5">
+
     {/* Eyebrow */}
-    <div className="mb-3 flex items-center gap-2">
-      <span className="h-px w-6 bg-emerald-400" />
+    <div className="mb-2 flex items-center gap-2">
+      <span className="h-px w-5 bg-emerald-400" />
 
       <h3
         className="
-          text-[11px]
+          text-[10px]
           font-bold
           uppercase
           tracking-[0.18em]
@@ -1808,8 +1809,8 @@ export const LiveJourney = () => {
     {/* Heading */}
     <h3
       className="
-        mb-5
-        text-1xl
+        mb-3
+        text-lg
         font-bold
         tracking-[-0.03em]
         text-slate-950
@@ -1822,14 +1823,15 @@ export const LiveJourney = () => {
 
     {/* Features */}
     <div className="space-y-0">
+
       <div
         className="
           flex items-center justify-between
           border-b border-slate-200/80
-          py-3
+          py-2.5
         "
       >
-        <span className="text-sm text-slate-600">
+        <span className="text-xs text-slate-600">
           Seats per batch
         </span>
 
@@ -1837,8 +1839,8 @@ export const LiveJourney = () => {
           className="
             rounded-full
             bg-emerald-50
-            px-2.5 py-1
-            text-xs font-bold
+            px-2 py-0.5
+            text-[11px] font-bold
             text-emerald-700
           "
         >
@@ -1850,14 +1852,14 @@ export const LiveJourney = () => {
         className="
           flex items-center justify-between
           border-b border-slate-200/80
-          py-3
+          py-2.5
         "
       >
-        <span className="text-sm text-slate-600">
+        <span className="text-xs text-slate-600">
           Registration
         </span>
 
-        <span className="text-sm font-semibold text-emerald-600">
+        <span className="text-xs font-semibold text-emerald-600">
           Free
         </span>
       </div>
@@ -1865,34 +1867,35 @@ export const LiveJourney = () => {
       <div
         className="
           flex items-center justify-between
-          py-3
+          py-2.5
         "
       >
-        <span className="text-sm text-slate-600">
+        <span className="text-xs text-slate-600">
           Availability
         </span>
 
-        <span className="flex items-center gap-1.5 text-xs font-semibold text-amber-600">
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-600">
           <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
           Closing soon
         </span>
       </div>
+
     </div>
 
     {/* CTA */}
     <button
       onClick={() => setShowBooking(true)}
       className="
-        group/btn relative mt-6 flex w-full
+        group/btn relative mt-4 flex w-full
         items-center justify-center gap-2
-        overflow-hidden rounded-xl
+        overflow-hidden rounded-lg
         bg-emerald-600
-        py-3.5
-        text-sm font-bold text-white
-        shadow-[0_8px_20px_rgba(16,185,129,0.20)]
+        py-2.5
+        text-xs font-bold text-white
+        shadow-[0_6px_16px_rgba(16,185,129,0.20)]
         transition-all duration-300
         hover:bg-emerald-700
-        hover:shadow-[0_12px_30px_rgba(16,185,129,0.30)]
+        hover:shadow-[0_10px_24px_rgba(16,185,129,0.30)]
         active:scale-[0.98]
       "
     >
@@ -1916,7 +1919,7 @@ export const LiveJourney = () => {
 
       <ArrowRight
         className="
-          relative h-4 w-4
+          relative h-3.5 w-3.5
           transition-transform duration-300
           group-hover/btn:translate-x-1
         "
@@ -1924,31 +1927,32 @@ export const LiveJourney = () => {
     </button>
 
     {/* Bottom micro-copy */}
-    <p className="mt-3 text-center text-[11px] text-slate-400">
+    <p className="mt-2 text-center text-[10px] text-slate-400">
       Limited seats · Free to attend
     </p>
+
   </div>
 </div>
  
       {/* Card 2: Coming Next */}
-      <div
+<div
   className="
-    group relative isolate overflow-hidden rounded-[24px]
+    group relative isolate overflow-hidden rounded-[20px]
     border border-blue-100/80
     bg-white/70
-    shadow-[0_10px_40px_rgba(59,130,246,0.07)]
+    shadow-[0_8px_30px_rgba(59,130,246,0.07)]
     backdrop-blur-xl
     transition-all duration-500
-    hover:-translate-y-2
+    hover:-translate-y-1.5
     hover:border-blue-200
-    hover:shadow-[0_25px_60px_rgba(59,130,246,0.14)]
+    hover:shadow-[0_20px_45px_rgba(59,130,246,0.14)]
   "
 >
   {/* Ambient blue glow */}
   <div
     className="
-      pointer-events-none absolute -right-16 -top-16
-      h-40 w-40 rounded-full
+      pointer-events-none absolute -right-12 -top-12
+      h-32 w-32 rounded-full
       bg-blue-400/10 blur-3xl
       transition-all duration-700
       group-hover:scale-150
@@ -1958,8 +1962,8 @@ export const LiveJourney = () => {
 
   <div
     className="
-      pointer-events-none absolute -bottom-20 -left-16
-      h-40 w-40 rounded-full
+      pointer-events-none absolute -bottom-16 -left-12
+      h-32 w-32 rounded-full
       bg-sky-300/10 blur-3xl
       transition-all duration-700
       group-hover:scale-125
@@ -1967,23 +1971,19 @@ export const LiveJourney = () => {
   />
 
   {/* Image */}
-  <div className="relative h-48 overflow-hidden bg-blue-50">
+  <div className="relative h-36 overflow-hidden bg-blue-50">
     <img
       src={cohortUpcomingImg}
       alt="Coming Next"
       className="
         h-full w-full object-cover
         opacity-65
-        
         transition-all duration-700
         ease-out
         group-hover:scale-110
         group-hover:opacity-75
       "
     />
-
-    {/* Blue image overlay */}
-    
 
     {/* Animated shine */}
     <div
@@ -2003,19 +2003,19 @@ export const LiveJourney = () => {
     {/* Pipeline badge */}
     <div
       className="
-        absolute left-4 top-4
-        inline-flex items-center gap-2
+        absolute left-3 top-3
+        inline-flex items-center gap-1.5
         rounded-full
         border border-blue-200/60
         bg-blue-950/80
-        px-3.5 py-1.5
-        text-xs font-bold
+        px-3 py-1
+        text-[11px] font-bold
         text-white
-        shadow-[0_5px_20px_rgba(30,64,175,0.18)]
+        shadow-[0_4px_15px_rgba(30,64,175,0.18)]
         backdrop-blur-md
       "
     >
-      <span className="relative flex h-2 w-2">
+      <span className="relative flex h-1.5 w-1.5">
         <span
           className="
             absolute inline-flex h-full w-full
@@ -2025,7 +2025,7 @@ export const LiveJourney = () => {
         />
         <span
           className="
-            relative inline-flex h-2 w-2
+            relative inline-flex h-1.5 w-1.5
             rounded-full bg-blue-300
           "
         />
@@ -2037,31 +2037,31 @@ export const LiveJourney = () => {
     {/* Lock icon */}
     <div
       className="
-        absolute right-4 top-4
-        flex h-8 w-8 items-center justify-center
+        absolute right-3 top-3
+        flex h-7 w-7 items-center justify-center
         rounded-full
         border border-white/60
         bg-white/85
         text-blue-600
-        shadow-[0_4px_15px_rgba(30,64,175,0.12)]
+        shadow-[0_4px_12px_rgba(30,64,175,0.12)]
         backdrop-blur-md
         transition-all duration-300
         group-hover:rotate-[-8deg]
         group-hover:scale-110
       "
     >
-      <Lock className="h-3.5 w-3.5" />
+      <Lock className="h-3 w-3" />
     </div>
 
     {/* Coming soon label */}
     <div
       className="
-        absolute bottom-4 right-4
+        absolute bottom-3 right-3
         rounded-full
         border border-white/30
         bg-blue-950/30
-        px-3 py-1
-        text-[11px] font-semibold
+        px-2.5 py-0.5
+        text-[10px] font-semibold
         text-white
         backdrop-blur-md
         transition-all duration-300
@@ -2073,14 +2073,15 @@ export const LiveJourney = () => {
   </div>
 
   {/* Content */}
-  <div className="relative p-6 lg:p-7">
+  <div className="relative p-4 lg:p-5">
+
     {/* Eyebrow */}
-    <div className="mb-3 flex items-center gap-2">
-      <span className="h-px w-6 bg-blue-400" />
+    <div className="mb-2 flex items-center gap-2">
+      <span className="h-px w-5 bg-blue-400" />
 
       <h3
         className="
-          text-[11px]
+          text-[10px]
           font-bold
           uppercase
           tracking-[0.18em]
@@ -2094,8 +2095,8 @@ export const LiveJourney = () => {
     {/* Heading */}
     <h2
       className="
-        mb-5
-        text-1xl
+        mb-3
+        text-lg
         font-bold
         tracking-[-0.03em]
         text-slate-950
@@ -2108,14 +2109,15 @@ export const LiveJourney = () => {
 
     {/* Features */}
     <div className="space-y-0">
+
       <div
         className="
           flex items-center justify-between
           border-b border-slate-200/80
-          py-3
+          py-2.5
         "
       >
-        <span className="text-sm text-slate-600">
+        <span className="text-xs text-slate-600">
           Upcoming projects
         </span>
 
@@ -2123,8 +2125,8 @@ export const LiveJourney = () => {
           className="
             rounded-full
             bg-blue-50
-            px-2.5 py-1
-            text-xs font-bold
+            px-2 py-0.5
+            text-[11px] font-bold
             text-blue-700
           "
         >
@@ -2136,14 +2138,14 @@ export const LiveJourney = () => {
         className="
           flex items-center justify-between
           border-b border-slate-200/80
-          py-3
+          py-2.5
         "
       >
-        <span className="text-sm text-slate-600">
+        <span className="text-xs text-slate-600">
           Expected launch
         </span>
 
-        <span className="text-sm font-semibold text-blue-600">
+        <span className="text-xs font-semibold text-blue-600">
           2–3 weeks
         </span>
       </div>
@@ -2151,32 +2153,33 @@ export const LiveJourney = () => {
       <div
         className="
           flex items-center justify-between
-          py-3
+          py-2.5
         "
       >
-        <span className="text-sm text-slate-600">
+        <span className="text-xs text-slate-600">
           Access
         </span>
 
-        <span className="flex items-center gap-1.5 text-xs font-semibold text-sky-600">
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-sky-600">
           <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
           Opening soon
         </span>
       </div>
+
     </div>
 
     {/* Locked CTA */}
     <button
       disabled
       className="
-        mt-6 flex w-full
+        mt-4 flex w-full
         cursor-not-allowed
         items-center justify-center gap-2
-        rounded-xl
+        rounded-lg
         border border-blue-100
         bg-blue-50/70
-        py-3.5
-        text-sm font-bold
+        py-2.5
+        text-xs font-bold
         text-blue-300
         backdrop-blur-md
         transition-all duration-300
@@ -2185,36 +2188,37 @@ export const LiveJourney = () => {
         group-hover:text-blue-400
       "
     >
-      <Lock className="h-4 w-4" />
+      <Lock className="h-3.5 w-3.5" />
       Locked
     </button>
 
     {/* Micro-copy */}
-    <p className="mt-3 text-center text-[11px] text-slate-400">
+    <p className="mt-2 text-center text-[10px] text-slate-400">
       Early access will open soon
     </p>
+
   </div>
 </div>
  
       {/* Card 3: Future Opportunities */}
-      <div
+<div
   className="
-    group relative isolate overflow-hidden rounded-[24px]
+    group relative isolate overflow-hidden rounded-[20px]
     border border-violet-100/80
     bg-white/70
-    shadow-[0_10px_40px_rgba(139,92,246,0.07)]
+    shadow-[0_8px_30px_rgba(139,92,246,0.07)]
     backdrop-blur-xl
     transition-all duration-500
-    hover:-translate-y-2
+    hover:-translate-y-1.5
     hover:border-violet-200
-    hover:shadow-[0_25px_60px_rgba(139,92,246,0.15)]
+    hover:shadow-[0_20px_45px_rgba(139,92,246,0.14)]
   "
 >
   {/* Ambient purple glow */}
   <div
     className="
-      pointer-events-none absolute -right-16 -top-16
-      h-40 w-40 rounded-full
+      pointer-events-none absolute -right-12 -top-12
+      h-32 w-32 rounded-full
       bg-violet-400/10 blur-3xl
       transition-all duration-700
       group-hover:scale-150
@@ -2224,8 +2228,8 @@ export const LiveJourney = () => {
 
   <div
     className="
-      pointer-events-none absolute -bottom-20 -left-16
-      h-40 w-40 rounded-full
+      pointer-events-none absolute -bottom-16 -left-12
+      h-32 w-32 rounded-full
       bg-purple-300/10 blur-3xl
       transition-all duration-700
       group-hover:scale-125
@@ -2233,7 +2237,7 @@ export const LiveJourney = () => {
   />
 
   {/* Image */}
-  <div className="relative h-48 overflow-hidden ">
+  <div className="relative h-36 overflow-hidden">
     <img
       src={cohortFutureImg}
       alt="Future Opportunities"
@@ -2263,19 +2267,19 @@ export const LiveJourney = () => {
     {/* Coming soon badge */}
     <div
       className="
-        absolute left-4 top-4
-        inline-flex items-center gap-2
+        absolute left-3 top-3
+        inline-flex items-center gap-1.5
         rounded-full
         border border-violet-200/50
         bg-violet-950/80
-        px-3.5 py-1.5
-        text-xs font-bold
+        px-3 py-1
+        text-[11px] font-bold
         text-white
-        shadow-[0_5px_20px_rgba(109,40,217,0.18)]
+        shadow-[0_4px_15px_rgba(109,40,217,0.18)]
         backdrop-blur-md
       "
     >
-      <span className="relative flex h-2 w-2">
+      <span className="relative flex h-1.5 w-1.5">
         <span
           className="
             absolute inline-flex h-full w-full
@@ -2285,7 +2289,7 @@ export const LiveJourney = () => {
         />
         <span
           className="
-            relative inline-flex h-2 w-2
+            relative inline-flex h-1.5 w-1.5
             rounded-full bg-violet-300
           "
         />
@@ -2297,31 +2301,31 @@ export const LiveJourney = () => {
     {/* Lock */}
     <div
       className="
-        absolute right-4 top-4
-        flex h-8 w-8 items-center justify-center
+        absolute right-3 top-3
+        flex h-7 w-7 items-center justify-center
         rounded-full
         border border-white/60
         bg-white/85
         text-violet-600
-        shadow-[0_4px_15px_rgba(109,40,217,0.12)]
+        shadow-[0_4px_12px_rgba(109,40,217,0.12)]
         backdrop-blur-md
         transition-all duration-300
         group-hover:rotate-[-8deg]
         group-hover:scale-110
       "
     >
-      <Lock className="h-3.5 w-3.5" />
+      <Lock className="h-3 w-3" />
     </div>
 
     {/* Future label */}
     <div
       className="
-        absolute bottom-4 right-4
+        absolute bottom-3 right-3
         rounded-full
         border border-white/30
         bg-violet-950/30
-        px-3 py-1
-        text-[11px] font-semibold
+        px-2.5 py-0.5
+        text-[10px] font-semibold
         text-white
         backdrop-blur-md
         transition-all duration-300
@@ -2333,14 +2337,15 @@ export const LiveJourney = () => {
   </div>
 
   {/* Content */}
-  <div className="relative p-6 lg:p-7">
+  <div className="relative p-4 lg:p-5">
+
     {/* Eyebrow */}
-    <div className="mb-3 flex items-center gap-2">
-      <span className="h-px w-6 bg-violet-400" />
+    <div className="mb-2 flex items-center gap-2">
+      <span className="h-px w-5 bg-violet-400" />
 
       <h3
         className="
-          text-[11px]
+          text-[10px]
           font-bold
           uppercase
           tracking-[0.18em]
@@ -2354,8 +2359,8 @@ export const LiveJourney = () => {
     {/* Heading */}
     <h2
       className="
-        mb-5
-        text-1xl
+        mb-3
+        text-lg
         font-bold
         tracking-[-0.03em]
         text-slate-950
@@ -2368,14 +2373,15 @@ export const LiveJourney = () => {
 
     {/* Features */}
     <div className="space-y-0">
+
       <div
         className="
           flex items-center justify-between
           border-b border-slate-200/80
-          py-3
+          py-2.5
         "
       >
-        <span className="text-sm text-slate-600">
+        <span className="text-xs text-slate-600">
           New opportunities
         </span>
 
@@ -2383,8 +2389,8 @@ export const LiveJourney = () => {
           className="
             rounded-full
             bg-violet-50
-            px-2.5 py-1
-            text-xs font-bold
+            px-2 py-0.5
+            text-[11px] font-bold
             text-violet-700
           "
         >
@@ -2396,14 +2402,14 @@ export const LiveJourney = () => {
         className="
           flex items-center justify-between
           border-b border-slate-200/80
-          py-3
+          py-2.5
         "
       >
-        <span className="text-sm text-slate-600">
+        <span className="text-xs text-slate-600">
           Project scope
         </span>
 
-        <span className="text-sm font-semibold text-violet-600">
+        <span className="text-xs font-semibold text-violet-600">
           International
         </span>
       </div>
@@ -2411,32 +2417,33 @@ export const LiveJourney = () => {
       <div
         className="
           flex items-center justify-between
-          py-3
+          py-2.5
         "
       >
-        <span className="text-sm text-slate-600">
+        <span className="text-xs text-slate-600">
           Learning tracks
         </span>
 
-        <span className="flex items-center gap-1.5 text-xs font-semibold text-purple-600">
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-purple-600">
           <span className="h-1.5 w-1.5 rounded-full bg-purple-500" />
           Advanced tech
         </span>
       </div>
+
     </div>
 
     {/* Locked CTA */}
     <button
       disabled
       className="
-        mt-6 flex w-full
+        mt-4 flex w-full
         cursor-not-allowed
         items-center justify-center gap-2
-        rounded-xl
+        rounded-lg
         border border-violet-100
         bg-violet-50/70
-        py-3.5
-        text-sm font-bold
+        py-2.5
+        text-xs font-bold
         text-violet-300
         backdrop-blur-md
         transition-all duration-300
@@ -2445,14 +2452,15 @@ export const LiveJourney = () => {
         group-hover:text-violet-400
       "
     >
-      <Lock className="h-4 w-4" />
+      <Lock className="h-3.5 w-3.5" />
       Locked
     </button>
 
     {/* Micro-copy */}
-    <p className="mt-3 text-center text-[11px] text-slate-400">
+    <p className="mt-2 text-center text-[10px] text-slate-400">
       More opportunities are on the way
     </p>
+
   </div>
 </div>
     </div>
