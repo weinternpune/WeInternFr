@@ -7,6 +7,7 @@ import heroCloud from "../../assets/HeroSlider/HeroSection_Slider3.png";
 import heroOther from "../../assets/HeroSlider/HeroSection_Slider4.png";
 import "./Hero.css";
 import PartnersMarquee from "./PartnersMarquee";
+import BookDemoModal from "../Modals/BookDemoModal";
 
 const TRUST_AVATARS = [
   "https://miro.medium.com/v2/resize:fit:1200/1*smwgXLZyjz4zHVAeQJ2XMw.jpeg",
@@ -22,7 +23,7 @@ const STATS = [
   { val: "95%", label: "Placement Support" },
 ];
 
-// --- Slide 1 = original full hero (text + image + stats). Slides 2-4 = image-only. ---
+// --- All slides with full background image and text overlay ---
 const SLIDES = [
   {
     id: "general",
@@ -40,24 +41,60 @@ const SLIDES = [
     scrollTarget: "courses",
     image: heroStudents,
     imageAlt: "WeIntern students",
+    showStatsCard: true,
+    isFullBackground: true,
+    showTrustSection: true,
   },
   {
     id: "fullstack",
-    hasText: false,
+    hasText: true,
+    badge: "Full Stack Development",
+    title: (
+      <>
+        Master <span className="hero2-accent-gold">Full Stack</span><br />
+        Development
+      </>
+    ),
+    sub: "Build end-to-end web applications with modern technologies and frameworks.",
+    primaryCta: "Start Learning",
+    scrollTarget: "courses",
     image: heroFullStack,
     imageAlt: "Full Stack development track",
+    isFullBackground: true,
   },
   {
     id: "cloud",
-    hasText: false,
+    hasText: true,
+    badge: "Cloud & DevOps",
+    title: (
+      <>
+        Excel in <span className="hero2-accent-cyan">Cloud</span> &<br />
+        <span className="hero2-accent-gold">DevOps</span>
+      </>
+    ),
+    sub: "Master cloud platforms, automation, and modern DevOps practices.",
+    primaryCta: "Explore Cloud Track",
+    scrollTarget: "courses",
     image: heroCloud,
     imageAlt: "Cloud & DevOps track",
+    isFullBackground: true,
   },
   {
     id: "other",
-    hasText: false,
+    hasText: true,
+    badge: "Explore More Tracks",
+    title: (
+      <>
+        Choose Your <span className="hero2-accent-gold">Path</span><br />
+        to Success
+      </>
+    ),
+    sub: "Data Science, AI/ML, Digital Marketing, and many more exciting programs.",
+    primaryCta: "View All Programs",
+    scrollTarget: "courses",
     image: heroOther,
     imageAlt: "Other WeIntern tracks",
+    isFullBackground: true,
   },
 ];
 
@@ -67,6 +104,7 @@ const AUTOPLAY_MS = 6000;
 const Hero = () => {
   const [displayIndex, setDisplayIndex] = useState(0); // slide actually rendered
   const [isVisible, setIsVisible] = useState(true); // controls fade in/out
+  const [showBookDemo, setShowBookDemo] = useState(false);
   const autoplayTimer = useRef(null);
   const transitionTimer = useRef(null);
 
@@ -107,23 +145,29 @@ const Hero = () => {
 
   return (
     <section className="hero2">
-      {slide.hasText ? (
-        <div className={`hero2-inner hero2-slide-transition ${visibilityClass}`}>
-          <div className="hero2-left">
-            <div className="hero2-badge">{slide.badge}</div>
-            <h1 className="hero2-title">{slide.title}</h1>
-            <p className="hero2-sub">{slide.sub}</p>
-            <div className="hero2-btns">
-              <button
-                className="hero2-btn-primary"
-                onClick={() => document.getElementById(slide.scrollTarget)?.scrollIntoView({ behavior: "smooth" })}
-              >
-                {slide.primaryCta} <Icon icon="lucide:arrow-right" width={16} height={16} />
-              </button>
-              <button className="hero2-btn-outline">
-                <Icon icon="lucide:play" width={13} height={13} /> Book A Demo
-              </button>
-            </div>
+      {slide.isFullBackground && (
+        <div className={`hero2-bg-overlay hero2-slide-transition ${visibilityClass}`}>
+          <img src={slide.image} alt={slide.imageAlt} className="hero2-bg-image" />
+        </div>
+      )}
+      
+      <div className={`hero2-inner ${slide.isFullBackground ? 'hero2-full-bg' : ''} hero2-slide-transition ${visibilityClass}`}>
+        <div className="hero2-left">
+          <div className="hero2-badge">{slide.badge}</div>
+          <h1 className="hero2-title">{slide.title}</h1>
+          <p className="hero2-sub">{slide.sub}</p>
+          <div className="hero2-btns">
+            <button
+              className="hero2-btn-primary"
+              onClick={() => document.getElementById(slide.scrollTarget)?.scrollIntoView({ behavior: "smooth" })}
+            >
+              {slide.primaryCta} <Icon icon="lucide:arrow-right" width={16} height={16} />
+            </button>
+            <button className="hero2-btn-outline" onClick={() => setShowBookDemo(true)}>
+              <Icon icon="lucide:play" width={13} height={13} /> Book A Demo
+            </button>
+          </div>
+          {slide.showTrustSection && (
             <div className="hero2-trust">
               <span className="hero2-trust-label">Trusted by students from</span>
               <div className="hero2-avatars">
@@ -134,30 +178,25 @@ const Hero = () => {
               </div>
               <span className="hero2-trust-count">1,000+ Students Joined</span>
             </div>
-          </div>
+          )}
+        </div>
 
-          <div className="hero2-right">
-            <div className="hero2-img-wrap">
-              <img src={slide.image} alt={slide.imageAlt} className="hero2-img" />
-              <div className="hero2-stats-card">
-                {STATS.map((s) => (
-                  <div className="hero2-stat" key={s.label}>
-                    <span className="hero2-stat-icon">
-                      <Icon icon="lucide:bar-chart-2" width={14} height={14} />
-                    </span>
-                    <span className="hero2-stat-val">{s.val}</span>
-                    <span className="hero2-stat-label">{s.label}</span>
-                  </div>
-                ))}
-              </div>
+        {slide.showStatsCard && (
+          <div className="hero2-stats-floating">
+            <div className="hero2-stats-card">
+              {STATS.map((s) => (
+                <div className="hero2-stat" key={s.label}>
+                  <span className="hero2-stat-icon">
+                    <Icon icon="lucide:bar-chart-2" width={14} height={14} />
+                  </span>
+                  <span className="hero2-stat-val">{s.val}</span>
+                  <span className="hero2-stat-label">{s.label}</span>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-      ) : (
-        <div className={`hero2-image-only hero2-slide-transition ${visibilityClass}`}>
-          <img src={slide.image} alt={slide.imageAlt} className="hero2-image-only-img" />
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Slide controls */}
       <div className="hero2-slider-controls">
@@ -186,6 +225,8 @@ const Hero = () => {
           <Icon icon="lucide:chevron-right" width={18} height={18} />
         </button>
       </div>
+
+      {showBookDemo && <BookDemoModal onClose={() => setShowBookDemo(false)} />}
     </section>
   );
 };

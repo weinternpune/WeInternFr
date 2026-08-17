@@ -1,0 +1,255 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+.bdm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 14, 40, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.bdm-modal {
+  background: #fff;
+  border-radius: 20px;
+  max-width: 520px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 0.3s ease;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bdm-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #f1f2f6;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #4b5468;
+  z-index: 10;
+}
+
+.bdm-close:hover {
+  background: #e2e5ee;
+  transform: rotate(90deg);
+}
+
+.bdm-header {
+  padding: 32px 32px 24px;
+  text-align: center;
+  border-bottom: 1px solid #eef0f5;
+}
+
+.bdm-header-icon {
+  color: #3db8f0;
+  margin-bottom: 12px;
+}
+
+.bdm-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #14192e;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+
+.bdm-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.bdm-form {
+  padding: 28px 32px 32px;
+}
+
+.bdm-field {
+  margin-bottom: 20px;
+}
+
+.bdm-label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.bdm-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #e2e5ee;
+  border-radius: 10px;
+  font-size: 14.5px;
+  font-family: 'Inter', sans-serif;
+  color: #1a2036;
+  transition: all 0.2s ease;
+  background: #fff;
+}
+
+.bdm-input:focus {
+  outline: none;
+  border-color: #3db8f0;
+  box-shadow: 0 0 0 3px rgba(61, 184, 240, 0.1);
+}
+
+.bdm-input::placeholder {
+  color: #9aa0b4;
+}
+
+.bdm-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%239aa0b4' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+.bdm-textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: 'Inter', sans-serif;
+}
+
+.bdm-btn {
+  width: 100%;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.bdm-btn-primary {
+  background: linear-gradient(135deg, #3db8f0, #2196e6);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(61, 184, 240, 0.3);
+}
+
+.bdm-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(61, 184, 240, 0.4);
+}
+
+.bdm-btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.bdm-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Success State */
+.bdm-success {
+  padding: 48px 32px;
+  text-align: center;
+  max-width: 440px;
+}
+
+.bdm-success-icon {
+  color: #22c55e;
+  margin-bottom: 20px;
+  animation: scaleIn 0.4s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.bdm-success-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #14192e;
+  margin: 0 0 12px;
+}
+
+.bdm-success-text {
+  font-size: 14.5px;
+  color: #6b7280;
+  line-height: 1.65;
+  margin: 0 0 28px;
+}
+
+/* Responsive */
+@media (max-width: 560px) {
+  .bdm-overlay {
+    padding: 16px;
+  }
+
+  .bdm-modal {
+    border-radius: 16px;
+  }
+
+  .bdm-header {
+    padding: 24px 20px 20px;
+  }
+
+  .bdm-title {
+    font-size: 1.5rem;
+  }
+
+  .bdm-form {
+    padding: 20px;
+  }
+
+  .bdm-field {
+    margin-bottom: 16px;
+  }
+
+  .bdm-success {
+    padding: 36px 24px;
+  }
+}
