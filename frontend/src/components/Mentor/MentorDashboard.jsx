@@ -83,21 +83,23 @@ function MentorDashboard() {
   // Helper query param builder
   const getParams = () => (isAdmin && selectedMentorId ? { mentorId: selectedMentorId } : {});
 
-  // Load mentors list if user is admin
+  // Load mentors list if user is admin, or load mentor dashboard for regular mentors
   useEffect(() => {
     if (isAdmin) {
       getAdminMentors()
         .then(res => {
           const list = res.data?.data || [];
           setAllMentors(list);
-          if (!selectedMentorId && list.length > 0) {
-            const initId = mentorIdFromUrl || list[0]._id;
+          const initId = mentorIdFromUrl || (list.length > 0 ? list[0]._id : '');
+          if (initId) {
             setSelectedMentorId(initId);
           }
         })
         .catch(err => console.error('Failed to load mentors list:', err));
 
       loadOverview();
+    } else {
+      loadDashboardData();
     }
   }, [isAdmin]);
 
@@ -196,8 +198,9 @@ function MentorDashboard() {
   };
 
   const loadDashboardData = async (silent = false, customMentorId) => {
-    const targetParams = (isAdmin && (customMentorId || selectedMentorId))
-      ? { mentorId: customMentorId || selectedMentorId }
+    const targetId = customMentorId || selectedMentorId;
+    const targetParams = (isAdmin && targetId)
+      ? { mentorId: targetId }
       : {};
 
     try {
@@ -207,9 +210,14 @@ function MentorDashboard() {
         getMentorDashboard(targetParams),
         getMentorStudents(targetParams)
       ]);
-      setData(d.data?.data);
+      const dashData = d.data?.data;
+      setData(dashData || null);
       setStudents(s.data?.data || []);
+      if (isAdmin && !selectedMentorId && dashData?.mentor?.id) {
+        setSelectedMentorId(dashData.mentor.id);
+      }
     } catch (err) {
+      console.error('Failed to load mentor dashboard data:', err);
       toast.error(err.response?.data?.message || 'Unable to load mentor data');
     } finally {
       setLoading(false);
@@ -223,7 +231,7 @@ function MentorDashboard() {
   useEffect(() => {
     if (active === 'all-mentors') {
       loadOverview();
-    } else if (!isAdmin || selectedMentorId) {
+    } else {
       loadDashboardData(false, selectedMentorId);
       if (active === 'schedule' || active === 'attendance') loadClasses();
       if (active === 'assignments') loadAssignments();
@@ -307,14 +315,7 @@ function MentorDashboard() {
   const todayClasses = data?.todaysClasses || [];
   const atRisk = (data?.students || []).filter(s => s.status === 'At Risk');
 
-  if (loading && !data && active !== 'all-mentors') {
-    return (
-      <div className="mentor-loading">
-        <div className="mentor-spinner" />
-        <p>Loading mentor dashboard…</p>
-      </div>
-    );
-  }
+
 
   return (
     <div className="mentor-app">
@@ -467,14 +468,21 @@ function MentorDashboard() {
           )}
 
           {active === 'dashboard' && (
-            <DashboardHome
-              data={data}
-              onPage={changePage}
-              onRefresh={() => loadAll(true, selectedMentorId)}
-              openStudent={openStudent}
-              isAdmin={isAdmin}
-              mentorName={mentor.name}
-            />
+            loading && !data ? (
+              <div className="mentor-loading small">
+                <div className="mentor-spinner" />
+                <p>Loading mentor dashboard…</p>
+              </div>
+            ) : (
+              <DashboardHome
+                data={data}
+                onPage={changePage}
+                onRefresh={() => loadAll(true, selectedMentorId)}
+                openStudent={openStudent}
+                isAdmin={isAdmin}
+                mentorName={mentor.name}
+              />
+            )
           )}
 
           {active === 'schedule' && (
