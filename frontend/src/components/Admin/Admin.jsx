@@ -977,14 +977,6 @@ const AdminEnrollments = () => {
 
   useEffect(() => {
     load();
-
-    const interval = setInterval(
-      () => load(),
-      5000
-    );
-
-    return () =>
-      clearInterval(interval);
   }, [filter, search]);
 
   const filtered = enrolls.filter(
@@ -1664,14 +1656,6 @@ const AdminUsers = () => {
   };
   useEffect(() => {
     load();
-
-    const interval = setInterval(
-      () => load(),
-      5000
-    );
-
-    return () =>
-      clearInterval(interval);
   }, [search, limit, page, viewAll]);
 
   const deleteUser = async (id, name) => {
