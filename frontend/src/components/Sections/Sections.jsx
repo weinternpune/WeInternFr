@@ -80,15 +80,18 @@ export const Problem = () => {
         <GraduationCap className="w-6 h-6 text-emerald-700" strokeWidth={1.6} />
       </motion.div>
       <div>
-        <h3 className="text-base sm:text-lg font-semibold text-slate-900 tracking-tight">Students Graduate With</h3>
-        <motion.span
-          initial={{ width: 0 }}
-          whileInView={{ width: 32 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: 0.35 }}
-          className="block h-[3px] rounded-full bg-gradient-to-r from-emerald-400 to-emerald-300 mt-2"
-        />
-      </div>
+  <h3 className="text-sm sm:text-base md:text-lg font-semibold text-slate-900 tracking-tight whitespace-nowrap">
+    Students Graduate With
+  </h3>
+
+  <motion.span
+    initial={{ width: 0 }}
+    whileInView={{ width: 32 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.4, delay: 0.35 }}
+    className="block h-[3px] rounded-full bg-gradient-to-r from-emerald-400 to-emerald-300 mt-2"
+  />
+</div>
     </div>
 
     <motion.ul
@@ -2624,7 +2627,7 @@ export const LiveJourney = () => {
   <AnimatePresence>
     {showBooking && (
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 px-4 py-8 backdrop-blur-md"
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-neutral-900/40 px-4 py-8 backdrop-blur-md"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
