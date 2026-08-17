@@ -1,4 +1,5 @@
 const CohortApplication = require("../models/CohortApplication");
+const getCohortWeek = require("../utils/cohortWeek");
 
 const createCohortBooking = async (req, res) => {
   try {
@@ -12,7 +13,10 @@ const createCohortBooking = async (req, res) => {
       day,
     } = req.body;
 
+    // ----------------------------------------
     // 1. Validate required fields
+    // ----------------------------------------
+
     if (
       !name ||
       !email ||
@@ -27,22 +31,63 @@ const createCohortBooking = async (req, res) => {
       });
     }
 
-    // 2. Check if user has already booked
+    // ----------------------------------------
+    // 2. Get current cohort week
+    // ----------------------------------------
+
+    const {
+      weekStart,
+      weekEnd,
+      currentDay,
+    } = getCohortWeek();
+
+    // ----------------------------------------
+    // 3. Saturday registration restriction
+    // ----------------------------------------
+
+    // JavaScript:
+    // Sunday = 0
+    // Monday = 1
+    // Tuesday = 2
+    // Wednesday = 3
+    // Thursday = 4
+    // Friday = 5
+    // Saturday = 6
+
+    if (currentDay === 6) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Cohort registration is closed today. You can register again on Sunday.",
+      });
+    }
+
+    // ----------------------------------------
+    // 4. Check if user already applied
+    //    during the current week
+    // ----------------------------------------
+
     const existingBooking = await CohortApplication.findOne({
       user: req.user._id,
+      cohortWeekStart: weekStart,
     });
 
     if (existingBooking) {
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
-        message: "You have already submitted a booking.",
+        message:
+          "You have already submitted a cohort application for this week.",
         data: existingBooking,
       });
     }
 
-    // 3. Create booking
+    // ----------------------------------------
+    // 5. Create new cohort application
+    // ----------------------------------------
+
     const booking = await CohortApplication.create({
       user: req.user._id,
+
       name,
       email,
       phone,
@@ -50,17 +95,41 @@ const createCohortBooking = async (req, res) => {
       domain,
       year: year || "",
       day,
+
+      cohortWeekStart: weekStart,
+      cohortWeekEnd: weekEnd,
+
       status: "pending",
     });
 
-    // 4. Send response
+    // ----------------------------------------
+    // 6. Success response
+    // ----------------------------------------
+
     return res.status(201).json({
       success: true,
       message: "Cohort booking submitted successfully.",
       data: booking,
     });
+
   } catch (error) {
     console.error("Create cohort booking error:", error);
+
+    // ----------------------------------------
+    // 7. Handle duplicate weekly application
+    // ----------------------------------------
+
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "You have already submitted a cohort application for this week.",
+      });
+    }
+
+    // ----------------------------------------
+    // 8. Generic server error
+    // ----------------------------------------
 
     return res.status(500).json({
       success: false,

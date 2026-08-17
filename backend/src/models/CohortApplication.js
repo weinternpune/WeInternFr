@@ -51,6 +51,20 @@ const cohortApplicationSchema = new mongoose.Schema(
       required: true,
     },
 
+    // ------------------------------------
+    // WEEKLY COHORT REGISTRATION
+    // ------------------------------------
+
+    cohortWeekStart: {
+      type: Date,
+      required: true,
+    },
+
+    cohortWeekEnd: {
+      type: Date,
+      required: true,
+    },
+
     status: {
       type: String,
       enum: ["pending", "confirmed", "rejected"],
@@ -67,6 +81,22 @@ const cohortApplicationSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+
+// ------------------------------------
+// ONE APPLICATION PER USER PER WEEK
+// ------------------------------------
+
+cohortApplicationSchema.index(
+  {
+    user: 1,
+    cohortWeekStart: 1,
+  },
+  {
+    unique: true,
+  }
+);
+
 
 module.exports = mongoose.model(
   "CohortApplication",

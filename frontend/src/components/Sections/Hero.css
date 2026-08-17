@@ -113,3 +113,82 @@
   .hero2-stats-card { grid-template-columns: repeat(2, 1fr); row-gap: 12px; bottom: -20px; }
   .hero2-btns { flex-direction: column; align-items: stretch; }
 }
+
+
+/* Fade transition on slide change */
+.hero2-fade {
+  animation: hero2FadeIn 0.6s ease;
+}
+
+@keyframes hero2FadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slider controls */
+.hero2-slider-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.hero2-slider-arrow {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.hero2-slider-arrow:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.hero2-slider-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.hero2-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.hero2-dot-active {
+  width: 24px;
+  background: #00b67a; /* swap for your accent color if different */
+}
+
+/* Smooth crossfade transition (replaces old @keyframes fade-in) */
+.hero2-slide-transition {
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.hero2-slide-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hero2-slide-hidden {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
