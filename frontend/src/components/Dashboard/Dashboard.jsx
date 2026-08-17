@@ -229,17 +229,6 @@ const Dashboard = () => {
   }
 };
 
-
-  const interval =
-    setInterval(
-      refreshDashboard,
-      30000
-    );
-
-
-  return () =>
-    clearInterval(interval);
-
 }, [user]);
 
   const handleLogout = () => { logout(); navigate('/'); };

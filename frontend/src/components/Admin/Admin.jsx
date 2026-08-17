@@ -336,15 +336,23 @@ const AdminOverview = () => {
           <button
             onClick={refreshStats}
             disabled={loading}
-            className="btn btn-outline"
+            className="btn"
             style={{
-              fontSize: ".8rem",
-              padding: ".4rem .8rem",
-              backgroundColor: "#198754",
-              color: "#fff",
+              fontSize: ".85rem",
+              padding: ".5rem 1.1rem",
+              backgroundColor: "#e8a820",
+              color: "#12233f",
+              border: "1px solid #d49516",
+              fontWeight: 700,
+              borderRadius: "8px",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              boxShadow: "0 2px 8px rgba(232, 168, 32, 0.25)"
             }}
           >
-            {loading ? "🔄" : "↻"} Refresh
+            {loading ? "🔄 Refreshing..." : "↻ Refresh"}
           </button>
         </div>
       </div>
@@ -360,39 +368,51 @@ const AdminOverview = () => {
         {[
           {
             icon: "👥",
-            num: stats.totalUsers,
+            num: stats.totalUsers ?? 0,
             label: "Total Students",
             color: "#2196C9",
           },
           {
+            icon: "🎓",
+            num: stats.totalMentors ?? 0,
+            label: "Active Mentors",
+            color: "#8e44ad",
+          },
+          {
             icon: "📝",
-            num: stats.totalApplications,
+            num: stats.totalApplications ?? 0,
             label: "Applications",
             color: "#E8A820",
           },
           {
             icon: "⏳",
-            num: stats.pendingApplications,
+            num: stats.pendingApplications ?? 0,
             label: "Pending Review",
             color: "#e67e22",
           },
           {
             icon: "📚",
-            num: stats.totalEnrollments,
-            label: "Enrollments",
+            num: stats.totalEnrollments ?? 0,
+            label: "Total Enrollments",
             color: "#6c3483",
           },
           {
             icon: "💰",
-            num: stats.paidEnrollments,
-            label: "Paid",
+            num: stats.paidEnrollments ?? 0,
+            label: "Paid Enrollments",
             color: "#27ae60",
           },
           {
-            icon: "🏢",
-            num: stats.totalHireRequests,
-            label: "Hire Requests",
+            icon: "⏰",
+            num: stats.pendingEnrollments ?? 0,
+            label: "Pending Enrollment",
             color: "#dc4545",
+          },
+          {
+            icon: "🏢",
+            num: stats.totalHireRequests ?? 0,
+            label: "Hire Requests",
+            color: "#34495e",
           },
           {
             icon: "💵",
@@ -409,12 +429,6 @@ const AdminOverview = () => {
             ).toLocaleString("en-IN"),
             label: "Revenue This Month",
             color: "#0f9d58",
-          },
-          {
-            icon: "⏰",
-            num: stats.pendingEnrollments || 0,
-            label: "Pending Enrollment",
-            color: "#dc4545",
           },
         ].map((s) => (
           <div
@@ -963,14 +977,6 @@ const AdminEnrollments = () => {
 
   useEffect(() => {
     load();
-
-    const interval = setInterval(
-      () => load(),
-      5000
-    );
-
-    return () =>
-      clearInterval(interval);
   }, [filter, search]);
 
   const filtered = enrolls.filter(
@@ -1021,42 +1027,51 @@ const AdminEnrollments = () => {
   const FILTERS = [
     {
       key: "all",
-      label: "All",
-      color: "#6b7280",
+      label: "Total Enrollments",
+      color: "#1B2A4A",
       count:
-        summary.fullPaid +
-        summary.emi1 +
-        summary.emi2 +
-        summary.emi3 +
-        summary.pending,
+        summary.total ?? (
+          summary.fullPaid +
+          summary.emi1 +
+          summary.emi2 +
+          summary.emi3 +
+          summary.pending +
+          (summary.failed || 0)
+        ),
+    },
+    {
+      key: "paid",
+      label: "Total Paid 💰",
+      color: "#27ae60",
+      count: summary.totalPaid ?? (summary.fullPaid + summary.emi1 + summary.emi2 + summary.emi3),
     },
     {
       key: "full",
       label: "Full Paid ✅",
-      color: "#27ae60",
+      color: "#1e8449",
       count: summary.fullPaid,
     },
     {
       key: "emi_1",
-      label: "EMI 1st Only",
+      label: "EMI 1/3 Paid",
       color: "#2196C9",
       count: summary.emi1,
     },
     {
       key: "emi_2",
-      label: "EMI 2nd Done",
+      label: "EMI 2/3 Paid",
       color: "#6c3483",
       count: summary.emi2,
     },
     {
       key: "emi_3",
-      label: "EMI 3rd Done",
+      label: "EMI 3/3 Paid",
       color: "#E8A820",
       count: summary.emi3,
     },
     {
       key: "pending",
-      label: "Pending ⚠️",
+      label: "Pending Enrollments ⚠️",
       color: "#dc4545",
       count: summary.pending,
     },
@@ -1641,14 +1656,6 @@ const AdminUsers = () => {
   };
   useEffect(() => {
     load();
-
-    const interval = setInterval(
-      () => load(),
-      5000
-    );
-
-    return () =>
-      clearInterval(interval);
   }, [search, limit, page, viewAll]);
 
   const deleteUser = async (id, name) => {
@@ -4394,7 +4401,26 @@ const MentorManagement = () => {
         >
           🚀 Access Mentor Portal
         </Link>
-        <button className="btn btn-outline" onClick={load}>Refresh</button>
+        <button
+          className="btn"
+          onClick={load}
+          style={{
+            backgroundColor: "#e8a820",
+            color: "#12233f",
+            border: "1px solid #d49516",
+            fontWeight: 700,
+            cursor: "pointer",
+            borderRadius: "8px",
+            padding: ".5rem 1.1rem",
+            fontSize: ".85rem",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            boxShadow: "0 2px 8px rgba(232, 168, 32, 0.25)"
+          }}
+        >
+          ↻ Refresh
+        </button>
       </div>
     </div>
 

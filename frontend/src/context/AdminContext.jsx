@@ -44,18 +44,7 @@ export const AdminProvider = ({ children }) => {
     loadStats(true);
   }, [loadStats]);
 
-  // Auto-refresh every 5 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (stats) { // Only refresh if we already have data
-        loadStats(false);
-      }
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [stats, loadStats]);
-
-  // Event-driven updates for real-time sync
+  // Event-driven updates for real-time sync (when user performs actions)
   useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === 'admin_data_updated') {

@@ -1205,3 +1205,43 @@
 @media (max-width: 480px) {
   .modal-box { padding: 1.5rem 1.25rem; border-radius: 14px; }
 }
+
+/* ==========================================================================
+   GLOBAL TYPOGRAPHY & BUTTON STYLING FOR ADMIN PANEL (Inter font-family)
+   ========================================================================== */
+.admin-panel,
+.admin-panel *,
+.admin-layout,
+.admin-sidebar,
+.analytics-wrapper,
+.table-wrap,
+.data-table,
+.stat-card,
+.modal-box,
+.chart-card {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+
+.btn-admin-refresh,
+.btn-refresh-yellow {
+  background-color: #e8a820 !important;
+  color: #12233f !important;
+  border: 1px solid #d49516 !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  padding: 0.45rem 1rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-admin-refresh:hover,
+.btn-refresh-yellow:hover {
+  background-color: #f5c453 !important;
+  color: #000000 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(232, 168, 32, 0.35) !important;
+}
+
