@@ -6,45 +6,9 @@ const { Enrollment } = require('../models/Enrollment');
 const { sendEnrollmentConfirmation } = require('../utils/email');
 
 // ── Helper: send pending payment reminder email ──
-const sendPendingPaymentEmail = async (email, name, courseName, amount, enrollmentId) => {
-  const nodemailer = require('nodemailer');
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-  });
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
-    to: email,
-    subject: `⚠️ Payment Pending — Complete your enrollment for ${courseName}`,
-    html: `
-    <div style="font-family:'DM Sans',Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
-      <div style="background:linear-gradient(135deg,#0d1b2e,#1B2A4A);padding:40px 32px;text-align:center">
-        <h1 style="color:#E8A820;font-size:28px;margin:0;font-weight:900">WeIntern</h1>
-        <p style="color:rgba(255,255,255,0.7);margin:8px 0 0;font-size:14px">Learn. Build. Earn.</p>
-      </div>
-      <div style="padding:32px">
-        <div style="background:#fff8e1;border:1px solid #f59e0b;border-left:4px solid #f59e0b;border-radius:10px;padding:16px;margin-bottom:24px">
-          <p style="color:#92400e;font-size:14px;margin:0;font-weight:700">⚠️ Payment Pending</p>
-          <p style="color:#92400e;font-size:13px;margin:6px 0 0">Your enrollment for <strong>${courseName}</strong> is pending payment.</p>
-        </div>
-        <p style="color:#1B2A4A;font-size:16px">Hi <strong>${name}</strong>,</p>
-        <p style="color:#6b7280;font-size:14px;line-height:1.7">You started enrolling in <strong>${courseName}</strong> but the payment of <strong>₹${Number(amount).toLocaleString('en-IN')}</strong> is still pending.</p>
-        <p style="color:#6b7280;font-size:14px;line-height:1.7">Complete your payment now to secure your seat and start learning.</p>
-        <div style="text-align:center;margin:32px 0">
-          <a href="${process.env.FRONTEND_URL}/dashboard" style="background:#E8A820;color:#1B2A4A;padding:14px 32px;border-radius:50px;font-weight:800;font-size:15px;text-decoration:none;display:inline-block">
-            Complete Payment →
-          </a>
-        </div>
-        <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:24px">
-          <p style="color:#6b7280;font-size:13px;margin:0 0 8px"><strong>Course:</strong> ${courseName}</p>
-          <p style="color:#6b7280;font-size:13px;margin:0 0 8px"><strong>Amount Due:</strong> ₹${Number(amount).toLocaleString('en-IN')}</p>
-          <p style="color:#dc4545;font-size:13px;margin:0"><strong>Status:</strong> Payment Pending ⏳</p>
-        </div>
-        <p style="color:#9ca3af;font-size:12px;text-align:center">If you have any issues, contact us at <a href="mailto:internship.weintern@gmail.com" style="color:#E8A820">internship.weintern@gmail.com</a></p>
-      </div>
-    </div>`
-  });
-};
+// (Removed — WeIntern no longer emails users about incomplete/pending
+// enrollments. Only a success confirmation is sent once payment is
+// actually completed, via sendPaymentSuccessEmail below.)
 
 // ── Helper: send payment success email ──
 const sendPaymentSuccessEmail = async (email, name, courseName, amount, paymentId, paymentType, installmentNum) => {
@@ -92,7 +56,7 @@ const sendPaymentSuccessEmail = async (email, name, courseName, amount, paymentI
         </div>
         ${isEmi && installmentNum < 3 ? `
         <div style="background:#fff8e1;border:1px solid #f59e0b;border-radius:10px;padding:16px;margin-bottom:24px">
-          <p style="color:#92400e;font-size:13px;margin:0"><strong>📅 Next installment</strong> is due in 20 days. You will receive a reminder email.</p>
+          <p style="color:#92400e;font-size:13px;margin:0"><strong>📅 Next installment</strong> is due in 20 days. You can pay it anytime from your dashboard.</p>
         </div>` : ''}
         <div style="text-align:center;margin:32px 0">
           <a href="${process.env.FRONTEND_URL}/dashboard" style="background:#18b45b;color:white;padding:14px 32px;border-radius:50px;font-weight:800;font-size:15px;text-decoration:none;display:inline-block">
@@ -131,24 +95,6 @@ router.post('/create-order', protect, async (req, res) => {
         emiInstallment: emiInstallment || null
       }
     });
-
-    // Send pending payment email if this is a new enrollment (first time)
-    if (enrollmentId && (!emiInstallment || emiInstallment === 1)) {
-      try {
-        const enrollment = await Enrollment.findById(enrollmentId);
-        if (enrollment && enrollment.paymentStatus === 'pending') {
-          await sendPendingPaymentEmail(
-            enrollment.email,
-            enrollment.name,
-            enrollment.courseName,
-            amount,
-            enrollmentId
-          );
-        }
-      } catch (emailErr) {
-        console.error('Pending email error:', emailErr.message);
-      }
-    }
 
     res.json({ success: true, order });
   } catch (err) {
