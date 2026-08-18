@@ -18,7 +18,7 @@ const SLIDES = [
     caption: 'Together we create, together we innovate 🌸',
   },
   {
-    src: '/team/team_standing_green.jpg',
+    src: '/team/team_standing_green.jpeg',
     caption: 'Collaborating on the future of learning and technology 💡',
   },
   {
@@ -48,14 +48,14 @@ const DEVELOPER_SLIDES = [
     caption: 'Building scalable solutions with modern tech stack 💻',
   },
   {
-    src: '/team/developer2.jpg',
-    name: 'Amiya Samal',
+    src: '/team/developer2.jpeg',
+    name: 'Nitish Barik',
     role: 'Core Developer',
     caption: 'Crafting seamless user experiences 🚀',
   },
   {
     src: '/team/developer3.jpg',
-    name: 'Aayush Patel',
+    name: 'Ayush Patel',
     role: 'Backend Specialist',
     caption: 'Architecting robust backend systems ⚡',
   },
