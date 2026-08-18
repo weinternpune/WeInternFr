@@ -119,5 +119,18 @@ export const createBlogPost = (data) => API.post('/blog', data);
 export const updateBlogPost = (id, data) => API.put(`/blog/${id}`, data);
 export const deleteBlogPost = (id) => API.delete(`/blog/${id}`);
 
+// ============================================================
 // Cohort Application
-export const submitCohortApplication = (data) => API.post('/applications/cohort', data);
+// ============================================================
+
+// Student: Submit cohort application
+export const submitCohortApplication = (data) =>
+  API.post('/cohort/book', data);
+
+// Admin: Get all cohort applications
+export const getAdminCohortApplications = () =>
+  API.get('/cohort/admin/applications');
+
+// Admin: Update cohort application status
+export const updateCohortStatus = (id, status) =>
+  API.patch(`/cohort/book/${id}/status`, { status });

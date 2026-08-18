@@ -87,15 +87,14 @@ const cohortApplicationSchema = new mongoose.Schema(
 // ONE APPLICATION PER USER PER WEEK
 // ------------------------------------
 
-cohortApplicationSchema.index(
-  {
-    user: 1,
-    cohortWeekStart: 1,
-  },
-  {
-    unique: true,
-  }
-);
+// ------------------------------------
+// INDEX FOR WEEKLY APPLICATION QUERIES
+// ------------------------------------
+
+cohortApplicationSchema.index({
+  user: 1,
+  cohortWeekStart: 1,
+});
 
 
 module.exports = mongoose.model(

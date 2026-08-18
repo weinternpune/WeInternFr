@@ -1,39 +1,51 @@
 const CohortApplication = require("../models/CohortApplication");
+const User = require("../models/User");
 const getCohortWeek = require("../utils/cohortWeek");
+
+// ============================================================
+// CREATE COHORT BOOKING
+// ============================================================
 
 const createCohortBooking = async (req, res) => {
   try {
+    // --------------------------------------------------------
+    // 1. Get form data
+    // --------------------------------------------------------
+
     const {
-      name,
-      email,
-      phone,
       college,
       domain,
       year,
       day,
     } = req.body;
 
-    // ----------------------------------------
-    // 1. Validate required fields
-    // ----------------------------------------
+    // --------------------------------------------------------
+    // 2. Get logged-in user from database
+    // --------------------------------------------------------
 
-    if (
-      !name ||
-      !email ||
-      !phone ||
-      !college ||
-      !domain ||
-      !day
-    ) {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    // --------------------------------------------------------
+    // 3. Validate required fields
+    // --------------------------------------------------------
+
+    if (!college || !domain || !day) {
       return res.status(400).json({
         success: false,
         message: "Please fill all required fields.",
       });
     }
 
-    // ----------------------------------------
-    // 2. Get current cohort week
-    // ----------------------------------------
+    // --------------------------------------------------------
+    // 4. Get current cohort week
+    // --------------------------------------------------------
 
     const {
       weekStart,
@@ -41,18 +53,9 @@ const createCohortBooking = async (req, res) => {
       currentDay,
     } = getCohortWeek();
 
-    // ----------------------------------------
-    // 3. Saturday registration restriction
-    // ----------------------------------------
-
-    // JavaScript:
-    // Sunday = 0
-    // Monday = 1
-    // Tuesday = 2
-    // Wednesday = 3
-    // Thursday = 4
-    // Friday = 5
-    // Saturday = 6
+    // --------------------------------------------------------
+    // 5. Saturday registration restriction
+    // --------------------------------------------------------
 
     if (currentDay === 6) {
       return res.status(400).json({
@@ -62,49 +65,56 @@ const createCohortBooking = async (req, res) => {
       });
     }
 
-    // ----------------------------------------
-    // 4. Check if user already applied
-    //    during the current week
-    // ----------------------------------------
+    // --------------------------------------------------------
+    // 6. Check applications for current week
+    // --------------------------------------------------------
 
-    const existingBooking = await CohortApplication.findOne({
+    const applicationCount = await CohortApplication.countDocuments({
       user: req.user._id,
       cohortWeekStart: weekStart,
     });
 
-    if (existingBooking) {
+    // --------------------------------------------------------
+    // 7. Maximum 2 applications per week
+    // --------------------------------------------------------
+
+    if (applicationCount >= 2) {
       return res.status(409).json({
         success: false,
         message:
-          "You have already submitted a cohort application for this week.",
-        data: existingBooking,
+          "You have already submitted 2 cohort applications for this week.",
       });
     }
 
-    // ----------------------------------------
-    // 5. Create new cohort application
-    // ----------------------------------------
+    // --------------------------------------------------------
+    // 8. Create cohort application
+    // --------------------------------------------------------
 
     const booking = await CohortApplication.create({
       user: req.user._id,
 
-      name,
-      email,
-      phone,
+      // Always take these from the logged-in user's database
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+
+      // Form data
       college,
       domain,
       year: year || "",
       day,
 
+      // Cohort week
       cohortWeekStart: weekStart,
       cohortWeekEnd: weekEnd,
 
+      // Default status
       status: "pending",
     });
 
-    // ----------------------------------------
-    // 6. Success response
-    // ----------------------------------------
+    // --------------------------------------------------------
+    // 9. Success response
+    // --------------------------------------------------------
 
     return res.status(201).json({
       success: true,
@@ -115,28 +125,40 @@ const createCohortBooking = async (req, res) => {
   } catch (error) {
     console.error("Create cohort booking error:", error);
 
-    // ----------------------------------------
-    // 7. Handle duplicate weekly application
-    // ----------------------------------------
-
-    if (error.code === 11000) {
-      return res.status(409).json({
-        success: false,
-        message:
-          "You have already submitted a cohort application for this week.",
-      });
-    }
-
-    // ----------------------------------------
-    // 8. Generic server error
-    // ----------------------------------------
-
     return res.status(500).json({
       success: false,
       message: "Failed to submit cohort booking.",
     });
   }
 };
+
+// ============================================================
+// GET ALL COHORT APPLICATIONS - ADMIN
+// ============================================================
+
+const getAdminCohortApplications = async (req, res) => {
+  try {
+    const applications = await CohortApplication.find()
+      .populate("user", "name email phone")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: applications.length,
+      data: applications,
+    });
+  } catch (error) {
+    console.error("Get admin cohort applications error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch cohort applications.",
+    });
+  }
+};
+// ============================================================
+// UPDATE COHORT STATUS - ADMIN
+// ============================================================
 
 const updateCohortStatus = async (req, res) => {
   try {
@@ -148,7 +170,10 @@ const updateCohortStatus = async (req, res) => {
       "rejected",
     ];
 
+    // --------------------------------------------------------
     // Validate status
+    // --------------------------------------------------------
+
     if (!allowedStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
@@ -156,7 +181,10 @@ const updateCohortStatus = async (req, res) => {
       });
     }
 
+    // --------------------------------------------------------
     // Find and update application
+    // --------------------------------------------------------
+
     const booking = await CohortApplication.findByIdAndUpdate(
       req.params.id,
       { status },
@@ -173,11 +201,16 @@ const updateCohortStatus = async (req, res) => {
       });
     }
 
+    // --------------------------------------------------------
+    // Success response
+    // --------------------------------------------------------
+
     return res.status(200).json({
       success: true,
       message: "Cohort status updated successfully.",
       data: booking,
     });
+
   } catch (error) {
     console.error("Update cohort status error:", error);
 
@@ -189,8 +222,12 @@ const updateCohortStatus = async (req, res) => {
 };
 
 
+// ============================================================
+// EXPORT
+// ============================================================
 
 module.exports = {
   createCohortBooking,
+  getAdminCohortApplications,
   updateCohortStatus,
 };

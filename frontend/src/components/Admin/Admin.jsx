@@ -31,6 +31,8 @@ import {
   getAdminBlogPosts,
   createBlogPost,
   deleteBlogPost,
+getAdminCohortApplications,
+updateCohortStatus,
 } from "../../utils/api";
 import API from "../../utils/api";
 import toast from "react-hot-toast";
@@ -62,17 +64,19 @@ const statusBadge = (s) => (
 
 const ADMIN_TABS = [
   { id: "overview", icon: <FaChartBar />, label: "Overview" },
+
   { id: "applications", icon: <FaFileAlt />, label: "Applications" },
+  { id: "cohort", icon: <FaUsers />, label: "Cohort Applications" },
   { id: "enrollments", icon: <FaBook />, label: "Enrollments" },
   { id: "mentors", icon: <FaUsers />, label: "Mentors" },
   { id: "hire", icon: <FaBuilding />, label: "Hire Requests" },
+
   { id: "users", icon: <FaUsers />, label: "Users" },
   { id: "courses", icon: <FaGraduationCap />, label: "Courses" },
   { id: "projects", icon: <FaRocket />, label: "Projects" },
   { id: "blog", icon: <FaFileAlt />, label: "Blog" },
   { id: "admins", icon: <FaUserShield />, label: "Admins" },
 ];
-
 const Admin = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -244,6 +248,7 @@ const Admin = () => {
           {tab === "projects" && <AdminProjects />}
           {tab === "admins" && <AdminsTab />}
           {tab === "mentors" && <MentorManagement />}
+          {tab === "cohort" && <AdminCohortApplications />}
         </div>
       </main>
     </div>
@@ -972,6 +977,258 @@ const AdminApplications = () => {
           >
             Next
           </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ── Cohort Applications ─────────────────────────────────────
+const AdminCohortApplications = () => {
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  const load = async () => {
+    setLoading(true);
+
+    try {
+      const r = await getAdminCohortApplications();
+
+      setApplications(r.data?.data || []);
+    } catch (err) {
+      console.error("Cohort applications error:", err);
+      toast.error(
+        err.response?.data?.message ||
+        "Failed to load cohort applications"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const updateStatus = async (id, status) => {
+    setUpdating(id);
+
+    try {
+      await updateCohortStatus(id, status);
+
+      toast.success("Cohort status updated");
+
+      await load();
+    } catch (err) {
+      console.error("Update cohort status error:", err);
+
+      toast.error(
+        err.response?.data?.message ||
+        "Failed to update status"
+      );
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  const filteredApplications = applications.filter((app) => {
+    const matchesSearch =
+      !search ||
+      app.name?.toLowerCase().includes(search.toLowerCase()) ||
+      app.email?.toLowerCase().includes(search.toLowerCase()) ||
+      app.college?.toLowerCase().includes(search.toLowerCase()) ||
+      app.domain?.toLowerCase().includes(search.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "all" ||
+      app.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="overview-welcome">
+        <div>
+          <h2>Cohort Applications</h2>
+          <p>
+            Manage and review student cohort applications.
+          </p>
+        </div>
+
+        <button
+          onClick={load}
+          className="btn"
+          disabled={loading}
+          style={{
+            backgroundColor: "#e8a820",
+            color: "#12233f",
+            border: "1px solid #d49516",
+            fontWeight: 700,
+            borderRadius: "8px",
+            padding: ".55rem 1rem",
+            cursor: "pointer",
+          }}
+        >
+          {loading ? "🔄 Loading..." : "↻ Refresh"}
+        </button>
+      </div>
+
+      {/* Filters */}
+      <div
+        className="admin-filters"
+        style={{
+          marginBottom: "1rem",
+        }}
+      >
+        <input
+          className="admin-search"
+          placeholder="Search name, email, college, domain..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <select
+          className="admin-select"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="all">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+
+      {/* Count */}
+      <div className="admin-meta">
+        Total Applications:{" "}
+        <strong>{filteredApplications.length}</strong>
+      </div>
+
+      {/* Table */}
+      {loading ? (
+        <div className="dash-loading">
+          <div className="dash-spinner" />
+        </div>
+      ) : filteredApplications.length === 0 ? (
+        <div
+          className="chart-card"
+          style={{
+            textAlign: "center",
+            padding: "3rem",
+            color: "var(--muted)",
+          }}
+        >
+          <div style={{ fontSize: "2rem", marginBottom: ".5rem" }}>
+            📋
+          </div>
+
+          <strong>No cohort applications found</strong>
+
+          <p style={{ marginTop: ".4rem" }}>
+            New cohort applications will appear here.
+          </p>
+        </div>
+      ) : (
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>College</th>
+                <th>Domain</th>
+                <th>Day</th>
+                <th>Applied</th>
+                <th>Status</th>
+                <th>Change</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {filteredApplications.map((app) => (
+                <tr key={app._id}>
+                  {/* Student */}
+                  <td>
+                    <strong>{app.name || "—"}</strong>
+                  </td>
+
+                  {/* Email */}
+                  <td>
+                    {app.email ? (
+                      <a
+                        href={`mailto:${app.email}`}
+                        className="email-link"
+                      >
+                        {app.email}
+                      </a>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+
+                  {/* Phone */}
+                  <td>{app.phone || "—"}</td>
+
+                  {/* College */}
+                  <td>{app.college || "—"}</td>
+
+                  {/* Domain */}
+                  <td>{app.domain || "—"}</td>
+
+                  {/* Day */}
+                  <td>{app.day || "—"}</td>
+
+                  {/* Applied */}
+                  <td>
+                    {app.createdAt
+                      ? new Date(
+                          app.createdAt
+                        ).toLocaleDateString("en-IN")
+                      : "—"}
+                  </td>
+
+                  {/* Status */}
+                  <td>
+                    {statusBadge(app.status || "pending")}
+                  </td>
+
+                  {/* Change */}
+                  <td>
+                    <select
+                      className="status-select"
+                      value={app.status || "pending"}
+                      disabled={updating === app._id}
+                      onChange={(e) =>
+                        updateStatus(
+                          app._id,
+                          e.target.value
+                        )
+                      }
+                    >
+                      <option value="pending">
+                        Pending
+                      </option>
+
+                      <option value="confirmed">
+                        Confirmed
+                      </option>
+
+                      <option value="rejected">
+                        Rejected
+                      </option>
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
