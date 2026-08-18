@@ -1152,7 +1152,7 @@ const Courses = () => {
               Certifications.
             </p>
           </div>
-          <button
+          {/* <button
             className="cs-view-all"
             onClick={() =>
               window.scrollTo({
@@ -1163,7 +1163,7 @@ const Courses = () => {
           >
             View All Programs{" "}
             <Icon icon="lucide:arrow-right" width={14} height={14} />
-          </button>
+          </button> */}
         </div>
       </div>
 
