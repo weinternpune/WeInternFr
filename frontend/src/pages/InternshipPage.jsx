@@ -448,6 +448,149 @@ const InternshipPage = () => {
         </div>
       )}
 
+      {/* Trusted By Section */}
+      <div className="ip-section ip-trusted">
+        <div className="ip-container">
+          <h2 className="ip-trusted-title">
+            Trusted By <span className="ip-trusted-govt">Government</span> & <span className="ip-trusted-industry">Industry</span>
+          </h2>
+          <div className="ip-trusted-divider">
+            <div className="ip-trusted-divider-line ip-trusted-divider-left"></div>
+            <Icon icon="mdi:shield-check" width={24} className="ip-trusted-divider-icon" />
+            <div className="ip-trusted-divider-line ip-trusted-divider-right"></div>
+          </div>
+          <p className="ip-trusted-subtitle">
+            Recognitions that validate our commitment to quality, innovation & impact
+          </p>
+          
+          <div className="ip-trusted-marquee">
+            <div className="ip-trusted-marquee-content">
+              {/* First set of logos */}
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/msme.png" alt="Ministry of MSME" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/nsdc.png" alt="NSDC" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/skill-india.png" alt="Skill India" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/skill-ministry.png" alt="Ministry of Skill Development" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/aicte.png" alt="AICTE" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/google-partner.png" alt="Google Partner" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/aws.png" alt="AWS" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/iso.png" alt="ISO Certified" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/dpiit.png" alt="DPIIT" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/ibm.png" alt="IBM" />
+                </div>
+              </div>
+
+              {/* Duplicate set for seamless loop */}
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/msme.png" alt="Ministry of MSME" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/nsdc.png" alt="NSDC" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/skill-india.png" alt="Skill India" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/skill-ministry.png" alt="Ministry of Skill Development" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/aicte.png" alt="AICTE" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/google-partner.png" alt="Google Partner" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/aws.png" alt="AWS" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/iso.png" alt="ISO Certified" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/dpiit.png" alt="DPIIT" />
+                </div>
+              </div>
+
+              <div className="ip-trusted-card">
+                <div className="ip-trusted-logo-img">
+                  <img src="/trust-logos/ibm.png" alt="IBM" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Industry Connections (3-month only) */}
       {type === '3-month' && internship.industryConnections && (
         <div className="ip-section ip-gray">

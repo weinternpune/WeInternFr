@@ -88,8 +88,9 @@ router.post('/register', authLimiter, async (req, res) => {
       res.status(201).json({ success: true, message: 'OTP sent to email', userId: user._id });
     } catch (emailError) {
       console.error('❌ Failed to send OTP email:', emailError.message);
+      console.error('Full error:', emailError);
       
-      // In development, fallback to console logging
+      // In development, fallback to console logging and return OTP in response
       if (process.env.NODE_ENV === 'development') {
         console.log('\n📧 EMAIL FAILED - OTP Details (Development):');
         console.log('👤 Name:', name);
@@ -101,8 +102,9 @@ router.post('/register', authLimiter, async (req, res) => {
         
         return res.status(201).json({ 
           success: true, 
-          message: 'Email failed, but OTP is available in server console', 
-          userId: user._id 
+          message: `Email failed, but account created. OTP: ${otp} (Dev mode only)`, 
+          userId: user._id,
+          devOTP: otp // Only in development
         });
       }
       
