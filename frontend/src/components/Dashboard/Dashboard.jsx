@@ -269,7 +269,21 @@ const Dashboard = () => {
           <Link to="/" className="dash-logo-link">
             <img src="/welogo.png" alt="WeIntern" className="dash-logo" />
           </Link>
-          <button className="sidebar-close" onClick={() => setSidebarOpen(false)}>×</button>
+          <button
+            type="button"
+            className="sidebar-close"
+            aria-label="Close sidebar"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setSidebarOpen(false);
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
 
         <div className="dash-user-card">

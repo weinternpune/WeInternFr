@@ -20,7 +20,28 @@
 }
 .dash-logo-link { display: block; }
 .dash-logo { height: 34px; width: auto; filter: brightness(0) invert(1); opacity: .85; }
-.sidebar-close { display: none; background: none; border: none; color: rgba(255,255,255,.5); font-size: 1.4rem; cursor: pointer; }
+.sidebar-close {
+  display: none;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s ease;
+  z-index: 110;
+}
+.sidebar-close:hover, .sidebar-close:active {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
 
 /* User card in sidebar */
 .dash-user-card {
@@ -464,7 +485,7 @@
   .dash-main { margin-left: 0; }
   .dash-sidebar { position: fixed; left: -268px; transition: left .3s ease; height: 100vh; }
   .dash-sidebar.open { left: 0; }
-  .sidebar-close { display: block; }
+  .sidebar-close { display: flex !important; }
   .dash-content { padding: 1.25rem; }
   .welcome-banner { flex-direction: column; padding: 1.5rem; }
   .wb-right { display: none; }
