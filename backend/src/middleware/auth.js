@@ -3,7 +3,7 @@ const User = require('../models/User');
 
 const protect = async (req, res, next) => {
   try {
-    console.log("========== PROTECT ==========");
+    // console.log("========== PROTECT ==========");
 
     const token = req.headers.authorization?.split(" ")[1];
 
