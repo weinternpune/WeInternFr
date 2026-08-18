@@ -262,25 +262,30 @@ const Dashboard = () => {
 
   const dashboardContent = (
     <div className="dashboard">
-      {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+      {sidebarOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+          onTouchEnd={() => setSidebarOpen(false)}
+        />
+      )}
 
       <aside className={`dash-sidebar${sidebarOpen ? ' open' : ''}`}>
         <div className="dash-sidebar-top">
-          <Link to="/" className="dash-logo-link">
+          <Link to="/" className="dash-logo-link" onClick={() => setSidebarOpen(false)}>
             <img src="/welogo.png" alt="WeIntern" className="dash-logo" />
           </Link>
           <button
-            type="button"
-            className="sidebar-close"
-            aria-label="Close sidebar"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setSidebarOpen(false);
-            }}
+  type="button"
+  className="sidebar-close"
+  aria-label="Close navigation menu"
+  onClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSidebarOpen(false);
+  }}
           >
-            
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }}>
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
