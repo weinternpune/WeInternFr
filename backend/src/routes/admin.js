@@ -469,6 +469,44 @@ router.get('/admins', async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
+// Delete admin account
+router.delete('/admins/:id', async (req, res) => {
+  try {
+    const adminToDelete = await User.findById(req.params.id);
+    if (!adminToDelete) {
+      return res.status(404).json({ success: false, message: 'Admin account not found' });
+    }
+    if (adminToDelete.role !== 'admin') {
+      return res.status(400).json({ success: false, message: 'User is not an administrator' });
+    }
+    if (req.user && String(req.user._id) === String(adminToDelete._id)) {
+      return res.status(400).json({ success: false, message: 'You cannot delete your own admin account' });
+    }
+    const adminCount = await User.countDocuments({ role: 'admin' });
+    if (adminCount <= 1) {
+      return res.status(400).json({ success: false, message: 'Cannot delete the only remaining admin' });
+    }
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Admin account deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Delete enrollment record
+router.delete('/enrollments/:id', async (req, res) => {
+  try {
+    const enrollment = await Enrollment.findById(req.params.id);
+    if (!enrollment) {
+      return res.status(404).json({ success: false, message: 'Enrollment record not found' });
+    }
+    await Enrollment.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Enrollment deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Get user activity data for admin view
 router.get('/users/:id/activity', async (req, res) => {
 

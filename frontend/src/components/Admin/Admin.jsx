@@ -411,7 +411,7 @@ const AdminOverview = () => {
           },
           {
             icon: "📚",
-            num: stats.totalEnrollments ?? 0,
+            num: stats.paidEnrollments ?? stats.totalEnrollments ?? 0,
             label: "Total Enrollments",
             color: "#6c3483",
           },
@@ -420,12 +420,6 @@ const AdminOverview = () => {
             num: stats.paidEnrollments ?? 0,
             label: "Paid Enrollments",
             color: "#27ae60",
-          },
-          {
-            icon: "⏰",
-            num: stats.pendingEnrollments ?? 0,
-            label: "Pending Enrollment",
-            color: "#dc4545",
           },
           {
             icon: "🏢",
@@ -1012,6 +1006,20 @@ const AdminEnrollments = () => {
     load();
   }, [filter, search]);
 
+  const handleDeleteEnrollment = async (enrollId, studentName) => {
+    if (!window.confirm(`Are you sure you want to delete enrollment record for "${studentName || 'this student'}"? This action cannot be undone.`)) {
+      return;
+    }
+    try {
+      await API.delete(`/admin/enrollments/${enrollId}`);
+      toast.success("Enrollment deleted successfully");
+      if (selected?._id === enrollId) setSelected(null);
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete enrollment");
+    }
+  };
+
   const filtered = enrolls.filter(
     (e) =>
       !search ||
@@ -1372,21 +1380,39 @@ const AdminEnrollments = () => {
                     {new Date(e.createdAt).toLocaleDateString("en-IN")}
                   </td>
                   <td>
-                    <button
-                      onClick={() => setSelected(e)}
-                      style={{
-                        background: "var(--navy)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: 6,
-                        padding: ".35rem .7rem",
-                        fontSize: ".75rem",
-                        cursor: "pointer",
-                        fontFamily: "'DM Sans',sans-serif",
-                      }}
-                    >
-                      View
-                    </button>
+                    <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                      <button
+                        onClick={() => setSelected(e)}
+                        style={{
+                          background: "var(--navy)",
+                          color: "white",
+                          border: "none",
+                          borderRadius: 6,
+                          padding: ".35rem .7rem",
+                          fontSize: ".75rem",
+                          cursor: "pointer",
+                          fontFamily: "'DM Sans',sans-serif",
+                        }}
+                      >
+                        View
+                      </button>
+                      <button
+                        onClick={() => handleDeleteEnrollment(e._id, e.name)}
+                        style={{
+                          background: "#fff0f0",
+                          color: "#dc4545",
+                          border: "1px solid #fca5a5",
+                          borderRadius: 6,
+                          padding: ".35rem .65rem",
+                          fontSize: ".75rem",
+                          cursor: "pointer",
+                          fontFamily: "'DM Sans',sans-serif",
+                          fontWeight: 600,
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -1526,6 +1552,38 @@ const AdminEnrollments = () => {
                     ))}
                   </div>
                 )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
+                <button
+                  onClick={() => handleDeleteEnrollment(selected._id, selected.name)}
+                  style={{
+                    background: '#fff0f0',
+                    color: '#dc4545',
+                    border: '1px solid #fca5a5',
+                    borderRadius: 8,
+                    padding: '.55rem 1rem',
+                    fontSize: '.8rem',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  🗑️ Delete Enrollment Record
+                </button>
+                <button
+                  onClick={() => setSelected(null)}
+                  style={{
+                    background: 'var(--navy)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '.55rem 1.25rem',
+                    fontSize: '.8rem',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -4384,19 +4442,29 @@ const MentorManagement = () => {
 
   const load = async () => {
     try {
-      const [m, stRes, ov] = await Promise.all([
+      const [m, ov] = await Promise.all([
         getAdminMentors(),
-        getAdminStudentsWithMentors().catch(() => ({ data: { data: [] } })),
         getAllMentorsOverview().catch(() => ({ data: { data: null } }))
       ]);
-      setMentors(m.data.data || []);
-      setStudents(stRes.data?.data || []);
+      setMentors(m.data?.data || []);
       setOverview(ov.data?.data || null);
     } catch (e) {
       toast.error(e.response?.data?.message || 'Unable to load mentors');
     } finally { setLoading(false); }
   };
   useEffect(() => { load(); }, []);
+
+  const ensureStudentsLoaded = async () => {
+    if (students.length > 0) return students;
+    try {
+      const stRes = await getAdminStudentsWithMentors();
+      const loaded = stRes.data?.data || [];
+      setStudents(loaded);
+      return loaded;
+    } catch (e) {
+      return [];
+    }
+  };
 
   // Compute list of unique enrolled domains/courses across students
   const availableDomains = React.useMemo(() => {
@@ -4441,9 +4509,10 @@ const MentorManagement = () => {
     } catch(e) { toast.error(e.response?.data?.message || 'Unable to assign student'); }
   };
 
-  const openAllocateModal = (mentor) => {
+  const openAllocateModal = async (mentor) => {
     setAllocatingMentor(mentor);
-    const currentAssigned = students
+    const loadedStudents = await ensureStudentsLoaded();
+    const currentAssigned = loadedStudents
       .filter(s => s.mentor?._id === mentor._id || s.mentor === mentor._id)
       .map(s => s._id);
     setSelectedStudentIds(currentAssigned);
@@ -4492,40 +4561,19 @@ const MentorManagement = () => {
     <div className="overview-welcome">
       <div>
         <h2>Mentor Management & Supervision</h2>
-        <p>Create unlimited mentor accounts, allocate students, and access any mentor's live dashboard, schedule & announcements.</p>
+        <p>Create unlimited mentor accounts, allocate students, and supervise any mentor's live dashboard.</p>
       </div>
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
         <Link
           to="/mentor/dashboard"
           className="btn btn-primary"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none', background: 'linear-gradient(135deg, #e8a820, #f5c453)', color: '#12233f', fontWeight: 800 }}
+          style={{ background: 'linear-gradient(135deg, #e8a820, #f5c453)', color: '#12233f', fontWeight: 800, textDecoration: 'none' }}
         >
-          🚀 Access Mentor Portal
+          🚀 Open Mentor Supervision Portal →
         </Link>
-        <button
-          className="btn"
-          onClick={load}
-          style={{
-            backgroundColor: "#e8a820",
-            color: "#12233f",
-            border: "1px solid #d49516",
-            fontWeight: 700,
-            cursor: "pointer",
-            borderRadius: "8px",
-            padding: ".5rem 1.1rem",
-            fontSize: ".85rem",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            boxShadow: "0 2px 8px rgba(232, 168, 32, 0.25)"
-          }}
-        >
-          ↻ Refresh
-        </button>
       </div>
     </div>
 
-    {/* Quick stats cards if overview loaded */}
     {overview?.stats && (
       <div className="stats-grid" style={{ marginBottom: '1.5rem' }}>
         <div className="stat-card">
@@ -4555,10 +4603,10 @@ const MentorManagement = () => {
           <input className="admin-search" required type="email" placeholder="Email *" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/>
           <input className="admin-search" required type="password" minLength="6" placeholder="Password * (min 6 chars)" value={form.password} onChange={e=>setForm({...form,password:e.target.value})}/>
           <input className="admin-search" placeholder="Phone" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/>
-          <input className="admin-search" placeholder="Expertise (e.g. FullStack and MERN stack developer, Python)" value={form.expertise} onChange={e=>setForm({...form,expertise:e.target.value})}/>
+          <input className="admin-search" placeholder="Expertise (e.g. FullStack Developer, Python)" value={form.expertise} onChange={e=>setForm({...form,expertise:e.target.value})}/>
           <input className="admin-search" placeholder="Skills (comma separated)" value={form.skills} onChange={e=>setForm({...form,skills:e.target.value})}/>
           <input className="admin-search" placeholder="Courses (comma separated)" value={form.assignedCourses} onChange={e=>setForm({...form,assignedCourses:e.target.value})}/>
-          <input className="admin-search" placeholder="Batches (e.g. Fullstack Batch 15 August 2026)" value={form.assignedBatches} onChange={e=>setForm({...form,assignedBatches:e.target.value})}/>
+          <input className="admin-search" placeholder="Batches (e.g. Batch 2026)" value={form.assignedBatches} onChange={e=>setForm({...form,assignedBatches:e.target.value})}/>
           <button className="btn btn-primary" type="submit" style={{gridColumn:'1 / -1', background: 'linear-gradient(135deg, #e8a820, #f5c453)', color: '#12233f', fontWeight: 800}}>
             + Create Mentor Account
           </button>
@@ -4570,10 +4618,15 @@ const MentorManagement = () => {
         <div style={{display:'grid',gap:'.8rem'}}>
           <select className="admin-select" value={assign.mentorId} onChange={e=>setAssign({...assign,mentorId:e.target.value})}>
             <option value="">Select mentor</option>
-            {mentors.map(m=><option key={m._id} value={m._id}>{m.name} ({m.studentCount} students)</option>)}
+            {mentors.map(m=><option key={m._id} value={m._id}>{m.name} ({m.studentCount || 0} students)</option>)}
           </select>
-          <select className="admin-select" value={assign.studentId} onChange={e=>setAssign({...assign,studentId:e.target.value})}>
-            <option value="">Select student</option>
+          <select
+            className="admin-select"
+            value={assign.studentId}
+            onFocus={ensureStudentsLoaded}
+            onChange={e=>setAssign({...assign,studentId:e.target.value})}
+          >
+            <option value="">Select student (Click to load)</option>
             {students.map(st=><option key={st._id} value={st._id}>{st.name} — {st.email} (Domain: {st.domain || 'General'})</option>)}
           </select>
           <button className="btn btn-primary" onClick={assignStudent}>Assign Student</button>
@@ -4581,79 +4634,143 @@ const MentorManagement = () => {
       </div>
     </div>
 
-    {/* Mentors Table with Direct Dashboard Access & Student Allocation */}
+    {/* Compact Mentors Card Grid */}
     <div className="chart-card" style={{marginTop:'1.5rem'}}>
-      <div className="chart-header">
+      <div className="chart-header" style={{ marginBottom: '14px' }}>
         <div>
-          <h3>Active Mentors Roster</h3>
-          <span className="chart-sub">{mentors.length} mentor account(s) registered</span>
+          <h3>Registered Mentors ({mentors.length})</h3>
+          <span className="chart-sub">Supervise mentor workspaces and allocate student batches</span>
         </div>
       </div>
-      <div className="table-wrap">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Mentor</th>
-              <th>Email</th>
-              <th>Expertise</th>
-              <th>Assigned Courses</th>
-              <th>Students</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {mentors.map(m=>(
-              <tr key={m._id}>
-                <td><strong>{m.name}</strong></td>
-                <td>{m.email}</td>
-                <td>{(m.expertise||[]).join(', ') || '—'}</td>
-                <td>{(m.assignedCourses||[]).join(', ') || '—'}</td>
-                <td><span className="badge-status badge-active">{m.studentCount || 0} students</span></td>
-                <td><span className={`badge-status badge-${m.isBlocked?'blocked':'active'}`}>{m.isBlocked?'Blocked':'Active'}</span></td>
-                <td>
-                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                    <Link
-                      to={`/mentor/dashboard?mentorId=${m._id}`}
-                      className="btn btn-outline"
-                      style={{
-                        fontSize: '.75rem',
-                        padding: '.35rem .75rem',
-                        textDecoration: 'none',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        background: '#f8fafc',
-                        color: '#1e40af',
-                        borderColor: '#93c5fd'
-                      }}
-                    >
-                      👁️ Dashboard →
-                    </Link>
-                    <button
-                      className="btn btn-outline"
-                      onClick={() => openAllocateModal(m)}
-                      style={{
-                        fontSize: '.75rem',
-                        padding: '.35rem .75rem',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        background: '#fffdf5',
-                        color: '#b45309',
-                        borderColor: '#fde68a',
-                        fontWeight: 700
-                      }}
-                    >
-                      👥 Allocate Students
-                    </button>
+      
+      {mentors.length === 0 ? (
+        <div style={{ padding: '30px', textAlign: 'center', color: '#64748b', fontSize: '.85rem' }}>
+          No mentor accounts registered yet. Use the form above to add your first mentor.
+        </div>
+      ) : (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
+          gap: '12px'
+        }}>
+          {mentors.map(m => (
+            <div
+              key={m._id}
+              style={{
+                background: '#ffffff',
+                border: '1.5px solid #e2e8f0',
+                borderRadius: '12px',
+                padding: '14px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
+                transition: 'all 0.18s ease'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #e8a820, #f5c453)',
+                  color: '#12233f',
+                  fontWeight: 900,
+                  fontSize: '.9rem',
+                  display: 'grid',
+                  placeItems: 'center',
+                  flexShrink: 0
+                }}>
+                  {m.name?.[0]?.toUpperCase() || 'M'}
+                </div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontWeight: 800, fontSize: '.88rem', color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {m.name}
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  <div style={{ fontSize: '.72rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {m.email}
+                  </div>
+                </div>
+                <span style={{
+                  fontSize: '.65rem',
+                  fontWeight: 700,
+                  padding: '2px 7px',
+                  borderRadius: '20px',
+                  background: m.isBlocked ? '#fee2e2' : '#ecfdf5',
+                  color: m.isBlocked ? '#dc2626' : '#166534'
+                }}>
+                  {m.isBlocked ? 'Blocked' : 'Active'}
+                </span>
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '6px',
+                background: '#f8fafc',
+                padding: '8px 10px',
+                borderRadius: '8px',
+                fontSize: '.72rem'
+              }}>
+                <div>
+                  <span style={{ display: 'block', color: '#94a3b8', fontSize: '.62rem', fontWeight: 600 }}>STUDENTS</span>
+                  <strong style={{ color: '#1e293b' }}>👥 {m.studentCount || 0}</strong>
+                </div>
+                <div>
+                  <span style={{ display: 'block', color: '#94a3b8', fontSize: '.62rem', fontWeight: 600 }}>EXPERTISE</span>
+                  <span style={{ color: '#1e293b', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block' }}>
+                    {(m.expertise || []).join(', ') || 'General'}
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
+                <Link
+                  to={`/mentor/dashboard?mentorId=${m._id}`}
+                  style={{
+                    flex: 1,
+                    textDecoration: 'none',
+                    background: '#f1f5f9',
+                    color: '#1e40af',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '7px',
+                    padding: '7px 8px',
+                    fontSize: '.72rem',
+                    fontWeight: 700,
+                    textAlign: 'center',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  👁️ Dashboard →
+                </Link>
+                <button
+                  onClick={() => openAllocateModal(m)}
+                  style={{
+                    flex: 1,
+                    background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
+                    color: '#b45309',
+                    border: '1px solid #fde68a',
+                    borderRadius: '7px',
+                    padding: '7px 8px',
+                    fontSize: '.72rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  👥 Allocate ({m.studentCount || 0})
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
 
     {/* Student Allocation Modal */}
