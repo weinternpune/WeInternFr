@@ -29,6 +29,7 @@ import StudentProjects from './components/Sections/StudentProjects';
 import TestimonialsSection from './components/Sections/Testimonials';
 import { useSanitySEO } from './hooks/useSanity';
 import { CoursesProvider } from './context/CoursesContext';
+import ChatWidget from './components/ChatWidget/ChatWidget';
 
 // WhatsApp float
 const WAFloat = () => (
@@ -143,6 +144,7 @@ function App() {
         <AuthProvider>
           <AdminProvider>
             <AppRoutes />
+            <ChatWidget />
             <Toaster
               position="top-center"
               toastOptions={{
