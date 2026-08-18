@@ -18,6 +18,7 @@ import Admin from './components/Admin/Admin';
 import CoursePage from './pages/CoursePage';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
+import InternshipPage from './pages/InternshipPage';
 
 // Global styles
 import './styles/global.css';
@@ -76,6 +77,10 @@ function AppRoutes() {
       
       {/* Course detail page - standalone, opens in a new tab */}
       <Route path="/courses/:slug" element={<CoursePage />} />
+      
+      {/* Internship detail pages */}
+      <Route path="/internships/:type" element={<InternshipPage />} />
+      
       <Route path="/blog" element={<Blog />} />
       <Route path="/blog/:slug" element={<BlogPost />} />
 
