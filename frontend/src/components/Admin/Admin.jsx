@@ -5168,17 +5168,32 @@ const AdminBlog = () => {
 
   return (
     <div>
-      <div className="tab-header">
-        <div>
-          <h2>Blog Management</h2>
-          <p style={{ color: "var(--muted)", fontSize: ".85rem" }}>
-            Published posts appear on the public Blog page, newest first. All posts stay listed here as your blog history.
-          </p>
-        </div>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-          + New Post
-        </button>
-      </div>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+  <div className="flex items-start gap-3">
+    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-sm shadow-indigo-500/30">
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 13h6M9 17h4" />
+      </svg>
+    </div>
+    <div>
+      <h2 className="text-xl font-semibold tracking-tight text-slate-900">Blog Management</h2>
+      <p className="mt-0.5 max-w-md text-sm text-slate-500">
+        Published posts appear on the public Blog page, newest first. All posts stay listed here as your blog history.
+      </p>
+    </div>
+  </div>
+
+  <button
+    onClick={() => setShowModal(true)}
+    className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/30 active:translate-y-0 active:scale-[0.97] sm:shrink-0"
+  >
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+    </svg>
+    New Post
+  </button>
+</div>
 
       {loading ? (
         <p style={{ color: "var(--muted)" }}>Loading…</p>
@@ -5225,60 +5240,205 @@ const AdminBlog = () => {
         </div>
       )}
 
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "640px" }}>
-            <h3 style={{ marginBottom: "1rem" }}>New Blog Post</h3>
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              <div className="form-group">
-                <label>Title *</label>
-                <input
-                  type="text" value={form.title}
-                  onChange={(e) => set("title", e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label>Excerpt * (shown on the blog listing card)</label>
-                <textarea
-                  value={form.excerpt}
-                  onChange={(e) => set("excerpt", e.target.value)}
-                  rows={2}
-                />
-              </div>
-              <div className="form-group">
-                <label>Content * (each blank line becomes a new paragraph)</label>
-                <textarea
-                  value={form.content}
-                  onChange={(e) => set("content", e.target.value)}
-                  rows={8}
-                />
-              </div>
-              <div className="form-group">
-                <label>Cover image URL (optional)</label>
-                <input
-                  type="text" value={form.coverImageUrl}
-                  onChange={(e) => set("coverImageUrl", e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label>Tags, comma separated (optional)</label>
-                <input
-                  type="text" value={form.tags}
-                  onChange={(e) => set("tags", e.target.value)}
-                />
-              </div>
-              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "6px" }}>
-                <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary" disabled={saving}>
-                  {saving ? "Publishing…" : "Publish Post"}
-                </button>
-              </div>
-            </form>
+    {showModal && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-md p-4 sm:p-6 animate-[overlayIn_0.25s_ease-out]"
+    onClick={() => setShowModal(false)}
+  >
+    <style>{`
+      @keyframes overlayIn { from { opacity: 0 } to { opacity: 1 } }
+      @keyframes modalIn {
+        from { opacity: 0; transform: translateY(16px) scale(0.96); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      @keyframes fieldIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes pillIn {
+        from { opacity: 0; transform: scale(0.85); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+      .field-stagger > * { opacity: 0; animation: fieldIn 0.4s ease-out forwards; }
+      .field-stagger > *:nth-child(1) { animation-delay: 0.05s; }
+      .field-stagger > *:nth-child(2) { animation-delay: 0.1s; }
+      .field-stagger > *:nth-child(3) { animation-delay: 0.15s; }
+      .field-stagger > *:nth-child(4) { animation-delay: 0.2s; }
+    `}</style>
+
+    <div
+      className="flex w-full max-w-2xl max-h-[90vh] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] ring-1 ring-black/5 animate-[modalIn_0.35s_cubic-bezier(0.16,1,0.3,1)]"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Gradient accent bar */}
+      <div className="h-1 w-full bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 bg-[length:200%_100%] animate-[shimmer_3s_linear_infinite]" />
+
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 sm:px-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold tracking-tight text-slate-900">New Blog Post</h3>
+            <p className="text-sm text-slate-500">Fill in the details below to publish a new post.</p>
           </div>
         </div>
-      )}
+        <button
+          type="button"
+          onClick={() => setShowModal(false)}
+          className="group rounded-lg p-2 text-slate-400 transition-all duration-200 hover:rotate-90 hover:bg-slate-100 hover:text-slate-600"
+          aria-label="Close"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Body (scrollable, staggered fields) */}
+      <form id="new-post-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-5 py-5 sm:px-6">
+        <div className="field-stagger flex flex-col gap-5">
+          {/* Title */}
+          <div>
+            <label htmlFor="title" className="mb-1.5 block text-sm font-medium text-slate-700">
+              Title <span className="text-rose-500">*</span>
+            </label>
+            <input
+              id="title"
+              type="text"
+              value={form.title}
+              onChange={(e) => set("title", e.target.value)}
+              placeholder="e.g. 10 Tips for Better Sleep"
+              required
+              className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm outline-none transition-all duration-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15 hover:border-slate-400"
+            />
+          </div>
+
+          {/* Excerpt */}
+          <div>
+            <label htmlFor="excerpt" className="mb-1.5 block text-sm font-medium text-slate-700">
+              Excerpt <span className="text-rose-500">*</span>
+            </label>
+            <textarea
+              id="excerpt"
+              value={form.excerpt}
+              onChange={(e) => set("excerpt", e.target.value)}
+              rows={2}
+              placeholder="A short summary shown on the blog listing card"
+              required
+              className="w-full resize-none rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm outline-none transition-all duration-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15 hover:border-slate-400"
+            />
+          </div>
+
+          {/* Content */}
+          <div>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label htmlFor="content" className="block text-sm font-medium text-slate-700">
+                Content <span className="text-rose-500">*</span>
+              </label>
+              <span className="text-xs text-slate-400">{form.content?.length || 0} characters</span>
+            </div>
+            <textarea
+              id="content"
+              value={form.content}
+              onChange={(e) => set("content", e.target.value)}
+              rows={8}
+              placeholder="Write your post..."
+              required
+              className="w-full resize-y rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm outline-none transition-all duration-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15 hover:border-slate-400"
+            />
+            <p className="mt-1 text-xs text-slate-400">Each blank line becomes a new paragraph.</p>
+          </div>
+
+          {/* Cover image + Tags */}
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div>
+              <label htmlFor="coverImageUrl" className="mb-1.5 block text-sm font-medium text-slate-700">
+                Cover image URL
+              </label>
+              <input
+                id="coverImageUrl"
+                type="text"
+                value={form.coverImageUrl}
+                onChange={(e) => set("coverImageUrl", e.target.value)}
+                placeholder="https://..."
+                className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm outline-none transition-all duration-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15 hover:border-slate-400"
+              />
+              {form.coverImageUrl && (
+                <div className="mt-2 overflow-hidden rounded-lg border border-slate-200 animate-[fieldIn_0.3s_ease-out]">
+                  <img
+                    src={form.coverImageUrl}
+                    alt="Cover preview"
+                    className="h-24 w-full object-cover"
+                    onError={(e) => (e.currentTarget.style.display = "none")}
+                  />
+                </div>
+              )}
+            </div>
+            <div>
+              <label htmlFor="tags" className="mb-1.5 block text-sm font-medium text-slate-700">
+                Tags
+              </label>
+              <input
+                id="tags"
+                type="text"
+                value={form.tags}
+                onChange={(e) => set("tags", e.target.value)}
+                placeholder="react, design, tips"
+                className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm outline-none transition-all duration-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15 hover:border-slate-400"
+              />
+              {form.tags && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {form.tags.split(",").map((t) => t.trim()).filter(Boolean).map((tag, i) => (
+                    <span
+                      key={tag + i}
+                      style={{ animationDelay: `${i * 40}ms` }}
+                      className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-600 animate-[pillIn_0.25s_ease-out_backwards]"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </form>
+
+      {/* Footer */}
+      <div className="flex flex-col-reverse gap-2.5 border-t border-slate-200 px-5 py-4 sm:flex-row sm:justify-end sm:gap-3 sm:px-6">
+        <button
+          type="button"
+          onClick={() => setShowModal(false)}
+          className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-slate-50 active:scale-[0.97] sm:w-auto"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          form="new-post-form"
+          disabled={saving}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-sm sm:w-auto"
+        >
+          {saving && (
+            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+            </svg>
+          )}
+          {saving ? "Publishing…" : "Publish Post"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };
