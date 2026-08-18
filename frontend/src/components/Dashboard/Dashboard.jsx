@@ -5,7 +5,8 @@ import { useCourses } from '../../context/CoursesContext';
 import {
   getMyApplications, getMyEnrollments, updateProfile, getDashboardStats,
   getDashboardAnalytics, trackActivity, getStudentMentorClasses,
-  getStudentLiveClasses, getStudentMentorAssignments, submitStudentMentorAssignment
+  getStudentLiveClasses, getStudentMentorAssignments, submitStudentMentorAssignment,
+  getStudentProjects, submitStudentProject
 } from '../../utils/api';
 import API from '../../utils/api';
 import toast from 'react-hot-toast';
@@ -47,6 +48,7 @@ const Icons = {
   code: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>,
   award: <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>,
   assignments: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>,
+  projects: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>,
   trash: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>,
   check: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
   edit: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
@@ -57,6 +59,7 @@ const TABS = [
   { id: 'analytics',    icon: Icons.analytics,    label: 'Analytics', section: 'main' },
   { id: 'mentor',       icon: Icons.mentor,       label: 'My Mentor', section: 'learning' },
   { id: 'assignments',  icon: Icons.assignments,  label: 'Assignments', section: 'learning' },
+  { id: 'projects',     icon: Icons.projects,     label: 'Capstone Projects', section: 'learning' },
   { id: 'attendance',   icon: Icons.attendance,   label: 'Attendance', section: 'learning' },
   { id: 'applications', icon: Icons.applications, label: 'My Applications', section: 'learning' },
   { id: 'mycourses',    icon: Icons.mycourses,    label: 'My Courses', section: 'learning' },
@@ -357,6 +360,7 @@ const Dashboard = () => {
           {tab === 'analytics'     && <AnalyticsTab enrollments={enrollments} applications={applications} dashboardStats={dashboardStats} analyticsData={analyticsData} />}
           {tab === 'mentor'        && <MyMentorTab user={user} setTab={setTab} />}
           {tab === 'assignments'   && <AssignmentsTab />}
+          {tab === 'projects'      && <StudentProjectsTab />}
           {tab === 'attendance'    && <AttendanceTab setTab={setTab} />}
           {tab === 'applications'  && <ApplicationsTab applications={applications} />}
           {tab === 'mycourses'     && <MyCoursesTab enrollments={enrollments} analyticsData={analyticsData} refresh={refreshEnrollments} />}
@@ -1747,6 +1751,236 @@ const ProfileTab = ({ user, setUser }) => {
           </button>
         </form>
       </div>
+    </div>
+  );
+};
+
+const StudentProjectsTab = () => {
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submittingProject, setSubmittingProject] = useState(null);
+  const [submitForm, setSubmitForm] = useState({ githubUrl: '', liveDemoUrl: '', studentNotes: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const loadProjects = async () => {
+    try {
+      setLoading(true);
+      const res = await getStudentProjects();
+      setProjects(res.data?.data || []);
+    } catch (err) {
+      console.error('Failed to load capstone projects:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProjects();
+  }, []);
+
+  const openSubmitModal = (proj) => {
+    setSubmittingProject(proj);
+    setSubmitForm({
+      githubUrl: proj.githubUrl || '',
+      liveDemoUrl: proj.liveDemoUrl || '',
+      studentNotes: proj.studentNotes || ''
+    });
+  };
+
+  const handleSubmitSolution = async (e) => {
+    e.preventDefault();
+    if (!submitForm.githubUrl.trim() && !submitForm.liveDemoUrl.trim()) {
+      return toast.error('Please provide at least a GitHub repository or Live Demo URL');
+    }
+    setIsSubmitting(true);
+    try {
+      await submitStudentProject(submittingProject._id, submitForm);
+      toast.success('Project submitted for mentor review! 🎉');
+      setSubmittingProject(null);
+      loadProjects();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to submit project');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="dash-loading-card" style={{ padding: '3rem', textAlign: 'center' }}>
+        <div className="dash-loading-spinner" />
+        <p style={{ marginTop: '1rem', color: 'var(--muted)' }}>Loading capstone projects...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="student-projects-tab">
+      <div className="dash-card-header" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--navy)', margin: 0 }}>
+            Capstone & Internship Projects
+          </h2>
+          <p style={{ color: 'var(--muted)', fontSize: '.85rem', margin: '4px 0 0' }}>
+            Work on live industry projects allocated by your mentor, submit code & live demos, and track evaluation.
+          </p>
+        </div>
+        <button className="btn btn-outline btn-sm" onClick={loadProjects} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          🔄 Refresh
+        </button>
+      </div>
+
+      {projects.length === 0 ? (
+        <div className="dash-card" style={{ textAlign: 'center', padding: '3.5rem 1.5rem' }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🚀</div>
+          <h3 style={{ fontSize: '1.15rem', color: 'var(--navy)', margin: '0 0 .5rem' }}>
+            No Capstone Projects Allocated Yet
+          </h3>
+          <p style={{ color: 'var(--muted)', fontSize: '.85rem', maxWidth: '480px', margin: '0 auto 1.5rem' }}>
+            Your assigned mentor will allocate your capstone project with requirements, starter code repositories, and milestone deliverables.
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.25rem' }}>
+          {projects.map((proj) => (
+            <div key={proj._id} className="dash-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '1.5rem' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px', marginBottom: '12px' }}>
+                  <span className={`badge-status badge-${proj.status || 'assigned'}`} style={{ textTransform: 'capitalize', fontWeight: 700 }}>
+                    {proj.status === 'submitted' ? '⏳ Submitted for Review' : proj.status === 'completed' ? '✅ Completed' : proj.status === 'changes_requested' ? '⚠️ Changes Requested' : proj.status || 'Assigned'}
+                  </span>
+                  {proj.score !== undefined && proj.score !== null && (
+                    <span style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '3px 9px', borderRadius: '20px', fontWeight: 800, fontSize: '.75rem' }}>
+                      Grade: {proj.score}/100
+                    </span>
+                  )}
+                </div>
+
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--navy)', margin: '0 0 6px' }}>
+                  {proj.title}
+                </h3>
+                
+                {proj.mentor && (
+                  <p style={{ fontSize: '.78rem', color: 'var(--muted)', margin: '0 0 12px' }}>
+                    Mentor: <strong style={{ color: 'var(--navy)' }}>{proj.mentor.name}</strong> ({proj.mentor.email})
+                  </p>
+                )}
+
+                {proj.description && (
+                  <p style={{ fontSize: '.82rem', color: '#475569', lineHeight: 1.5, background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', margin: '0 0 14px' }}>
+                    {proj.description}
+                  </p>
+                )}
+
+                <div style={{ marginBottom: '14px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.75rem', fontWeight: 700, color: 'var(--navy)', marginBottom: '5px' }}>
+                    <span>Project Progress</span>
+                    <span>{proj.progress || 0}%</span>
+                  </div>
+                  <div style={{ height: '7px', background: '#e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${proj.progress || 0}%`, background: 'linear-gradient(90deg, #3b82f6, #10b981)', borderRadius: '10px', transition: 'width .3s' }} />
+                  </div>
+                </div>
+
+                {proj.mentorComments && (
+                  <div style={{ background: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '8px', padding: '10px 12px', marginBottom: '14px' }}>
+                    <div style={{ fontSize: '.74rem', fontWeight: 800, color: '#b45309', marginBottom: '3px' }}>
+                      👨‍🏫 Mentor Feedback:
+                    </div>
+                    <div style={{ fontSize: '.8rem', color: '#92400e' }}>{proj.mentorComments}</div>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '14px' }}>
+                  {proj.githubUrl && (
+                    <a href={proj.githubUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-xs" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                      <span>📂</span> GitHub Repo
+                    </a>
+                  )}
+                  {proj.liveDemoUrl && (
+                    <a href={proj.liveDemoUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-xs" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#0284c7', borderColor: '#bae6fd' }}>
+                      <span>🌐</span> Live Demo
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px', marginTop: '8px' }}>
+                <button
+                  className="btn btn-primary btn-sm"
+                  style={{ width: '100%', justifyContent: 'center' }}
+                  onClick={() => openSubmitModal(proj)}
+                >
+                  {proj.status === 'submitted' || proj.status === 'completed' ? '📝 Update Project Submission' : '🚀 Submit Project Solution'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {submittingProject && (
+        <div className="dash-modal-overlay" onClick={() => setSubmittingProject(null)}>
+          <div className="dash-modal-card" style={{ maxWidth: '560px' }} onClick={e => e.stopPropagation()}>
+            <div className="dash-modal-header">
+              <h3 style={{ margin: 0 }}>Submit Project: {submittingProject.title}</h3>
+              <button className="dash-modal-close" onClick={() => setSubmittingProject(null)}>×</button>
+            </div>
+            <form onSubmit={handleSubmitSolution} className="dash-modal-body" style={{ padding: '1.25rem' }}>
+              <div className="dash-form-group" style={{ marginBottom: '1rem' }}>
+                <label className="dash-form-label" style={{ display: 'block', marginBottom: '5px', fontSize: '.8rem', fontWeight: 700 }}>
+                  GitHub Repository URL *
+                </label>
+                <input
+                  type="url"
+                  className="dash-input"
+                  placeholder="https://github.com/yourusername/project-repo"
+                  value={submitForm.githubUrl}
+                  onChange={e => setSubmitForm({ ...submitForm, githubUrl: e.target.value })}
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                />
+              </div>
+
+              <div className="dash-form-group" style={{ marginBottom: '1rem' }}>
+                <label className="dash-form-label" style={{ display: 'block', marginBottom: '5px', fontSize: '.8rem', fontWeight: 700 }}>
+                  Live Demo / Deployed Link (Optional)
+                </label>
+                <input
+                  type="url"
+                  className="dash-input"
+                  placeholder="https://my-app.vercel.app"
+                  value={submitForm.liveDemoUrl}
+                  onChange={e => setSubmitForm({ ...submitForm, liveDemoUrl: e.target.value })}
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                />
+              </div>
+
+              <div className="dash-form-group" style={{ marginBottom: '1.25rem' }}>
+                <label className="dash-form-label" style={{ display: 'block', marginBottom: '5px', fontSize: '.8rem', fontWeight: 700 }}>
+                  Project Summary & Implementation Notes
+                </label>
+                <textarea
+                  rows="4"
+                  className="dash-input"
+                  placeholder="Describe your tech stack, key features implemented, instructions to run..."
+                  value={submitForm.studentNotes}
+                  onChange={e => setSubmitForm({ ...submitForm, studentNotes: e.target.value })}
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontFamily: 'inherit' }}
+                />
+              </div>
+
+              <div className="dash-modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button type="button" className="btn btn-outline" onClick={() => setSubmittingProject(null)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                  {isSubmitting ? 'Submitting...' : '🚀 Submit Project for Review'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

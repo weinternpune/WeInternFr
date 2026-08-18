@@ -658,13 +658,34 @@ router.patch('/projects/:id', protect, mentorOrAdmin, async (req, res) => {
   try {
     const mentorId = await resolveTargetMentorId(req);
     const query = req.user.role === 'admin' ? { _id: req.params.id } : { _id: req.params.id, mentor: mentorId };
+    
+    const updateData = {
+      progress: req.body.progress !== undefined ? Number(req.body.progress) : undefined,
+      status: req.body.status,
+      mentorComments: req.body.mentorComments,
+      score: req.body.score !== undefined ? Number(req.body.score) : undefined,
+      reviewedAt: new Date(),
+      lastUpdate: new Date()
+    };
+    Object.keys(updateData).forEach(k => updateData[k] === undefined && delete updateData[k]);
+
     const project = await Project.findOneAndUpdate(
       query,
-      { progress: req.body.progress, status: req.body.status, mentorComments: req.body.mentorComments, lastUpdate: new Date() },
+      updateData,
       { new: true }
     ).populate('student', 'name email');
     if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
-    res.json({ success: true, data: project });
+
+    if (project.student?._id || project.student) {
+      await Notification.create({
+        recipient: project.student._id || project.student,
+        title: `Project Review: ${project.title}`,
+        message: `Your mentor reviewed "${project.title}". Status: ${project.status || 'Updated'}, Progress: ${project.progress}%.`,
+        type: 'project'
+      });
+    }
+
+    res.json({ success: true, message: 'Project reviewed successfully', data: project });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -677,6 +698,36 @@ router.delete('/projects/:id', protect, mentorOrAdmin, async (req, res) => {
     const project = await Project.findOneAndDelete(query);
     if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
     res.json({ success: true, message: 'Project deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Student: submit project solution
+router.post('/student/projects/:id/submit', protect, async (req, res) => {
+  try {
+    const { githubUrl, liveDemoUrl, studentNotes } = req.body;
+    const project = await Project.findOne({ _id: req.params.id, student: req.user._id });
+    if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
+
+    if (githubUrl) project.githubUrl = githubUrl;
+    if (liveDemoUrl) project.liveDemoUrl = liveDemoUrl;
+    if (studentNotes) project.studentNotes = studentNotes;
+    project.status = 'submitted';
+    project.progress = Math.max(project.progress || 0, 75);
+    project.submittedAt = new Date();
+    project.lastUpdate = new Date();
+    await project.save();
+
+    // Notify mentor
+    await Notification.create({
+      recipient: project.mentor,
+      title: `Project Submission: ${project.title}`,
+      message: `${req.user.name} submitted their capstone project "${project.title}" for review.`,
+      type: 'project'
+    });
+
+    res.json({ success: true, message: 'Project submitted successfully for mentor review!', data: project });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -832,21 +883,25 @@ router.get('/reports', protect, mentorOrAdmin, async (req, res) => {
     const students = await getAssignedStudents(mentorId);
     const ids = students.map(s => s._id);
     const [attendance, submissions, activities, projects] = await Promise.all([
-      Attendance.find({ mentor: mentorId, student: { $in: ids } }),
-      Submission.find({ mentor: mentorId, student: { $in: ids } }),
+      Attendance.find({ $or: [{ mentor: mentorId }, { student: { $in: ids } }] }),
+      Submission.find({ $or: [{ mentor: mentorId }, { student: { $in: ids } }] }),
       UserActivity.find({ user: { $in: ids } }),
-      Project.find({ mentor: mentorId, student: { $in: ids } })
+      Project.find({ $or: [{ mentor: mentorId }, { student: { $in: ids } }] })
     ]);
     const present = attendance.filter(a => ['present','late'].includes(a.status)).length;
-    const attendanceRate = attendance.length ? Math.round((present / attendance.length) * 100) : 0;
+    const attendanceRate = attendance.length > 0 ? Math.round((present / attendance.length) * 100) : 0;
     const reviewed = submissions.filter(s => typeof s.score === 'number');
-    const averageScore = reviewed.length ? Math.round(reviewed.reduce((a,s) => a+s.score,0)/reviewed.length) : 0;
-    const totalMinutes = activities.reduce((a,x)=>a+Number(x.duration||0),0);
-    const completedProjects = projects.filter(p=>p.status==='completed').length;
+    const averageScore = reviewed.length > 0 ? Math.round(reviewed.reduce((a,s) => a + s.score, 0) / reviewed.length) : 0;
+    const totalMinutes = activities.reduce((a,x) => a + Number(x.duration || 0), 0);
+    const completedProjects = projects.filter(p => p.status === 'completed' || p.progress === 100).length;
+    
     res.json({ success: true, data: {
       totalStudents: students.length,
-      attendanceRate, averageScore, totalStudyHours: Math.round(totalMinutes/60*10)/10,
-      projects: projects.length, completedProjects,
+      attendanceRate,
+      averageScore,
+      totalStudyHours: Math.round((totalMinutes / 60) * 10) / 10,
+      projects: projects.length,
+      completedProjects,
       assignmentsReviewed: reviewed.length,
       generatedAt: new Date()
     }});

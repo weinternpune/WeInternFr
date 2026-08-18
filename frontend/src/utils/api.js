@@ -116,6 +116,7 @@ export const deleteAdminEnrollment = (id) => API.delete(`/admin/enrollments/${id
 export const createMentorProject = (data) => API.post('/mentor/projects', data);
 export const deleteMentorProject = (id) => API.delete(`/mentor/projects/${id}`);
 export const getStudentProjects = () => API.get('/mentor/student/projects');
+export const submitStudentProject = (id, data) => API.post(`/mentor/student/projects/${id}/submit`, data);
 export const getStudentLiveClasses = () => API.get('/mentor/student/live-classes');
 export const uploadMentorFile = (formData) => API.post('/mentor/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 

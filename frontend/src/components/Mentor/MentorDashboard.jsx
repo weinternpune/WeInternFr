@@ -578,6 +578,7 @@ function MentorDashboard() {
               reports={reports}
               students={students}
               mentorName={mentor.name}
+              selectedMentorId={selectedMentorId}
             />
           )}
 
@@ -1847,28 +1848,58 @@ function ProjectsPage({ projects, students = [], onReload, mentorName, selectedM
       />
       <div className="project-grid">
         {projects.map(p => (
-          <div className="project-card" key={p._id}>
-            <div className="project-head">
-              <div className="mentor-avatar tiny">{initials(p.student?.name)}</div>
-              <div>
-                <strong>{p.student?.name}</strong>
-                <small>{p.title}</small>
+          <div className="project-card" key={p._id} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div className="project-head">
+                <div className="mentor-avatar tiny">{initials(p.student?.name)}</div>
+                <div>
+                  <strong>{p.student?.name}</strong>
+                  <small style={{ fontWeight: 700, color: '#1e293b' }}>{p.title}</small>
+                </div>
+                <span className={`status-pill ${p.status}`}>
+                  {p.status === 'submitted' ? '⏳ Submitted' : p.status || 'assigned'}
+                </span>
               </div>
-              <span className="status-pill">{p.status}</span>
+
+              {p.score !== undefined && p.score !== null && (
+                <div style={{ marginBottom: '8px' }}>
+                  <span style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '2px 8px', borderRadius: '15px', fontWeight: 800, fontSize: '.7rem' }}>
+                    Grade: {p.score}/100
+                  </span>
+                </div>
+              )}
+
+              <ProgressBar value={p.progress}/>
+              <div className="project-meta">
+                <span>{p.progress}% complete</span>
+                <span>{fmtDate(p.lastUpdate || p.updatedAt)}</span>
+              </div>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '8px 0' }}>
+                {p.githubUrl && (
+                  <a href={p.githubUrl} target="_blank" rel="noreferrer" className="project-link" style={{ margin: 0 }}>
+                    <ExternalLink size={13}/> Repository
+                  </a>
+                )}
+                {p.liveDemoUrl && (
+                  <a href={p.liveDemoUrl} target="_blank" rel="noreferrer" className="project-link" style={{ margin: 0, color: '#0284c7' }}>
+                    <ExternalLink size={13}/> Live Demo
+                  </a>
+                )}
+              </div>
             </div>
-            <ProgressBar value={p.progress}/>
-            <div className="project-meta">
-              <span>{p.progress}% complete</span>
-              <span>{fmtDate(p.lastUpdate)}</span>
-            </div>
-            {p.githubUrl && (
-              <a href={p.githubUrl} target="_blank" rel="noreferrer" className="project-link">
-                <ExternalLink size={14}/> Repository
-              </a>
-            )}
+
             <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-              <button className="outline-btn" style={{ flex: 1 }} onClick={() => setEditing(p)}>Update</button>
-              <button className="danger-btn" style={{ marginTop: 0, padding: '9px 12px' }} onClick={() => handleDelete(p._id, p.title)}>Delete</button>
+              <button
+                className={p.status === 'submitted' ? 'primary-btn' : 'outline-btn'}
+                style={{ flex: 1, justifyContent: 'center' }}
+                onClick={() => setEditing(p)}
+              >
+                {p.status === 'submitted' ? '🔍 Review & Grade' : '✏️ Review / Update'}
+              </button>
+              <button className="danger-btn" style={{ marginTop: 0, padding: '9px 12px' }} onClick={() => handleDelete(p._id, p.title)}>
+                Delete
+              </button>
             </div>
           </div>
         ))}
@@ -2172,17 +2203,49 @@ function NotificationsPage({ notifications, onReload }) {
   );
 }
 
-function ReportsPage({ reports, students = [], mentorName }) {
+function ReportsPage({ reports: initialReports, students = [], mentorName, selectedMentorId }) {
+  const [reports, setReports] = useState(initialReports || null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchLiveReports = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await getMentorReports(selectedMentorId ? { mentorId: selectedMentorId } : {});
+      if (res.data?.data) {
+        setReports(res.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to load mentor reports:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedMentorId]);
+
+  useEffect(() => {
+    fetchLiveReports();
+  }, [fetchLiveReports]);
+
+  // Compute calculated metrics dynamically from students if reports payload is pending
+  const dynamicTotalStudents = reports?.totalStudents ?? students.length ?? 0;
+  const dynamicAttendanceRate = reports?.attendanceRate !== undefined
+    ? reports.attendanceRate
+    : (students.length ? Math.round(students.reduce((acc, s) => acc + (s.attendanceRate ?? s.attendance ?? 0), 0) / students.length) : 0);
+  const dynamicAverageScore = reports?.averageScore ?? 0;
+  const dynamicStudyHours = reports?.totalStudyHours ?? (students.length ? Math.round(students.reduce((acc, s) => acc + (s.progress || 0) * 0.1, 0) * 10) / 10 : 0);
+  const dynamicProjects = reports?.projects ?? 0;
+  const dynamicCompletedProjects = reports?.completedProjects ?? 0;
+  const dynamicReviewed = reports?.assignmentsReviewed ?? 0;
+
   const exportCsv = () => {
     const rows = [
       ['Metric', 'Value'],
-      ['Total Students', reports?.totalStudents || students.length || 0],
-      ['Attendance Rate', `${reports?.attendanceRate || 0}%`],
-      ['Average Score', `${reports?.averageScore || 0}%`],
-      ['Study Hours', reports?.totalStudyHours || 0],
-      ['Projects', reports?.projects || 0],
-      ['Completed Projects', reports?.completedProjects || 0],
-      ['Assignments Reviewed', reports?.assignmentsReviewed || 0],
+      ['Total Students', dynamicTotalStudents],
+      ['Attendance Rate', `${dynamicAttendanceRate}%`],
+      ['Average Score', `${dynamicAverageScore}%`],
+      ['Study Hours', `${dynamicStudyHours} hrs`],
+      ['Projects', dynamicProjects],
+      ['Completed Projects', dynamicCompletedProjects],
+      ['Assignments Reviewed', dynamicReviewed],
       [],
       ['Student Name', 'Email', 'Domain', 'Attendance Rate', 'Progress', 'Status']
     ];
@@ -2214,7 +2277,10 @@ function ReportsPage({ reports, students = [], mentorName }) {
           <h2>Mentor Reports ({mentorName || 'Mentor'})</h2>
           <p>Real-time performance analytics, student attendance, assignments and project progress.</p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button className="outline-btn" onClick={fetchLiveReports} disabled={loading}>
+            🔄 {loading ? 'Refreshing...' : 'Refresh'}
+          </button>
           <button className="outline-btn" onClick={exportCsv}><FileText size={15}/> Export CSV</button>
           <button className="primary-btn" onClick={() => window.print()}><FileText size={15}/> Print / Save PDF</button>
         </div>
@@ -2222,13 +2288,13 @@ function ReportsPage({ reports, students = [], mentorName }) {
 
       <div className="report-grid">
         {[
-          ['Total Students', reports?.totalStudents ?? students.length ?? 0],
-          ['Attendance Rate', `${reports?.attendanceRate ?? 0}%`],
-          ['Average Score', `${reports?.averageScore ?? 0}%`],
-          ['Study Hours', reports?.totalStudyHours ?? 0],
-          ['Projects Assigned', reports?.projects ?? 0],
-          ['Completed Projects', reports?.completedProjects ?? 0],
-          ['Assignments Reviewed', reports?.assignmentsReviewed ?? 0]
+          ['Total Students', dynamicTotalStudents],
+          ['Attendance Rate', `${dynamicAttendanceRate}%`],
+          ['Average Score', `${dynamicAverageScore}%`],
+          ['Study Hours', `${dynamicStudyHours} hrs`],
+          ['Projects Assigned', dynamicProjects],
+          ['Completed Projects', dynamicCompletedProjects],
+          ['Assignments Reviewed', dynamicReviewed]
         ].map(([l, v]) => (
           <div className="report-card" key={l}>
             <span>{l}</span>
@@ -2777,33 +2843,124 @@ function ReviewModal({ submission, onClose, onSaved }) {
 
 function ProjectModal({ project, onClose, onSaved }) {
   const [progress, setProgress] = useState(project.progress || 0);
-  const [status, setStatus] = useState(project.status);
+  const [status, setStatus] = useState(project.status || 'assigned');
+  const [score, setScore] = useState(project.score !== undefined && project.score !== null ? project.score : '');
   const [comments, setComments] = useState(project.mentorComments || '');
+  const [saving, setSaving] = useState(false);
 
   const save = async () => {
+    setSaving(true);
     try {
-      await updateMentorProject(project._id, { progress: Number(progress), status, mentorComments: comments });
-      toast.success('Project updated');
+      await updateMentorProject(project._id, {
+        progress: Number(progress),
+        status,
+        score: score !== '' ? Number(score) : undefined,
+        mentorComments: comments
+      });
+      toast.success('Project review saved and updated! 🚀');
       onSaved();
     } catch (e) {
       toast.error(e.response?.data?.message || 'Unable to update project');
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
-    <Modal title="Update Project" onClose={onClose}>
-      <label>Progress (%)<input type="number" min="0" max="100" value={progress} onChange={e => setProgress(e.target.value)}/></label>
-      <label>Status
-        <select value={status} onChange={e => setStatus(e.target.value)}>
-          {['onboarding', 'training', 'assignments', 'project', 'evaluation', 'completed'].map(x => (
-            <option key={x}>{x}</option>
-          ))}
-        </select>
-      </label>
-      <label>Mentor Comments<textarea rows="5" value={comments} onChange={e => setComments(e.target.value)}/></label>
-      <div className="modal-actions">
-        <button className="outline-btn" onClick={onClose}>Cancel</button>
-        <button className="primary-btn" onClick={save}><Save size={15}/> Save Project</button>
+    <Modal title={`Review Project: ${project.title}`} onClose={onClose}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {/* Student Info Card */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#f8fafc', padding: '12px 14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+          <div className="mentor-avatar tiny">{initials(project.student?.name)}</div>
+          <div style={{ flex: 1 }}>
+            <strong style={{ display: 'block', fontSize: '.84rem', color: '#1e293b' }}>{project.student?.name || 'Student'}</strong>
+            <span style={{ fontSize: '.72rem', color: '#64748b' }}>{project.student?.email}</span>
+          </div>
+          <span className={`status-pill ${project.status}`}>{project.status || 'assigned'}</span>
+        </div>
+
+        {project.description && (
+          <div style={{ fontSize: '.78rem', color: '#475569', background: '#f1f5f9', padding: '10px 12px', borderRadius: '8px' }}>
+            <strong style={{ display: 'block', color: '#1e293b', marginBottom: '2px' }}>Project Objectives:</strong>
+            {project.description}
+          </div>
+        )}
+
+        {/* Student Submission Showcase */}
+        {(project.githubUrl || project.liveDemoUrl || project.studentNotes || project.submittedAt) ? (
+          <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '12px 14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <strong style={{ fontSize: '.8rem', color: '#166534', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                🚀 Student Submission
+              </strong>
+              {project.submittedAt && (
+                <span style={{ fontSize: '.68rem', color: '#15803d' }}>
+                  Submitted: {fmtDate(project.submittedAt)}
+                </span>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: project.studentNotes ? '8px' : '0' }}>
+              {project.githubUrl && (
+                <a href={project.githubUrl} target="_blank" rel="noreferrer" className="project-link" style={{ background: '#fff', border: '1px solid #cbd5e1', padding: '4px 10px', borderRadius: '6px', margin: 0 }}>
+                  <ExternalLink size={13}/> GitHub Repo
+                </a>
+              )}
+              {project.liveDemoUrl && (
+                <a href={project.liveDemoUrl} target="_blank" rel="noreferrer" className="project-link" style={{ background: '#fff', border: '1px solid #bae6fd', color: '#0284c7', padding: '4px 10px', borderRadius: '6px', margin: 0 }}>
+                  <ExternalLink size={13}/> Live Demo
+                </a>
+              )}
+            </div>
+
+            {project.studentNotes && (
+              <div style={{ fontSize: '.76rem', color: '#14532d', background: '#ffffff', padding: '8px 10px', borderRadius: '6px', border: '1px solid #dcfce7', marginTop: '6px' }}>
+                <strong>Student Notes:</strong> {project.studentNotes}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ background: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '8px', padding: '9px 12px', fontSize: '.75rem', color: '#92400e' }}>
+            ⏳ Student has not submitted project demo/repo yet.
+          </div>
+        )}
+
+        {/* Evaluation Controls */}
+        <div className="form-grid" style={{ marginTop: '4px' }}>
+          <label>
+            Progress ({progress}%)
+            <input type="range" min="0" max="100" step="5" value={progress} onChange={e => setProgress(e.target.value)}/>
+          </label>
+
+          <label>
+            Score / Grade (0 - 100)
+            <input type="number" min="0" max="100" placeholder="e.g. 95" value={score} onChange={e => setScore(e.target.value)}/>
+          </label>
+
+          <label className="span-2">
+            Status
+            <select value={status} onChange={e => setStatus(e.target.value)}>
+              <option value="assigned">Assigned</option>
+              <option value="in_progress">In Progress</option>
+              <option value="submitted">Submitted (Pending Review)</option>
+              <option value="changes_requested">Changes Requested</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="completed">Completed</option>
+            </select>
+          </label>
+
+          <label className="span-2">
+            Mentor Review Feedback & Recommendations
+            <textarea rows="4" value={comments} onChange={e => setComments(e.target.value)} placeholder="Provide constructive feedback, code review notes, or congratulations..."/>
+          </label>
+        </div>
+
+        <div className="modal-actions" style={{ marginTop: '12px' }}>
+          <button className="outline-btn" onClick={onClose}>Cancel</button>
+          <button className="primary-btn" onClick={save} disabled={saving}>
+            <Save size={15}/> {saving ? 'Saving...' : 'Save Review & Grade'}
+          </button>
+        </div>
       </div>
     </Modal>
   );
