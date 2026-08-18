@@ -41,6 +41,7 @@ const COURSE_COLUMNS = [
       { num: 3, label: 'Java Development', desc: 'Core Java to Spring Boot', icon: Coffee, color: 'text-amber-400' },
       { num: 4, label: 'C / C++ Programming', desc: 'DSA & systems fundamentals', icon: Cpu, color: 'text-orange-400' },
       { num: 5, label: 'Web Development', desc: 'HTML, CSS & modern JS', icon: Globe2, color: 'text-orange-300' },
+      { num: 6, label: 'Mobile App Development', desc: 'Flutter & cross-platform apps', icon: Monitor, color: 'text-blue-400' },
     ],
   },
   {
@@ -48,11 +49,11 @@ const COURSE_COLUMNS = [
     title: 'Data & AI',
     icon: BarChart3,
     items: [
-      { num: 6, label: 'AI / ML', desc: 'Models, training & deployment', icon: Bot, color: 'text-purple-400', badge: 'Popular' },
-      { num: 7, label: 'Data Science', desc: 'Statistics, EDA & storytelling', icon: TrendingUp, color: 'text-orange-400' },
-      { num: 8, label: 'Python Development', desc: 'Scripting, backend & automation', icon: Terminal, color: 'text-yellow-400' },
-      { num: 9, label: 'Cyber Security', desc: 'Network & app security basics', icon: ShieldCheck, color: 'text-yellow-500' },
-      { num: 10, label: 'Data Analytics', desc: 'SQL, dashboards & reporting', icon: Database, color: 'text-fuchsia-400' },
+      { num: 7, label: 'AI / ML', desc: 'Models, training & deployment', icon: Bot, color: 'text-purple-400', badge: 'Popular' },
+      { num: 8, label: 'Data Science', desc: 'Statistics, EDA & storytelling', icon: TrendingUp, color: 'text-orange-400' },
+      { num: 9, label: 'Python Development', desc: 'Scripting, backend & automation', icon: Terminal, color: 'text-yellow-400' },
+      { num: 10, label: 'Cyber Security', desc: 'Network & app security basics', icon: ShieldCheck, color: 'text-yellow-500' },
+      { num: 11, label: 'Data Analytics', desc: 'SQL, dashboards & reporting', icon: Database, color: 'text-fuchsia-400' },
     ],
   },
   {
@@ -60,9 +61,9 @@ const COURSE_COLUMNS = [
     title: 'Design & Other',
     icon: Palette,
     items: [
-      { num: 11, label: 'UI / UX Design', desc: 'Figma, wireframes & prototyping', icon: PenTool, color: 'text-pink-400', badge: 'Popular' },
-      { num: 12, label: 'Graphic Design', desc: 'Visual identity & branding', icon: Sparkles, color: 'text-orange-400' },
-      { num: 13, label: 'Digital Marketing', desc: 'SEO, ads & social growth', icon: Megaphone, color: 'text-amber-500' },
+      { num: 12, label: 'UI / UX Design', desc: 'Figma, wireframes & prototyping', icon: PenTool, color: 'text-pink-400', badge: 'Popular' },
+      { num: 13, label: 'Graphic Design', desc: 'Visual identity & branding', icon: Sparkles, color: 'text-orange-400' },
+      { num: 14, label: 'Digital Marketing', desc: 'SEO, ads & social growth', icon: Megaphone, color: 'text-amber-500' },
     ],
   },
 ];
@@ -539,10 +540,33 @@ const Navbar = () => {
 
   const handleLogout = () => { logout(); navigate('/'); };
 
-  // Match a mega-menu label (e.g. "AI / ML") to a real course from
-  // CoursesContext (e.g. "AI & Automation") by word overlap, since the
-  // menu's display names don't always exactly match course titles.
+  // Map mega-menu labels to exact course titles
+  const MENU_TO_COURSE_MAP = {
+    'Full Stack Development': 'Full Stack Web Development',
+    'MERN Stack Development': 'Full Stack Web Development',
+    'Java Development': 'Java Programming',
+    'C / C++ Programming': 'C/C++ Programming',
+    'Web Development': 'Full Stack Web Development',
+    'Mobile App Development': 'Mobile App Development',
+    'AI / ML': 'AI & Automation',
+    'Data Science': 'Data Science & Analytics',
+    'Python Development': 'Python Programming',
+    'Cyber Security': 'Cloud Solutions & DevOps',
+    'Data Analytics': 'Data Science & Analytics',
+    'UI / UX Design': 'UI/UX Design',
+    'Graphic Design': 'UI/UX Design',
+    'Digital Marketing': 'Digital Marketing',
+  };
+
   const findRealCourse = useCallback((label) => {
+    // Try exact mapping first
+    const mappedTitle = MENU_TO_COURSE_MAP[label];
+    if (mappedTitle) {
+      const match = (activeCourses || []).find(c => c.title === mappedTitle);
+      if (match) return match;
+    }
+    
+    // Fallback: fuzzy match by word overlap
     const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
     const targetWords = norm(label).split(' ').filter((w) => w.length > 2);
     let best = null, bestScore = 0;
@@ -644,7 +668,7 @@ const Navbar = () => {
                 >
                   <button
                     ref={coursesTriggerRef}
-                    className="nav-link relative"
+                    className="nav-link relative flex items-center gap-1"
                     onClick={handleTriggerClick}
                     onFocus={openCourses}
                     aria-expanded={coursesOpen}
@@ -652,6 +676,10 @@ const Navbar = () => {
                     aria-controls="courses-mega-menu"
                   >
                     <span className={coursesOpen ? 'text-[#00d68f]' : ''}>{l.label}</span>
+                    <ChevronDown 
+                      size={14} 
+                      className={`transition-transform duration-200 ${coursesOpen ? 'rotate-180 text-[#00d68f]' : ''}`}
+                    />
                     <motion.span
                       className="absolute -bottom-1 left-0 h-[2px] rounded-full bg-[#00d68f]"
                       initial={false}
@@ -682,13 +710,17 @@ const Navbar = () => {
                   onMouseLeave={canHover ? scheduleCloseInternships : undefined}
                 >
                   <button
-                    className="nav-link relative"
+                    className="nav-link relative flex items-center gap-1"
                     onClick={() => setInternshipsOpen((o) => !o)}
                     aria-expanded={internshipsOpen}
                     aria-haspopup="menu"
                     aria-controls="internships-mega-menu"
                   >
                     <span className={internshipsOpen ? 'text-[#00d68f]' : ''}>{l.label}</span>
+                    <ChevronDown 
+                      size={14} 
+                      className={`transition-transform duration-200 ${internshipsOpen ? 'rotate-180 text-[#00d68f]' : ''}`}
+                    />
                     <motion.span
                       className="absolute -bottom-1 left-0 h-[2px] rounded-full bg-[#00d68f]"
                       initial={false}
