@@ -276,14 +276,14 @@ const Dashboard = () => {
             <img src="/welogo.png" alt="WeIntern" className="dash-logo" />
           </Link>
           <button
-            type="button"
-            className="sidebar-close"
-            aria-label="Close sidebar"
-            onClick={() => setSidebarOpen(false)}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              setSidebarOpen(false);
-            }}
+  type="button"
+  className="sidebar-close"
+  aria-label="Close navigation menu"
+  onClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSidebarOpen(false);
+  }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }}>
               <line x1="18" y1="6" x2="6" y2="18"></line>
