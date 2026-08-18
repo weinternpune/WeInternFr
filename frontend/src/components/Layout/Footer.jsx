@@ -119,9 +119,9 @@ const Footer = () => (
         <div className="footer-col footer-contact">
           <h5>Contact</h5>
 
-          <a href="mailto:contact.weintern@gmail.com">
+          <a href="mailto:contact@we-intern.in">
             <i className="far fa-envelope" />
-            contact.weintern@gmail.com
+            contact@we-intern.in
           </a>
 
           <a href="tel:+917414974582">
