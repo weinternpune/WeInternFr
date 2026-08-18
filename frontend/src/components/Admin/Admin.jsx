@@ -4575,22 +4575,69 @@ const MentorManagement = () => {
     </div>
 
     {overview?.stats && (
-      <div className="stats-grid" style={{ marginBottom: '1.5rem' }}>
-        <div className="stat-card">
-          <div className="stat-value">{overview.stats.totalMentors || 0}</div>
-          <div className="stat-label">Total Mentors</div>
+      <div
+        className="stats-grid"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '14px',
+          marginBottom: '1.5rem'
+        }}
+      >
+        <div className="stat-card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', textAlign: 'left', borderRadius: '12px' }}>
+          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#eff6ff', color: '#1d4ed8', display: 'grid', placeItems: 'center', fontSize: '1.2rem', flexShrink: 0 }}>
+            👨‍🏫
+          </div>
+          <div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--navy)', lineHeight: 1.1 }}>
+              {overview.stats.totalMentors || 0}
+            </div>
+            <div style={{ fontSize: '.78rem', color: 'var(--muted)', fontWeight: 600, marginTop: '3px' }}>
+              Total Mentors
+            </div>
+          </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-value">{overview.stats.totalStudentsMentored || 0}</div>
-          <div className="stat-label">Students Mentored</div>
+
+        <div className="stat-card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', textAlign: 'left', borderRadius: '12px' }}>
+          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#f0fdf4', color: '#15803d', display: 'grid', placeItems: 'center', fontSize: '1.2rem', flexShrink: 0 }}>
+            👥
+          </div>
+          <div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--navy)', lineHeight: 1.1 }}>
+              {overview.stats.totalStudentsMentored || 0}
+            </div>
+            <div style={{ fontSize: '.78rem', color: 'var(--muted)', fontWeight: 600, marginTop: '3px' }}>
+              Students Mentored
+            </div>
+          </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-value">{overview.stats.totalClasses || 0}</div>
-          <div className="stat-label">Scheduled Classes</div>
+
+        <div className="stat-card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', textAlign: 'left', borderRadius: '12px' }}>
+          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#fffbeb', color: '#b45309', display: 'grid', placeItems: 'center', fontSize: '1.2rem', flexShrink: 0 }}>
+            📅
+          </div>
+          <div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--navy)', lineHeight: 1.1 }}>
+              {overview.stats.totalClasses || 0}
+            </div>
+            <div style={{ fontSize: '.78rem', color: 'var(--muted)', fontWeight: 600, marginTop: '3px' }}>
+              Scheduled Classes
+            </div>
+          </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-value">{overview.stats.totalPendingSubmissions || 0}</div>
-          <div className="stat-label">Pending Reviews</div>
+
+        <div className="stat-card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', textAlign: 'left', borderRadius: '12px' }}>
+          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#fef2f2', color: '#b91c1c', display: 'grid', placeItems: 'center', fontSize: '1.2rem', flexShrink: 0 }}>
+            📝
+          </div>
+          <div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--navy)', lineHeight: 1.1 }}>
+              {overview.stats.totalPendingSubmissions || 0}
+            </div>
+            <div style={{ fontSize: '.78rem', color: 'var(--muted)', fontWeight: 600, marginTop: '3px' }}>
+              Pending Reviews
+            </div>
+          </div>
         </div>
       </div>
     )}
