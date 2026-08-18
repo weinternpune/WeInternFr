@@ -111,6 +111,14 @@ export const getStudentMentorNotifications = () => API.get('/mentor/student/noti
 export const getStudentMentorMessages = () => API.get('/mentor/student/messages');
 export const sendStudentMentorMessage = (data) => API.post('/mentor/student/messages', data);
 
+export const deleteAdminAccount = (id) => API.delete(`/admin/admins/${id}`);
+export const deleteAdminEnrollment = (id) => API.delete(`/admin/enrollments/${id}`);
+export const createMentorProject = (data) => API.post('/mentor/projects', data);
+export const deleteMentorProject = (id) => API.delete(`/mentor/projects/${id}`);
+export const getStudentProjects = () => API.get('/mentor/student/projects');
+export const getStudentLiveClasses = () => API.get('/mentor/student/live-classes');
+export const uploadMentorFile = (formData) => API.post('/mentor/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+
 // Blog
 export const getBlogPosts = () => API.get('/blog');
 export const getBlogPost = (slug) => API.get(`/blog/${slug}`);

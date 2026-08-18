@@ -2,7 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCourses } from '../../context/CoursesContext';
-import { getMyApplications, getMyEnrollments, updateProfile, getDashboardStats, getDashboardAnalytics, trackActivity, getStudentMentorClasses } from '../../utils/api';
+import {
+  getMyApplications, getMyEnrollments, updateProfile, getDashboardStats,
+  getDashboardAnalytics, trackActivity, getStudentMentorClasses,
+  getStudentLiveClasses, getStudentMentorAssignments, submitStudentMentorAssignment
+} from '../../utils/api';
 import API from '../../utils/api';
 import toast from 'react-hot-toast';
 import {
@@ -372,9 +376,12 @@ const Dashboard = () => {
 // ── Overview ────────────────────────────────────────────
 const OverviewTab = ({ user, applications, enrollments, dashboardStats, analyticsData, mentorClasses, setTab }) => {
   const accepted = applications.filter(a => a.status === 'accepted').length;
+  const activeEnrollments = enrollments.filter(
+    e => e.paymentStatus === 'paid' || e.paymentStatus?.startsWith('emi') || e.amountPaid > 0
+  );
 
   const STATS = [
-    { icon: Icons.book,    val: enrollments.length, label: 'Enrolled',      color: '#2196C9', bg: '#e3f2fd' },
+    { icon: Icons.book,    val: activeEnrollments.length, label: 'Enrolled',      color: '#2196C9', bg: '#e3f2fd' },
     { icon: Icons.trophy,  val: accepted,            label: 'Accepted',      color: '#27ae60', bg: '#e8f5e9' },
     { icon: Icons.clock,   val: `${dashboardStats.totalStudyHours}h`,              label: 'Hours Logged',  color: '#E8A820', bg: '#fff8e1' },
     { icon: Icons.target,  val: `${dashboardStats.attendanceRate}%`,               label: 'Attendance',    color: '#6c3483', bg: '#f3e5f5' },
@@ -389,7 +396,7 @@ const OverviewTab = ({ user, applications, enrollments, dashboardStats, analytic
         <div className="wb-left">
           <div className="wb-greeting">Good day, {user.name?.split(' ')[0]}! 👋</div>
           <h2 className="wb-title">Ready to build your future today?</h2>
-          <p className="wb-sub">You have {applications.filter(a=>a.status==='pending').length} pending application{applications.filter(a=>a.status==='pending').length !== 1 ? 's' : ''} and {enrollments.length} course{enrollments.length !== 1 ? 's' : ''} enrolled.</p>
+          <p className="wb-sub">You have {activeEnrollments.length} confirmed enrollment{activeEnrollments.length !== 1 ? 's' : ''} and {accepted} accepted application{accepted !== 1 ? 's' : ''}.</p>
           <div className="wb-btns">
             <button onClick={() => setTab('allcourses')} className="wb-btn-primary">Browse Courses</button>
             <button onClick={() => setTab('sessions')} className="wb-btn-outline">Join Live Session</button>
@@ -421,7 +428,7 @@ const OverviewTab = ({ user, applications, enrollments, dashboardStats, analytic
         ))}
       </div>
 
-      {/* Recent Activity + Quick Links */}
+      {/* Recent Activity */}
       <div className="overview-grid">
         <div className="overview-card">
           <div className="oc-header"><h3>Recent Applications</h3>
@@ -443,16 +450,16 @@ const OverviewTab = ({ user, applications, enrollments, dashboardStats, analytic
         </div>
 
         <div className="overview-card">
-          <div className="oc-header"><h3>My Courses</h3>
+          <div className="oc-header"><h3>My Confirmed Courses</h3>
             <button className="oc-link" onClick={() => setTab('mycourses')}>View All</button>
           </div>
-          {enrollments.length === 0 ? (
+          {activeEnrollments.length === 0 ? (
             <div className="oc-empty">
               <div className="oc-empty-icon">{Icons.book}</div>
-              <p>No courses enrolled yet</p>
+              <p>No confirmed courses yet</p>
               <button onClick={() => setTab('allcourses')} className="wb-btn-primary" style={{ fontSize:'.82rem', padding:'.5rem 1.2rem' }}>Browse Courses</button>
             </div>
-          ) : enrollments.slice(0,4).map(e => (
+          ) : activeEnrollments.slice(0,4).map(e => (
             <div key={e._id} className="oc-row">
               <div className="oc-row-icon" style={{ background:'#e8f5e9', color:'#27ae60' }}>{Icons.book}</div>
               <div className="oc-row-info"><strong>{e.courseName}</strong><span>{e.college}</span></div>
@@ -462,34 +469,14 @@ const OverviewTab = ({ user, applications, enrollments, dashboardStats, analytic
         </div>
 
         <div className="overview-card">
-          <div className="oc-header"><h3>Quick Actions</h3></div>
-          <div className="quick-actions">
-            {[
-              { icon: Icons.mentor,     label:'My Mentor',      sub:'Mentor hub & schedule', color:'#0369a1', bg:'#e0f2fe', tab:'mentor' },
-              { icon: Icons.assignments,label:'Assignments',    sub:'Submit & view tasks',   color:'#b45309', bg:'#fef3c7', tab:'assignments' },
-              { icon: Icons.attendance, label:'Attendance',     sub:'Check attendance record', color:'#15803d', bg:'#f0fdf4', tab:'attendance' },
-              { icon: Icons.allcourses, label:'Browse Courses', sub:'Explore new courses', color:'rgb(215 237 247)', bg:'rgb(29 96 145)', tab:'allcourses' },
-              { icon: Icons.sessions,   label:'Live Sessions',  sub:'Join upcoming sessions', color:'#f1f7f3', bg:'rgb(17 132 26)', tab:'sessions' },
-              { icon: Icons.practice,   label:'Practice Now',   sub:'Coding challenges', color:'#6c3483', bg:'#d03ae7', tab:'practice' },
-            ].map(q => (
-              <button key={q.label} className="qa-item" onClick={() => setTab(q.tab)}>
-                <div className="qa-icon" style={{ background: q.bg, color: q.color }}>{q.icon}</div>
-                <div><div className="qa-label">{q.label}</div><div className="qa-sub">{q.sub}</div></div>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="overview-card">
-          <div className="oc-header"><h3>My Mentor Classes</h3><span className="oc-link" style={{cursor:'default'}}>Live from database</span></div>
+          <div className="oc-header"><h3>My Mentor Classes</h3><span className="oc-link" onClick={() => setTab('sessions')} style={{cursor:'pointer'}}>View Schedule →</span></div>
           {mentorClasses?.length ? mentorClasses.slice(0,4).map((s) => (
             <div key={s._id} className="session-row">
               <div className="sr-dot" style={{ background: s.status === 'live' ? '#27ae60' : '#E8A820' }} />
               <div className="sr-info"><strong>{s.title}</strong><span>{new Date(s.date).toLocaleDateString('en-IN',{day:'numeric',month:'short'})} · {s.startTime}–{s.endTime} · {s.mentor?.name || 'Mentor'}</span></div>
               {s.status === 'live'
-                ? <a href={s.meetingLink || '#'} target="_blank" rel="noreferrer" className="sr-live">● JOIN</a>
-                : <span className="sr-upcoming">{s.status === 'completed' ? 'Done' : 'Soon'}</span>}
+                ? <a href={s.meetingLink || '#'} target="_blank" rel="noreferrer" className="sr-live">● JOIN LIVE</a>
+                : s.meetingLink ? <a href={s.meetingLink} target="_blank" rel="noreferrer" style={{ fontSize: '.75rem', color: '#1d4ed8', fontWeight: 600, textDecoration: 'none' }}>Link ↗</a> : <span className="sr-upcoming">{s.status === 'completed' ? 'Done' : 'Scheduled'}</span>}
             </div>
           )) : (
             <div className="oc-empty"><div className="oc-empty-icon">{Icons.sessions}</div><p>No mentor classes scheduled yet.</p></div>
@@ -1175,192 +1162,218 @@ const AllCoursesTab = () => {
 
 // ── Live Sessions ─────────────────────────────────────────
 const LiveSessionsTab = ({ dashboardStats }) => {
-  
+  const [liveClasses, setLiveClasses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadClasses = async () => {
+    try {
+      setLoading(true);
+      const res = await getStudentLiveClasses().catch(() => getStudentMentorClasses());
+      setLiveClasses(res.data?.data || []);
+    } catch (err) {
+      console.error('Failed to load live sessions:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadClasses();
+  }, []);
+
   const handleSessionJoin = async (session) => {
     try {
-      // Simulate attending a session
       await trackActivity({ 
         activityType: 'session_attended',
         details: { 
-          duration: parseInt(session.duration.split(' ')[0]), // Extract minutes
-          sessionTopic: session.topic,
-          instructor: session.instructor
+          duration: 60,
+          sessionTopic: session.title,
+          instructor: session.mentor?.name || 'Mentor'
         }
       });
-      
-      toast.success(`Joined ${session.topic} session!`);
-      
-      // Refresh page to show updated stats
-      await getDashboardAnalytics();
+      toast.success(`Joining ${session.title}...`);
+      if (session.meetingLink) {
+        window.open(session.meetingLink, '_blank', 'noopener,noreferrer');
+      }
     } catch (error) {
       toast.error('Failed to track session attendance');
     }
   };
-  
-  const UPCOMING = dashboardStats?.upcomingSessions || [];
 
-  const PAST = [];
+  const upcomingClasses = liveClasses.filter(c => c.status !== 'completed');
+  const pastClasses = liveClasses.filter(c => c.status === 'completed');
 
   return (
     <div>
       <div className="tab-hdr">
-        <div><h2>Live Sessions</h2><p>Interactive sessions with expert mentors</p></div>
+        <div>
+          <h2>Live Sessions & Classes</h2>
+          <p>Real-time interactive live sessions and lectures with your allocated mentor</p>
+        </div>
         <div className="session-stats-mini">
-          <span><strong>{dashboardStats.sessionsAttended || 0}</strong> attended</span>
-          <span><strong>0</strong> missed</span>
-          <span><strong>{dashboardStats.attendanceRate || 0}%</strong> attendance</span>
+          <span><strong>{dashboardStats?.sessionsAttended || 0}</strong> attended</span>
+          <span><strong>{dashboardStats?.attendanceRate || 0}%</strong> attendance</span>
         </div>
       </div>
 
-      <h3 className="section-sub-title">Upcoming & Live Sessions</h3>
-      <div className="sessions-grid">
-        {UPCOMING.map((s, i) => (
-          <div key={i} className={`session-card${s.status === 'live' ? ' live' : ''}`}>
-            {s.status === 'live' && <div className="sc-live-badge"><span className="sc-live-dot"/>LIVE NOW</div>}
-            <div className="sc-header">
-              <div className="sc-icon">{Icons.video}</div>
-              <div>
-                <h4>{s.topic}</h4>
-                <span>{s.instructor}</span>
-              </div>
-            </div>
-            <div className="sc-meta">
-              <div className="sc-meta-item">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                {s.date} · {s.time}
-              </div>
-              <div className="sc-meta-item">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                {s.duration}
-              </div>
-              <div className="sc-meta-item">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                {s.attendees} attending
-              </div>
-            </div>
-            <button className={`sc-join-btn${s.status === 'live' ? ' live' : ''}`} onClick={() => handleSessionJoin(s)}>
-              {s.status === 'live' ? 'Join Now →' : 'Set Reminder'}
-            </button>
-          </div>
-        ))}
-      </div>
+      <h3 className="section-sub-title">Live & Scheduled Classes ({upcomingClasses.length})</h3>
+      
+      {loading ? (
+        <div style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>
+          Loading live class schedule from database...
+        </div>
+      ) : upcomingClasses.length === 0 ? (
+        <div className="empty-sessions-history" style={{ padding: '40px 20px' }}>
+          <div className="empty-sessions-icon" style={{ opacity: 0.6 }}>{Icons.sessions}</div>
+          <h4>No Live Sessions Scheduled Right Now</h4>
+          <p>Your mentor has not scheduled upcoming live classes yet. Check back soon!</p>
+        </div>
+      ) : (
+        <div className="sessions-grid">
+          {upcomingClasses.map((s) => {
+            const classDate = s.date ? new Date(s.date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }) : 'Upcoming';
+            const isLive = s.status === 'live';
 
-      <h3 className="section-sub-title" style={{ marginTop:'2rem' }}>Session History</h3>
-      <div className="sessions-history">
-        {PAST.length > 0 ? PAST.map((s, i) => (
-          <div key={i} className="sh-row">
-            <div className="sh-icon" style={{ background: s.attended ? '#e8f5e9' : '#fdecea', color: s.attended ? '#27ae60' : '#dc4545' }}>
-              {s.attended ? Icons.check : Icons.trash}
-            </div>
-            <div className="sh-info"><strong>{s.topic}</strong><span>{s.date} · {s.duration}</span></div>
-            <span className={`sh-status ${s.attended ? 'attended' : 'missed'}`}>{s.attended ? 'Attended' : 'Missed'}</span>
-            <strong className="sh-score" style={{ color: s.attended ? '#27ae60' : '#dc4545' }}>{s.score}</strong>
+            return (
+              <div key={s._id} className={`session-card${isLive ? ' live' : ''}`}>
+                {isLive && <div className="sc-live-badge"><span className="sc-live-dot"/>LIVE NOW</div>}
+                <div className="sc-header">
+                  <div className="sc-icon">{Icons.video}</div>
+                  <div>
+                    <h4>{s.title}</h4>
+                    <span>👨‍🏫 {s.mentor?.name || 'Assigned Mentor'}</span>
+                  </div>
+                </div>
+                <div className="sc-meta">
+                  <div className="sc-meta-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    {classDate} · {s.startTime}–{s.endTime}
+                  </div>
+                  <div className="sc-meta-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    {s.classType || 'Interactive Lecture'}
+                  </div>
+                  {s.batch && (
+                    <div className="sc-meta-item">
+                      🏷️ {s.batch}
+                    </div>
+                  )}
+                </div>
+                {s.meetingLink ? (
+                  <button
+                    className={`sc-join-btn${isLive ? ' live' : ''}`}
+                    onClick={() => handleSessionJoin(s)}
+                  >
+                    {isLive ? '🚀 Join Live Meeting →' : '🔗 Open Meeting Link'}
+                  </button>
+                ) : (
+                  <button className="sc-join-btn" disabled style={{ opacity: 0.6, cursor: 'default' }}>
+                    Scheduled · Link Coming Soon
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {pastClasses.length > 0 && (
+        <>
+          <h3 className="section-sub-title" style={{ marginTop: '2rem' }}>Past Completed Sessions</h3>
+          <div className="sessions-history">
+            {pastClasses.map((s) => (
+              <div key={s._id} className="sh-row">
+                <div className="sh-icon" style={{ background: '#e8f5e9', color: '#27ae60' }}>
+                  {Icons.check}
+                </div>
+                <div className="sh-info">
+                  <strong>{s.title}</strong>
+                  <span>{new Date(s.date).toLocaleDateString('en-IN')} · {s.startTime}–{s.endTime} · {s.mentor?.name || 'Mentor'}</span>
+                </div>
+                <span className="sh-status attended">Completed</span>
+              </div>
+            ))}
           </div>
-        )) : (
-          <div className="empty-sessions-history">
-            <div className="empty-sessions-icon" style={{ opacity: 0.5 }}>{Icons.sessions}</div>
-            <h4>No Session History</h4>
-            <p>Your session attendance history will appear here once you start attending sessions for your enrolled courses.</p>
-          </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 };
 
 // ── Practice ──────────────────────────────────────────────
-const PracticeTab = ({
-  dashboardStats,
-  analyticsData
-}) => {
-  const practiceResults =
-    analyticsData?.practiceResults || [];
+const PracticeTab = ({ dashboardStats, analyticsData }) => {
+  const [mentorAssignments, setMentorAssignments] = useState([]);
+  const [loadingAssignments, setLoadingAssignments] = useState(true);
+  const [submittingAssignment, setSubmittingAssignment] = useState(null);
+  const [solutionAnswer, setSolutionAnswer] = useState('');
+  const [solutionGithub, setSolutionGithub] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const resultMap = new Map(
-    practiceResults.map(result => [
-      result.name,
-      result
-    ])
-  );
+  const loadAssignments = async () => {
+    try {
+      setLoadingAssignments(true);
+      const res = await getStudentMentorAssignments();
+      setMentorAssignments(res.data?.data || []);
+    } catch (err) {
+      console.error('Failed to load mentor assignments:', err);
+    } finally {
+      setLoadingAssignments(false);
+    }
+  };
 
-  const handlePracticeComplete =
-    async challenge => {
-      try {
-        const duration = parseInt(
-          challenge.time.split(" ")[0],
-          10
-        );
+  useEffect(() => {
+    loadAssignments();
+  }, []);
 
-        await trackActivity({
-          activityType:
-            'practice_completed',
-          details: {
-            duration,
-            challengeName:
-              challenge.title,
-            difficulty:
-              challenge.difficulty
-          }
-        });
+  const handlePracticeComplete = async challenge => {
+    try {
+      const duration = parseInt(challenge.time.split(" ")[0], 10) || 20;
+      await trackActivity({
+        activityType: 'practice_completed',
+        details: {
+          duration,
+          challengeName: challenge.title,
+          difficulty: challenge.difficulty
+        }
+      });
+      toast.success(`Completed challenge: ${challenge.title}!`);
+      setTimeout(() => window.location.reload(), 600);
+    } catch (error) {
+      toast.error('Failed to track challenge completion');
+    }
+  };
 
-        toast.success(
-          `Completed ${challenge.title}!`
-        );
-
-        setTimeout(
-          () =>
-            window.location.reload(),
-          500
-        );
-      } catch (error) {
-        console.error(
-          'Practice tracking error:',
-          error
-        );
-
-        toast.error(
-          'Failed to track practice completion'
-        );
-      }
-    };
+  const handleAssignmentSubmit = async (e) => {
+    e.preventDefault();
+    if (!submittingAssignment) return;
+    if (!solutionAnswer.trim() && !solutionGithub.trim()) {
+      return toast.error('Please enter your solution explanation or GitHub URL.');
+    }
+    setIsSubmitting(true);
+    try {
+      await submitStudentMentorAssignment(submittingAssignment._id, {
+        answer: solutionAnswer.trim(),
+        githubUrl: solutionGithub.trim()
+      });
+      toast.success(`Assignment "${submittingAssignment.title}" submitted successfully!`);
+      setSubmittingAssignment(null);
+      setSolutionAnswer('');
+      setSolutionGithub('');
+      loadAssignments();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to submit assignment');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const CHALLENGES = [
-    {
-      title: 'Reverse a String',
-      difficulty: 'Easy',
-      topic: 'JavaScript',
-      time: '15 min'
-    },
-    {
-      title: 'Fibonacci Sequence',
-      difficulty: 'Easy',
-      topic: 'JavaScript',
-      time: '20 min'
-    },
-    {
-      title: 'Binary Search',
-      difficulty: 'Medium',
-      topic: 'Algorithms',
-      time: '30 min'
-    },
-    {
-      title: 'Build a REST API',
-      difficulty: 'Medium',
-      topic: 'Node.js',
-      time: '45 min'
-    },
-    {
-      title: 'React Todo App',
-      difficulty: 'Medium',
-      topic: 'React',
-      time: '60 min'
-    },
-    {
-      title: 'Database Schema Design',
-      difficulty: 'Hard',
-      topic: 'MongoDB',
-      time: '45 min'
-    }
+    { title: 'Reverse a String', difficulty: 'Easy', topic: 'JavaScript', time: '15 min' },
+    { title: 'Fibonacci Sequence', difficulty: 'Easy', topic: 'JavaScript', time: '20 min' },
+    { title: 'Binary Search', difficulty: 'Medium', topic: 'Algorithms', time: '30 min' },
+    { title: 'Build a REST API', difficulty: 'Medium', topic: 'Node.js', time: '45 min' },
+    { title: 'React Todo App', difficulty: 'Medium', topic: 'React', time: '60 min' },
+    { title: 'Database Schema Design', difficulty: 'Hard', topic: 'MongoDB', time: '45 min' }
   ];
 
   const DIFF_COLOR = {
@@ -1369,226 +1382,229 @@ const PracticeTab = ({
     Hard: '#dc4545'
   };
 
-  const solvedCount =
-    dashboardStats.practiceProblems
-      ?.solved || 0;
-
-  const totalProblems =
-    dashboardStats.practiceProblems
-      ?.total || CHALLENGES.length;
-
-  const completion =
-    totalProblems > 0
-      ? Math.round(
-          (solvedCount /
-            totalProblems) *
-            100
-        )
-      : 0;
+  const solvedCount = dashboardStats.practiceProblems?.solved || 0;
+  const totalProblems = dashboardStats.practiceProblems?.total || CHALLENGES.length;
+  const completion = totalProblems > 0 ? Math.round((solvedCount / totalProblems) * 100) : 0;
 
   return (
     <div>
       <div className="tab-hdr">
         <div>
-          <h2>
-            Practice Sessions
-          </h2>
-          <p>
-            Sharpen your skills with
-            coding challenges
-          </p>
+          <h2>Practice & Mentor Assignments</h2>
+          <p>Complete mentor tasks, practical problem sets and coding challenges</p>
         </div>
 
         <div className="practice-stats-mini">
-          <span>
-            <strong>
-              {solvedCount}
-            </strong>{' '}
-            solved
-          </span>
-
-          <span>
-            <strong>
-              {Math.max(
-                0,
-                totalProblems -
-                  solvedCount
-              )}
-            </strong>{' '}
-            pending
-          </span>
-
-          <span>
-            <strong>
-              {completion}%
-            </strong>{' '}
-            completion
-          </span>
+          <span><strong>{mentorAssignments.length}</strong> mentor tasks</span>
+          <span><strong>{solvedCount}</strong> challenges solved</span>
+          <span><strong>{dashboardStats.averageScore || 0}%</strong> avg score</span>
         </div>
       </div>
 
-      <div className="practice-summary">
-        {[
-          {
-            label: 'Problems Solved',
-            val: `${solvedCount}/${totalProblems}`,
-            color: '#27ae60',
-            w: `${completion}%`
-          },
-          {
-            label: 'Avg Score',
-            val: `${dashboardStats.averageScore || 0}%`,
-            color: '#2196C9',
-            w: `${dashboardStats.averageScore || 0}%`
-          },
-          {
-            label: 'Practice Hours',
-            val: `${dashboardStats.practiceHours || 0}h`,
-            color: '#E8A820',
-            w: `${Math.min(
-              100,
-              ((dashboardStats.practiceHours || 0) /
-                10) *
-                100
-            )}%`
-          }
-        ].map(s => (
-          <div
-            key={s.label}
-            className="ps-card"
-          >
-            <div
-              className="ps-val"
-              style={{
-                color: s.color
-              }}
-            >
-              {s.val}
-            </div>
-
-            <div className="ps-label">
-              {s.label}
-            </div>
-
-            <div className="ps-bar">
-              <div
-                className="ps-fill"
-                style={{
-                  width: s.w,
-                  background: s.color
-                }}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="challenges-list">
-        {CHALLENGES.map(
-          (challenge, index) => {
-            const result =
-              resultMap.get(
-                challenge.title
-              );
-
-            const solved = Boolean(
-              result
-            );
+      {/* Mentor Assigned Tasks Section */}
+      <h3 className="section-sub-title">👨‍🏫 Mentor-Allocated Tasks & Assignments ({mentorAssignments.length})</h3>
+      {loadingAssignments ? (
+        <div style={{ padding: '20px', color: '#64748b' }}>Loading assignments given by your mentor...</div>
+      ) : mentorAssignments.length === 0 ? (
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '24px', textAlign: 'center', marginBottom: '25px', color: '#64748b' }}>
+          <p style={{ margin: 0, fontSize: '.88rem' }}>No assignments have been assigned by your mentor yet.</p>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))', gap: '14px', marginBottom: '30px' }}>
+          {mentorAssignments.map((a) => {
+            const isCompleted = a.submission?.status === 'reviewed' || a.submission?.status === 'submitted' || a.submission?.status === 'approved';
+            const score = a.submission?.score;
 
             return (
-              <div
-                key={challenge.title}
-                className={`challenge-card${
-                  solved
-                    ? ' solved'
-                    : ''
-                }`}
-              >
-                <div className="cc-num">
-                  {String(
-                    index + 1
-                  ).padStart(2, '0')}
-                </div>
-
-                <div
-                  className="cc-icon"
-                  style={{
-                    background: solved
-                      ? '#e8f5e9'
-                      : '#f4f6fb',
-                    color: solved
-                      ? '#27ae60'
-                      : '#1B2A4A'
-                  }}
-                >
-                  {Icons.code}
-                </div>
-
-                <div className="cc-info">
-                  <h4>
-                    {challenge.title}
-                  </h4>
-
-                  <span>
-                    {challenge.topic} ·{' '}
-                    {challenge.time}
-                  </span>
-                </div>
-
-                <div className="cc-right">
-                  <span
-                    className="cc-diff"
-                    style={{
-                      color:
-                        DIFF_COLOR[
-                          challenge
-                            .difficulty
-                        ],
-                      background:
-                        DIFF_COLOR[
-                          challenge
-                            .difficulty
-                        ] + '18',
-                      border:
-                        `1px solid ${
-                          DIFF_COLOR[
-                            challenge
-                              .difficulty
-                          ]
-                        }33`
-                    }}
-                  >
-                    {challenge.difficulty}
-                  </span>
-
-                  {solved ? (
-                    <span className="cc-score">
-                      {Number.isFinite(
-                        Number(
-                          result.score
-                        )
-                      )
-                        ? `${result.score}%`
-                        : 'Completed'}
+              <div key={a._id} style={{
+                background: '#ffffff',
+                border: isCompleted ? '1.5px solid #bbf7d0' : '1.5px solid #e2e8f0',
+                borderRadius: '12px',
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                  <div>
+                    <h4 style={{ margin: '0 0 4px', fontSize: '.92rem', color: '#1e293b', fontWeight: 800 }}>{a.title}</h4>
+                    <span style={{ fontSize: '.72rem', color: '#64748b' }}>
+                      Due: {a.dueDate ? new Date(a.dueDate).toLocaleDateString('en-IN') : 'No deadline'} · Max: {a.maxScore || 100} pts
                     </span>
+                  </div>
+                  <span style={{
+                    fontSize: '.68rem',
+                    fontWeight: 700,
+                    padding: '3px 8px',
+                    borderRadius: '20px',
+                    background: isCompleted ? '#ecfdf5' : '#fffbeb',
+                    color: isCompleted ? '#166534' : '#b45309',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {score !== undefined ? `Scored: ${score}/${a.maxScore || 100}` : isCompleted ? 'Submitted' : 'Pending'}
+                  </span>
+                </div>
+
+                <p style={{ fontSize: '.78rem', color: '#475569', margin: '0', lineClamp: 2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  {a.description || 'Complete this task assigned by your mentor.'}
+                </p>
+
+                {a.attachmentUrl && (
+                  <a
+                    href={a.attachmentUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ fontSize: '.72rem', color: '#1d4ed8', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    📄 Download Assignment Brief (PDF) ↗
+                  </a>
+                )}
+
+                <div style={{ marginTop: 'auto', paddingTop: '8px' }}>
+                  {isCompleted ? (
+                    <button
+                      onClick={() => setSubmittingAssignment(a)}
+                      style={{
+                        width: '100%',
+                        background: '#f0fdf4',
+                        color: '#166534',
+                        border: '1px solid #bbf7d0',
+                        borderRadius: '7px',
+                        padding: '7px 12px',
+                        fontSize: '.75rem',
+                        fontWeight: 700,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      ✓ Completed — Update Solution
+                    </button>
                   ) : (
                     <button
-                      className="cc-solve-btn"
-                      onClick={() =>
-                        handlePracticeComplete(
-                          challenge
-                        )
-                      }
+                      onClick={() => {
+                        setSubmittingAssignment(a);
+                        setSolutionAnswer(a.submission?.answer || '');
+                        setSolutionGithub(a.submission?.githubUrl || '');
+                      }}
+                      style={{
+                        width: '100%',
+                        background: 'linear-gradient(135deg, #e8a820, #f5c453)',
+                        color: '#12233f',
+                        border: 'none',
+                        borderRadius: '7px',
+                        padding: '8px 12px',
+                        fontSize: '.78rem',
+                        fontWeight: 800,
+                        cursor: 'pointer'
+                      }}
                     >
-                      Complete
+                      🚀 Complete & Submit Solution
                     </button>
                   )}
                 </div>
               </div>
             );
-          }
-        )}
+          })}
+        </div>
+      )}
+
+      {/* Code Challenges Section */}
+      <h3 className="section-sub-title">💻 General Practice Challenges ({CHALLENGES.length})</h3>
+      <div className="challenges-list">
+        {CHALLENGES.map((challenge, index) => {
+          return (
+            <div key={challenge.title} className="challenge-card">
+              <div className="cc-num">{String(index + 1).padStart(2, '0')}</div>
+              <div className="cc-icon" style={{ background: '#f4f6fb', color: '#1B2A4A' }}>
+                {Icons.code}
+              </div>
+              <div className="cc-info">
+                <h4>{challenge.title}</h4>
+                <span>{challenge.topic} · {challenge.time}</span>
+              </div>
+              <div className="cc-right">
+                <span
+                  className="cc-diff"
+                  style={{
+                    color: DIFF_COLOR[challenge.difficulty],
+                    background: DIFF_COLOR[challenge.difficulty] + '18',
+                    border: `1px solid ${DIFF_COLOR[challenge.difficulty]}33`
+                  }}
+                >
+                  {challenge.difficulty}
+                </span>
+                <button
+                  className="cc-solve-btn"
+                  onClick={() => handlePracticeComplete(challenge)}
+                >
+                  Complete Challenge
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
+
+      {/* Solution Submission Modal */}
+      {submittingAssignment && (
+        <div className="modal-overlay" onClick={() => setSubmittingAssignment(null)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: 520 }}>
+            <button className="modal-close" onClick={() => setSubmittingAssignment(null)}>×</button>
+            <h3 style={{ fontFamily: "'Playfair Display',serif", color: 'var(--navy)', marginBottom: '8px' }}>
+              Submit: {submittingAssignment.title}
+            </h3>
+            <p style={{ fontSize: '.78rem', color: '#64748b', marginBottom: '16px' }}>
+              Due: {submittingAssignment.dueDate ? new Date(submittingAssignment.dueDate).toLocaleDateString('en-IN') : 'No deadline'} · Max: {submittingAssignment.maxScore || 100} points
+            </p>
+
+            <form onSubmit={handleAssignmentSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '.75rem', fontWeight: 700, color: 'var(--navy)', marginBottom: '4px' }}>
+                  Solution / Explanation / Output *
+                </label>
+                <textarea
+                  rows={4}
+                  required
+                  placeholder="Explain your approach, paste solution summary or key findings..."
+                  value={solutionAnswer}
+                  onChange={e => setSolutionAnswer(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: '7px', border: '1px solid var(--border)', fontFamily: "'DM Sans',sans-serif", fontSize: '.82rem' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '.75rem', fontWeight: 700, color: 'var(--navy)', marginBottom: '4px' }}>
+                  GitHub Repository / Code Link (Optional)
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://github.com/username/project"
+                  value={solutionGithub}
+                  onChange={e => setSolutionGithub(e.target.value)}
+                  style={{ width: '100%', padding: '8px 10px', borderRadius: '7px', border: '1px solid var(--border)', fontFamily: "'DM Sans',sans-serif", fontSize: '.82rem' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setSubmittingAssignment(null)}
+                  style={{ background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '7px', padding: '8px 16px', fontSize: '.8rem', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  style={{ background: 'linear-gradient(135deg, #e8a820, #f5c453)', color: '#12233f', border: 'none', borderRadius: '7px', padding: '8px 18px', fontSize: '.8rem', fontWeight: 800, cursor: 'pointer' }}
+                >
+                  {isSubmitting ? 'Submitting...' : '✓ Submit Assignment'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

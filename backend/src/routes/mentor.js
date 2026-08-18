@@ -1,6 +1,9 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const router = express.Router();
 
 const { protect, mentorOnly, mentorOrAdmin, adminOnly } = require('../middleware/auth');
@@ -16,6 +19,47 @@ const Notification = require('../models/MentorNotification');
 const { UserActivity } = require('../models/UserActivity');
 const { Enrollment } = require('../models/Enrollment');
 const Application = require('../models/Application');
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, '../../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const baseName = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9_-]/g, '_');
+    cb(null, `${Date.now()}_${baseName}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 25 * 1024 * 1024 }
+});
+
+// PDF & document upload endpoint
+router.post('/upload', protect, upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+    const fileUrl = `/uploads/${req.file.filename}`;
+    res.json({
+      success: true,
+      message: 'File uploaded successfully',
+      fileUrl,
+      fileName: req.file.originalname,
+      size: req.file.size
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 
 const studentFilterForMentor = (mentorId) => ({
   role: 'student',
@@ -557,9 +601,54 @@ router.get('/projects', protect, mentorOrAdmin, async (req, res) => {
     if (!mentorId) return res.json({ success: true, data: [] });
 
     const projects = await Project.find({ mentor: mentorId })
-      .populate('student', 'name email')
+      .populate('student', 'name email phone domain')
       .sort({ updatedAt: -1 });
     res.json({ success: true, data: projects });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Create/Assign project to student(s)
+router.post('/projects', protect, mentorOrAdmin, async (req, res) => {
+  try {
+    const mentorId = await resolveTargetMentorId(req);
+    if (!mentorId) return res.status(400).json({ success: false, message: 'Mentor not found' });
+
+    const { title, description, githubUrl, studentIds = [], studentId } = req.body;
+    if (!title) return res.status(400).json({ success: false, message: 'Project title is required' });
+
+    const targets = Array.isArray(studentIds) && studentIds.length > 0 ? studentIds : (studentId ? [studentId] : []);
+    if (targets.length === 0) {
+      return res.status(400).json({ success: false, message: 'Please select at least one student to assign the project to' });
+    }
+
+    const createdProjects = [];
+    for (const sid of targets) {
+      const p = await Project.create({
+        mentor: mentorId,
+        student: sid,
+        title,
+        description: description || '',
+        githubUrl: githubUrl || '',
+        progress: 0,
+        status: 'onboarding'
+      });
+      createdProjects.push(p);
+
+      await Notification.create({
+        recipient: sid,
+        title: `New Project Allocated: ${title}`,
+        message: `Your mentor assigned a new capstone project: "${title}". Check your dashboard projects.`,
+        type: 'project'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `Project assigned to ${createdProjects.length} student(s)`,
+      data: createdProjects
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -576,6 +665,51 @@ router.patch('/projects/:id', protect, mentorOrAdmin, async (req, res) => {
     ).populate('student', 'name email');
     if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
     res.json({ success: true, data: project });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+router.delete('/projects/:id', protect, mentorOrAdmin, async (req, res) => {
+  try {
+    const mentorId = await resolveTargetMentorId(req);
+    const query = req.user.role === 'admin' ? { _id: req.params.id } : { _id: req.params.id, mentor: mentorId };
+    const project = await Project.findOneAndDelete(query);
+    if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
+    res.json({ success: true, message: 'Project deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Student: get assigned projects
+router.get('/student/projects', protect, async (req, res) => {
+  try {
+    const projects = await Project.find({ student: req.user._id })
+      .populate('mentor', 'name email phone expertise')
+      .sort({ updatedAt: -1 });
+    res.json({ success: true, data: projects });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Student: get assigned live classes
+router.get('/student/live-classes', protect, async (req, res) => {
+  try {
+    const studentUser = await User.findById(req.user._id);
+    const mentorId = studentUser?.mentor;
+    if (!mentorId) return res.json({ success: true, data: [] });
+
+    const classes = await MentorClass.find({
+      $or: [
+        { students: req.user._id },
+        { mentor: mentorId }
+      ],
+      status: { $ne: 'cancelled' }
+    }).populate('mentor', 'name email').sort({ date: 1, startTime: 1 });
+
+    res.json({ success: true, data: classes });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -1089,7 +1223,7 @@ router.get('/student/mentor-overview', protect, async (req, res) => {
     const presentCount = attendance.filter(a => a.status === 'present').length;
     const lateCount = attendance.filter(a => a.status === 'late').length;
     const absentCount = attendance.filter(a => a.status === 'absent').length;
-    const attendanceRate = totalSessions > 0 ? Math.round(((presentCount + (lateCount * 0.5)) / totalSessions) * 100) : 100;
+    const attendanceRate = totalSessions > 0 ? Math.round(((presentCount + (lateCount * 0.5)) / totalSessions) * 100) : 0;
 
     res.json({
       success: true,

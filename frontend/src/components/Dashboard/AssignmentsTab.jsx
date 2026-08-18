@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import {
   getStudentMentorAssignments,
-  submitStudentMentorAssignment
+  submitStudentMentorAssignment,
+  uploadMentorFile
 } from '../../utils/api';
 import toast from 'react-hot-toast';
 import './AssignmentsTab.css';
@@ -19,6 +20,8 @@ const AssignmentsTab = () => {
   const [answer, setAnswer] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [fileUrl, setFileUrl] = useState('');
+  const [fileName, setFileName] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const loadAssignments = async () => {
@@ -44,6 +47,7 @@ const AssignmentsTab = () => {
     setAnswer(assignment.submission?.answer || '');
     setGithubUrl(assignment.submission?.githubUrl || '');
     setFileUrl(assignment.submission?.fileUrl || '');
+    setFileName('');
   };
 
   const closeAssignment = () => {
@@ -51,6 +55,25 @@ const AssignmentsTab = () => {
     setAnswer('');
     setGithubUrl('');
     setFileUrl('');
+    setFileName('');
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    setUploading(true);
+    try {
+      const res = await uploadMentorFile(formData);
+      setFileUrl(res.data.fileUrl);
+      setFileName(file.name);
+      toast.success(`Uploaded ${file.name}`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -335,6 +358,30 @@ const AssignmentsTab = () => {
                 <div className="desc-content">
                   {selectedAssignment.description || 'No detailed description provided.'}
                 </div>
+                {selectedAssignment.attachmentUrl && (
+                  <div style={{ marginTop: '12px' }}>
+                    <a
+                      href={selectedAssignment.attachmentUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        background: '#f0fdf4',
+                        color: '#166534',
+                        border: '1px solid #bbf7d0',
+                        borderRadius: '6px',
+                        padding: '6px 12px',
+                        fontSize: '.75rem',
+                        fontWeight: 700,
+                        textDecoration: 'none'
+                      }}
+                    >
+                      📄 Download Attached Brief / Problem Statement (PDF)
+                    </a>
+                  </div>
+                )}
               </div>
 
               {/* Mentor Feedback Box if Reviewed */}
@@ -373,6 +420,35 @@ const AssignmentsTab = () => {
                   />
                 </label>
 
+                <div style={{ margin: '10px 0' }}>
+                  <label style={{ display: 'block', fontSize: '.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
+                    Upload Solution PDF / ZIP / Document
+                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                    <label style={{
+                      background: '#f8fafc',
+                      border: '1.5px dashed #cbd5e1',
+                      borderRadius: '8px',
+                      padding: '7px 12px',
+                      fontSize: '.75rem',
+                      fontWeight: 700,
+                      color: '#334155',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}>
+                      📁 {uploading ? 'Uploading...' : 'Choose PDF / ZIP File'}
+                      <input type="file" accept=".pdf,.doc,.docx,.zip,.png,.jpg" onChange={handleFileUpload} style={{ display: 'none' }} disabled={uploading}/>
+                    </label>
+                    {(fileName || fileUrl) && (
+                      <span style={{ fontSize: '.75rem', color: '#166534', fontWeight: 600 }}>
+                        ✅ {fileName || 'File Attached'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
                 <div className="form-two-col">
                   <label>
                     GitHub Repo URL (optional)
@@ -384,7 +460,7 @@ const AssignmentsTab = () => {
                     />
                   </label>
                   <label>
-                    Google Drive / Project Link (optional)
+                    Or External Link (Drive/Docs)
                     <input
                       type="url"
                       value={fileUrl}

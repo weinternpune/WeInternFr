@@ -658,8 +658,8 @@
 .overview-welcome { margin-bottom:2rem; }
 .overview-welcome h2 { font-family:'Inter', sans-serif;font-size:1.7rem;font-weight:800;color:var(--navy);margin-bottom:.35rem;letter-spacing:-0.02em; }
 .overview-welcome p { color:var(--muted); }
-.stats-grid { display:grid;gap:1.25rem;margin-bottom:2rem; }
-.stat-card { background:white;border-radius:var(--r);padding:1.5rem;box-shadow:var(--sh);text-align:center;border:1px solid var(--border);transition:var(--ease); }
+.stats-grid { display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1.25rem;margin-bottom:2rem; }
+.stat-card { background:white;border-radius:var(--r);padding:1.25rem 1.5rem;box-shadow:var(--sh);text-align:center;border:1px solid var(--border);transition:var(--ease); }
 .stat-card:hover { transform:translateY(-3px);box-shadow:var(--shlg); }
 .stat-icon { font-size:1.8rem;margin-bottom:.5rem; }
 .stat-num { font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:.25rem;white-space:normal;word-break:break-word;overflow:visible; }

@@ -87,8 +87,13 @@ app.options("*", cors());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
+const path = require("path");
+
 // Passport
 app.use(passport.initialize());
+
+// Static Uploads Directory
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Rate Limiting
 app.use("/api/", generalLimiter);
