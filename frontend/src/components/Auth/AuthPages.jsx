@@ -81,7 +81,8 @@ export const LoginPage = () => {
     try {
       const res = await login(form);
       loginUser(res.data.token, res.data.user);
-      toast.success(`Welcome back, ${res.data.user.name}! 👋`);
+      toast.dismiss();
+      toast.success(`Welcome back, ${res.data.user.name}! 👋`, { id: 'welcome-toast' });
       navigate(
         res.data.user.role === 'admin'
           ? '/admin'
@@ -648,7 +649,8 @@ export const AuthCallback = () => {
     localStorage.setItem('wi_token', token);
     getProfile().then(res => {
       loginUser(token, res.data.data);
-      toast.success(`Welcome, ${res.data.data.name}! 🎉`);
+      toast.dismiss();
+      toast.success(`Welcome, ${res.data.data.name}! 🎉`, { id: 'welcome-toast' });
       navigate(res.data.data.role === 'admin' ? '/admin' : '/dashboard');
     }).catch(() => setError(true));
   }, []);
