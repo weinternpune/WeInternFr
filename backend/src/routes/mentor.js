@@ -1047,15 +1047,72 @@ router.get('/student/messages', protect, async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-router.post('/student/messages', protect, async (req, res) => {
+// Student: get complete overview of assigned mentor, classes, attendance, assignments, and announcements
+router.get('/student/mentor-overview', protect, async (req, res) => {
   try {
     if (req.user.role !== 'student') return res.status(403).json({ success: false, message: 'Student access required' });
-    const mentor = await User.findOne({ _id: req.user.mentor, role: 'mentor' });
-    if (!mentor) return res.status(404).json({ success: false, message: 'No mentor is assigned to you' });
-    const msg = await Message.create({ sender: req.user._id, recipient: mentor._id, subject: req.body.subject, message: req.body.message, attachmentUrl: req.body.attachmentUrl });
-    await createNotification(mentor._id, 'message', `Message from ${req.user.name}`, String(req.body.message || '').slice(0,120), { messageId: msg._id });
-    res.status(201).json({ success: true, data: await msg.populate('recipient', 'name email') });
-  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+
+    const student = await User.findById(req.user._id).populate('mentor', 'name email phone expertise skills assignedCourses assignedBatches bio experience avatar');
+    const mentor = student?.mentor || null;
+
+    let classes = [];
+    let attendance = [];
+    let assignments = [];
+    let notifications = [];
+
+    if (mentor) {
+      const [cls, att, asg, notifs] = await Promise.all([
+        MentorClass.find({
+          $or: [{ students: student._id }, { mentor: mentor._id }],
+          status: { $ne: 'cancelled' }
+        }).populate('mentor', 'name email').sort({ date: 1, startTime: 1 }).limit(30),
+        Attendance.find({ student: student._id }).populate('mentor', 'name email').populate('classId', 'title date startTime endTime').sort({ markedAt: -1 }).limit(50),
+        Assignment.find({
+          $or: [{ students: student._id }, { mentor: mentor._id }],
+          status: 'active'
+        }).populate('mentor', 'name email').sort({ dueDate: 1 }),
+        Notification.find({ recipient: student._id }).sort({ createdAt: -1 }).limit(30)
+      ]);
+
+      const submissions = await Submission.find({ student: student._id, assignment: { $in: asg.map(a => a._id) } });
+
+      classes = cls;
+      attendance = att;
+      assignments = asg.map(a => ({
+        ...a.toObject(),
+        submission: submissions.find(s => String(s.assignment) === String(a._id)) || null
+      }));
+      notifications = notifs;
+    }
+
+    const totalSessions = attendance.length;
+    const presentCount = attendance.filter(a => a.status === 'present').length;
+    const lateCount = attendance.filter(a => a.status === 'late').length;
+    const absentCount = attendance.filter(a => a.status === 'absent').length;
+    const attendanceRate = totalSessions > 0 ? Math.round(((presentCount + (lateCount * 0.5)) / totalSessions) * 100) : 100;
+
+    res.json({
+      success: true,
+      data: {
+        mentor,
+        classes,
+        attendance,
+        assignments,
+        notifications,
+        stats: {
+          attendanceRate,
+          totalSessions,
+          presentCount,
+          lateCount,
+          absentCount,
+          totalAssignments: assignments.length,
+          completedAssignments: assignments.filter(a => a.submission).length
+        }
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 module.exports = router;

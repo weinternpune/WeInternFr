@@ -12,6 +12,8 @@ import {
 } from 'recharts';
 import './Dashboard.css';
 import AssignmentsTab from './AssignmentsTab';
+import MyMentorTab from './MyMentorTab';
+import AttendanceTab from './AttendanceTab';
 
 const statusBadge = (s) => (
   <span className={`badge-status badge-${s}`}>{s?.charAt(0).toUpperCase() + s?.slice(1)}</span>
@@ -21,6 +23,8 @@ const statusBadge = (s) => (
 const Icons = {
   home: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
   analytics: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+  mentor: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  attendance: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>,
   applications: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
   mycourses: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
   allcourses: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,
@@ -45,16 +49,18 @@ const Icons = {
 };
 
 const TABS = [
-  { id: 'overview',     icon: Icons.home,         label: 'Overview' },
-  { id: 'analytics',   icon: Icons.analytics,    label: 'Analytics' },
-  { id: 'applications',icon: Icons.applications, label: 'My Applications' },
-  { id: 'assignments',icon: Icons.assignments,label: 'Assignments'},
-  { id: 'mycourses',   icon: Icons.mycourses,    label: 'My Courses' },
-  { id: 'allcourses',  icon: Icons.allcourses,   label: 'Browse Courses' },
-  { id: 'sessions',    icon: Icons.sessions,     label: 'Live Sessions' },
-  { id: 'practice',    icon: Icons.practice,     label: 'Practice' },
-  { id: 'certificates',icon: Icons.certificate,  label: 'Certificates' },
-  { id: 'profile',     icon: Icons.profile,      label: 'Profile' },
+  { id: 'overview',     icon: Icons.home,         label: 'Overview', section: 'main' },
+  { id: 'analytics',    icon: Icons.analytics,    label: 'Analytics', section: 'main' },
+  { id: 'mentor',       icon: Icons.mentor,       label: 'My Mentor', section: 'learning' },
+  { id: 'assignments',  icon: Icons.assignments,  label: 'Assignments', section: 'learning' },
+  { id: 'attendance',   icon: Icons.attendance,   label: 'Attendance', section: 'learning' },
+  { id: 'applications', icon: Icons.applications, label: 'My Applications', section: 'learning' },
+  { id: 'mycourses',    icon: Icons.mycourses,    label: 'My Courses', section: 'learning' },
+  { id: 'allcourses',   icon: Icons.allcourses,   label: 'Browse Courses', section: 'learning' },
+  { id: 'sessions',     icon: Icons.sessions,     label: 'Live Sessions', section: 'learning' },
+  { id: 'practice',     icon: Icons.practice,     label: 'Practice', section: 'learning' },
+  { id: 'certificates', icon: Icons.certificate,  label: 'Certificates', section: 'account' },
+  { id: 'profile',      icon: Icons.profile,      label: 'Profile', section: 'account' },
 ];
 
 const Dashboard = () => {
@@ -277,7 +283,7 @@ const Dashboard = () => {
           <div>
             <div className="dash-nav-section">
               <div className="dns-label">Main</div>
-              {TABS.slice(0,2).map(t => (
+              {TABS.filter(t => t.section === 'main').map(t => (
                 <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
                   onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
                   <span className="dni-icon">{t.icon}</span>
@@ -287,8 +293,8 @@ const Dashboard = () => {
             </div>
 
             <div className="dash-nav-section">
-              <div className="dns-label">Learning</div>
-              {TABS.slice(2,8).map(t => (
+              <div className="dns-label">Mentorship & Learning</div>
+              {TABS.filter(t => t.section === 'learning').map(t => (
                 <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
                   onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
                   <span className="dni-icon">{t.icon}</span>
@@ -305,7 +311,7 @@ const Dashboard = () => {
 
             <div className="dash-nav-section">
               <div className="dns-label">Account</div>
-              {TABS.slice(8).map(t => (
+              {TABS.filter(t => t.section === 'account').map(t => (
                 <button key={t.id} className={`dash-nav-item${tab === t.id ? ' active' : ''}`}
                   onClick={() => { setTab(t.id); setSidebarOpen(false); }}>
                   <span className="dni-icon">{t.icon}</span>
@@ -345,8 +351,10 @@ const Dashboard = () => {
         <div className="dash-content">
           {tab === 'overview'      && <OverviewTab user={user} applications={applications} enrollments={enrollments} dashboardStats={dashboardStats} analyticsData={analyticsData} mentorClasses={mentorClasses} setTab={setTab} />}
           {tab === 'analytics'     && <AnalyticsTab enrollments={enrollments} applications={applications} dashboardStats={dashboardStats} analyticsData={analyticsData} />}
-          {tab === 'applications'  && <ApplicationsTab applications={applications} />}
+          {tab === 'mentor'        && <MyMentorTab user={user} setTab={setTab} />}
           {tab === 'assignments'   && <AssignmentsTab />}
+          {tab === 'attendance'    && <AttendanceTab setTab={setTab} />}
+          {tab === 'applications'  && <ApplicationsTab applications={applications} />}
           {tab === 'mycourses'     && <MyCoursesTab enrollments={enrollments} analyticsData={analyticsData} refresh={refreshEnrollments} />}
           {tab === 'allcourses'    && <AllCoursesTab />}
           {tab === 'sessions'      && <LiveSessionsTab dashboardStats={dashboardStats} />}
@@ -457,10 +465,12 @@ const OverviewTab = ({ user, applications, enrollments, dashboardStats, analytic
           <div className="oc-header"><h3>Quick Actions</h3></div>
           <div className="quick-actions">
             {[
+              { icon: Icons.mentor,     label:'My Mentor',      sub:'Mentor hub & schedule', color:'#0369a1', bg:'#e0f2fe', tab:'mentor' },
+              { icon: Icons.assignments,label:'Assignments',    sub:'Submit & view tasks',   color:'#b45309', bg:'#fef3c7', tab:'assignments' },
+              { icon: Icons.attendance, label:'Attendance',     sub:'Check attendance record', color:'#15803d', bg:'#f0fdf4', tab:'attendance' },
               { icon: Icons.allcourses, label:'Browse Courses', sub:'Explore new courses', color:'rgb(215 237 247)', bg:'rgb(29 96 145)', tab:'allcourses' },
               { icon: Icons.sessions,   label:'Live Sessions',  sub:'Join upcoming sessions', color:'#f1f7f3', bg:'rgb(17 132 26)', tab:'sessions' },
               { icon: Icons.practice,   label:'Practice Now',   sub:'Coding challenges', color:'#6c3483', bg:'#d03ae7', tab:'practice' },
-              { icon: Icons.certificate,label:'Certificates',   sub:'View achievements', color:'#fffefb', bg:'#074bba', tab:'certificates' },
             ].map(q => (
               <button key={q.label} className="qa-item" onClick={() => setTab(q.tab)}>
                 <div className="qa-icon" style={{ background: q.bg, color: q.color }}>{q.icon}</div>

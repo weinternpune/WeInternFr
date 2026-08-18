@@ -99,6 +99,7 @@ export const getAdminStudentsWithMentors = () => API.get('/mentor/admin/students
 export const getAdminMentors = () => API.get('/mentor/admin/list');
 export const updateAdminMentor = (id, data) => API.patch(`/mentor/admin/mentor/${id}`, data);
 export const getAllMentorsOverview = () => API.get('/mentor/admin/all-mentors-overview');
+export const getStudentMentorOverview = () => API.get('/mentor/student/mentor-overview');
 export const getStudentMentorClasses = () => API.get('/mentor/student/classes');
 
 export const getMentorProfile = (params) => API.get('/mentor/profile', { params });
