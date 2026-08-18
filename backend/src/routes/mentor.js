@@ -828,14 +828,46 @@ router.post('/admin/assign-students', protect, adminOnly, async (req, res) => {
   }
 });
 
-// Admin: get all students with mentor information for allocation modal
+// Admin: get all students with mentor information and enrolled domains for allocation modal
 router.get('/admin/students-with-mentors', protect, adminOnly, async (req, res) => {
   try {
     const students = await User.find({ role: 'student', isBlocked: { $ne: true } })
       .select('name email phone college year interest mentor createdAt')
       .populate('mentor', 'name email')
-      .sort({ name: 1 });
-    res.json({ success: true, data: students });
+      .sort({ name: 1 })
+      .lean();
+
+    // Enrich each student with their enrolled course/domain information
+    const enriched = await Promise.all(
+      students.map(async (s) => {
+        const [ens, apps] = await Promise.all([
+          Enrollment.find({ $or: [{ user: s._id }, { email: s.email }] })
+            .select('courseName paymentStatus status createdAt')
+            .lean()
+            .catch(() => []),
+          Application.find({ $or: [{ user: s._id }, { email: s.email }] })
+            .select('interest status createdAt')
+            .lean()
+            .catch(() => [])
+        ]);
+
+        const enrolledCourseNames = ens.map(e => e.courseName).filter(Boolean);
+        const appInterests = apps.map(a => a.interest).filter(Boolean);
+        const uniqueDomains = Array.from(new Set([...enrolledCourseNames, ...appInterests, s.interest].filter(Boolean)));
+        const primaryDomain = uniqueDomains[0] || s.interest || 'General Internship';
+
+        return {
+          ...s,
+          domain: primaryDomain,
+          allDomains: uniqueDomains,
+          enrolledCourses: enrolledCourseNames,
+          enrollmentsCount: ens.length,
+          applicationCount: apps.length
+        };
+      })
+    );
+
+    res.json({ success: true, data: enriched });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -1015,15 +1047,72 @@ router.get('/student/messages', protect, async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-router.post('/student/messages', protect, async (req, res) => {
+// Student: get complete overview of assigned mentor, classes, attendance, assignments, and announcements
+router.get('/student/mentor-overview', protect, async (req, res) => {
   try {
     if (req.user.role !== 'student') return res.status(403).json({ success: false, message: 'Student access required' });
-    const mentor = await User.findOne({ _id: req.user.mentor, role: 'mentor' });
-    if (!mentor) return res.status(404).json({ success: false, message: 'No mentor is assigned to you' });
-    const msg = await Message.create({ sender: req.user._id, recipient: mentor._id, subject: req.body.subject, message: req.body.message, attachmentUrl: req.body.attachmentUrl });
-    await createNotification(mentor._id, 'message', `Message from ${req.user.name}`, String(req.body.message || '').slice(0,120), { messageId: msg._id });
-    res.status(201).json({ success: true, data: await msg.populate('recipient', 'name email') });
-  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+
+    const student = await User.findById(req.user._id).populate('mentor', 'name email phone expertise skills assignedCourses assignedBatches bio experience avatar');
+    const mentor = student?.mentor || null;
+
+    let classes = [];
+    let attendance = [];
+    let assignments = [];
+    let notifications = [];
+
+    if (mentor) {
+      const [cls, att, asg, notifs] = await Promise.all([
+        MentorClass.find({
+          $or: [{ students: student._id }, { mentor: mentor._id }],
+          status: { $ne: 'cancelled' }
+        }).populate('mentor', 'name email').sort({ date: 1, startTime: 1 }).limit(30),
+        Attendance.find({ student: student._id }).populate('mentor', 'name email').populate('classId', 'title date startTime endTime').sort({ markedAt: -1 }).limit(50),
+        Assignment.find({
+          $or: [{ students: student._id }, { mentor: mentor._id }],
+          status: 'active'
+        }).populate('mentor', 'name email').sort({ dueDate: 1 }),
+        Notification.find({ recipient: student._id }).sort({ createdAt: -1 }).limit(30)
+      ]);
+
+      const submissions = await Submission.find({ student: student._id, assignment: { $in: asg.map(a => a._id) } });
+
+      classes = cls;
+      attendance = att;
+      assignments = asg.map(a => ({
+        ...a.toObject(),
+        submission: submissions.find(s => String(s.assignment) === String(a._id)) || null
+      }));
+      notifications = notifs;
+    }
+
+    const totalSessions = attendance.length;
+    const presentCount = attendance.filter(a => a.status === 'present').length;
+    const lateCount = attendance.filter(a => a.status === 'late').length;
+    const absentCount = attendance.filter(a => a.status === 'absent').length;
+    const attendanceRate = totalSessions > 0 ? Math.round(((presentCount + (lateCount * 0.5)) / totalSessions) * 100) : 100;
+
+    res.json({
+      success: true,
+      data: {
+        mentor,
+        classes,
+        attendance,
+        assignments,
+        notifications,
+        stats: {
+          attendanceRate,
+          totalSessions,
+          presentCount,
+          lateCount,
+          absentCount,
+          totalAssignments: assignments.length,
+          completedAssignments: assignments.filter(a => a.submission).length
+        }
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 module.exports = router;

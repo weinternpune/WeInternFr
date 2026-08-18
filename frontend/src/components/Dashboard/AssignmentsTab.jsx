@@ -1,819 +1,420 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   getStudentMentorAssignments,
   submitStudentMentorAssignment
 } from '../../utils/api';
+import toast from 'react-hot-toast';
+import './AssignmentsTab.css';
 
 const AssignmentsTab = () => {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   // Selected assignment for details modal
-  const [selectedAssignment, setSelectedAssignment] =
-    useState(null);
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
 
-  // Submission form
+  // Submission form state
   const [answer, setAnswer] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [fileUrl, setFileUrl] = useState('');
-
   const [submitting, setSubmitting] = useState(false);
-
-
-  // =========================================================
-  // LOAD ASSIGNMENTS
-  // =========================================================
 
   const loadAssignments = async () => {
     try {
       setLoading(true);
       setError('');
-
-      const response =
-        await getStudentMentorAssignments();
-
-      console.log(
-        'ASSIGNMENTS API RESPONSE:',
-        response.data
-      );
-
-      setAssignments(
-        response.data?.data || []
-      );
-
+      const response = await getStudentMentorAssignments();
+      setAssignments(response.data?.data || []);
     } catch (err) {
-
-      console.error(
-        'ASSIGNMENTS ERROR:',
-        err
-      );
-
-      setError(
-        err.response?.data?.message ||
-        'Unable to load assignments'
-      );
-
+      console.error('Assignments error:', err);
+      setError(err.response?.data?.message || 'Unable to load assignments');
     } finally {
       setLoading(false);
     }
   };
 
-
   useEffect(() => {
     loadAssignments();
   }, []);
 
-
-  // =========================================================
-  // OPEN ASSIGNMENT
-  // =========================================================
-
   const openAssignment = (assignment) => {
-
     setSelectedAssignment(assignment);
-
-    // Load previous submission if it exists
-    setAnswer(
-      assignment.submission?.answer || ''
-    );
-
-    setGithubUrl(
-      assignment.submission?.githubUrl || ''
-    );
-
-    setFileUrl(
-      assignment.submission?.fileUrl || ''
-    );
+    setAnswer(assignment.submission?.answer || '');
+    setGithubUrl(assignment.submission?.githubUrl || '');
+    setFileUrl(assignment.submission?.fileUrl || '');
   };
 
-
-  // =========================================================
-  // CLOSE ASSIGNMENT
-  // =========================================================
-
   const closeAssignment = () => {
-
     setSelectedAssignment(null);
-
     setAnswer('');
     setGithubUrl('');
     setFileUrl('');
   };
 
-
-  // =========================================================
-  // SUBMIT ASSIGNMENT
-  // =========================================================
-
   const handleSubmit = async (e) => {
-
     e.preventDefault();
-
-    if (!selectedAssignment) {
+    if (!selectedAssignment) return;
+    if (!answer.trim() && !githubUrl.trim() && !fileUrl.trim()) {
+      toast.error('Please provide your answer, GitHub repository, or file link.');
       return;
     }
 
-    if (
-      !answer.trim() &&
-      !githubUrl.trim() &&
-      !fileUrl.trim()
-    ) {
-      alert(
-        'Please provide your answer or a GitHub/file link.'
-      );
-
-      return;
-    }
-
+    setSubmitting(true);
     try {
-
-      setSubmitting(true);
-
-      const response =
-        await submitStudentMentorAssignment(
-          selectedAssignment._id,
-          {
-            answer,
-            githubUrl,
-            fileUrl
-          }
-        );
-
-      console.log(
-        'SUBMISSION RESPONSE:',
-        response.data
-      );
-
-      alert(
-        'Assignment submitted successfully!'
-      );
-
+      await submitStudentMentorAssignment(selectedAssignment._id, {
+        answer,
+        githubUrl,
+        fileUrl
+      });
+      toast.success('Assignment submitted successfully!');
       closeAssignment();
-
-      // Refresh assignment list
       await loadAssignments();
-
     } catch (err) {
-
-      console.error(
-        'SUBMISSION ERROR:',
-        err
-      );
-
-      alert(
-        err.response?.data?.message ||
-        'Unable to submit assignment.'
-      );
-
+      toast.error(err.response?.data?.message || 'Unable to submit assignment.');
     } finally {
-
       setSubmitting(false);
     }
   };
 
+  const stats = useMemo(() => {
+    const total = assignments.length;
+    let pending = 0;
+    let submitted = 0;
+    let reviewed = 0;
 
-  // =========================================================
-  // LOADING
-  // =========================================================
+    assignments.forEach((a) => {
+      const s = a.submission?.status;
+      if (!s || s === 'pending') pending++;
+      else if (s === 'submitted') submitted++;
+      else if (['reviewed', 'approved', 'changes_requested'].includes(s)) reviewed++;
+    });
+
+    return { total, pending, submitted, reviewed };
+  }, [assignments]);
+
+  const filteredAssignments = useMemo(() => {
+    if (statusFilter === 'all') return assignments;
+    return assignments.filter((a) => {
+      const s = a.submission?.status || 'pending';
+      if (statusFilter === 'pending') return !a.submission || s === 'pending';
+      if (statusFilter === 'submitted') return s === 'submitted';
+      if (statusFilter === 'reviewed') return ['reviewed', 'approved', 'changes_requested'].includes(s);
+      return true;
+    });
+  }, [assignments, statusFilter]);
 
   if (loading) {
-
     return (
       <div className="assignments-page">
-
-        <div className="assignment-loading">
-          <div className="assignment-spinner"></div>
-
-          <p>
-            Loading assignments...
-          </p>
+        <div className="assignment-loading-box">
+          <div className="assignment-loading-spinner" />
+          <p>Loading your assignments…</p>
         </div>
-
       </div>
     );
   }
-
-
-  // =========================================================
-  // ERROR
-  // =========================================================
 
   if (error) {
-
     return (
       <div className="assignments-page">
-
-        <div className="assignment-error">
-
-          <div className="assignment-error-icon">
-            !
-          </div>
-
-          <h3>
-            Unable to load assignments
-          </h3>
-
-          <p>
-            {error}
-          </p>
-
-          <button
-            onClick={loadAssignments}
-            className="assignment-refresh-btn"
-          >
-            Try Again
+        <div className="assignment-empty-state">
+          <div className="assignment-empty-icon">⚠️</div>
+          <h3>Unable to load assignments</h3>
+          <p>{error}</p>
+          <button onClick={loadAssignments} className="assignment-refresh-btn">
+            ↻ Try Again
           </button>
-
         </div>
-
       </div>
     );
   }
-
-
-  // =========================================================
-  // MAIN PAGE
-  // =========================================================
 
   return (
     <div className="assignments-page">
-
-      {/* =====================================================
-          PAGE HEADER
-      ====================================================== */}
-
-      <div className="assignments-header">
-
+      {/* Header & Quick Filter Bar */}
+      <div className="assignments-header-row">
         <div>
-
-          <h2>
-            My Assignments
-          </h2>
-
-          <p>
-            Assignments given to you by your mentor.
-          </p>
-
+          <h2>My Assigned Tasks & Projects</h2>
+          <p>Practical assignments and reviews provided by your mentor.</p>
         </div>
-
-        <button
-          onClick={loadAssignments}
-          className="assignment-refresh-btn"
-        >
+        <button onClick={loadAssignments} className="assignment-refresh-btn">
           ↻ Refresh
         </button>
-
       </div>
 
-
-      {/* =====================================================
-          EMPTY STATE
-      ====================================================== */}
-
-      {assignments.length === 0 ? (
-
-        <div className="assignment-empty">
-
-          <div className="assignment-empty-icon">
-            <span>📄</span>
-          </div>
-
-          <h3>
-            No assignments yet
-          </h3>
-
-          <p>
-            Your mentor has not assigned any
-            assignments to you.
-          </p>
-
+      {/* Summary KPI Cards */}
+      <div className="assignment-kpi-grid">
+        <div
+          className={`assignment-kpi-card ${statusFilter === 'all' ? 'active' : ''}`}
+          onClick={() => setStatusFilter('all')}
+        >
+          <span>Total Tasks</span>
+          <strong>{stats.total}</strong>
+          <small>Assigned by mentor</small>
         </div>
+        <div
+          className={`assignment-kpi-card pending-kpi ${statusFilter === 'pending' ? 'active' : ''}`}
+          onClick={() => setStatusFilter('pending')}
+        >
+          <span>Pending</span>
+          <strong style={{ color: '#d97706' }}>{stats.pending}</strong>
+          <small>Awaiting your submission</small>
+        </div>
+        <div
+          className={`assignment-kpi-card submitted-kpi ${statusFilter === 'submitted' ? 'active' : ''}`}
+          onClick={() => setStatusFilter('submitted')}
+        >
+          <span>Submitted</span>
+          <strong style={{ color: '#2563eb' }}>{stats.submitted}</strong>
+          <small>Under mentor review</small>
+        </div>
+        <div
+          className={`assignment-kpi-card reviewed-kpi ${statusFilter === 'reviewed' ? 'active' : ''}`}
+          onClick={() => setStatusFilter('reviewed')}
+        >
+          <span>Reviewed</span>
+          <strong style={{ color: '#16a34a' }}>{stats.reviewed}</strong>
+          <small>Graded & evaluated</small>
+        </div>
+      </div>
 
+      {/* Empty State */}
+      {filteredAssignments.length === 0 ? (
+        <div className="assignment-empty-state">
+          <div className="assignment-empty-icon">📋</div>
+          <h3>No assignments found</h3>
+          <p>
+            {assignments.length === 0
+              ? 'Your mentor has not assigned any tasks to your batch yet.'
+              : 'No assignments match the selected status filter.'}
+          </p>
+          {statusFilter !== 'all' && (
+            <button onClick={() => setStatusFilter('all')} className="assignment-refresh-btn">
+              Show All Tasks
+            </button>
+          )}
+        </div>
       ) : (
-
-
-        /* ===================================================
-           ASSIGNMENT LIST
-        ==================================================== */
-
-        <div className="assignment-list">
-
-          {assignments.map((assignment) => {
-
-            const submission =
-              assignment.submission;
-
-            let status = 'Pending';
+        /* Compact Responsive Cards Grid */
+        <div className="assignment-compact-grid">
+          {filteredAssignments.map((assignment) => {
+            const submission = assignment.submission;
+            let statusLabel = 'Pending';
+            let statusClass = 'pending';
 
             if (submission) {
-
-              if (
-                submission.status === 'reviewed'
-              ) {
-                status = 'Reviewed';
-
-              } else if (
-                submission.status === 'approved'
-              ) {
-                status = 'Approved';
-
-              } else if (
-                submission.status === 'submitted'
-              ) {
-                status = 'Submitted';
-
-              } else if (
-                submission.status ===
-                'changes_requested'
-              ) {
-                status = 'Changes Requested';
+              if (submission.status === 'reviewed') {
+                statusLabel = 'Reviewed';
+                statusClass = 'reviewed';
+              } else if (submission.status === 'approved') {
+                statusLabel = 'Approved';
+                statusClass = 'approved';
+              } else if (submission.status === 'submitted') {
+                statusLabel = 'Submitted';
+                statusClass = 'submitted';
+              } else if (submission.status === 'changes_requested') {
+                statusLabel = 'Changes Requested';
+                statusClass = 'changes-requested';
               }
             }
 
+            const formattedDue = assignment.dueDate
+              ? new Date(assignment.dueDate).toLocaleDateString('en-IN', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric'
+                })
+              : 'Flexible';
 
             return (
-
-              <div
-                key={assignment._id}
-                className="assignment-card"
-              >
-
-                {/* LEFT ICON */}
-                <div className="assignment-card-icon">
-
-                  <div className="document-icon">
-
-                    <div className="document-fold"></div>
-
-                    <div className="document-line"></div>
-                    <div className="document-line"></div>
-                    <div className="document-line short"></div>
-
-                  </div>
-
+              <div key={assignment._id} className="assignment-compact-card">
+                <div className="assignment-card-topbar">
+                  <span className="assignment-course-badge">
+                    {assignment.course || 'Mentorship Task'}
+                  </span>
+                  <span className={`assignment-status-chip ${statusClass}`}>
+                    {statusLabel}
+                  </span>
                 </div>
 
+                <h3 className="assignment-card-heading">{assignment.title}</h3>
+                <p className="assignment-card-summary">
+                  {assignment.description || 'No additional instructions provided.'}
+                </p>
 
-                {/* CONTENT */}
-                <div className="assignment-card-content">
-
-                  <div className="assignment-card-header">
-
-                    <div>
-
-                      <h3>
-                        {assignment.title}
-                      </h3>
-
-                      <p>
-                        {assignment.description}
-                      </p>
-
-                    </div>
-
-                    <span
-                      className={`assignment-status ${status
-                        .toLowerCase()
-                        .replace(
-                          / /g,
-                          '-'
-                        )}`}
-                    >
-                      {status}
-                    </span>
-
+                <div className="assignment-details-pills">
+                  <div className="detail-pill">
+                    <span>Mentor</span>
+                    <strong>{assignment.mentor?.name || 'Assigned Mentor'}</strong>
                   </div>
-
-
-                  {/* META */}
-                  <div className="assignment-meta">
-
-                    <div>
-
-                      <span>
-                        Mentor
-                      </span>
-
-                      <strong>
-                        {assignment.mentor?.name ||
-                          'Assigned Mentor'}
-                      </strong>
-
-                    </div>
-
-
-                    <div>
-
-                      <span>
-                        Course
-                      </span>
-
-                      <strong>
-                        {assignment.course ||
-                          '—'}
-                      </strong>
-
-                    </div>
-
-
-                    <div>
-
-                      <span>
-                        Due Date
-                      </span>
-
-                      <strong>
-                        {assignment.dueDate
-                          ? new Date(
-                              assignment.dueDate
-                            ).toLocaleDateString(
-                              'en-IN',
-                              {
-                                day: 'numeric',
-                                month: 'short',
-                                year: 'numeric'
-                              }
-                            )
-                          : '—'}
-                      </strong>
-
-                    </div>
-
-
-                    <div>
-
-                      <span>
-                        Maximum Score
-                      </span>
-
-                      <strong>
-                        {assignment.maxScore ||
-                          100}
-                      </strong>
-
-                    </div>
-
+                  <div className="detail-pill">
+                    <span>Due Date</span>
+                    <strong>{formattedDue}</strong>
                   </div>
-
-
-                  {/* BUTTON */}
-                  <div className="assignment-card-footer">
-
-                    <button
-                      className="view-assignment-btn"
-                      onClick={() =>
-                        openAssignment(
-                          assignment
-                        )
-                      }
-                    >
-                      View Assignment →
-                    </button>
-
+                  <div className="detail-pill">
+                    <span>Max Score</span>
+                    <strong>{assignment.maxScore || 100} pts</strong>
                   </div>
-
+                  {submission && submission.score !== undefined && (
+                    <div className="detail-pill highlight">
+                      <span>Your Score</span>
+                      <strong style={{ color: '#16a34a' }}>
+                        {submission.score} / {assignment.maxScore || 100}
+                      </strong>
+                    </div>
+                  )}
                 </div>
 
+                <div className="assignment-card-bottom">
+                  <button
+                    onClick={() => openAssignment(assignment)}
+                    className={`assignment-action-btn ${submission ? 'view' : 'submit'}`}
+                  >
+                    {submission ? '📄 View Submission / Grade' : '✏️ Submit Solution →'}
+                  </button>
+                </div>
               </div>
             );
           })}
-
         </div>
       )}
 
-
-      {/* =====================================================
-          ASSIGNMENT DETAILS MODAL
-      ====================================================== */}
-
+      {/* ── ASSIGNMENT SUBMISSION MODAL ── */}
       {selectedAssignment && (
-
         <div
           className="assignment-modal-overlay"
           onClick={(e) => {
-
-            if (
-              e.target === e.currentTarget
-            ) {
-              closeAssignment();
-            }
-
+            if (e.target.className === 'assignment-modal-overlay') closeAssignment();
           }}
         >
-
-          <div className="assignment-modal">
-
-            {/* MODAL HEADER */}
-
-            <div className="assignment-modal-header">
-
-              <div className="modal-title-area">
-
-                <div className="modal-document-icon">
-                  📄
-                </div>
-
-                <div>
-
-                  <span>
-                    ASSIGNMENT
-                  </span>
-
-                  <h2>
-                    {selectedAssignment.title}
-                  </h2>
-
-                </div>
-
+          <div className="assignment-compact-modal">
+            <div className="modal-top">
+              <div>
+                <span className="modal-eyebrow">TASK DETAILS & SUBMISSION</span>
+                <h2>{selectedAssignment.title}</h2>
               </div>
-
-
-              <button
-                className="modal-close-btn"
-                onClick={closeAssignment}
-              >
+              <button className="modal-close-x" onClick={closeAssignment}>
                 ×
               </button>
-
             </div>
 
-
-            {/* ASSIGNMENT DETAILS */}
-
-            <div className="assignment-modal-body">
-
-              <div className="modal-info-grid">
-
+            <div className="modal-scroll-body">
+              {/* Meta Grid */}
+              <div className="modal-meta-row">
                 <div>
-                  <span>
-                    Mentor
-                  </span>
-
-                  <strong>
-                    {selectedAssignment.mentor?.name ||
-                      'Assigned Mentor'}
-                  </strong>
+                  <span>Mentor:</span>
+                  <strong>{selectedAssignment.mentor?.name || 'Assigned Mentor'}</strong>
                 </div>
-
-
                 <div>
-                  <span>
-                    Course
-                  </span>
-
-                  <strong>
-                    {selectedAssignment.course ||
-                      '—'}
-                  </strong>
+                  <span>Course / Batch:</span>
+                  <strong>{selectedAssignment.course || 'Mentorship Program'}</strong>
                 </div>
-
-
                 <div>
-                  <span>
-                    Batch
-                  </span>
-
-                  <strong>
-                    {selectedAssignment.batch ||
-                      '—'}
-                  </strong>
-                </div>
-
-
-                <div>
-                  <span>
-                    Due Date
-                  </span>
-
+                  <span>Due Date:</span>
                   <strong>
                     {selectedAssignment.dueDate
-                      ? new Date(
-                          selectedAssignment.dueDate
-                        ).toLocaleDateString(
-                          'en-IN',
-                          {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
-                          }
-                        )
-                      : '—'}
+                      ? new Date(selectedAssignment.dueDate).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric'
+                        })
+                      : 'Flexible'}
                   </strong>
                 </div>
-
-
                 <div>
-                  <span>
-                    Maximum Score
-                  </span>
-
-                  <strong>
-                    {selectedAssignment.maxScore ||
-                      100}
-                  </strong>
+                  <span>Max Score:</span>
+                  <strong>{selectedAssignment.maxScore || 100} Points</strong>
                 </div>
-
               </div>
 
-
-              {/* DESCRIPTION */}
-
-              <div className="modal-section">
-
-                <h3>
-                  Assignment Description
-                </h3>
-
-                <div className="assignment-description-box">
-
-                  <p>
-                    {selectedAssignment.description ||
-                      'No description provided.'}
-                  </p>
-
+              {/* Instructions */}
+              <div className="modal-desc-section">
+                <h4>Assignment Description</h4>
+                <div className="desc-content">
+                  {selectedAssignment.description || 'No detailed description provided.'}
                 </div>
-
               </div>
 
-
-              {/* EXISTING REVIEW */}
-
-              {selectedAssignment.submission &&
-                selectedAssignment.submission.status ===
-                  'reviewed' && (
-
-                <div className="mentor-review-box">
-
-                  <h3>
-                    Mentor Review
-                  </h3>
-
-                  <div className="review-score">
-
-                    <span>
-                      Score
-                    </span>
-
+              {/* Mentor Feedback Box if Reviewed */}
+              {selectedAssignment.submission?.status === 'reviewed' && (
+                <div className="mentor-grade-callout">
+                  <h4>👨‍🏫 Mentor Evaluation</h4>
+                  <div className="grade-score-display">
+                    Score:{' '}
                     <strong>
-                      {selectedAssignment.submission.score ??
-                        '—'}
-                      /
-                      {selectedAssignment.maxScore ||
-                        100}
+                      {selectedAssignment.submission.score ?? '—'} /{' '}
+                      {selectedAssignment.maxScore || 100}
                     </strong>
-
                   </div>
-
-
                   {selectedAssignment.submission.feedback && (
-
-                    <div>
-
-                      <span>
-                        Feedback
-                      </span>
-
-                      <p>
-                        {
-                          selectedAssignment
-                            .submission
-                            .feedback
-                        }
-                      </p>
-
-                    </div>
+                    <p className="grade-feedback-text">
+                      "{selectedAssignment.submission.feedback}"
+                    </p>
                   )}
-
                 </div>
               )}
 
-
-              {/* SUBMISSION FORM */}
-
-              <form
-                onSubmit={handleSubmit}
-                className="assignment-submission-form"
-              >
-
-                <h3>
-                  Submit Your Assignment
-                </h3>
-
-                <p className="submission-help">
-                  Complete your assignment and
-                  submit your answer below.
-                </p>
-
-
-                {/* ANSWER */}
+              {/* Submission Form */}
+              <form onSubmit={handleSubmit} className="modal-submit-form">
+                <h4>
+                  {selectedAssignment.submission ? 'Update Your Solution' : 'Submit Your Solution'}
+                </h4>
 
                 <label>
-
-                  Your Answer / Explanation
-
+                  Solution / Explanation *
                   <textarea
+                    required
                     value={answer}
-                    onChange={(e) =>
-                      setAnswer(
-                        e.target.value
-                      )
-                    }
-                    placeholder="Write your solution, explanation, or notes here..."
-                    rows={7}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    placeholder="Write your explanation, code snippets, or key findings..."
+                    rows={4}
                   />
-
                 </label>
 
+                <div className="form-two-col">
+                  <label>
+                    GitHub Repo URL (optional)
+                    <input
+                      type="url"
+                      value={githubUrl}
+                      onChange={(e) => setGithubUrl(e.target.value)}
+                      placeholder="https://github.com/username/project"
+                    />
+                  </label>
+                  <label>
+                    Google Drive / Project Link (optional)
+                    <input
+                      type="url"
+                      value={fileUrl}
+                      onChange={(e) => setFileUrl(e.target.value)}
+                      placeholder="https://drive.google.com/..."
+                    />
+                  </label>
+                </div>
 
-                {/* GITHUB */}
-
-                <label>
-
-                  GitHub Repository URL
-                  <span className="optional">
-                    (optional)
-                  </span>
-
-                  <input
-                    type="url"
-                    value={githubUrl}
-                    onChange={(e) =>
-                      setGithubUrl(
-                        e.target.value
-                      )
-                    }
-                    placeholder="https://github.com/username/project"
-                  />
-
-                </label>
-
-
-                {/* FILE */}
-
-                <label>
-
-                  File / Google Drive URL
-                  <span className="optional">
-                    (optional)
-                  </span>
-
-                  <input
-                    type="url"
-                    value={fileUrl}
-                    onChange={(e) =>
-                      setFileUrl(
-                        e.target.value
-                      )
-                    }
-                    placeholder="https://drive.google.com/..."
-                  />
-
-                </label>
-
-
-                {/* ACTIONS */}
-
-                <div className="submission-actions">
-
-                  <button
-                    type="button"
-                    className="cancel-btn"
-                    onClick={
-                      closeAssignment
-                    }
-                  >
+                <div className="modal-button-row">
+                  <button type="button" className="btn-cancel" onClick={closeAssignment}>
                     Cancel
                   </button>
-
-
                   <button
                     type="submit"
-                    className="submit-assignment-btn"
+                    className="btn-submit-task"
                     disabled={submitting}
                   >
                     {submitting
                       ? 'Submitting...'
-                      : selectedAssignment
-                          .submission
-                          ?.status ===
-                        'submitted'
-                        ? 'Update Submission'
-                        : 'Submit Assignment'}
+                      : selectedAssignment.submission?.status === 'submitted'
+                      ? '✓ Update Submission'
+                      : '✓ Submit Assignment'}
                   </button>
-
                 </div>
-
               </form>
-
             </div>
-
           </div>
-
         </div>
-
       )}
-
     </div>
   );
 };

@@ -4378,6 +4378,7 @@ const MentorManagement = () => {
   const [allocatingMentor, setAllocatingMentor] = useState(null);
   const [selectedStudentIds, setSelectedStudentIds] = useState([]);
   const [allocationSearch, setAllocationSearch] = useState('');
+  const [allocDomainFilter, setAllocDomainFilter] = useState('all');
   const [allocating, setAllocating] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -4396,6 +4397,21 @@ const MentorManagement = () => {
     } finally { setLoading(false); }
   };
   useEffect(() => { load(); }, []);
+
+  // Compute list of unique enrolled domains/courses across students
+  const availableDomains = React.useMemo(() => {
+    const set = new Set();
+    students.forEach(s => {
+      if (s.domain && s.domain !== 'General Internship') set.add(s.domain);
+      (s.allDomains || []).forEach(d => {
+        if (d && d !== 'General Internship') set.add(d);
+      });
+      (s.enrolledCourses || []).forEach(c => {
+        if (c) set.add(c);
+      });
+    });
+    return Array.from(set).sort();
+  }, [students]);
 
   const create = async (e) => {
     e.preventDefault();
@@ -4432,6 +4448,7 @@ const MentorManagement = () => {
       .map(s => s._id);
     setSelectedStudentIds(currentAssigned);
     setAllocationSearch('');
+    setAllocDomainFilter('all');
   };
 
   const handleSaveAllocation = async () => {
@@ -4464,8 +4481,9 @@ const MentorManagement = () => {
 
   const filteredAllocStudents = students.filter(s => {
     const q = allocationSearch.trim().toLowerCase();
-    if (!q) return true;
-    return [s.name, s.email, s.college, s.year, s.interest].join(' ').toLowerCase().includes(q);
+    const matchesSearch = !q || [s.name, s.email, s.college, s.year, s.domain, ...(s.allDomains || []), ...(s.enrolledCourses || [])].join(' ').toLowerCase().includes(q);
+    const matchesDomain = allocDomainFilter === 'all' || s.domain === allocDomainFilter || (s.allDomains || []).includes(allocDomainFilter) || (s.enrolledCourses || []).includes(allocDomainFilter);
+    return matchesSearch && matchesDomain;
   });
 
   if (loading) return <div className="dash-loading"><div className="dash-spinner"/></div>;
@@ -4537,10 +4555,10 @@ const MentorManagement = () => {
           <input className="admin-search" required type="email" placeholder="Email *" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/>
           <input className="admin-search" required type="password" minLength="6" placeholder="Password * (min 6 chars)" value={form.password} onChange={e=>setForm({...form,password:e.target.value})}/>
           <input className="admin-search" placeholder="Phone" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/>
-          <input className="admin-search" placeholder="Expertise (e.g. MERN, Python, ML)" value={form.expertise} onChange={e=>setForm({...form,expertise:e.target.value})}/>
+          <input className="admin-search" placeholder="Expertise (e.g. FullStack and MERN stack developer, Python)" value={form.expertise} onChange={e=>setForm({...form,expertise:e.target.value})}/>
           <input className="admin-search" placeholder="Skills (comma separated)" value={form.skills} onChange={e=>setForm({...form,skills:e.target.value})}/>
           <input className="admin-search" placeholder="Courses (comma separated)" value={form.assignedCourses} onChange={e=>setForm({...form,assignedCourses:e.target.value})}/>
-          <input className="admin-search" placeholder="Batches (comma separated)" value={form.assignedBatches} onChange={e=>setForm({...form,assignedBatches:e.target.value})}/>
+          <input className="admin-search" placeholder="Batches (e.g. Fullstack Batch 15 August 2026)" value={form.assignedBatches} onChange={e=>setForm({...form,assignedBatches:e.target.value})}/>
           <button className="btn btn-primary" type="submit" style={{gridColumn:'1 / -1', background: 'linear-gradient(135deg, #e8a820, #f5c453)', color: '#12233f', fontWeight: 800}}>
             + Create Mentor Account
           </button>
@@ -4556,7 +4574,7 @@ const MentorManagement = () => {
           </select>
           <select className="admin-select" value={assign.studentId} onChange={e=>setAssign({...assign,studentId:e.target.value})}>
             <option value="">Select student</option>
-            {students.map(st=><option key={st._id} value={st._id}>{st.name} — {st.email} {st.mentor ? `(Current: ${st.mentor.name})` : '(Unassigned)'}</option>)}
+            {students.map(st=><option key={st._id} value={st._id}>{st.name} — {st.email} (Domain: {st.domain || 'General'})</option>)}
           </select>
           <button className="btn btn-primary" onClick={assignStudent}>Assign Student</button>
         </div>
@@ -4641,38 +4659,48 @@ const MentorManagement = () => {
     {/* Student Allocation Modal */}
     {allocatingMentor && (
       <div className="mentor-modal-backdrop" onClick={() => setAllocatingMentor(null)}>
-        <div className="mentor-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 680 }}>
+        <div className="mentor-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 740 }}>
           <div className="modal-head">
             <div>
               <h2 style={{ fontSize: '1.05rem', margin: 0 }}>
                 Allocate Students to {allocatingMentor.name}
               </h2>
               <span style={{ fontSize: '.72rem', color: '#64748b' }}>
-                {allocatingMentor.email} • {selectedStudentIds.length} student(s) currently allocated
+                {allocatingMentor.email} • {selectedStudentIds.length} student(s) allocated
               </span>
             </div>
             <button onClick={() => setAllocatingMentor(null)}>×</button>
           </div>
 
           <div className="modal-body">
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, flexWrap: 'wrap' }}>
               <input
                 className="admin-search"
-                style={{ flex: 1 }}
-                placeholder="Search students by name, email, college..."
+                style={{ flex: 1, minWidth: 200 }}
+                placeholder="Search students by name, domain, email, college..."
                 value={allocationSearch}
                 onChange={e => setAllocationSearch(e.target.value)}
               />
+              <select
+                className="allocation-select-filter"
+                value={allocDomainFilter}
+                onChange={e => setAllocDomainFilter(e.target.value)}
+              >
+                <option value="all">🎯 All Domains ({students.length})</option>
+                {availableDomains.map(d => (
+                  <option key={d} value={d}>🏷️ {d}</option>
+                ))}
+              </select>
               <button
                 type="button"
                 className="btn btn-outline"
-                style={{ fontSize: '.75rem', padding: '7px 11px', whiteSpace: 'nowrap' }}
+                style={{ fontSize: '.75rem', padding: '7px 11px', whiteSpace: 'nowrap', background: '#f0fdf4', color: '#166534', borderColor: '#bbf7d0', fontWeight: 700 }}
                 onClick={() => {
                   const allIds = filteredAllocStudents.map(s => s._id);
                   setSelectedStudentIds(Array.from(new Set([...selectedStudentIds, ...allIds])));
                 }}
               >
-                Select All
+                + Select Filtered ({filteredAllocStudents.length})
               </button>
               <button
                 type="button"
@@ -4686,7 +4714,7 @@ const MentorManagement = () => {
 
             <div className="allocation-student-list">
               {filteredAllocStudents.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '20px', color: '#8fa1bd' }}>No matching students found</div>
+                <div style={{ textAlign: 'center', padding: '20px', color: '#8fa1bd' }}>No matching students found for this domain/filter</div>
               ) : (
                 filteredAllocStudents.map(st => {
                   const isSelected = selectedStudentIds.includes(st._id);
@@ -4710,8 +4738,26 @@ const MentorManagement = () => {
                         onChange={() => {}}
                       />
                       <div className="allocation-info">
-                        <strong>{st.name}</strong>
-                        <span>{st.email} {st.college ? `• ${st.college}` : ''} {st.interest ? `• ${st.interest}` : ''}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                          <strong>{st.name}</strong>
+                          <span style={{ fontSize: '.68rem', color: '#64748b' }}>({st.email})</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
+                          <span className="allocation-domain-tag">
+                            🎯 Domain: {st.domain || 'General Internship'}
+                          </span>
+                          {st.college && (
+                            <span style={{ fontSize: '.65rem', color: '#475569' }}>🏫 {st.college}</span>
+                          )}
+                          {st.year && (
+                            <span style={{ fontSize: '.65rem', color: '#475569' }}>• {st.year}</span>
+                          )}
+                          {st.enrolledCourses && st.enrolledCourses.length > 0 && (
+                            st.enrolledCourses.map(c => (
+                              <span key={c} className="allocation-course-pill">📚 {c}</span>
+                            ))
+                          )}
+                        </div>
                       </div>
                       {isCurrentMentor ? (
                         <span className="allocation-badge assigned-this">✓ Allocated to this mentor</span>
