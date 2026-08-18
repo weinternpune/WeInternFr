@@ -25,6 +25,8 @@ import {
   getAdminMentors,
   createMentorAccount,
   assignStudentToMentor,
+  assignStudentsBulk,
+  getAdminStudentsWithMentors,
   getAllMentorsOverview,
   getAdminBlogPosts,
   createBlogPost,
@@ -1890,6 +1892,7 @@ const AdminUsers = () => {
                         onChange={(e) => changeRole(u._id, e.target.value)}
                       >
                         <option value="student">Student</option>
+                        <option value="mentor">Mentor</option>
                         <option value="admin">Admin</option>
                       </select>
                     </td>
@@ -4370,19 +4373,23 @@ const MentorManagement = () => {
   const [form, setForm] = useState({
     name:'', email:'', password:'', phone:'', expertise:'', skills:'', assignedCourses:'', assignedBatches:''
   });
+  const [createSelectedStudents, setCreateSelectedStudents] = useState([]);
   const [assign, setAssign] = useState({ studentId:'', mentorId:'' });
+  const [allocatingMentor, setAllocatingMentor] = useState(null);
+  const [selectedStudentIds, setSelectedStudentIds] = useState([]);
+  const [allocationSearch, setAllocationSearch] = useState('');
+  const [allocating, setAllocating] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
     try {
-      const [m, u, ov] = await Promise.all([
+      const [m, stRes, ov] = await Promise.all([
         getAdminMentors(),
-        getAdminUsers({ limit: 100 }),
+        getAdminStudentsWithMentors().catch(() => ({ data: { data: [] } })),
         getAllMentorsOverview().catch(() => ({ data: { data: null } }))
       ]);
       setMentors(m.data.data || []);
-      const users = u.data.data?.users || u.data.data || [];
-      setStudents(users.filter(x => x.role === 'student'));
+      setStudents(stRes.data?.data || []);
       setOverview(ov.data?.data || null);
     } catch (e) {
       toast.error(e.response?.data?.message || 'Unable to load mentors');
@@ -4398,10 +4405,12 @@ const MentorManagement = () => {
         expertise: form.expertise.split(',').map(x=>x.trim()).filter(Boolean),
         skills: form.skills.split(',').map(x=>x.trim()).filter(Boolean),
         assignedCourses: form.assignedCourses.split(',').map(x=>x.trim()).filter(Boolean),
-        assignedBatches: form.assignedBatches.split(',').map(x=>x.trim()).filter(Boolean)
+        assignedBatches: form.assignedBatches.split(',').map(x=>x.trim()).filter(Boolean),
+        studentIds: createSelectedStudents
       });
-      toast.success('Mentor account created');
+      toast.success('Mentor account created successfully');
       setForm({name:'',email:'',password:'',phone:'',expertise:'',skills:'',assignedCourses:'',assignedBatches:''});
+      setCreateSelectedStudents([]);
       load();
     } catch(e) { toast.error(e.response?.data?.message || 'Unable to create mentor'); }
   };
@@ -4416,13 +4425,56 @@ const MentorManagement = () => {
     } catch(e) { toast.error(e.response?.data?.message || 'Unable to assign student'); }
   };
 
+  const openAllocateModal = (mentor) => {
+    setAllocatingMentor(mentor);
+    const currentAssigned = students
+      .filter(s => s.mentor?._id === mentor._id || s.mentor === mentor._id)
+      .map(s => s._id);
+    setSelectedStudentIds(currentAssigned);
+    setAllocationSearch('');
+  };
+
+  const handleSaveAllocation = async () => {
+    if (!allocatingMentor) return;
+    setAllocating(true);
+    try {
+      const currentAssignedIds = students
+        .filter(s => s.mentor?._id === allocatingMentor._id || s.mentor === allocatingMentor._id)
+        .map(s => s._id);
+
+      const toAssign = selectedStudentIds.filter(id => !currentAssignedIds.includes(id));
+      const toUnassign = currentAssignedIds.filter(id => !selectedStudentIds.includes(id));
+
+      if (toAssign.length > 0) {
+        await assignStudentsBulk({ mentorId: allocatingMentor._id, studentIds: toAssign, action: 'assign' });
+      }
+      if (toUnassign.length > 0) {
+        await assignStudentsBulk({ mentorId: allocatingMentor._id, studentIds: toUnassign, action: 'unassign' });
+      }
+
+      toast.success(`Allocated students updated for ${allocatingMentor.name}`);
+      setAllocatingMentor(null);
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Unable to allocate students');
+    } finally {
+      setAllocating(false);
+    }
+  };
+
+  const filteredAllocStudents = students.filter(s => {
+    const q = allocationSearch.trim().toLowerCase();
+    if (!q) return true;
+    return [s.name, s.email, s.college, s.year, s.interest].join(' ').toLowerCase().includes(q);
+  });
+
   if (loading) return <div className="dash-loading"><div className="dash-spinner"/></div>;
 
   return <div>
     <div className="overview-welcome">
       <div>
         <h2>Mentor Management & Supervision</h2>
-        <p>Create mentor accounts, assign students, and access any mentor's live dashboard, schedule & announcements.</p>
+        <p>Create unlimited mentor accounts, allocate students, and access any mentor's live dashboard, schedule & announcements.</p>
       </div>
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
         <Link
@@ -4479,22 +4531,24 @@ const MentorManagement = () => {
 
     <div className="charts-row">
       <div className="chart-card" style={{flex:1}}>
-        <h3 style={{marginBottom:'1rem'}}>Create Mentor Account</h3>
-        <form className="admin-filters" onSubmit={create} style={{display:'grid',gridTemplateColumns:'1fr 1fr'}}>
-          <input className="admin-search" required placeholder="Full name" value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/>
-          <input className="admin-search" required type="email" placeholder="Email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/>
-          <input className="admin-search" required type="password" minLength="6" placeholder="Temporary password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})}/>
+        <h3 style={{marginBottom:'1rem'}}>Create New Mentor Account</h3>
+        <form className="admin-filters" onSubmit={create} style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+          <input className="admin-search" required placeholder="Full name *" value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/>
+          <input className="admin-search" required type="email" placeholder="Email *" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/>
+          <input className="admin-search" required type="password" minLength="6" placeholder="Password * (min 6 chars)" value={form.password} onChange={e=>setForm({...form,password:e.target.value})}/>
           <input className="admin-search" placeholder="Phone" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/>
-          <input className="admin-search" placeholder="Expertise (comma separated)" value={form.expertise} onChange={e=>setForm({...form,expertise:e.target.value})}/>
+          <input className="admin-search" placeholder="Expertise (e.g. MERN, Python, ML)" value={form.expertise} onChange={e=>setForm({...form,expertise:e.target.value})}/>
           <input className="admin-search" placeholder="Skills (comma separated)" value={form.skills} onChange={e=>setForm({...form,skills:e.target.value})}/>
           <input className="admin-search" placeholder="Courses (comma separated)" value={form.assignedCourses} onChange={e=>setForm({...form,assignedCourses:e.target.value})}/>
           <input className="admin-search" placeholder="Batches (comma separated)" value={form.assignedBatches} onChange={e=>setForm({...form,assignedBatches:e.target.value})}/>
-          <button className="btn btn-primary" type="submit" style={{gridColumn:'1 / -1'}}>Create Mentor</button>
+          <button className="btn btn-primary" type="submit" style={{gridColumn:'1 / -1', background: 'linear-gradient(135deg, #e8a820, #f5c453)', color: '#12233f', fontWeight: 800}}>
+            + Create Mentor Account
+          </button>
         </form>
       </div>
 
       <div className="chart-card" style={{flex:1}}>
-        <h3 style={{marginBottom:'1rem'}}>Assign Student to Mentor</h3>
+        <h3 style={{marginBottom:'1rem'}}>Quick Student Assignment</h3>
         <div style={{display:'grid',gap:'.8rem'}}>
           <select className="admin-select" value={assign.mentorId} onChange={e=>setAssign({...assign,mentorId:e.target.value})}>
             <option value="">Select mentor</option>
@@ -4502,19 +4556,19 @@ const MentorManagement = () => {
           </select>
           <select className="admin-select" value={assign.studentId} onChange={e=>setAssign({...assign,studentId:e.target.value})}>
             <option value="">Select student</option>
-            {students.map(st=><option key={st._id} value={st._id}>{st.name} — {st.email}</option>)}
+            {students.map(st=><option key={st._id} value={st._id}>{st.name} — {st.email} {st.mentor ? `(Current: ${st.mentor.name})` : '(Unassigned)'}</option>)}
           </select>
           <button className="btn btn-primary" onClick={assignStudent}>Assign Student</button>
         </div>
       </div>
     </div>
 
-    {/* Mentors Table with Direct Dashboard Access */}
+    {/* Mentors Table with Direct Dashboard Access & Student Allocation */}
     <div className="chart-card" style={{marginTop:'1.5rem'}}>
       <div className="chart-header">
         <div>
           <h3>Active Mentors Roster</h3>
-          <span className="chart-sub">{mentors.length} mentor accounts in system</span>
+          <span className="chart-sub">{mentors.length} mentor account(s) registered</span>
         </div>
       </div>
       <div className="table-wrap">
@@ -4527,7 +4581,7 @@ const MentorManagement = () => {
               <th>Assigned Courses</th>
               <th>Students</th>
               <th>Status</th>
-              <th>Supervision</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -4537,26 +4591,45 @@ const MentorManagement = () => {
                 <td>{m.email}</td>
                 <td>{(m.expertise||[]).join(', ') || '—'}</td>
                 <td>{(m.assignedCourses||[]).join(', ') || '—'}</td>
-                <td><span className="badge-status badge-active">{m.studentCount} students</span></td>
+                <td><span className="badge-status badge-active">{m.studentCount || 0} students</span></td>
                 <td><span className={`badge-status badge-${m.isBlocked?'blocked':'active'}`}>{m.isBlocked?'Blocked':'Active'}</span></td>
                 <td>
-                  <Link
-                    to={`/mentor/dashboard?mentorId=${m._id}`}
-                    className="btn btn-outline"
-                    style={{
-                      fontSize: '.75rem',
-                      padding: '.35rem .75rem',
-                      textDecoration: 'none',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      background: '#f8fafc',
-                      color: '#1e40af',
-                      borderColor: '#93c5fd'
-                    }}
-                  >
-                    👁️ View Dashboard →
-                  </Link>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <Link
+                      to={`/mentor/dashboard?mentorId=${m._id}`}
+                      className="btn btn-outline"
+                      style={{
+                        fontSize: '.75rem',
+                        padding: '.35rem .75rem',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        background: '#f8fafc',
+                        color: '#1e40af',
+                        borderColor: '#93c5fd'
+                      }}
+                    >
+                      👁️ Dashboard →
+                    </Link>
+                    <button
+                      className="btn btn-outline"
+                      onClick={() => openAllocateModal(m)}
+                      style={{
+                        fontSize: '.75rem',
+                        padding: '.35rem .75rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        background: '#fffdf5',
+                        color: '#b45309',
+                        borderColor: '#fde68a',
+                        fontWeight: 700
+                      }}
+                    >
+                      👥 Allocate Students
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -4564,6 +4637,113 @@ const MentorManagement = () => {
         </table>
       </div>
     </div>
+
+    {/* Student Allocation Modal */}
+    {allocatingMentor && (
+      <div className="mentor-modal-backdrop" onClick={() => setAllocatingMentor(null)}>
+        <div className="mentor-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 680 }}>
+          <div className="modal-head">
+            <div>
+              <h2 style={{ fontSize: '1.05rem', margin: 0 }}>
+                Allocate Students to {allocatingMentor.name}
+              </h2>
+              <span style={{ fontSize: '.72rem', color: '#64748b' }}>
+                {allocatingMentor.email} • {selectedStudentIds.length} student(s) currently allocated
+              </span>
+            </div>
+            <button onClick={() => setAllocatingMentor(null)}>×</button>
+          </div>
+
+          <div className="modal-body">
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
+              <input
+                className="admin-search"
+                style={{ flex: 1 }}
+                placeholder="Search students by name, email, college..."
+                value={allocationSearch}
+                onChange={e => setAllocationSearch(e.target.value)}
+              />
+              <button
+                type="button"
+                className="btn btn-outline"
+                style={{ fontSize: '.75rem', padding: '7px 11px', whiteSpace: 'nowrap' }}
+                onClick={() => {
+                  const allIds = filteredAllocStudents.map(s => s._id);
+                  setSelectedStudentIds(Array.from(new Set([...selectedStudentIds, ...allIds])));
+                }}
+              >
+                Select All
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline"
+                style={{ fontSize: '.75rem', padding: '7px 11px', whiteSpace: 'nowrap' }}
+                onClick={() => setSelectedStudentIds([])}
+              >
+                Clear All
+              </button>
+            </div>
+
+            <div className="allocation-student-list">
+              {filteredAllocStudents.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '20px', color: '#8fa1bd' }}>No matching students found</div>
+              ) : (
+                filteredAllocStudents.map(st => {
+                  const isSelected = selectedStudentIds.includes(st._id);
+                  const isCurrentMentor = st.mentor?._id === allocatingMentor._id || st.mentor === allocatingMentor._id;
+
+                  return (
+                    <div
+                      key={st._id}
+                      className={`allocation-student-item ${isSelected ? 'selected' : ''}`}
+                      onClick={() => {
+                        if (isSelected) {
+                          setSelectedStudentIds(selectedStudentIds.filter(id => id !== st._id));
+                        } else {
+                          setSelectedStudentIds([...selectedStudentIds, st._id]);
+                        }
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => {}}
+                      />
+                      <div className="allocation-info">
+                        <strong>{st.name}</strong>
+                        <span>{st.email} {st.college ? `• ${st.college}` : ''} {st.interest ? `• ${st.interest}` : ''}</span>
+                      </div>
+                      {isCurrentMentor ? (
+                        <span className="allocation-badge assigned-this">✓ Allocated to this mentor</span>
+                      ) : st.mentor ? (
+                        <span className="allocation-badge assigned-other">Assigned to {st.mentor.name}</span>
+                      ) : (
+                        <span className="allocation-badge unassigned">Unassigned</span>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+              <button type="button" className="btn btn-outline" onClick={() => setAllocatingMentor(null)}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={allocating}
+                onClick={handleSaveAllocation}
+                style={{ background: 'linear-gradient(135deg, #e8a820, #f5c453)', color: '#12233f', fontWeight: 800 }}
+              >
+                {allocating ? 'Saving Allocation...' : `✓ Save Allocation (${selectedStudentIds.length} Students)`}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
 
     {/* Collective Activity & Announcements Section */}
     {overview && (

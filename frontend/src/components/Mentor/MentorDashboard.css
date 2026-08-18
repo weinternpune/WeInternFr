@@ -219,3 +219,76 @@
   line-height: 1.5;
 }
 
+/* ── Mentor Creation & Student Allocation Modals ── */
+.allocation-student-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 4px;
+}
+.allocation-student-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.allocation-student-item:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+.allocation-student-item.selected {
+  background: #fffdf5;
+  border-color: #e8a820;
+  box-shadow: 0 2px 8px rgba(232, 168, 32, 0.15);
+}
+.allocation-student-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #e8a820;
+  cursor: pointer;
+}
+.allocation-info {
+  flex: 1;
+  min-width: 0;
+}
+.allocation-info strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+.allocation-info span {
+  display: block;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+.allocation-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.allocation-badge.assigned-this {
+  background: #eafaf0;
+  color: #218a4b;
+  border: 1px solid #bbf7d0;
+}
+.allocation-badge.assigned-other {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+.allocation-badge.unassigned {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+

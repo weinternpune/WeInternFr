@@ -724,18 +724,61 @@ router.get('/reports', protect, mentorOrAdmin, async (req, res) => {
 // Admin: create a mentor account
 router.post('/admin/create', protect, adminOnly, async (req, res) => {
   try {
-    const { name, email, password, phone, expertise = [], skills = [], assignedCourses = [], assignedBatches = [] } = req.body;
-    if (!name || !email || !password) return res.status(400).json({ success: false, message: 'Name, email and password are required' });
-    if (password.length < 6) return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+    const {
+      name, email, password, phone,
+      expertise = [], skills = [], assignedCourses = [], assignedBatches = [],
+      bio = '', experience = '', studentIds = []
+    } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ success: false, message: 'Name, email and password are required' });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+    }
     const exists = await User.findOne({ email: email.toLowerCase().trim() });
-    if (exists) return res.status(409).json({ success: false, message: 'Email already exists' });
+    if (exists) {
+      return res.status(409).json({ success: false, message: 'An account with this email already exists' });
+    }
 
     const mentor = await User.create({
-      name, email: email.toLowerCase().trim(), password, phone,
-      role: 'mentor', isVerified: true, expertise, skills, assignedCourses, assignedBatches
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      password,
+      phone: phone || '',
+      role: 'mentor',
+      isVerified: true,
+      expertise: Array.isArray(expertise) ? expertise : expertise.split(',').map(x => x.trim()).filter(Boolean),
+      skills: Array.isArray(skills) ? skills : skills.split(',').map(x => x.trim()).filter(Boolean),
+      assignedCourses: Array.isArray(assignedCourses) ? assignedCourses : assignedCourses.split(',').map(x => x.trim()).filter(Boolean),
+      assignedBatches: Array.isArray(assignedBatches) ? assignedBatches : assignedBatches.split(',').map(x => x.trim()).filter(Boolean),
+      bio,
+      experience
     });
+
+    // If initial students were selected to be allocated to this new mentor
+    if (Array.isArray(studentIds) && studentIds.length > 0) {
+      await User.updateMany(
+        { _id: { $in: studentIds }, role: 'student' },
+        { $set: { mentor: mentor._id } }
+      );
+      for (const sId of studentIds) {
+        const student = await User.findById(sId);
+        if (student) {
+          await createNotification(
+            mentor._id,
+            'student_assigned',
+            'New Student Allocated',
+            `${student.name} has been allocated to your mentorship roster.`,
+            { studentId: student._id }
+          );
+        }
+      }
+    }
+
     res.status(201).json({
       success: true,
+      message: 'Mentor account created successfully',
       data: await User.findById(mentor._id).select('-password -otp -resetPasswordToken -resetPasswordExpiry')
     });
   } catch (err) {
@@ -743,7 +786,62 @@ router.post('/admin/create', protect, adminOnly, async (req, res) => {
   }
 });
 
-// Admin: assign a student to a mentor
+// Admin: bulk assign/unassign students to/from a mentor
+router.post('/admin/assign-students', protect, adminOnly, async (req, res) => {
+  try {
+    const { mentorId, studentIds, action = 'assign' } = req.body;
+    if (!mentorId) return res.status(400).json({ success: false, message: 'mentorId is required' });
+    if (!Array.isArray(studentIds) || studentIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'studentIds array is required' });
+    }
+
+    const mentor = await User.findOne({ _id: mentorId, role: 'mentor' });
+    if (!mentor) return res.status(404).json({ success: false, message: 'Mentor not found' });
+
+    if (action === 'unassign') {
+      await User.updateMany(
+        { _id: { $in: studentIds }, mentor: mentor._id },
+        { $set: { mentor: null } }
+      );
+      res.json({ success: true, message: `Deallocated ${studentIds.length} student(s) from ${mentor.name}` });
+    } else {
+      await User.updateMany(
+        { _id: { $in: studentIds }, role: 'student' },
+        { $set: { mentor: mentor._id } }
+      );
+      for (const sId of studentIds) {
+        const student = await User.findById(sId);
+        if (student) {
+          await createNotification(
+            mentor._id,
+            'student_assigned',
+            'New Student Assigned',
+            `${student.name} has been allocated to your mentorship batch.`,
+            { studentId: student._id }
+          );
+        }
+      }
+      res.json({ success: true, message: `Successfully allocated ${studentIds.length} student(s) to ${mentor.name}` });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Admin: get all students with mentor information for allocation modal
+router.get('/admin/students-with-mentors', protect, adminOnly, async (req, res) => {
+  try {
+    const students = await User.find({ role: 'student', isBlocked: { $ne: true } })
+      .select('name email phone college year interest mentor createdAt')
+      .populate('mentor', 'name email')
+      .sort({ name: 1 });
+    res.json({ success: true, data: students });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Admin: single assign student (legacy support)
 router.patch('/admin/assign-student/:studentId', protect, adminOnly, async (req, res) => {
   try {
     const mentor = await User.findOne({ _id: req.body.mentorId, role: 'mentor' });
