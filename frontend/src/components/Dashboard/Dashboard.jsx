@@ -1831,87 +1831,136 @@ const StudentProjectsTab = () => {
       </div>
 
       {projects.length === 0 ? (
-        <div className="dash-card" style={{ textAlign: 'center', padding: '3.5rem 1.5rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🚀</div>
-          <h3 style={{ fontSize: '1.15rem', color: 'var(--navy)', margin: '0 0 .5rem' }}>
+        <div className="dash-card" style={{ textAlign: 'center', padding: '2.5rem 1.5rem', borderRadius: '12px' }}>
+          <div style={{ fontSize: '2rem', marginBottom: '.75rem' }}>🚀</div>
+          <h3 style={{ fontSize: '1.05rem', color: 'var(--navy)', margin: '0 0 .35rem' }}>
             No Capstone Projects Allocated Yet
           </h3>
-          <p style={{ color: 'var(--muted)', fontSize: '.85rem', maxWidth: '480px', margin: '0 auto 1.5rem' }}>
+          <p style={{ color: 'var(--muted)', fontSize: '.8rem', maxWidth: '440px', margin: '0 auto' }}>
             Your assigned mentor will allocate your capstone project with requirements, starter code repositories, and milestone deliverables.
           </p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.25rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
           {projects.map((proj) => (
-            <div key={proj._id} className="dash-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '1.5rem' }}>
+            <div key={proj._id} className="dash-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '1.15rem', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px', marginBottom: '12px' }}>
-                  <span className={`badge-status badge-${proj.status || 'assigned'}`} style={{ textTransform: 'capitalize', fontWeight: 700 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <span className={`badge-status badge-${proj.status || 'assigned'}`} style={{ textTransform: 'capitalize', fontWeight: 700, fontSize: '.72rem', padding: '3px 8px' }}>
                     {proj.status === 'submitted' ? '⏳ Submitted for Review' : proj.status === 'completed' ? '✅ Completed' : proj.status === 'changes_requested' ? '⚠️ Changes Requested' : proj.status || 'Assigned'}
                   </span>
                   {proj.score !== undefined && proj.score !== null && (
-                    <span style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '3px 9px', borderRadius: '20px', fontWeight: 800, fontSize: '.75rem' }}>
+                    <span style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '2px 8px', borderRadius: '12px', fontWeight: 800, fontSize: '.7rem' }}>
                       Grade: {proj.score}/100
                     </span>
                   )}
                 </div>
 
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--navy)', margin: '0 0 6px' }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--navy)', margin: '0 0 4px' }}>
                   {proj.title}
                 </h3>
                 
                 {proj.mentor && (
-                  <p style={{ fontSize: '.78rem', color: 'var(--muted)', margin: '0 0 12px' }}>
-                    Mentor: <strong style={{ color: 'var(--navy)' }}>{proj.mentor.name}</strong> ({proj.mentor.email})
+                  <p style={{ fontSize: '.75rem', color: 'var(--muted)', margin: '0 0 10px' }}>
+                    Mentor: <strong style={{ color: 'var(--navy)' }}>{proj.mentor.name}</strong>
                   </p>
                 )}
 
                 {proj.description && (
-                  <p style={{ fontSize: '.82rem', color: '#475569', lineHeight: 1.5, background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', margin: '0 0 14px' }}>
+                  <p style={{ fontSize: '.78rem', color: '#475569', lineHeight: 1.45, background: '#f8fafc', padding: '8px 10px', borderRadius: '7px', border: '1px solid #e2e8f0', margin: '0 0 10px' }}>
                     {proj.description}
                   </p>
                 )}
 
-                <div style={{ marginBottom: '14px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.75rem', fontWeight: 700, color: 'var(--navy)', marginBottom: '5px' }}>
-                    <span>Project Progress</span>
+                <div style={{ marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.72rem', fontWeight: 700, color: 'var(--navy)', marginBottom: '4px' }}>
+                    <span>Progress</span>
                     <span>{proj.progress || 0}%</span>
                   </div>
-                  <div style={{ height: '7px', background: '#e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+                  <div style={{ height: '6px', background: '#e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${proj.progress || 0}%`, background: 'linear-gradient(90deg, #3b82f6, #10b981)', borderRadius: '10px', transition: 'width .3s' }} />
                   </div>
                 </div>
 
                 {proj.mentorComments && (
-                  <div style={{ background: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '8px', padding: '10px 12px', marginBottom: '14px' }}>
-                    <div style={{ fontSize: '.74rem', fontWeight: 800, color: '#b45309', marginBottom: '3px' }}>
+                  <div style={{ background: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '7px', padding: '8px 10px', marginBottom: '10px' }}>
+                    <div style={{ fontSize: '.7rem', fontWeight: 800, color: '#b45309', marginBottom: '2px' }}>
                       👨‍🏫 Mentor Feedback:
                     </div>
-                    <div style={{ fontSize: '.8rem', color: '#92400e' }}>{proj.mentorComments}</div>
+                    <div style={{ fontSize: '.75rem', color: '#92400e' }}>{proj.mentorComments}</div>
                   </div>
                 )}
 
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
                   {proj.githubUrl && (
-                    <a href={proj.githubUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-xs" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                    <a
+                      href={proj.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        background: '#0f172a',
+                        color: '#ffffff',
+                        border: '1px solid #0f172a',
+                        borderRadius: '6px',
+                        padding: '5px 11px',
+                        fontSize: '.74rem',
+                        fontWeight: 700,
+                        textDecoration: 'none',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                      }}
+                    >
                       <span>📂</span> GitHub Repo
                     </a>
                   )}
                   {proj.liveDemoUrl && (
-                    <a href={proj.liveDemoUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-xs" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#0284c7', borderColor: '#bae6fd' }}>
+                    <a
+                      href={proj.liveDemoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        background: '#0284c7',
+                        color: '#ffffff',
+                        border: '1px solid #0284c7',
+                        borderRadius: '6px',
+                        padding: '5px 11px',
+                        fontSize: '.74rem',
+                        fontWeight: 700,
+                        textDecoration: 'none',
+                        boxShadow: '0 1px 3px rgba(2,132,199,0.2)'
+                      }}
+                    >
                       <span>🌐</span> Live Demo
                     </a>
                   )}
                 </div>
               </div>
 
-              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px', marginTop: '8px' }}>
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '10px', marginTop: '6px', display: 'flex', justifyContent: 'flex-start' }}>
                 <button
-                  className="btn btn-primary btn-sm"
-                  style={{ width: '100%', justifyContent: 'center' }}
+                  type="button"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 14px',
+                    fontSize: '.76rem',
+                    fontWeight: 700,
+                    borderRadius: '7px',
+                    background: '#e8a820',
+                    color: '#12233f',
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 6px rgba(232,168,32,0.25)'
+                  }}
                   onClick={() => openSubmitModal(proj)}
                 >
-                  {proj.status === 'submitted' || proj.status === 'completed' ? '📝 Update Project Submission' : '🚀 Submit Project Solution'}
+                  {proj.status === 'submitted' || proj.status === 'completed' ? '📝 Update Submission' : '🚀 Submit Project'}
                 </button>
               </div>
             </div>
