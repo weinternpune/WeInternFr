@@ -57,30 +57,48 @@ const BlogPost = () => {
   return (
     <div className="blog-page">
       <Navbar />
-      <article className="blog-post">
-        <Link to="/blog" className="blog-back-link"><Icon icon="mdi:arrow-left" width={16} height={16} /> Back to Blog</Link>
+      <article className="blog-post-detail">
+        <div className="blog-post-detail-container">
+          <Link to="/blog" className="blog-back-link">
+            <Icon icon="mdi:arrow-left" width={16} height={16} /> Back to Blog
+          </Link>
 
-        {!!post.tags?.length && (
-          <div className="blog-card-tags" style={{ marginTop: 20 }}>
-            {post.tags.map((t) => <span key={t}>{t}</span>)}
+          <div className="blog-post-hero">
+            {/* Cover Image on Top */}
+            <div className="blog-post-hero-image">
+              {post.coverImageUrl ? (
+                <img src={post.coverImageUrl} alt={post.title} />
+              ) : (
+                <div className="blog-post-hero-image-fallback">
+                  <Icon icon="mdi:image-outline" width={48} height={48} />
+                </div>
+              )}
+            </div>
+
+            {/* Post Info Below Image */}
+            <div className="blog-post-hero-content">
+              {!!post.tags?.length && (
+                <div className="blog-card-tags">
+                  {post.tags.map((t) => <span key={t}>{t}</span>)}
+                </div>
+              )}
+
+              <h1 className="blog-post-title">{post.title}</h1>
+              
+              <div className="blog-card-meta">
+                <Icon icon="mdi:account-circle" width={18} height={18} />
+                <span>{post.author?.name || 'WeIntern Team'}</span>
+                <span>·</span>
+                <Icon icon="mdi:calendar" width={16} height={16} />
+                <span>{formatDate(post.createdAt)}</span>
+              </div>
+            </div>
           </div>
-        )}
 
-        <h1 className="blog-post-title">{post.title}</h1>
-        <div className="blog-card-meta">
-          <span>{post.author?.name || 'WeIntern Team'}</span>
-          <span>·</span>
-          <span>{formatDate(post.createdAt)}</span>
-        </div>
-
-        {post.coverImageUrl && (
-          <div className="blog-post-cover">
-            <img src={post.coverImageUrl} alt={post.title} />
+          {/* Full Content Below */}
+          <div className="blog-post-content">
+            {post.content.split('\n').map((para, i) => (para.trim() ? <p key={i}>{para}</p> : null))}
           </div>
-        )}
-
-        <div className="blog-post-content">
-          {post.content.split('\n').map((para, i) => (para.trim() ? <p key={i}>{para}</p> : null))}
         </div>
       </article>
     </div>
