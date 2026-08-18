@@ -7,16 +7,49 @@
   background: #f0f4f8 !important;
 }
 
-/* Admin sidebar - Exact positioning */
+/* Admin sidebar - Exact positioning & Smooth Scrolling */
 .admin-panel .dash-sidebar { 
   background: #0f1d33 !important; 
-  overflow-y: hidden !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
   height: 100vh !important;
+  max-height: 100vh !important;
   width: 268px !important;
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
   z-index: 100 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent !important;
+}
+
+.admin-panel .dash-sidebar::-webkit-scrollbar {
+  width: 5px !important;
+  display: block !important;
+}
+
+.admin-panel .dash-sidebar::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.admin-panel .dash-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-radius: 4px !important;
+}
+
+.admin-panel .dash-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.45) !important;
+}
+
+.admin-panel .dash-sidebar-content {
+  flex: 1 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  min-height: min-content !important;
+  padding-bottom: 2rem !important;
 }
 
 /* Force main content to start at sidebar edge */
@@ -852,18 +885,29 @@
 
 /* ── Admin Sidebar Redesign (match student dashboard) ── */
 .admin-panel .dash-sidebar {
-  background: #0f1d33;
-  width: 268px;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-  scrollbar-width: none;
+  background: #0f1d33 !important;
+  width: 268px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent !important;
 }
-.admin-panel .dash-sidebar::-webkit-scrollbar { display: none; }
+.admin-panel .dash-sidebar::-webkit-scrollbar { 
+  width: 5px !important; 
+  display: block !important; 
+}
+.admin-panel .dash-sidebar::-webkit-scrollbar-thumb { 
+  background: rgba(255, 255, 255, 0.25) !important; 
+  border-radius: 4px !important; 
+}
 
 .admin-panel .dash-sidebar-top {
   display: flex;
