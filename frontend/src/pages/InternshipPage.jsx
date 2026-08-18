@@ -704,7 +704,7 @@ const InternshipPage = () => {
               </div>
 
               <div className="ip-field">
-                <label>Interested Course/Technology *</label>
+                <label>Interested Domain *</label>
                 <select
                   required
                   value={formData.course}
@@ -722,7 +722,7 @@ const InternshipPage = () => {
                     cursor: 'pointer'
                   }}
                 >
-                  <option value="">Select a course</option>
+                  <option value="">Select domain</option>
                   {activeCourses.map((course) => (
                     <option key={course.id} value={course.title}>
                       {course.title}
