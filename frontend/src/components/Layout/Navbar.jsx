@@ -67,6 +67,34 @@ const COURSE_COLUMNS = [
   },
 ];
 
+// ---- Internships mega-menu data --------------------------------------------
+const INTERNSHIP_COLUMNS = [
+  {
+    key: '3-month',
+    title: '3 Month Internship',
+    icon: Briefcase,
+    items: [
+      { num: 1, label: 'Live Client Projects', desc: 'Work on real projects from WeNexa', icon: Code2, color: 'text-blue-400' },
+      { num: 2, label: 'Hands-on Experience', desc: 'Build practical skills with mentorship', icon: Award, color: 'text-emerald-400' },
+      { num: 3, label: 'Portfolio Building', desc: 'Create projects for your resume', icon: Rocket, color: 'text-purple-400' },
+      { num: 4, label: 'Certificate of Completion', desc: 'Recognized internship certificate', icon: Award, color: 'text-amber-400' },
+    ],
+    duration: '3 months',
+  },
+  {
+    key: '6-month',
+    title: '6 Month Internship',
+    icon: TrendingUp,
+    items: [
+      { num: 1, label: 'Advanced Projects', desc: 'Complex real-world implementations', icon: Rocket, color: 'text-purple-400', badge: 'Popular' },
+      { num: 2, label: 'Stipend & Earnings', desc: '75% of project value goes to students', icon: TrendingUp, color: 'text-green-400' },
+      { num: 3, label: 'Career Support', desc: 'Mentor-guided growth into full-time roles', icon: Users, color: 'text-cyan-400' },
+      { num: 4, label: 'Placement Assistance', desc: 'Direct hiring opportunities', icon: Sparkles, color: 'text-pink-400', badge: 'Premium' },
+    ],
+    duration: '6 months',
+  },
+];
+
 // Hover-intent timing
 const OPEN_DELAY = 60;
 const CLOSE_DELAY = 220;
@@ -102,6 +130,156 @@ const itemVariants = {
 const iconChipVariants = {
   rest: { scale: 1 },
   hover: { scale: 1.08, transition: { duration: 0.15, ease: [0.16, 1, 0.3, 1] } },
+};
+
+const InternshipsDropdown = ({ onNavigate, id, onMouseEnter, onMouseLeave, onClose, onApplyNow }) => {
+  return (
+    <>
+      <motion.div
+        id={id}
+        role="menu"
+        variants={panelVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        className="
+          absolute left-1/2 top-full z-50 mt-3 flex w-[94vw] max-w-[800px] -translate-x-1/2
+          flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1626]
+          shadow-[0_24px_60px_-12px_rgba(0,0,0,0.65)]
+          sm:w-[90vw] md:w-[88vw] lg:w-[min(70vw,800px)]
+        "
+        style={{ maxHeight: 'min(70vh, 540px)' }}
+      >
+        <motion.div
+          className="h-[3px] w-full shrink-0 bg-gradient-to-r from-[#00d68f]/0 via-[#00d68f] to-[#00d68f]/0"
+          initial={{ scaleX: 0, opacity: 0 }}
+          animate={{ scaleX: 1, opacity: 1 }}
+          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          style={{ transformOrigin: 'center' }}
+        />
+
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-8 p-5 sm:grid-cols-2 sm:p-6 lg:gap-x-8 lg:p-7">
+            {INTERNSHIP_COLUMNS.map((col, colIdx) => (
+              <motion.div
+                key={col.key}
+                variants={columnVariants}
+                className={`${colIdx > 0 ? 'sm:border-l sm:border-white/[0.06] sm:pl-6 lg:pl-8' : ''}`}
+              >
+                <div className="mb-4 flex items-center gap-2 text-[#00d68f]">
+                  <col.icon size={15} strokeWidth={2.25} />
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">
+                    {col.title}
+                  </span>
+                  <span className="ml-auto rounded-full bg-[#00d68f]/15 px-2 py-0.5 text-[9px] font-bold text-[#00d68f]">
+                    {col.duration}
+                  </span>
+                </div>
+
+                <motion.div variants={itemListVariants} className="flex flex-col gap-1">
+                  {col.items.map((item) => (
+                    <motion.button
+                      key={item.num}
+                      variants={itemVariants}
+                      initial="rest"
+                      whileHover="hover"
+                      whileTap={{ scale: 0.985 }}
+                      role="menuitem"
+                      onClick={() => onNavigate(item, col)}
+                      className="
+                        group/item relative flex w-full items-start gap-3 rounded-xl px-2.5 py-2.5
+                        text-left transition-colors duration-150
+                        hover:bg-white/[0.05] focus-visible:bg-white/[0.05]
+                        focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#00d68f]/50
+                      "
+                    >
+                      <motion.span
+                        variants={iconChipVariants}
+                        className={`
+                          mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+                          bg-white/[0.04] ${item.color}
+                          group-hover/item:bg-white/[0.08]
+                        `}
+                        style={{ transition: 'background-color 150ms' }}
+                      >
+                        <item.icon size={15} strokeWidth={2} />
+                      </motion.span>
+
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center gap-2">
+                          <span className="truncate text-[13.5px] font-medium text-white/90 group-hover/item:text-white">
+                            {item.num}. {item.label}
+                          </span>
+                          {item.badge && (
+                            <span className="shrink-0 rounded-full bg-[#00d68f]/15 px-1.5 py-[1px] text-[9.5px] font-semibold tracking-wide text-[#00d68f]">
+                              {item.badge}
+                            </span>
+                          )}
+                        </span>
+                        <span className="mt-0.5 block truncate text-[11.5px] text-white/40">
+                          {item.desc}
+                        </span>
+                      </span>
+
+                      <ChevronRight
+                        size={14}
+                        className="mt-1.5 shrink-0 text-white/20 opacity-0 transition-all duration-150 group-hover/item:translate-x-0.5 group-hover/item:text-white/50 group-hover/item:opacity-100"
+                      />
+                    </motion.button>
+                  ))}
+                </motion.div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        <motion.div
+          variants={columnVariants}
+          className="
+            flex shrink-0 flex-col items-start justify-between gap-4 border-t border-white/[0.06]
+            bg-white/[0.015] px-5 py-4 sm:flex-row sm:items-center sm:px-6 sm:py-5 lg:px-7
+          "
+        >
+          <div className="flex items-center gap-3">
+            <motion.span
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#00d68f]/10 text-[#00d68f]"
+              animate={{ y: [0, -2, 0] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <Briefcase size={16} />
+            </motion.span>
+            <div>
+              <p className="text-[13.5px] font-semibold text-white">
+                Ready to start your internship journey?
+              </p>
+              <p className="text-[11.5px] text-white/45">
+                Gain real-world experience and build your professional portfolio.
+              </p>
+            </div>
+          </div>
+
+          <motion.button
+            type="button"
+            onClick={onApplyNow}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="
+              group/cta flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-[#00d68f] px-4 py-2.5
+              text-[13px] font-semibold text-[#04160f] shadow-sm shadow-[#00d68f]/20
+              transition-shadow duration-150 hover:brightness-110 hover:shadow-md hover:shadow-[#00d68f]/25
+              sm:w-auto
+            "
+          >
+            Apply Now
+            <ChevronRight size={15} className="transition-transform duration-150 group-hover/cta:translate-x-0.5" />
+          </motion.button>
+        </motion.div>
+      </motion.div>
+    </>
+  );
 };
 
 const CoursesDropdown = ({ onNavigate, id, onMouseEnter, onMouseLeave }) => (
@@ -261,6 +439,7 @@ const Navbar = () => {
   const [mobileCoursesOpen, setMobileCoursesOpen] = useState(false);
   const [internshipsOpen, setInternshipsOpen] = useState(false);
   const [mobileInternshipsOpen, setMobileInternshipsOpen] = useState(false);
+  const [showInternshipModal, setShowInternshipModal] = useState(false);
   const internshipsRef = useRef(null);
   const internshipsCloseTimer = useRef(null);
   const [canHover, setCanHover] = useState(false);
@@ -268,6 +447,13 @@ const Navbar = () => {
   const coursesTriggerRef = useRef(null);
   const openTimer = useRef(null);
   const closeTimer = useRef(null);
+
+  // Clean up body overflow when modal closes
+  useEffect(() => {
+    if (!showInternshipModal) {
+      document.body.style.overflow = '';
+    }
+  }, [showInternshipModal]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -392,33 +578,42 @@ const Navbar = () => {
     setCoursesOpen((o) => !o);
   };
 
+  const handleInternshipNavigate = useCallback((item, column) => {
+    if (internshipsCloseTimer.current) clearTimeout(internshipsCloseTimer.current);
+    setInternshipsOpen(false);
+    setMenuOpen(false);
+    
+    // Navigate to internship detail page based on column type
+    if (column && column.key) {
+      navigate(`/internships/${column.key}`);
+    }
+  }, [navigate]);
+
+  const handleInternshipApplyNow = () => {
+    console.log('Apply Now clicked in Navbar'); // Debug
+    setInternshipsOpen(false); // Close dropdown
+    // Prevent body scroll when modal opens
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => {
+      setShowInternshipModal(true); // Show modal after dropdown closes
+    }, 100);
+  };
+
+  const handleInternshipSelection = (type) => {
+    console.log('Selection:', type); // Debug
+    setShowInternshipModal(false);
+    document.body.style.overflow = ''; // Restore body scroll
+    navigate(`/internships/${type}`);
+  };
+
   const openInternships = useCallback(() => {
     if (internshipsCloseTimer.current) clearTimeout(internshipsCloseTimer.current);
     setInternshipsOpen(true);
   }, []);
   const scheduleCloseInternships = useCallback(() => {
     if (internshipsCloseTimer.current) clearTimeout(internshipsCloseTimer.current);
-    internshipsCloseTimer.current = setTimeout(() => setInternshipsOpen(false), 200);
+    internshipsCloseTimer.current = setTimeout(() => setInternshipsOpen(false), CLOSE_DELAY);
   }, []);
-
-  const INTERNSHIP_COLUMNS = [
-    {
-      key: 'projects', title: 'Projects', icon: Code2,
-      items: [
-        { label: 'Live Client Projects', desc: 'Work on real projects from WeNexa', icon: Briefcase },
-        { label: 'Portfolio Building', desc: 'Ship work you can show employers', icon: Award },
-      ],
-      target: 'projects',
-    },
-    {
-      key: 'placement', title: 'Placement', icon: Users,
-      items: [
-        { label: 'Stipend & Earnings', desc: '75% of project value goes to students', icon: TrendingUp },
-        { label: 'Career Support', desc: 'Mentor-guided growth into full-time roles', icon: Rocket },
-      ],
-      target: 'home',
-    },
-  ];
 
   const NAV_LINKS = [
     { label: 'Courses',      id: 'courses', dropdown: true },
@@ -449,7 +644,7 @@ const Navbar = () => {
                 >
                   <button
                     ref={coursesTriggerRef}
-                    className="nav-link relative inline-flex items-center gap-1"
+                    className="nav-link relative"
                     onClick={handleTriggerClick}
                     onFocus={openCourses}
                     aria-expanded={coursesOpen}
@@ -457,13 +652,6 @@ const Navbar = () => {
                     aria-controls="courses-mega-menu"
                   >
                     <span className={coursesOpen ? 'text-[#00d68f]' : ''}>{l.label}</span>
-                    <motion.span
-                      animate={{ rotate: coursesOpen ? 180 : 0 }}
-                      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                      className="flex"
-                    >
-                      <ChevronDown size={14} className={coursesOpen ? 'text-[#00d68f]' : ''} />
-                    </motion.span>
                     <motion.span
                       className="absolute -bottom-1 left-0 h-[2px] rounded-full bg-[#00d68f]"
                       initial={false}
@@ -494,47 +682,30 @@ const Navbar = () => {
                   onMouseLeave={canHover ? scheduleCloseInternships : undefined}
                 >
                   <button
-                    className="nav-link relative inline-flex items-center gap-1"
+                    className="nav-link relative"
                     onClick={() => setInternshipsOpen((o) => !o)}
                     aria-expanded={internshipsOpen}
                     aria-haspopup="menu"
+                    aria-controls="internships-mega-menu"
                   >
                     <span className={internshipsOpen ? 'text-[#00d68f]' : ''}>{l.label}</span>
-                    <ChevronDown size={14} className={internshipsOpen ? 'text-[#00d68f]' : ''} style={{ transform: internshipsOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+                    <motion.span
+                      className="absolute -bottom-1 left-0 h-[2px] rounded-full bg-[#00d68f]"
+                      initial={false}
+                      animate={{ width: internshipsOpen ? '100%' : '0%', opacity: internshipsOpen ? 1 : 0 }}
+                      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    />
                   </button>
                   <AnimatePresence>
                     {internshipsOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 8 }}
-                        transition={{ duration: 0.16 }}
-                        className="internships-dropdown"
+                      <InternshipsDropdown
+                        id="internships-mega-menu"
+                        onNavigate={handleInternshipNavigate}
+                        onClose={() => setInternshipsOpen(false)}
+                        onApplyNow={handleInternshipApplyNow}
                         onMouseEnter={canHover ? openInternships : undefined}
                         onMouseLeave={canHover ? scheduleCloseInternships : undefined}
-                      >
-                        {INTERNSHIP_COLUMNS.map((col) => (
-                          <div className="internships-col" key={col.key}>
-                            <div className="internships-col-head">
-                              <col.icon size={14} strokeWidth={2.25} />
-                              <span>{col.title}</span>
-                            </div>
-                            {col.items.map((item) => (
-                              <button
-                                key={item.label}
-                                className="internships-item"
-                                onClick={() => { setInternshipsOpen(false); col.target === 'home' ? navigate('/') : scrollTo(col.target); }}
-                              >
-                                <span className="internships-item-icon"><item.icon size={14} /></span>
-                                <span>
-                                  <span className="internships-item-label">{item.label}</span>
-                                  <span className="internships-item-desc">{item.desc}</span>
-                                </span>
-                              </button>
-                            ))}
-                          </div>
-                        ))}
-                      </motion.div>
+                      />
                     )}
                   </AnimatePresence>
                 </li>
@@ -720,18 +891,41 @@ const Navbar = () => {
                                   {col.items.map((item) => (
                                     <button
                                       key={item.label}
-                                      onClick={() => { setMenuOpen(false); setMobileInternshipsOpen(false); col.target === 'home' ? navigate('/') : scrollTo(col.target); }}
+                                      onClick={() => { 
+                                        setMenuOpen(false); 
+                                        setMobileInternshipsOpen(false); 
+                                        navigate(`/internships/${col.key}`);
+                                      }}
                                       className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2.5 text-left text-sm text-white/90 active:bg-white/[0.06]"
                                     >
-                                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.04]">
+                                      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.04] ${item.color}`}>
                                         <item.icon size={14} />
                                       </span>
                                       <span className="min-w-0 flex-1">
-                                        <span className="block truncate">{item.label}</span>
+                                        <span className="flex items-center gap-2">
+                                          <span className="truncate">{item.label}</span>
+                                          {item.badge && (
+                                            <span className="shrink-0 rounded-full bg-[#00d68f]/15 px-1.5 py-0.5 text-[9px] font-semibold text-[#00d68f]">
+                                              {item.badge}
+                                            </span>
+                                          )}
+                                        </span>
                                         <span className="block truncate text-xs text-white/50">{item.desc}</span>
                                       </span>
                                     </button>
                                   ))}
+                                  {/* Add Apply Now button at bottom of each internship section */}
+                                  <button
+                                    onClick={() => {
+                                      setMenuOpen(false);
+                                      setMobileInternshipsOpen(false);
+                                      navigate(`/internships/${col.key}`);
+                                    }}
+                                    className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-[#00d68f] px-4 py-2.5 text-sm font-semibold text-[#04160f]"
+                                  >
+                                    <Briefcase size={15} />
+                                    Apply Now - {col.duration}
+                                  </button>
                                 </div>
                               </div>
                             ))}
@@ -764,8 +958,265 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
-  );
-};
 
-export default Navbar;
+      {/* Internship Selection Modal */}
+      {showInternshipModal && (
+        <div
+          onClick={() => {
+            setShowInternshipModal(false);
+            document.body.style.overflow = '';
+          }}
+          style={{
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            width: '100vw',
+            height: '100vh',
+            zIndex: 9999,
+            backgroundColor: 'rgba(0, 0, 0, 0.85)',
+            backdropFilter: 'blur(10px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              width: '90%',
+              maxWidth: '580px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              backgroundColor: '#0a1626',
+              borderRadius: '16px',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: '0 25px 80px rgba(0, 0, 0, 0.6)',
+            }}
+          >
+              {/* Close button */}
+              <button
+                onClick={() => {
+                  setShowInternshipModal(false);
+                  document.body.style.overflow = '';
+                }}
+                style={{
+                  position: 'absolute',
+                  right: '16px',
+                  top: '16px',
+                  zIndex: 10,
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  transition: 'all 0.2s',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                  e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+
+              {/* Header */}
+              <div style={{ padding: '32px 32px 24px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                <h3 style={{ fontSize: '24px', fontWeight: 'bold', color: 'white', marginBottom: '8px' }}>
+                  Choose Your Internship
+                </h3>
+                <p style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.6)' }}>
+                  Select the program that fits your goals
+                </p>
+              </div>
+
+              {/* Options */}
+              <div style={{ padding: '24px' }}>
+                {/* 3 Month Option */}
+                <div style={{
+                  width: '100%',
+                  padding: '20px',
+                  marginBottom: '16px',
+                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                  border: '2px solid rgba(59, 130, 246, 0.3)',
+                  borderRadius: '12px',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      <Briefcase size={22} color="#3b82f6" />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <h4 style={{ fontSize: '18px', fontWeight: 'bold', color: 'white', marginBottom: '4px' }}>
+                        3 Month Internship
+                      </h4>
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        color: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                      }}>
+                        BEGINNER FRIENDLY
+                      </span>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '12px' }}>
+                    Live projects, hands-on experience, and certification
+                  </p>
+                  <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)', marginBottom: '16px' }}>
+                    <span>✓ Projects</span>
+                    <span>✓ Mentorship</span>
+                    <span>✓ Certificate</span>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleInternshipSelection('3-month')}
+                    style={{
+                      width: '100%',
+                      padding: '12px 24px',
+                      backgroundColor: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#2563eb'; }}
+                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#3b82f6'; }}
+                  >
+                    Apply Now
+                    <ChevronRight size={18} color="white" />
+                  </motion.button>
+                </div>
+
+                {/* 6 Month Option */}
+                <div style={{
+                  width: '100%',
+                  padding: '20px',
+                  backgroundColor: 'rgba(0, 214, 143, 0.1)',
+                  border: '2px solid rgba(0, 214, 143, 0.4)',
+                  borderRadius: '12px',
+                  position: 'relative',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      backgroundColor: 'rgba(0, 214, 143, 0.2)',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      <TrendingUp size={22} color="#00d68f" />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <h4 style={{ fontSize: '18px', fontWeight: 'bold', color: 'white', marginBottom: '4px' }}>
+                        6 Month Internship
+                      </h4>
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        color: '#00d68f',
+                        backgroundColor: 'rgba(0, 214, 143, 0.2)',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                      }}>
+                        ⭐ PREMIUM
+                      </span>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '12px' }}>
+                    Stipend, placement support, and revenue sharing
+                  </p>
+                  <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)', marginBottom: '16px' }}>
+                    <span>✓ ₹5-15K/month</span>
+                    <span>✓ Placement</span>
+                    <span>✓ 75% Share</span>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleInternshipSelection('6-month')}
+                    style={{
+                      width: '100%',
+                      padding: '12px 24px',
+                      backgroundColor: '#00d68f',
+                      color: '#04160f',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#00f5a0'; }}
+                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#00d68f'; }}
+                  >
+                    Apply Now
+                    <ChevronRight size={18} color="#04160f" />
+                  </motion.button>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div style={{ padding: '16px 32px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                <button
+                  onClick={() => {
+                    setShowInternshipModal(false);
+                    document.body.style.overflow = '';
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'rgba(255, 255, 255, 0.5)',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    padding: '8px 0',
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.color = 'white'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.color = 'rgba(255, 255, 255, 0.5)'; }}
+                >
+                  ← Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </nav>
+    );
+  };
+  
+  export default Navbar;

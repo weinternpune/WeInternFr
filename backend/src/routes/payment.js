@@ -3,6 +3,7 @@ const router = express.Router();
 const crypto = require('crypto');
 const { protect } = require('../middleware/auth');
 const { Enrollment } = require('../models/Enrollment');
+const Application = require('../models/Application');
 const { sendEnrollmentConfirmation } = require('../utils/email');
 
 // ── Helper: send pending payment reminder email ──
@@ -298,3 +299,226 @@ router.post('/verify', protect, async (req, res) => {
 });
 
 module.exports = router;
+
+// ============================================
+// INTERNSHIP APPLICATION PAYMENT ROUTES
+// ============================================
+
+// ── Create Internship Order ──
+router.post('/internship/create-order', async (req, res) => {
+  try {
+    const { amount, applicationData } = req.body;
+
+    if (!amount || !applicationData) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Amount and application data required' 
+      });
+    }
+
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    
+    if (!keyId || !keySecret) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Razorpay not configured' 
+      });
+    }
+
+    const Razorpay = require('razorpay');
+    const razorpay = new Razorpay({ 
+      key_id: keyId, 
+      key_secret: keySecret 
+    });
+
+    // Create application first with payment_pending status
+    const application = new Application({
+      name: applicationData.name,
+      email: applicationData.email,
+      phone: applicationData.phone,
+      interest: applicationData.course,
+      duration: applicationData.internshipType,
+      internshipType: applicationData.internshipType,
+      registrationFee: amount,
+      paymentStatus: 'pending',
+      status: 'payment_pending'
+    });
+
+    await application.save();
+
+    // Create Razorpay order
+    const order = await razorpay.orders.create({
+      amount: Math.round(amount * 100), // Convert to paise
+      currency: 'INR',
+      receipt: `internship_${application._id}`,
+      notes: {
+        applicationId: application._id.toString(),
+        studentName: applicationData.name,
+        internshipType: applicationData.internshipType
+      }
+    });
+
+    res.json({ 
+      success: true, 
+      order,
+      applicationId: application._id
+    });
+  } catch (err) {
+    console.error('Create internship order error:', err);
+    res.status(500).json({ 
+      success: false, 
+      message: err.message || 'Failed to create order' 
+    });
+  }
+});
+
+// ── Verify Internship Payment ──
+router.post('/internship/verify', async (req, res) => {
+  try {
+    const { 
+      razorpay_order_id, 
+      razorpay_payment_id, 
+      razorpay_signature,
+      applicationId 
+    } = req.body;
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !applicationId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Missing payment details' 
+      });
+    }
+
+    // Verify signature
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    const expectedSignature = crypto
+      .createHmac('sha256', keySecret)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest('hex');
+
+    if (expectedSignature !== razorpay_signature) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid payment signature' 
+      });
+    }
+
+    // Update application with payment details
+    const application = await Application.findByIdAndUpdate(
+      applicationId,
+      {
+        paymentStatus: 'completed',
+        paymentId: razorpay_payment_id,
+        paymentOrderId: razorpay_order_id,
+        paidAt: new Date(),
+        status: 'pending' // Change from payment_pending to pending for review
+      },
+      { new: true }
+    );
+
+    if (!application) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Application not found' 
+      });
+    }
+
+    // Send confirmation email
+    try {
+      await sendInternshipConfirmationEmail(
+        application.email,
+        application.name,
+        application.internshipType,
+        application.registrationFee,
+        razorpay_payment_id,
+        application._id
+      );
+    } catch (emailErr) {
+      console.error('Confirmation email error:', emailErr.message);
+      // Don't fail the payment for email errors
+    }
+
+    res.json({
+      success: true,
+      message: 'Payment verified successfully',
+      applicationId: application._id,
+      paymentId: razorpay_payment_id
+    });
+  } catch (err) {
+    console.error('Verify internship payment error:', err);
+    res.status(500).json({ 
+      success: false, 
+      message: err.message || 'Verification failed' 
+    });
+  }
+});
+
+// ── Send Internship Confirmation Email ──
+const sendInternshipConfirmationEmail = async (
+  email, 
+  name, 
+  internshipType, 
+  amount, 
+  paymentId, 
+  applicationId
+) => {
+  const nodemailer = require('nodemailer');
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { 
+      user: process.env.EMAIL_USER, 
+      pass: process.env.EMAIL_PASS 
+    }
+  });
+
+  const programName = internshipType === '3-month' 
+    ? '3 Month Internship Program' 
+    : '6 Month Internship Program';
+
+  await transporter.sendMail({
+    from: process.env.EMAIL_FROM,
+    to: email,
+    subject: `🎉 Payment Confirmed — Welcome to ${programName}!`,
+    html: `
+    <div style="font-family:'DM Sans',Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+      <div style="background:linear-gradient(135deg,#0d1b2e,#1B2A4A);padding:40px 32px;text-align:center">
+        <h1 style="color:#E8A820;font-size:28px;margin:0;font-weight:900">WeIntern</h1>
+        <p style="color:rgba(255,255,255,0.7);margin:8px 0 0;font-size:14px">Learn. Build. Earn.</p>
+      </div>
+      <div style="padding:32px">
+        <div style="background:#f0fdf4;border:1px solid #86efac;border-left:4px solid #22c55e;border-radius:10px;padding:16px;margin-bottom:24px;text-align:center">
+          <p style="color:#15803d;font-size:24px;margin:0">✅</p>
+          <p style="color:#15803d;font-size:16px;margin:8px 0 0;font-weight:700">
+            Payment Successful!
+          </p>
+        </div>
+        <p style="color:#1B2A4A;font-size:16px">Hi <strong>${name}</strong>,</p>
+        <p style="color:#6b7280;font-size:14px;line-height:1.7">
+          Your registration for <strong>${programName}</strong> has been confirmed. Welcome to WeIntern! 🎉
+        </p>
+        <div style="background:#f8fafc;border-radius:10px;padding:16px;margin:24px 0">
+          <p style="color:#6b7280;font-size:13px;margin:0 0 8px"><strong>Program:</strong> ${programName}</p>
+          <p style="color:#6b7280;font-size:13px;margin:0 0 8px"><strong>Registration Fee:</strong> ₹${Number(amount).toLocaleString('en-IN')}</p>
+          <p style="color:#6b7280;font-size:13px;margin:0 0 8px"><strong>Payment ID:</strong> ${paymentId}</p>
+          <p style="color:#6b7280;font-size:13px;margin:0 0 8px"><strong>Application ID:</strong> ${applicationId}</p>
+          <p style="color:#22c55e;font-size:13px;margin:0"><strong>Status:</strong> Confirmed ✅</p>
+        </div>
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;margin-bottom:24px">
+          <p style="color:#1e40af;font-size:13px;margin:0 0 8px;font-weight:700">📋 What's Next?</p>
+          <p style="color:#374151;font-size:13px;margin:0;line-height:1.6">
+            1. Our team will review your application within 24-48 hours<br>
+            2. You'll receive further instructions via email<br>
+            3. Access your dashboard to track your application status
+          </p>
+        </div>
+        <div style="text-align:center;margin:32px 0">
+          <a href="${process.env.FRONTEND_URL}/dashboard" style="background:#18b45b;color:white;padding:14px 32px;border-radius:50px;font-weight:800;font-size:15px;text-decoration:none;display:inline-block">
+            Go to Dashboard →
+          </a>
+        </div>
+        <p style="color:#9ca3af;font-size:12px;text-align:center">Questions? <a href="mailto:internship.weintern@gmail.com" style="color:#E8A820">internship.weintern@gmail.com</a></p>
+      </div>
+    </div>`
+  });
+};
