@@ -636,12 +636,12 @@ router.post('/projects', protect, mentorOrAdmin, async (req, res) => {
       });
       createdProjects.push(p);
 
-      await Notification.create({
-        recipient: sid,
-        title: `New Project Allocated: ${title}`,
-        message: `Your mentor assigned a new capstone project: "${title}". Check your dashboard projects.`,
-        type: 'project'
-      });
+      await createNotification(
+        sid,
+        'project',
+        `New Project Allocated: ${title}`,
+        `Your mentor assigned a new capstone project: "${title}". Check your dashboard projects.`
+      );
     }
 
     res.json({
@@ -677,12 +677,12 @@ router.patch('/projects/:id', protect, mentorOrAdmin, async (req, res) => {
     if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
 
     if (project.student?._id || project.student) {
-      await Notification.create({
-        recipient: project.student._id || project.student,
-        title: `Project Review: ${project.title}`,
-        message: `Your mentor reviewed "${project.title}". Status: ${project.status || 'Updated'}, Progress: ${project.progress}%.`,
-        type: 'project'
-      });
+      await createNotification(
+        project.student._id || project.student,
+        'project',
+        `Project Review: ${project.title}`,
+        `Your mentor reviewed "${project.title}". Status: ${project.status || 'Updated'}, Progress: ${project.progress}%.`
+      );
     }
 
     res.json({ success: true, message: 'Project reviewed successfully', data: project });
@@ -720,12 +720,12 @@ router.post('/student/projects/:id/submit', protect, async (req, res) => {
     await project.save();
 
     // Notify mentor
-    await Notification.create({
-      recipient: project.mentor,
-      title: `Project Submission: ${project.title}`,
-      message: `${req.user.name} submitted their capstone project "${project.title}" for review.`,
-      type: 'project'
-    });
+    await createNotification(
+      project.mentor,
+      'project',
+      `Project Submission: ${project.title}`,
+      `${req.user.name} submitted their capstone project "${project.title}" for review.`
+    );
 
     res.json({ success: true, message: 'Project submitted successfully for mentor review!', data: project });
   } catch (err) {
