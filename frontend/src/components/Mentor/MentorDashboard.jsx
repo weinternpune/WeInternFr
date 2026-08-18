@@ -18,7 +18,7 @@ import {
   getMentorMessages, sendMentorMessage, sendMentorAnnouncement,
   getMentorNotifications, markMentorNotificationRead, getMentorReports,
   addMentorNote, updateMentorProfile, changePassword, getAdminMentors,
-  getAllMentorsOverview
+  getAllMentorsOverview, createMentorAccount, assignStudentsBulk, getAdminStudentsWithMentors
 } from '../../utils/api';
 
 const fmtDate = (value) => value ? new Date(value).toLocaleDateString('en-IN', {
@@ -626,6 +626,124 @@ function MentorDashboard() {
 
 // ── All Mentors Hub (Admin Overview) ────────────────────────
 function AllMentorsHub({ overview, loading, onSelectMentor, selectedMentorId, onReload }) {
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [allocatingMentor, setAllocatingMentor] = useState(null);
+  const [allStudents, setAllStudents] = useState([]);
+  const [studentsLoading, setStudentsLoading] = useState(false);
+
+  // Mentor Creation Form State
+  const [createForm, setCreateForm] = useState({
+    name: '', email: '', password: '', phone: '',
+    expertise: '', skills: '', assignedCourses: '', assignedBatches: '',
+    bio: '', experience: ''
+  });
+  const [createSelectedStudents, setCreateSelectedStudents] = useState([]);
+  const [createStudentSearch, setCreateStudentSearch] = useState('');
+  const [creating, setCreating] = useState(false);
+
+  // Allocation Modal State
+  const [selectedStudentIds, setSelectedStudentIds] = useState([]);
+  const [allocationSearch, setAllocationSearch] = useState('');
+  const [allocating, setAllocating] = useState(false);
+
+  const loadStudents = async () => {
+    setStudentsLoading(true);
+    try {
+      const res = await getAdminStudentsWithMentors();
+      setAllStudents(res.data?.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setStudentsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadStudents();
+  }, []);
+
+  const openAllocateModal = (mentor) => {
+    setAllocatingMentor(mentor);
+    const currentAssigned = allStudents
+      .filter(s => s.mentor?._id === mentor._id || s.mentor === mentor._id)
+      .map(s => s._id);
+    setSelectedStudentIds(currentAssigned);
+    setAllocationSearch('');
+  };
+
+  const handleSaveAllocation = async () => {
+    if (!allocatingMentor) return;
+    setAllocating(true);
+    try {
+      const currentAssignedIds = allStudents
+        .filter(s => s.mentor?._id === allocatingMentor._id || s.mentor === allocatingMentor._id)
+        .map(s => s._id);
+
+      const toAssign = selectedStudentIds.filter(id => !currentAssignedIds.includes(id));
+      const toUnassign = currentAssignedIds.filter(id => !selectedStudentIds.includes(id));
+
+      if (toAssign.length > 0) {
+        await assignStudentsBulk({ mentorId: allocatingMentor._id, studentIds: toAssign, action: 'assign' });
+      }
+      if (toUnassign.length > 0) {
+        await assignStudentsBulk({ mentorId: allocatingMentor._id, studentIds: toUnassign, action: 'unassign' });
+      }
+
+      toast.success(`Allocated students updated for ${allocatingMentor.name}`);
+      setAllocatingMentor(null);
+      await loadStudents();
+      onReload();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Unable to allocate students');
+    } finally {
+      setAllocating(false);
+    }
+  };
+
+  const handleCreateMentor = async (e) => {
+    e.preventDefault();
+    if (!createForm.name || !createForm.email || !createForm.password) {
+      return toast.error('Name, email and password are required');
+    }
+    if (createForm.password.length < 6) {
+      return toast.error('Password must be at least 6 characters');
+    }
+
+    setCreating(true);
+    try {
+      await createMentorAccount({
+        ...createForm,
+        studentIds: createSelectedStudents
+      });
+      toast.success(`Mentor "${createForm.name}" created successfully!`);
+      setCreateForm({
+        name: '', email: '', password: '', phone: '',
+        expertise: '', skills: '', assignedCourses: '', assignedBatches: '',
+        bio: '', experience: ''
+      });
+      setCreateSelectedStudents([]);
+      setShowCreateModal(false);
+      await loadStudents();
+      onReload();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Unable to create mentor');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const filteredAllocStudents = allStudents.filter(s => {
+    const q = allocationSearch.trim().toLowerCase();
+    if (!q) return true;
+    return [s.name, s.email, s.college, s.year, s.interest].join(' ').toLowerCase().includes(q);
+  });
+
+  const filteredCreateStudents = allStudents.filter(s => {
+    const q = createStudentSearch.trim().toLowerCase();
+    if (!q) return true;
+    return [s.name, s.email, s.college, s.year, s.interest].join(' ').toLowerCase().includes(q);
+  });
+
   if (loading) {
     return (
       <div className="mentor-loading small">
@@ -649,9 +767,26 @@ function AllMentorsHub({ overview, loading, onSelectMentor, selectedMentorId, on
           <h2>All Mentors & Platform Activity</h2>
           <p>Monitor all mentor operations, active batches, live classes, and announcements.</p>
         </div>
-        <button className="btn btn-outline" onClick={onReload} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <RefreshCw size={15}/> Refresh Overview
-        </button>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button
+            className="primary-btn"
+            onClick={() => setShowCreateModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background: 'linear-gradient(135deg, #e8a820, #f5c453)',
+              color: '#12233f',
+              fontWeight: 800,
+              boxShadow: '0 2px 8px rgba(232, 168, 32, 0.3)'
+            }}
+          >
+            <Plus size={16}/> Add New Mentor
+          </button>
+          <button className="btn btn-outline" onClick={onReload} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <RefreshCw size={15}/> Refresh Overview
+          </button>
+        </div>
       </div>
 
       {/* Overview Stats */}
@@ -664,11 +799,18 @@ function AllMentorsHub({ overview, loading, onSelectMentor, selectedMentorId, on
       </div>
 
       {/* Mentors Grid Cards */}
-      <div className="mentor-page-title" style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
+      <div className="mentor-page-title" style={{ marginTop: '1.5rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <span className="eyebrow">ALL MENTOR ROSTER</span>
           <h3>Active Mentors ({mentors.length})</h3>
         </div>
+        <button
+          className="btn btn-outline"
+          onClick={() => setShowCreateModal(true)}
+          style={{ fontSize: '.78rem', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 5 }}
+        >
+          <UserPlus size={14}/> Create Another Mentor
+        </button>
       </div>
 
       <div className="all-mentors-grid">
@@ -710,16 +852,308 @@ function AllMentorsHub({ overview, loading, onSelectMentor, selectedMentorId, on
               </div>
             </div>
 
-            <button
-              className="primary-btn"
-              style={{ width: '100%', justifyContent: 'center', marginTop: 4 }}
-              onClick={() => onSelectMentor(m._id)}
-            >
-              <ExternalLink size={14}/> {m._id === selectedMentorId ? 'Viewing Dashboard ✓' : 'Open This Dashboard'}
-            </button>
+            <div style={{ display: 'flex', gap: '8px', marginTop: 4 }}>
+              <button
+                className="primary-btn"
+                style={{ flex: 1, justifyContent: 'center' }}
+                onClick={() => onSelectMentor(m._id)}
+              >
+                <ExternalLink size={14}/> {m._id === selectedMentorId ? 'Viewing Dashboard ✓' : 'Open Dashboard'}
+              </button>
+              <button
+                className="btn btn-outline"
+                style={{
+                  fontSize: '.75rem',
+                  padding: '7px 11px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  fontWeight: 700,
+                  borderColor: '#cbd5e1',
+                  background: '#f8fafc',
+                  color: '#1e293b'
+                }}
+                onClick={() => openAllocateModal(m)}
+                title="Allocate Students to this Mentor"
+              >
+                <Users size={14}/> Allocate ({m.studentCount || 0})
+              </button>
+            </div>
           </div>
         ))}
       </div>
+
+      {/* ── CREATE MENTOR MODAL ── */}
+      {showCreateModal && (
+        <div className="mentor-modal-backdrop" onClick={() => setShowCreateModal(false)}>
+          <div className="mentor-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 700 }}>
+            <div className="modal-head">
+              <h2>Add New Mentor Account</h2>
+              <button onClick={() => setShowCreateModal(false)}><X size={18}/></button>
+            </div>
+            <form onSubmit={handleCreateMentor} className="modal-body">
+              <div className="form-grid">
+                <label>
+                  Full Name *
+                  <input
+                    required
+                    placeholder="e.g. Dr. Rajesh Kumar"
+                    value={createForm.name}
+                    onChange={e => setCreateForm({ ...createForm, name: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Email Address *
+                  <input
+                    required
+                    type="email"
+                    placeholder="e.g. rajesh.kumar@weintern.in"
+                    value={createForm.email}
+                    onChange={e => setCreateForm({ ...createForm, email: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Temporary Password * (Min 6 chars)
+                  <input
+                    required
+                    type="password"
+                    minLength="6"
+                    placeholder="Set secure password"
+                    value={createForm.password}
+                    onChange={e => setCreateForm({ ...createForm, password: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Phone Number
+                  <input
+                    placeholder="+91 98765 43210"
+                    value={createForm.phone}
+                    onChange={e => setCreateForm({ ...createForm, phone: e.target.value })}
+                  />
+                </label>
+                <label className="span-2">
+                  Expertise & Specialization (comma separated)
+                  <input
+                    placeholder="e.g. MERN Full Stack, Data Analytics, Machine Learning, System Design"
+                    value={createForm.expertise}
+                    onChange={e => setCreateForm({ ...createForm, expertise: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Key Skills (comma separated)
+                  <input
+                    placeholder="React, Node.js, Python, SQL"
+                    value={createForm.skills}
+                    onChange={e => setCreateForm({ ...createForm, skills: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Assigned Batches (comma separated)
+                  <input
+                    placeholder="Batch 2024, Cohort A"
+                    value={createForm.assignedBatches}
+                    onChange={e => setCreateForm({ ...createForm, assignedBatches: e.target.value })}
+                  />
+                </label>
+                <label className="span-2">
+                  Short Bio / Background
+                  <textarea
+                    rows={2}
+                    placeholder="Brief bio, industry experience, and mentorship background..."
+                    value={createForm.bio}
+                    onChange={e => setCreateForm({ ...createForm, bio: e.target.value })}
+                  />
+                </label>
+              </div>
+
+              {/* Optional initial student allocation */}
+              <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <strong style={{ fontSize: '.8rem', color: '#1e293b' }}>
+                    Allocate Initial Students ({createSelectedStudents.length} selected)
+                  </strong>
+                  <div className="search-box" style={{ maxWidth: 220, padding: '4px 8px' }}>
+                    <Search size={14}/>
+                    <input
+                      placeholder="Search students..."
+                      value={createStudentSearch}
+                      onChange={e => setCreateStudentSearch(e.target.value)}
+                      style={{ fontSize: '.72rem' }}
+                    />
+                  </div>
+                </div>
+
+                <div className="allocation-student-list" style={{ maxHeight: 180 }}>
+                  {filteredCreateStudents.length === 0 ? (
+                    <div className="mentor-empty">No students found</div>
+                  ) : (
+                    filteredCreateStudents.map(st => {
+                      const isSelected = createSelectedStudents.includes(st._id);
+                      return (
+                        <div
+                          key={st._id}
+                          className={`allocation-student-item ${isSelected ? 'selected' : ''}`}
+                          onClick={() => {
+                            if (isSelected) {
+                              setCreateSelectedStudents(createSelectedStudents.filter(id => id !== st._id));
+                            } else {
+                              setCreateSelectedStudents([...createSelectedStudents, st._id]);
+                            }
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => {}}
+                          />
+                          <div className="allocation-info">
+                            <strong>{st.name}</strong>
+                            <span>{st.email} {st.college ? `• ${st.college}` : ''}</span>
+                          </div>
+                          {st.mentor ? (
+                            <span className="allocation-badge assigned-other">
+                              Assigned to {st.mentor.name}
+                            </span>
+                          ) : (
+                            <span className="allocation-badge unassigned">Unassigned</span>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="btn btn-outline" onClick={() => setShowCreateModal(false)}>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="primary-btn"
+                  disabled={creating}
+                  style={{ background: 'linear-gradient(135deg, #e8a820, #f5c453)', color: '#12233f', fontWeight: 800 }}
+                >
+                  {creating ? 'Creating Mentor...' : '✓ Create Mentor Account'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── ALLOCATE STUDENTS MODAL ── */}
+      {allocatingMentor && (
+        <div className="mentor-modal-backdrop" onClick={() => setAllocatingMentor(null)}>
+          <div className="mentor-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 680 }}>
+            <div className="modal-head">
+              <div>
+                <h2 style={{ fontSize: '1.05rem', margin: 0 }}>
+                  Allocate Students to {allocatingMentor.name}
+                </h2>
+                <span style={{ fontSize: '.72rem', color: '#64748b' }}>
+                  {allocatingMentor.email} • {selectedStudentIds.length} student(s) currently allocated
+                </span>
+              </div>
+              <button onClick={() => setAllocatingMentor(null)}><X size={18}/></button>
+            </div>
+
+            <div className="modal-body">
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
+                <div className="search-box" style={{ flex: 1 }}>
+                  <Search size={15}/>
+                  <input
+                    placeholder="Search students by name, email, college..."
+                    value={allocationSearch}
+                    onChange={e => setAllocationSearch(e.target.value)}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  style={{ fontSize: '.75rem', padding: '7px 11px', whiteSpace: 'nowrap' }}
+                  onClick={() => {
+                    const allIds = filteredAllocStudents.map(s => s._id);
+                    setSelectedStudentIds(Array.from(new Set([...selectedStudentIds, ...allIds])));
+                  }}
+                >
+                  Select All Filtered
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  style={{ fontSize: '.75rem', padding: '7px 11px', whiteSpace: 'nowrap' }}
+                  onClick={() => setSelectedStudentIds([])}
+                >
+                  Clear All
+                </button>
+              </div>
+
+              <div className="allocation-student-list">
+                {studentsLoading ? (
+                  <div className="mentor-loading small">
+                    <div className="mentor-spinner" />
+                    <p>Loading student directory…</p>
+                  </div>
+                ) : filteredAllocStudents.length === 0 ? (
+                  <div className="mentor-empty">No matching students found</div>
+                ) : (
+                  filteredAllocStudents.map(st => {
+                    const isSelected = selectedStudentIds.includes(st._id);
+                    const isCurrentMentor = st.mentor?._id === allocatingMentor._id || st.mentor === allocatingMentor._id;
+
+                    return (
+                      <div
+                        key={st._id}
+                        className={`allocation-student-item ${isSelected ? 'selected' : ''}`}
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedStudentIds(selectedStudentIds.filter(id => id !== st._id));
+                          } else {
+                            setSelectedStudentIds([...selectedStudentIds, st._id]);
+                          }
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => {}}
+                        />
+                        <div className="allocation-info">
+                          <strong>{st.name}</strong>
+                          <span>{st.email} {st.college ? `• ${st.college}` : ''} {st.interest ? `• ${st.interest}` : ''}</span>
+                        </div>
+                        {isCurrentMentor ? (
+                          <span className="allocation-badge assigned-this">✓ Allocated to this mentor</span>
+                        ) : st.mentor ? (
+                          <span className="allocation-badge assigned-other">Assigned to {st.mentor.name}</span>
+                        ) : (
+                          <span className="allocation-badge unassigned">Unassigned</span>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="btn btn-outline" onClick={() => setAllocatingMentor(null)}>
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="primary-btn"
+                  disabled={allocating}
+                  onClick={handleSaveAllocation}
+                  style={{ background: 'linear-gradient(135deg, #e8a820, #f5c453)', color: '#12233f', fontWeight: 800 }}
+                >
+                  {allocating ? 'Saving Allocation...' : `✓ Save Allocation (${selectedStudentIds.length} Students)`}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Two column: Recent Announcements & Recent Classes */}
       <div className="mentor-grid two" style={{ marginTop: '1.5rem' }}>
