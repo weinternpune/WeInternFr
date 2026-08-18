@@ -1790,10 +1790,10 @@ export const LiveJourney = () => {
   </div>
 
   {/* Content */}
-  <div className="relative p-4 lg:p-5">
+  <div className="relative p-2 lg:p-3">
 
     {/* Eyebrow */}
-    <div className="mb-2 flex items-center gap-2">
+    <div className="mb-1.5 flex items-center gap-2">
       <span className="h-px w-5 bg-emerald-400" />
 
       <h3
@@ -1812,7 +1812,7 @@ export const LiveJourney = () => {
     {/* Heading */}
     <h3
       className="
-        mb-3
+        mb-2
         text-lg
         font-bold
         tracking-[-0.03em]
@@ -1831,7 +1831,7 @@ export const LiveJourney = () => {
         className="
           flex items-center justify-between
           border-b border-slate-200/80
-          py-2.5
+          py-1.5
         "
       >
         <span className="text-xs text-slate-600">
@@ -1855,7 +1855,7 @@ export const LiveJourney = () => {
         className="
           flex items-center justify-between
           border-b border-slate-200/80
-          py-2.5
+          py-1.5
         "
       >
         <span className="text-xs text-slate-600">
@@ -1870,7 +1870,7 @@ export const LiveJourney = () => {
       <div
         className="
           flex items-center justify-between
-          py-2.5
+          py-1.5
         "
       >
         <span className="text-xs text-slate-600">
@@ -1889,7 +1889,7 @@ export const LiveJourney = () => {
     <button
       onClick={() => setShowBooking(true)}
       className="
-        group/btn relative mt-4 flex w-full
+        group/btn relative mt-2 flex w-full
         items-center justify-center gap-2
         overflow-hidden rounded-lg
         bg-emerald-600
@@ -1930,7 +1930,7 @@ export const LiveJourney = () => {
     </button>
 
     {/* Bottom micro-copy */}
-    <p className="mt-2 text-center text-[10px] text-slate-400">
+    <p className="mt-1.5 text-center text-[10px] text-slate-400">
       Limited seats · Free to attend
     </p>
 
@@ -2076,10 +2076,10 @@ export const LiveJourney = () => {
   </div>
 
   {/* Content */}
-  <div className="relative p-4 lg:p-5">
+  <div className="relative p-2 lg:p-3">
 
     {/* Eyebrow */}
-    <div className="mb-2 flex items-center gap-2">
+    <div className="mb-1.5 flex items-center gap-2">
       <span className="h-px w-5 bg-blue-400" />
 
       <h3
@@ -2098,7 +2098,7 @@ export const LiveJourney = () => {
     {/* Heading */}
     <h2
       className="
-        mb-3
+        mb-2
         text-lg
         font-bold
         tracking-[-0.03em]
@@ -2117,7 +2117,7 @@ export const LiveJourney = () => {
         className="
           flex items-center justify-between
           border-b border-slate-200/80
-          py-2.5
+          py-1.5
         "
       >
         <span className="text-xs text-slate-600">
@@ -2141,7 +2141,7 @@ export const LiveJourney = () => {
         className="
           flex items-center justify-between
           border-b border-slate-200/80
-          py-2.5
+          py-1.5
         "
       >
         <span className="text-xs text-slate-600">
@@ -2156,7 +2156,7 @@ export const LiveJourney = () => {
       <div
         className="
           flex items-center justify-between
-          py-2.5
+          py-1.5
         "
       >
         <span className="text-xs text-slate-600">
@@ -2175,7 +2175,7 @@ export const LiveJourney = () => {
     <button
       disabled
       className="
-        mt-4 flex w-full
+        mt-2 flex w-full
         cursor-not-allowed
         items-center justify-center gap-2
         rounded-lg
@@ -2196,7 +2196,7 @@ export const LiveJourney = () => {
     </button>
 
     {/* Micro-copy */}
-    <p className="mt-2 text-center text-[10px] text-slate-400">
+    <p className="mt-1.5 text-center text-[10px] text-slate-400">
       Early access will open soon
     </p>
 
@@ -2340,10 +2340,10 @@ export const LiveJourney = () => {
   </div>
 
   {/* Content */}
-  <div className="relative p-4 lg:p-5">
+  <div className="relative p-2 lg:p-3">
 
     {/* Eyebrow */}
-    <div className="mb-2 flex items-center gap-2">
+    <div className="mb-1.5 flex items-center gap-2">
       <span className="h-px w-5 bg-violet-400" />
 
       <h3
@@ -2362,7 +2362,7 @@ export const LiveJourney = () => {
     {/* Heading */}
     <h2
       className="
-        mb-3
+        mb-2
         text-lg
         font-bold
         tracking-[-0.03em]
@@ -2381,7 +2381,7 @@ export const LiveJourney = () => {
         className="
           flex items-center justify-between
           border-b border-slate-200/80
-          py-2.5
+          py-1.5
         "
       >
         <span className="text-xs text-slate-600">
@@ -2405,7 +2405,7 @@ export const LiveJourney = () => {
         className="
           flex items-center justify-between
           border-b border-slate-200/80
-          py-2.5
+          py-1.5
         "
       >
         <span className="text-xs text-slate-600">
@@ -2420,7 +2420,7 @@ export const LiveJourney = () => {
       <div
         className="
           flex items-center justify-between
-          py-2.5
+          py-1.5
         "
       >
         <span className="text-xs text-slate-600">
@@ -2439,7 +2439,7 @@ export const LiveJourney = () => {
     <button
       disabled
       className="
-        mt-4 flex w-full
+        mt-2 flex w-full
         cursor-not-allowed
         items-center justify-center gap-2
         rounded-lg
@@ -2460,7 +2460,7 @@ export const LiveJourney = () => {
     </button>
 
     {/* Micro-copy */}
-    <p className="mt-2 text-center text-[10px] text-slate-400">
+    <p className="mt-1.5 text-center text-[10px] text-slate-400">
       More opportunities are on the way
     </p>
 
