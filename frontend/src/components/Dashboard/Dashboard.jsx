@@ -1825,7 +1825,24 @@ const StudentProjectsTab = () => {
             Work on live industry projects allocated by your mentor, submit code & live demos, and track evaluation.
           </p>
         </div>
-        <button className="btn btn-outline btn-sm" onClick={loadProjects} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+        <button
+          type="button"
+          onClick={loadProjects}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: '#e8a820',
+            color: '#12233f',
+            border: 'none',
+            padding: '7px 14px',
+            borderRadius: '8px',
+            fontSize: '.8rem',
+            fontWeight: 800,
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(232,168,32,0.25)'
+          }}
+        >
           🔄 Refresh
         </button>
       </div>
