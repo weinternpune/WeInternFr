@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, CalendarDays, Users, BarChart3, ClipboardList, CheckSquare,
@@ -18,7 +18,8 @@ import {
   getMentorMessages, sendMentorMessage, sendMentorAnnouncement,
   getMentorNotifications, markMentorNotificationRead, getMentorReports,
   addMentorNote, updateMentorProfile, changePassword, getAdminMentors,
-  getAllMentorsOverview, createMentorAccount, assignStudentsBulk, getAdminStudentsWithMentors
+  getAllMentorsOverview, createMentorAccount, assignStudentsBulk, getAdminStudentsWithMentors,
+  uploadMentorFile, createMentorProject, deleteMentorProject
 } from '../../utils/api';
 
 const fmtDate = (value) => value ? new Date(value).toLocaleDateString('en-IN', {
@@ -538,8 +539,10 @@ function MentorDashboard() {
           {active === 'projects' && (
             <ProjectsPage
               projects={projects}
+              students={students}
               onReload={loadProjects}
               mentorName={mentor.name}
+              selectedMentorId={selectedMentorId}
             />
           )}
 
@@ -575,6 +578,7 @@ function MentorDashboard() {
               reports={reports}
               students={students}
               mentorName={mentor.name}
+              selectedMentorId={selectedMentorId}
             />
           )}
 
@@ -1819,39 +1823,88 @@ function AttendancePage({ classes, students, onReload, mentorName }) {
   );
 }
 
-function ProjectsPage({ projects, onReload, mentorName }) {
+function ProjectsPage({ projects, students = [], onReload, mentorName, selectedMentorId }) {
   const [editing, setEditing] = useState(null);
+  const [creating, setCreating] = useState(false);
+
+  const handleDelete = async (id, title) => {
+    if (!window.confirm(`Delete project "${title}"? This cannot be undone.`)) return;
+    try {
+      await deleteMentorProject(id);
+      toast.success('Project deleted');
+      onReload();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to delete project');
+    }
+  };
+
   return (
     <div>
       <PageActions
         title={`Internship Projects (${mentorName || 'Mentor'})`}
-        subtitle="Track each student's project stage and provide mentor feedback."
+        subtitle="Create, assign, and track capstone projects allocated to students."
+        action="+ Add Project"
+        actionText="+ Add Project"
+        onAction={() => setCreating(true)}
       />
       <div className="project-grid">
         {projects.map(p => (
-          <div className="project-card" key={p._id}>
-            <div className="project-head">
-              <div className="mentor-avatar tiny">{initials(p.student?.name)}</div>
-              <div>
-                <strong>{p.student?.name}</strong>
-                <small>{p.title}</small>
+          <div className="project-card" key={p._id} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div className="project-head">
+                <div className="mentor-avatar tiny">{initials(p.student?.name)}</div>
+                <div>
+                  <strong>{p.student?.name}</strong>
+                  <small style={{ fontWeight: 700, color: '#1e293b' }}>{p.title}</small>
+                </div>
+                <span className={`status-pill ${p.status}`}>
+                  {p.status === 'submitted' ? '⏳ Submitted' : p.status || 'assigned'}
+                </span>
               </div>
-              <span className="status-pill">{p.status}</span>
+
+              {p.score !== undefined && p.score !== null && (
+                <div style={{ marginBottom: '8px' }}>
+                  <span style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '2px 8px', borderRadius: '15px', fontWeight: 800, fontSize: '.7rem' }}>
+                    Grade: {p.score}/100
+                  </span>
+                </div>
+              )}
+
+              <ProgressBar value={p.progress}/>
+              <div className="project-meta">
+                <span>{p.progress}% complete</span>
+                <span>{fmtDate(p.lastUpdate || p.updatedAt)}</span>
+              </div>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '8px 0' }}>
+                {p.githubUrl && (
+                  <a href={p.githubUrl} target="_blank" rel="noreferrer" className="project-link" style={{ margin: 0 }}>
+                    <ExternalLink size={13}/> Repository
+                  </a>
+                )}
+                {p.liveDemoUrl && (
+                  <a href={p.liveDemoUrl} target="_blank" rel="noreferrer" className="project-link" style={{ margin: 0, color: '#0284c7' }}>
+                    <ExternalLink size={13}/> Live Demo
+                  </a>
+                )}
+              </div>
             </div>
-            <ProgressBar value={p.progress}/>
-            <div className="project-meta">
-              <span>{p.progress}% complete</span>
-              <span>{fmtDate(p.lastUpdate)}</span>
+
+            <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+              <button
+                className={p.status === 'submitted' ? 'primary-btn' : 'outline-btn'}
+                style={{ flex: 1, justifyContent: 'center' }}
+                onClick={() => setEditing(p)}
+              >
+                {p.status === 'submitted' ? '🔍 Review & Grade' : '✏️ Review / Update'}
+              </button>
+              <button className="danger-btn" style={{ marginTop: 0, padding: '9px 12px' }} onClick={() => handleDelete(p._id, p.title)}>
+                Delete
+              </button>
             </div>
-            {p.githubUrl && (
-              <a href={p.githubUrl} target="_blank" rel="noreferrer" className="project-link">
-                <ExternalLink size={14}/> Repository
-              </a>
-            )}
-            <button className="outline-btn full" onClick={() => setEditing(p)}>Update Project</button>
           </div>
         ))}
-        {!projects.length && <Empty text="No projects assigned yet." />}
+        {!projects.length && <Empty text="No projects assigned yet. Click + Assign Project to allocate projects to students." />}
       </div>
       {editing && (
         <ProjectModal
@@ -1860,7 +1913,105 @@ function ProjectsPage({ projects, onReload, mentorName }) {
           onSaved={() => { setEditing(null); onReload(); }}
         />
       )}
+      {creating && (
+        <CreateProjectModal
+          students={students}
+          selectedMentorId={selectedMentorId}
+          onClose={() => setCreating(false)}
+          onSaved={() => { setCreating(false); onReload(); }}
+        />
+      )}
     </div>
+  );
+}
+
+function CreateProjectModal({ students = [], selectedMentorId, onClose, onSaved }) {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [githubUrl, setGithubUrl] = useState('');
+  const [selectedStudentIds, setSelectedStudentIds] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+
+  const toggleStudent = (id) => {
+    setSelectedStudentIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedStudentIds.length === students.length) setSelectedStudentIds([]);
+    else setSelectedStudentIds(students.map(s => s.id));
+  };
+
+  const submit = async () => {
+    if (!title.trim()) return toast.error('Project title is required');
+    if (selectedStudentIds.length === 0) return toast.error('Select at least one student to assign the project to');
+    setSubmitting(true);
+    try {
+      await createMentorProject({
+        title: title.trim(),
+        description: description.trim(),
+        githubUrl: githubUrl.trim(),
+        studentIds: selectedStudentIds,
+        mentorId: selectedMentorId
+      });
+      toast.success('Project allocated to students successfully');
+      onSaved();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to assign project');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Modal title="Create & Assign Project" onClose={onClose}>
+      <div className="form-grid">
+        <label className="span-2">
+          Project Title *
+          <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. AI Recommendation Engine"/>
+        </label>
+        <label className="span-2">
+          GitHub Starter Repository (Optional)
+          <input value={githubUrl} onChange={e => setGithubUrl(e.target.value)} placeholder="https://github.com/..."/>
+        </label>
+        <label className="span-2">
+          Description & Objectives
+          <textarea rows="4" value={description} onChange={e => setDescription(e.target.value)} placeholder="Describe project deliverables, tech stack, and evaluation criteria..."/>
+        </label>
+        <div className="span-2">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <strong className="form-heading" style={{ margin: 0 }}>Assign to Students ({selectedStudentIds.length}/{students.length})</strong>
+            {students.length > 0 && (
+              <button type="button" onClick={handleSelectAll} className="text-btn">
+                {selectedStudentIds.length === students.length ? 'Deselect All' : 'Select All'}
+              </button>
+            )}
+          </div>
+          <div className="checkbox-grid" style={{ maxHeight: 180 }}>
+            {students.map(s => (
+              <label key={s.id}>
+                <input
+                  type="checkbox"
+                  checked={selectedStudentIds.includes(s.id)}
+                  onChange={() => toggleStudent(s.id)}
+                />
+                {s.name} ({s.domain || 'General'})
+              </label>
+            ))}
+            {students.length === 0 && (
+              <div style={{ color: '#94a3b8', fontSize: '.75rem', padding: '10px' }}>
+                No students allocated to this mentor yet.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="modal-actions">
+        <button className="outline-btn" onClick={onClose}>Cancel</button>
+        <button className="primary-btn" onClick={submit} disabled={submitting}>
+          <Layers size={15}/> {submitting ? 'Assigning...' : 'Assign Project'}
+        </button>
+      </div>
+    </Modal>
   );
 }
 
@@ -2053,18 +2204,62 @@ function NotificationsPage({ notifications, onReload }) {
   );
 }
 
-function ReportsPage({ reports, students, mentorName }) {
+function ReportsPage({ reports: initialReports, students = [], mentorName, selectedMentorId }) {
+  const [reports, setReports] = useState(initialReports || null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchLiveReports = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await getMentorReports(selectedMentorId ? { mentorId: selectedMentorId } : {});
+      if (res.data?.data) {
+        setReports(res.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to load mentor reports:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedMentorId]);
+
+  useEffect(() => {
+    fetchLiveReports();
+  }, [fetchLiveReports]);
+
+  // Compute calculated metrics dynamically from students if reports payload is pending
+  const dynamicTotalStudents = reports?.totalStudents ?? students.length ?? 0;
+  const dynamicAttendanceRate = reports?.attendanceRate !== undefined
+    ? reports.attendanceRate
+    : (students.length ? Math.round(students.reduce((acc, s) => acc + (s.attendanceRate ?? s.attendance ?? 0), 0) / students.length) : 0);
+  const dynamicAverageScore = reports?.averageScore ?? 0;
+  const dynamicStudyHours = reports?.totalStudyHours ?? (students.length ? Math.round(students.reduce((acc, s) => acc + (s.progress || 0) * 0.1, 0) * 10) / 10 : 0);
+  const dynamicProjects = reports?.projects ?? 0;
+  const dynamicCompletedProjects = reports?.completedProjects ?? 0;
+  const dynamicReviewed = reports?.assignmentsReviewed ?? 0;
+
   const exportCsv = () => {
     const rows = [
       ['Metric', 'Value'],
-      ['Total Students', reports?.totalStudents || 0],
-      ['Attendance Rate', `${reports?.attendanceRate || 0}%`],
-      ['Average Score', `${reports?.averageScore || 0}%`],
-      ['Study Hours', reports?.totalStudyHours || 0],
-      ['Projects', reports?.projects || 0],
-      ['Completed Projects', reports?.completedProjects || 0],
-      ['Assignments Reviewed', reports?.assignmentsReviewed || 0]
+      ['Total Students', dynamicTotalStudents],
+      ['Attendance Rate', `${dynamicAttendanceRate}%`],
+      ['Average Score', `${dynamicAverageScore}%`],
+      ['Study Hours', `${dynamicStudyHours} hrs`],
+      ['Projects', dynamicProjects],
+      ['Completed Projects', dynamicCompletedProjects],
+      ['Assignments Reviewed', dynamicReviewed],
+      [],
+      ['Student Name', 'Email', 'Domain', 'Attendance Rate', 'Progress', 'Status']
     ];
+    students.forEach(s => {
+      rows.push([
+        s.name || '—',
+        s.email || '—',
+        s.domain || 'General',
+        `${(s.attendanceRate ?? s.attendance ?? 0)}%`,
+        `${s.progress || 0}%`,
+        s.status || 'Active'
+      ]);
+    });
     const csv = rows.map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -2081,9 +2276,12 @@ function ReportsPage({ reports, students, mentorName }) {
         <div>
           <span className="eyebrow">MENTOR WORKSPACE</span>
           <h2>Mentor Reports ({mentorName || 'Mentor'})</h2>
-          <p>High-level internship, attendance, assignment and project performance.</p>
+          <p>Real-time performance analytics, student attendance, assignments and project progress.</p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button className="outline-btn" onClick={fetchLiveReports} disabled={loading}>
+            🔄 {loading ? 'Refreshing...' : 'Refresh'}
+          </button>
           <button className="outline-btn" onClick={exportCsv}><FileText size={15}/> Export CSV</button>
           <button className="primary-btn" onClick={() => window.print()}><FileText size={15}/> Print / Save PDF</button>
         </div>
@@ -2091,13 +2289,13 @@ function ReportsPage({ reports, students, mentorName }) {
 
       <div className="report-grid">
         {[
-          ['Total Students', reports?.totalStudents || 0],
-          ['Attendance Rate', `${reports?.attendanceRate || 0}%`],
-          ['Average Score', `${reports?.averageScore || 0}%`],
-          ['Study Hours', reports?.totalStudyHours || 0],
-          ['Projects', reports?.projects || 0],
-          ['Completed Projects', reports?.completedProjects || 0],
-          ['Assignments Reviewed', reports?.assignmentsReviewed || 0]
+          ['Total Students', dynamicTotalStudents],
+          ['Attendance Rate', `${dynamicAttendanceRate}%`],
+          ['Average Score', `${dynamicAverageScore}%`],
+          ['Study Hours', `${dynamicStudyHours} hrs`],
+          ['Projects Assigned', dynamicProjects],
+          ['Completed Projects', dynamicCompletedProjects],
+          ['Assignments Reviewed', dynamicReviewed]
         ].map(([l, v]) => (
           <div className="report-card" key={l}>
             <span>{l}</span>
@@ -2106,12 +2304,73 @@ function ReportsPage({ reports, students, mentorName }) {
         ))}
       </div>
 
-      <section className="mentor-card report-note">
-        <FileText/>
-        <div>
-          <h3>Student report dataset</h3>
-          <p>Use Print → Save as PDF for a PDF report. CSV contains current mentor metrics and can be opened in Excel.</p>
+      {/* Dynamic Student Performance Breakdown */}
+      <section className="mentor-card" style={{ marginTop: '18px' }}>
+        <div className="mentor-card-head">
+          <div>
+            <h3>Allocated Student Performance Breakdown ({students.length})</h3>
+            <p>Live MongoDB attendance, submission status, and learning progress for this mentor's cohort.</p>
+          </div>
         </div>
+
+        {students.length === 0 ? (
+          <div style={{ padding: '30px', textAlign: 'center', color: '#64748b', fontSize: '.84rem' }}>
+            No students allocated to this mentor cohort yet.
+          </div>
+        ) : (
+          <div className="table-wrap">
+            <table className="mentor-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Domain / Batch</th>
+                  <th>Attendance Rate</th>
+                  <th>Progress</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {students.map(s => (
+                  <tr key={s.id}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+                        <div className="mentor-avatar tiny">{initials(s.name)}</div>
+                        <div>
+                          <strong style={{ display: 'block', color: '#1e293b', fontSize: '.8rem' }}>{s.name}</strong>
+                          <span style={{ fontSize: '.68rem', color: '#64748b' }}>{s.email}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <strong style={{ fontSize: '.78rem', color: '#1e293b' }}>{s.domain || 'General'}</strong>
+                      <span style={{ display: 'block', fontSize: '.68rem', color: '#64748b' }}>{s.batch || 'Batch 2026'}</span>
+                    </td>
+                    <td>
+                      <span style={{
+                        fontSize: '.75rem',
+                        fontWeight: 700,
+                        color: (s.attendanceRate ?? s.attendance ?? 0) >= 75 ? '#166534' : '#dc2626'
+                      }}>
+                        {s.attendanceRate ?? s.attendance ?? 0}%
+                      </span>
+                    </td>
+                    <td>
+                      <div style={{ minWidth: 120 }}>
+                        <ProgressBar value={s.progress || 0}/>
+                        <span style={{ fontSize: '.66rem', color: '#64748b', marginTop: 3, display: 'block' }}>{s.progress || 0}% complete</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`risk-badge ${s.status === 'At Risk' ? 'at-risk' : s.status === 'Excellent' ? 'excellent' : 'on-track'}`}>
+                        {s.status || 'Active'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </div>
   );
@@ -2434,10 +2693,30 @@ function ClassModal({ students, selectedMentorId, onClose, onSaved }) {
 function AssignmentModal({ students, selectedMentorId, onClose, onSaved }) {
   const [form, setForm] = useState({
     title: '', description: '', batch: '', course: '',
-    dueDate: '', maxScore: 100, studentIds: []
+    dueDate: '', maxScore: 100, studentIds: [],
+    attachmentUrl: '', attachmentName: ''
   });
+  const [uploading, setUploading] = useState(false);
 
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    setUploading(true);
+    try {
+      const res = await uploadMentorFile(formData);
+      update('attachmentUrl', res.data.fileUrl);
+      update('attachmentName', file.name);
+      toast.success(`Attached ${file.name}`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const submit = async () => {
     if (!form.title || !form.dueDate) return toast.error('Title and due date are required');
@@ -2453,14 +2732,44 @@ function AssignmentModal({ students, selectedMentorId, onClose, onSaved }) {
   return (
     <Modal title="Create Assignment" onClose={onClose}>
       <div className="form-grid">
-        <label>Assignment Title<input value={form.title} onChange={e => update('title', e.target.value)} placeholder="e.g. Build REST API"/></label>
-        <label>Due Date<input type="date" value={form.dueDate} onChange={e => update('dueDate', e.target.value)}/></label>
-        <label>Batch<input value={form.batch} onChange={e => update('batch', e.target.value)}/></label>
-        <label>Course<input value={form.course} onChange={e => update('course', e.target.value)}/></label>
+        <label>Assignment Title *<input value={form.title} onChange={e => update('title', e.target.value)} placeholder="e.g. Build Full-Stack REST API"/></label>
+        <label>Due Date *<input type="date" value={form.dueDate} onChange={e => update('dueDate', e.target.value)}/></label>
+        <label>Batch<input value={form.batch} onChange={e => update('batch', e.target.value)} placeholder="e.g. Batch 2026"/></label>
+        <label>Course<input value={form.course} onChange={e => update('course', e.target.value)} placeholder="e.g. Web Development"/></label>
         <label>Max Score<input type="number" value={form.maxScore} onChange={e => update('maxScore', Number(e.target.value))}/></label>
-        <label className="span-2">Description<textarea rows="4" value={form.description} onChange={e => update('description', e.target.value)}/></label>
+        
+        <div className="span-2" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <label style={{ fontSize: '.7rem', fontWeight: 800, color: '#516078' }}>
+            Attach Problem Statement / Guideline PDF
+          </label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <label style={{
+              background: '#f8fafc',
+              border: '1.5px dashed #cbd5e1',
+              borderRadius: 8,
+              padding: '8px 14px',
+              cursor: 'pointer',
+              fontSize: '.75rem',
+              fontWeight: 700,
+              color: '#334155',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6
+            }}>
+              📄 {uploading ? 'Uploading PDF...' : 'Upload PDF / Brief'}
+              <input type="file" accept=".pdf,.doc,.docx,.zip,.png,.jpg,.jpeg" onChange={handleFileUpload} style={{ display: 'none' }} disabled={uploading}/>
+            </label>
+            {form.attachmentName && (
+              <span style={{ fontSize: '.75rem', color: '#166534', fontWeight: 700 }}>
+                ✅ {form.attachmentName}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <label className="span-2">Description & Instructions<textarea rows="4" value={form.description} onChange={e => update('description', e.target.value)} placeholder="Enter detailed assignment instructions or submission requirements..."/></label>
         <div className="span-2">
-          <strong className="form-heading">Students</strong>
+          <strong className="form-heading">Assign to Students</strong>
           <div className="checkbox-grid">
             {students.map(s => (
               <label key={s.id}>
@@ -2469,7 +2778,7 @@ function AssignmentModal({ students, selectedMentorId, onClose, onSaved }) {
                   checked={form.studentIds.includes(s.id)}
                   onChange={e => update('studentIds', e.target.checked ? [...form.studentIds, s.id] : form.studentIds.filter(x => x !== s.id))}
                 />
-                {s.name}
+                {s.name} ({s.domain || 'General'})
               </label>
             ))}
           </div>
@@ -2535,39 +2844,131 @@ function ReviewModal({ submission, onClose, onSaved }) {
 
 function ProjectModal({ project, onClose, onSaved }) {
   const [progress, setProgress] = useState(project.progress || 0);
-  const [status, setStatus] = useState(project.status);
+  const [status, setStatus] = useState(project.status || 'assigned');
+  const [score, setScore] = useState(project.score !== undefined && project.score !== null ? project.score : '');
   const [comments, setComments] = useState(project.mentorComments || '');
+  const [saving, setSaving] = useState(false);
 
   const save = async () => {
+    setSaving(true);
     try {
-      await updateMentorProject(project._id, { progress: Number(progress), status, mentorComments: comments });
-      toast.success('Project updated');
+      await updateMentorProject(project._id, {
+        progress: Number(progress),
+        status,
+        score: score !== '' ? Number(score) : undefined,
+        mentorComments: comments
+      });
+      toast.success('Project review saved and updated! 🚀');
       onSaved();
     } catch (e) {
       toast.error(e.response?.data?.message || 'Unable to update project');
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
-    <Modal title="Update Project" onClose={onClose}>
-      <label>Progress (%)<input type="number" min="0" max="100" value={progress} onChange={e => setProgress(e.target.value)}/></label>
-      <label>Status
-        <select value={status} onChange={e => setStatus(e.target.value)}>
-          {['onboarding', 'training', 'assignments', 'project', 'evaluation', 'completed'].map(x => (
-            <option key={x}>{x}</option>
-          ))}
-        </select>
-      </label>
-      <label>Mentor Comments<textarea rows="5" value={comments} onChange={e => setComments(e.target.value)}/></label>
-      <div className="modal-actions">
-        <button className="outline-btn" onClick={onClose}>Cancel</button>
-        <button className="primary-btn" onClick={save}><Save size={15}/> Save Project</button>
+    <Modal title={`Review Project: ${project.title}`} onClose={onClose}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {/* Student Info Card */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#f8fafc', padding: '12px 14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+          <div className="mentor-avatar tiny">{initials(project.student?.name)}</div>
+          <div style={{ flex: 1 }}>
+            <strong style={{ display: 'block', fontSize: '.84rem', color: '#1e293b' }}>{project.student?.name || 'Student'}</strong>
+            <span style={{ fontSize: '.72rem', color: '#64748b' }}>{project.student?.email}</span>
+          </div>
+          <span className={`status-pill ${project.status}`}>{project.status || 'assigned'}</span>
+        </div>
+
+        {project.description && (
+          <div style={{ fontSize: '.78rem', color: '#475569', background: '#f1f5f9', padding: '10px 12px', borderRadius: '8px' }}>
+            <strong style={{ display: 'block', color: '#1e293b', marginBottom: '2px' }}>Project Objectives:</strong>
+            {project.description}
+          </div>
+        )}
+
+        {/* Student Submission Showcase */}
+        {(project.githubUrl || project.liveDemoUrl || project.studentNotes || project.submittedAt) ? (
+          <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '12px 14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <strong style={{ fontSize: '.8rem', color: '#166534', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                🚀 Student Submission
+              </strong>
+              {project.submittedAt && (
+                <span style={{ fontSize: '.68rem', color: '#15803d' }}>
+                  Submitted: {fmtDate(project.submittedAt)}
+                </span>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: project.studentNotes ? '8px' : '0' }}>
+              {project.githubUrl && (
+                <a href={project.githubUrl} target="_blank" rel="noreferrer" className="project-link" style={{ background: '#fff', border: '1px solid #cbd5e1', padding: '4px 10px', borderRadius: '6px', margin: 0 }}>
+                  <ExternalLink size={13}/> GitHub Repo
+                </a>
+              )}
+              {project.liveDemoUrl && (
+                <a href={project.liveDemoUrl} target="_blank" rel="noreferrer" className="project-link" style={{ background: '#fff', border: '1px solid #bae6fd', color: '#0284c7', padding: '4px 10px', borderRadius: '6px', margin: 0 }}>
+                  <ExternalLink size={13}/> Live Demo
+                </a>
+              )}
+            </div>
+
+            {project.studentNotes && (
+              <div style={{ fontSize: '.76rem', color: '#14532d', background: '#ffffff', padding: '8px 10px', borderRadius: '6px', border: '1px solid #dcfce7', marginTop: '6px' }}>
+                <strong>Student Notes:</strong> {project.studentNotes}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ background: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '8px', padding: '9px 12px', fontSize: '.75rem', color: '#92400e' }}>
+            ⏳ Student has not submitted project demo/repo yet.
+          </div>
+        )}
+
+        {/* Evaluation Controls */}
+        <div className="form-grid" style={{ marginTop: '4px' }}>
+          <label>
+            Progress ({progress}%)
+            <input type="range" min="0" max="100" step="5" value={progress} onChange={e => setProgress(e.target.value)}/>
+          </label>
+
+          <label>
+            Score / Grade (0 - 100)
+            <input type="number" min="0" max="100" placeholder="e.g. 95" value={score} onChange={e => setScore(e.target.value)}/>
+          </label>
+
+          <label className="span-2">
+            Status
+            <select value={status} onChange={e => setStatus(e.target.value)}>
+              <option value="assigned">Assigned</option>
+              <option value="in_progress">In Progress</option>
+              <option value="submitted">Submitted (Pending Review)</option>
+              <option value="changes_requested">Changes Requested</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="completed">Completed</option>
+            </select>
+          </label>
+
+          <label className="span-2">
+            Mentor Review Feedback & Recommendations
+            <textarea rows="4" value={comments} onChange={e => setComments(e.target.value)} placeholder="Provide constructive feedback, code review notes, or congratulations..."/>
+          </label>
+        </div>
+
+        <div className="modal-actions" style={{ marginTop: '12px' }}>
+          <button className="outline-btn" onClick={onClose}>Cancel</button>
+          <button className="primary-btn" onClick={save} disabled={saving}>
+            <Save size={15}/> {saving ? 'Saving...' : 'Save Review & Grade'}
+          </button>
+        </div>
       </div>
     </Modal>
   );
 }
 
-function PageActions({ title, subtitle, action, onAction }) {
+function PageActions({ title, subtitle, action, actionText, onAction }) {
+  const btnLabel = action || actionText;
   return (
     <div className="mentor-page-title">
       <div>
@@ -2575,8 +2976,8 @@ function PageActions({ title, subtitle, action, onAction }) {
         <h2>{title}</h2>
         <p>{subtitle}</p>
       </div>
-      {action && (
-        <button className="primary-btn" onClick={onAction}><Plus size={16}/> {action}</button>
+      {btnLabel && (
+        <button className="primary-btn" onClick={onAction}><Plus size={16}/> {btnLabel}</button>
       )}
     </div>
   );

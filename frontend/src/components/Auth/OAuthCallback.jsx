@@ -9,18 +9,23 @@ const OAuthCallback = () => {
   const [searchParams] = useSearchParams();
   const { loginUser } = useAuth();
 
+  const hasRun = React.useRef(false);
+
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
+
     const token = searchParams.get('token');
     const error = searchParams.get('error');
 
     if (error) {
-      toast.error('OAuth login failed. Please try again.');
+      toast.error('OAuth login failed. Please try again.', { id: 'oauth-error' });
       navigate('/login');
       return;
     }
 
     if (!token) {
-      toast.error('No token received. Please try again.');
+      toast.error('No token received. Please try again.', { id: 'oauth-token-error' });
       navigate('/login');
       return;
     }
@@ -46,7 +51,8 @@ const OAuthCallback = () => {
           // Update auth context
           loginUser(token, user);
 
-          toast.success(`Welcome, ${user.name}! 🎉`);
+          toast.dismiss();
+          toast.success(`Welcome, ${user.name}! 🎉`, { id: 'welcome-toast' });
 
           // Redirect
           if (user.role === 'admin') {

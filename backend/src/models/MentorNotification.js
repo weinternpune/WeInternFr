@@ -4,7 +4,7 @@ const mentorNotificationSchema = new mongoose.Schema({
   recipient: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   type: {
     type: String,
-    enum: ['student_assigned','class_scheduled','class_reminder','assignment_created','assignment_submitted','deadline','attendance','progress_drop','message','project_submitted'],
+    enum: ['student_assigned','class_scheduled','class_reminder','assignment_created','assignment_submitted','deadline','attendance','progress_drop','message','project','project_assigned','project_reviewed','project_submitted','system'],
     default: 'message'
   },
   title: { type: String, required: true },

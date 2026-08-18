@@ -1,5 +1,7 @@
 const { UserActivity, UserProgress } = require('../models/UserActivity');
 const { Enrollment } = require('../models/Enrollment');
+const Submission = require('../models/MentorSubmission');
+const Attendance = require('../models/MentorAttendance');
 
 const STUDY_ACTIVITY_TYPES = new Set([
   'course_progress',
@@ -20,7 +22,7 @@ const getWeekStart = (date = new Date()) => {
 };
 
 const getDashboardAnalytics = async (userId) => {
-  const [progress, enrollments, activities] =
+  const [progress, enrollments, activities, mentorSubmissions, mentorAttendance] =
     await Promise.all([
       UserProgress.findOne({ user: userId }).lean(),
 
@@ -32,7 +34,17 @@ const getDashboardAnalytics = async (userId) => {
       UserActivity
         .find({ user: userId })
         .sort('-createdAt')
+        .lean(),
+
+      Submission
+        .find({ student: userId, score: { $exists: true, $ne: null } })
         .lean()
+        .catch(() => []),
+
+      Attendance
+        .find({ student: userId })
+        .lean()
+        .catch(() => [])
     ]);
 
   const activitiesData = activities || [];
@@ -95,9 +107,6 @@ const getDashboardAnalytics = async (userId) => {
         'assignment_completed'
     );
 
-  const assignmentsCompleted =
-    assignmentActivities.length;
-
   const assignmentScoresRaw =
     assignmentActivities
       .map(activity =>
@@ -107,15 +116,24 @@ const getDashboardAnalytics = async (userId) => {
         Number.isFinite(score)
       );
 
+  const mentorScores = (mentorSubmissions || [])
+    .map(s => Number(s.score))
+    .filter(s => Number.isFinite(s));
+
+  const allScores = [...assignmentScoresRaw, ...mentorScores];
+
+  const assignmentsCompleted =
+    assignmentActivities.length + (mentorSubmissions || []).length;
+
   const averageScore =
-    assignmentScoresRaw.length
+    allScores.length
       ? Math.round(
-          assignmentScoresRaw.reduce(
+          allScores.reduce(
             (sum, score) =>
               sum + score,
             0
           ) /
-            assignmentScoresRaw.length
+            allScores.length
         )
       : 0;
 
@@ -129,15 +147,27 @@ const getDashboardAnalytics = async (userId) => {
         'session_attended'
     ).length;
 
-  const sessionsTotal =
-    Number(progress?.sessionsTotal || 0) ||
-    sessionsAttended;
+  const mentorAttendanceList = mentorAttendance || [];
+  const mentorAttendedCount = mentorAttendanceList.filter(
+    a => a.status === 'present' || a.status === 'late'
+  ).length;
+
+  const totalSessionsCount = Math.max(
+    Number(progress?.sessionsTotal || 0),
+    mentorAttendanceList.length,
+    sessionsAttended + mentorAttendedCount
+  );
+
+  const totalAttendedCount = Math.max(
+    sessionsAttended,
+    mentorAttendedCount
+  );
 
   const attendanceRate =
-    sessionsTotal > 0
+    totalSessionsCount > 0
       ? Math.round(
-          (sessionsAttended /
-            sessionsTotal) *
+          (totalAttendedCount /
+            totalSessionsCount) *
             100
         )
       : 0;
