@@ -828,14 +828,46 @@ router.post('/admin/assign-students', protect, adminOnly, async (req, res) => {
   }
 });
 
-// Admin: get all students with mentor information for allocation modal
+// Admin: get all students with mentor information and enrolled domains for allocation modal
 router.get('/admin/students-with-mentors', protect, adminOnly, async (req, res) => {
   try {
     const students = await User.find({ role: 'student', isBlocked: { $ne: true } })
       .select('name email phone college year interest mentor createdAt')
       .populate('mentor', 'name email')
-      .sort({ name: 1 });
-    res.json({ success: true, data: students });
+      .sort({ name: 1 })
+      .lean();
+
+    // Enrich each student with their enrolled course/domain information
+    const enriched = await Promise.all(
+      students.map(async (s) => {
+        const [ens, apps] = await Promise.all([
+          Enrollment.find({ $or: [{ user: s._id }, { email: s.email }] })
+            .select('courseName paymentStatus status createdAt')
+            .lean()
+            .catch(() => []),
+          Application.find({ $or: [{ user: s._id }, { email: s.email }] })
+            .select('interest status createdAt')
+            .lean()
+            .catch(() => [])
+        ]);
+
+        const enrolledCourseNames = ens.map(e => e.courseName).filter(Boolean);
+        const appInterests = apps.map(a => a.interest).filter(Boolean);
+        const uniqueDomains = Array.from(new Set([...enrolledCourseNames, ...appInterests, s.interest].filter(Boolean)));
+        const primaryDomain = uniqueDomains[0] || s.interest || 'General Internship';
+
+        return {
+          ...s,
+          domain: primaryDomain,
+          allDomains: uniqueDomains,
+          enrolledCourses: enrolledCourseNames,
+          enrollmentsCount: ens.length,
+          applicationCount: apps.length
+        };
+      })
+    );
+
+    res.json({ success: true, data: enriched });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
