@@ -1843,7 +1843,8 @@ function ProjectsPage({ projects, students = [], onReload, mentorName, selectedM
       <PageActions
         title={`Internship Projects (${mentorName || 'Mentor'})`}
         subtitle="Create, assign, and track capstone projects allocated to students."
-        actionText="+ Assign Project"
+        action="+ Add Project"
+        actionText="+ Add Project"
         onAction={() => setCreating(true)}
       />
       <div className="project-grid">
@@ -2966,7 +2967,8 @@ function ProjectModal({ project, onClose, onSaved }) {
   );
 }
 
-function PageActions({ title, subtitle, action, onAction }) {
+function PageActions({ title, subtitle, action, actionText, onAction }) {
+  const btnLabel = action || actionText;
   return (
     <div className="mentor-page-title">
       <div>
@@ -2974,8 +2976,8 @@ function PageActions({ title, subtitle, action, onAction }) {
         <h2>{title}</h2>
         <p>{subtitle}</p>
       </div>
-      {action && (
-        <button className="primary-btn" onClick={onAction}><Plus size={16}/> {action}</button>
+      {btnLabel && (
+        <button className="primary-btn" onClick={onAction}><Plus size={16}/> {btnLabel}</button>
       )}
     </div>
   );
