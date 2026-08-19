@@ -298,8 +298,6 @@ router.post('/verify', protect, async (req, res) => {
   }
 });
 
-module.exports = router;
-
 // ============================================
 // INTERNSHIP APPLICATION PAYMENT ROUTES
 // ============================================
@@ -522,3 +520,5 @@ const sendInternshipConfirmationEmail = async (
     </div>`
   });
 };
+
+module.exports = router;
