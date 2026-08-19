@@ -625,12 +625,12 @@ export default function ChatWidget() {
               right: "1.75rem",
               zIndex: 99999,
               display: "flex",
-              height: "min(680px, calc(100vh - 40px))",
-              width: "410px",
+              height: "min(580px, calc(100vh - 40px))",
+              width: "360px",
               maxWidth: "calc(100vw - 32px)",
               flexDirection: "column",
-              overflow: "visible",
-              borderRadius: "28px",
+              overflow: "hidden",
+              borderRadius: "24px",
               border: "1px solid #e2e8f0",
               backgroundColor: "#ffffff",
               boxShadow: "0 25px 90px rgba(15,23,42,0.30)",
@@ -638,50 +638,50 @@ export default function ChatWidget() {
             }}
           >
             {/* HEADER */}
-            <div style={{ position: "relative", overflow: "hidden", background: "linear-gradient(135deg, #0784dc, #087fce, #0759a5)", padding: "16px 20px", color: "#ffffff" }}>
+            <div style={{ position: "relative", overflow: "hidden", background: "linear-gradient(135deg, #0784dc, #087fce, #0759a5)", padding: "12px 14px", color: "#ffffff" }}>
               <div style={{ position: "absolute", right: "-64px", top: "-80px", height: "192px", width: "192px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.1)", filter: "blur(48px)" }} />
               <div style={{ position: "absolute", left: "-80px", bottom: "-80px", height: "176px", width: "176px", borderRadius: "50%", backgroundColor: "rgba(165,243,252,0.1)", filter: "blur(48px)" }} />
 
               <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <div style={{ position: "relative", display: "flex", height: "48px", width: "48px", alignItems: "center", justifyCenter: "center", overflow: "hidden", borderRadius: "50%", border: "2px solid #ffffff", backgroundColor: "#ffffff", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div style={{ position: "relative", display: "flex", height: "40px", width: "40px", alignItems: "center", justifyCenter: "center", overflow: "hidden", borderRadius: "50%", border: "2px solid #ffffff", backgroundColor: "#ffffff", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
                     <img
                       src="/weintern_avatar.png"
                       alt="WeIntern AI Assistant"
                       draggable={false}
                       style={{ position: "absolute", left: "-40%", top: "-3%", height: "132%", width: "180%", maxWidth: "none", objectFit: "contain" }}
                     />
-                    <span style={{ position: "absolute", bottom: 0, right: 0, height: "14px", width: "14px", borderRadius: "50%", border: "2px solid #ffffff", backgroundColor: "#22c55e" }} />
+                    <span style={{ position: "absolute", bottom: 0, right: 0, height: "12px", width: "12px", borderRadius: "50%", border: "2px solid #ffffff", backgroundColor: "#22c55e" }} />
                   </div>
 
                   <div>
-                    <h2 className="header-title" style={{ fontSize: "16px", fontWeight: "700", letterSpacing: "-0.02em", color: "#ffffff", margin: 0, whiteSpace: "nowrap" }}>
+                    <h2 className="header-title" style={{ fontSize: "13px", fontWeight: "700", letterSpacing: "-0.02em", color: "#ffffff", margin: 0, whiteSpace: "nowrap" }}>
                       WeIntern AI Assistant ✨
                     </h2>
-                    <div className="header-subtitle" style={{ marginTop: "2px", display: "flex", alignItems: "center", gap: "6px", fontSize: "11px", color: "rgba(255,255,255,0.85)" }}>
-                      <span style={{ height: "6px", width: "6px", borderRadius: "50%", backgroundColor: "#86efac" }} />
+                    <div className="header-subtitle" style={{ marginTop: "2px", display: "flex", alignItems: "center", gap: "4px", fontSize: "10px", color: "rgba(255,255,255,0.85)" }}>
+                      <span style={{ height: "5px", width: "5px", borderRadius: "50%", backgroundColor: "#86efac" }} />
                       <span>Here to help you 24/7 {voiceMode && "• Voice Active"}</span>
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                   <button
                     type="button"
                     onClick={() => setShowClearConfirm(true)}
                     title="Clear chat history"
-                    style={{ display: "flex", height: "32px", width: "32px", alignItems: "center", justifyContent: "center", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.15)", color: "#ffffff", border: "none", cursor: "pointer" }}
+                    style={{ display: "flex", height: "28px", width: "28px", alignItems: "center", justifyContent: "center", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.15)", color: "#ffffff", border: "none", cursor: "pointer" }}
                   >
-                    <BsTrash size={15} />
+                    <BsTrash size={13} />
                   </button>
 
                   <button
                     type="button"
                     onClick={() => isSpeakerMuted ? handleUnmute() : handleMute()}
                     title={isSpeakerMuted ? "Unmute bot output" : "Mute bot output"}
-                    style={{ display: "flex", height: "32px", width: "32px", alignItems: "center", justifyContent: "center", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.15)", color: "#ffffff", border: "none", cursor: "pointer" }}
+                    style={{ display: "flex", height: "28px", width: "28px", alignItems: "center", justifyContent: "center", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.15)", color: "#ffffff", border: "none", cursor: "pointer" }}
                   >
-                    {isSpeakerMuted ? <BsVolumeMuteFill size={16} /> : <BsVolumeUpFill size={16} />}
+                    {isSpeakerMuted ? <BsVolumeMuteFill size={14} /> : <BsVolumeUpFill size={14} />}
                   </button>
 
                   <button
@@ -701,8 +701,8 @@ export default function ChatWidget() {
                     title={voiceMode ? "Disable Voice Mode" : "Enable Voice Mode"}
                     style={{
                       display: "flex",
-                      height: "32px",
-                      width: "32px",
+                      height: "28px",
+                      width: "28px",
                       alignItems: "center",
                       justifyContent: "center",
                       borderRadius: "50%",
@@ -713,16 +713,16 @@ export default function ChatWidget() {
                       fontWeight: "700"
                     }}
                   >
-                    {voiceMode ? <BsMicFill size={16} /> : <BsMicMuteFill size={16} />}
+                    {voiceMode ? <BsMicFill size={14} /> : <BsMicMuteFill size={14} />}
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
                     aria-label="Close chat"
-                    style={{ display: "flex", height: "32px", width: "32px", alignItems: "center", justifyContent: "center", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.25)", color: "#ffffff", border: "none", cursor: "pointer" }}
+                    style={{ display: "flex", height: "28px", width: "28px", alignItems: "center", justifyContent: "center", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.25)", color: "#ffffff", border: "none", cursor: "pointer" }}
                   >
-                    <BsX size={22} />
+                    <BsX size={20} />
                   </button>
                 </div>
               </div>
