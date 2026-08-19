@@ -495,7 +495,7 @@ const getDashboardAnalytics = async (userId) => {
       progress?.longestStreak || 0,
 
     sessionsAttended,
-    sessionsTotal,
+    sessionsTotal: totalSessionsCount,
     attendanceRate,
 
     assignmentsCompleted,
