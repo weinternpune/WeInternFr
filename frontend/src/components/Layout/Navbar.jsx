@@ -1190,7 +1190,7 @@ const Navbar = () => {
                     Stipend, placement support, and revenue sharing
                   </p>
                   <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)', marginBottom: '16px' }}>
-                    <span>✓ ₹5-15K/month</span>
+                    <span>✓ ₹5-10K/month</span>
                     <span>✓ Placement</span>
                     <span>✓ 75% Share</span>
                   </div>
