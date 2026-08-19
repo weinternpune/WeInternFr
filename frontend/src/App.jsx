@@ -62,7 +62,6 @@ const WithLayout = ({ children }) => {
       <Navbar />
       {children}
       <Footer />
-      <WAFloat />
     </>
   );
 };
@@ -145,6 +144,7 @@ function App() {
           <AdminProvider>
             <AppRoutes />
             <ChatWidget />
+            <WAFloat />
             <Toaster
               position="top-center"
               toastOptions={{

@@ -484,7 +484,7 @@ export default function ChatWidget() {
             display: none !important;
           }
           .ask-bubble {
-            bottom: 85px !important;
+            bottom: 155px !important;
             right: 16px !important;
           }
           .chat-widget-open {
@@ -505,7 +505,7 @@ export default function ChatWidget() {
             border-radius: 16px 16px 0 0 !important;
           }
           .chat-launcher-btn {
-            bottom: 1rem !important;
+            bottom: 5.5rem !important;
             right: 1rem !important;
           }
           

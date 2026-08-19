@@ -1887,7 +1887,39 @@ export const LiveJourney = () => {
 
     {/* CTA */}
     <button
-      onClick={() => setShowBooking(true)}
+      onClick={() => {
+        if (!user) {
+          toast((t) => (
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg">
+                <Lock className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-slate-800">Login Required</p>
+                <p className="text-xs text-slate-600">Please sign in to book your seat</p>
+              </div>
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ), {
+            duration: 4000,
+            style: {
+              background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+              border: '2px solid #fbbf24',
+              borderRadius: '12px',
+              padding: '12px 16px',
+              boxShadow: '0 8px 24px rgba(251, 191, 36, 0.25)',
+            },
+          });
+          navigate('/login');
+          return;
+        }
+        setShowBooking(true);
+      }}
       className="
         group/btn relative mt-2 flex w-full
         items-center justify-center gap-2
