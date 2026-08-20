@@ -5,7 +5,7 @@ const applicationSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
   phone: { type: String, required: true },
-  college: { type: String },
+  college: { type: String, default: 'Not Provided' },
   interest: { type: String, required: true },
   year: { type: String },
   duration: { type: String, enum: ['3-month', '6-month'], required: true },

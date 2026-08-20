@@ -185,7 +185,7 @@ const InternshipPage = () => {
     email: '',
     phone: '',
     course: '',
-    resume: null,
+    college: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -223,18 +223,20 @@ const InternshipPage = () => {
     setIsSubmitting(true);
 
     // Validate form
-    if (!formData.name || !formData.email || !formData.phone || !formData.course || !formData.resume) {
+    if (!formData.name || !formData.email || !formData.phone || !formData.course || !formData.college) {
       alert('Please fill all fields');
       setIsSubmitting(false);
       return;
     }
 
-    // Simulate form submission delay
+    // Directly open Razorpay payment
+    setIsSubmitting(false);
+    setShowApplyModal(false);
+    
+    // Call payment handler directly
     setTimeout(() => {
-      setIsSubmitting(false);
-      setShowApplyModal(false);
-      setShowPaymentModal(true);
-    }, 1000);
+      handlePayment();
+    }, 500);
   };
 
   const handlePayment = async () => {
@@ -257,8 +259,8 @@ const InternshipPage = () => {
         email: formData.email,
         phone: formData.phone,
         course: formData.course,
+        college: formData.college,
         internshipType: type,
-        resume: formData.resume?.name || ''
       };
 
       // Call backend to create Razorpay order
@@ -309,7 +311,6 @@ const InternshipPage = () => {
               // Set application ID and show success modal
               setApplicationId(verifyData.applicationId);
               setIsProcessingPayment(false);
-              setShowPaymentModal(false);
               setShowSuccessModal(true);
             } else {
               throw new Error('Payment verification failed');
@@ -335,8 +336,7 @@ const InternshipPage = () => {
         modal: {
           ondismiss: function() {
             setIsProcessingPayment(false);
-            alert('Payment cancelled. You can complete payment later from your dashboard.');
-            setShowPaymentModal(false);
+            alert('Payment cancelled. Please apply again to complete your registration.');
           }
         }
       };
@@ -704,7 +704,7 @@ const InternshipPage = () => {
               </div>
 
               <div className="ip-field">
-                <label>Interested Course/Technology *</label>
+                <label>Interested Domain *</label>
                 <select
                   required
                   value={formData.course}
@@ -722,7 +722,7 @@ const InternshipPage = () => {
                     cursor: 'pointer'
                   }}
                 >
-                  <option value="">Select a course</option>
+                  <option value="">Select domain</option>
                   {activeCourses.map((course) => (
                     <option key={course.id} value={course.title}>
                       {course.title}
@@ -732,13 +732,14 @@ const InternshipPage = () => {
               </div>
 
               <div className="ip-field">
-                <label>Upload Resume (PDF) *</label>
+                <label>College Name *</label>
                 <input
-                  type="file"
-                  accept=".pdf"
+                  type="text"
                   required
-                  onChange={(e) => setFormData({...formData, resume: e.target.files[0]})}
+                  value={formData.college}
+                  onChange={(e) => setFormData({...formData, college: e.target.value})}
                   disabled={isSubmitting}
+                  placeholder="Enter your college/university name"
                 />
               </div>
 
@@ -747,77 +748,6 @@ const InternshipPage = () => {
                 {!isSubmitting && <Icon icon="mdi:arrow-right" width={18} />}
               </button>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* Payment Modal */}
-      {showPaymentModal && (
-        <div className="ip-modal-overlay" onClick={() => setShowPaymentModal(false)}>
-          <div className="ip-modal ip-payment-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="ip-modal-close" onClick={() => setShowPaymentModal(false)}>
-              <Icon icon="mdi:close" width={24} />
-            </button>
-            
-            <div className="ip-payment-header">
-              <Icon icon="mdi:check-circle" width={64} style={{ color: '#22c55e' }} />
-              <h2>Application Submitted!</h2>
-              <p>Complete your registration by paying the enrollment fee</p>
-            </div>
-
-            <div className="ip-payment-details">
-              <div className="ip-payment-row">
-                <span>Program:</span>
-                <strong>{internship.title}</strong>
-              </div>
-              <div className="ip-payment-row">
-                <span>Student Name:</span>
-                <strong>{formData.name}</strong>
-              </div>
-              <div className="ip-payment-row">
-                <span>Email:</span>
-                <strong>{formData.email}</strong>
-              </div>
-              <div className="ip-payment-divider"></div>
-              <div className="ip-payment-row ip-payment-total">
-                <span>Registration Fee:</span>
-                <strong className="ip-payment-amount">{internship.registrationFee}</strong>
-              </div>
-            </div>
-
-            <div className="ip-payment-info">
-              <Icon icon="mdi:information-outline" width={20} />
-              <p>
-                Secure payment powered by Razorpay. You can pay using UPI, Cards, Net Banking, or Wallets.
-              </p>
-            </div>
-
-            <div className="ip-payment-actions">
-              <button 
-                className="ip-btn ip-btn-primary" 
-                onClick={handlePayment}
-                disabled={isProcessingPayment}
-              >
-                {isProcessingPayment ? (
-                  <>
-                    <Icon icon="mdi:loading" width={18} className="ip-spinner" />
-                    Processing Payment...
-                  </>
-                ) : (
-                  <>
-                    <Icon icon="mdi:lock" width={18} />
-                    Pay Now
-                  </>
-                )}
-              </button>
-              <button 
-                className="ip-btn ip-btn-secondary" 
-                onClick={() => setShowPaymentModal(false)}
-                disabled={isProcessingPayment}
-              >
-                Pay Later from Dashboard
-              </button>
-            </div>
           </div>
         </div>
       )}

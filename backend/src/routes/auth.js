@@ -53,66 +53,46 @@ router.post('/register', authLimiter, async (req, res) => {
     
     const user = await User.create(userData);
 
+    // Always log OTP to console for development/testing
+    console.log('\n════════════════════════════════════════');
+    console.log('📧 REGISTRATION OTP DETAILS');
+    console.log('════════════════════════════════════════');
+    console.log('👤 Name:', name);
+    console.log('📧 Email:', email);
+    console.log('📱 Phone:', phone || 'Not provided');
+    console.log('🔢 OTP:', otp);
+    console.log('⏰ Expires:', otpExpiry.toLocaleString());
+    console.log('════════════════════════════════════════\n');
+
     // Check if email configuration is set up
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.error('❌ Email configuration missing in .env file');
-      
-      // In development, log the OTP to console
-      if (process.env.NODE_ENV === 'development') {
-        console.log('\n📧 DEVELOPMENT MODE - OTP Details:');
-        console.log('👤 Name:', name);
-        console.log('📧 Email:', email);
-        console.log('📱 Phone:', phone || 'Not provided');
-        console.log('🔢 OTP:', otp);
-        console.log('⏰ Expires:', otpExpiry.toLocaleString());
-        console.log('\n📝 Note: Use this OTP to verify account\n');
-        
-        return res.status(201).json({ 
-          success: true, 
-          message: 'Development mode: OTP logged to console', 
-          userId: user._id 
-        });
-      }
-      
-      // Delete the user if email can't be sent in production
-      await User.findByIdAndDelete(user._id);
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Email service is not configured. Please contact administrator.' 
+      console.warn('⚠️  Email configuration missing - OTP logged to console');
+      return res.status(201).json({ 
+        success: true, 
+        message: 'Account created. Please check server console for OTP (Email service not configured)', 
+        userId: user._id 
       });
     }
     
+    // Try to send email but don't fail if it doesn't work
     try {
       await sendOTPEmail(email, name, otp);
       console.log('✅ OTP email sent successfully to:', email);
-      res.status(201).json({ success: true, message: 'OTP sent to email', userId: user._id });
+      res.status(201).json({ 
+        success: true, 
+        message: 'OTP sent to email', 
+        userId: user._id 
+      });
     } catch (emailError) {
       console.error('❌ Failed to send OTP email:', emailError.message);
-      console.error('Full error:', emailError);
       
-      // In development, fallback to console logging and return OTP in response
-      if (process.env.NODE_ENV === 'development') {
-        console.log('\n📧 EMAIL FAILED - OTP Details (Development):');
-        console.log('👤 Name:', name);
-        console.log('📧 Email:', email);
-        console.log('📱 Phone:', phone || 'Not provided');
-        console.log('🔢 OTP:', otp);
-        console.log('⏰ Expires:', otpExpiry.toLocaleString());
-        console.log('\n📝 Note: Use this OTP to verify account\n');
-        
-        return res.status(201).json({ 
-          success: true, 
-          message: `Email failed, but account created. OTP: ${otp} (Dev mode only)`, 
-          userId: user._id,
-          devOTP: otp // Only in development
-        });
-      }
+      // Don't delete user - let them use console OTP
+      console.log('📝 User can use OTP from server console (logged above)');
       
-      // Delete the user if email fails in production
-      await User.findByIdAndDelete(user._id);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Failed to send OTP email. Please try again later.' 
+      res.status(201).json({ 
+        success: true, 
+        message: 'Account created. Please contact support for OTP (Email service unavailable)', 
+        userId: user._id 
       });
     }
   } catch (err) {

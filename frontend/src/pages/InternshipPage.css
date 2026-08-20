@@ -353,13 +353,23 @@
   .ip-hero-title {
     font-size: 1.8rem;
   }
+  
+  /* Reduce subtitle size on mobile */
+  .ip-hero-subtitle {
+    font-size: 0.95rem;
+  }
 
   .ip-section {
     padding: 50px 20px;
   }
 
   .ip-section-title {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
+  }
+  
+  /* Reduce section subtitle size on mobile */
+  .ip-section-subtitle {
+    font-size: 0.95rem;
   }
 
   .ip-features-grid,
@@ -372,7 +382,14 @@
   }
 
   .ip-cta h2 {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
+  }
+  
+  /* Fix button text to single line */
+  .ip-btn {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    padding: 14px 20px;
   }
 }
 

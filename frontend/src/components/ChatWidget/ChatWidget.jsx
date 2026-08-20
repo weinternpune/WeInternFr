@@ -477,6 +477,98 @@ export default function ChatWidget() {
         .chat-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Mobile responsive fixes */
+        @media (max-width: 768px) {
+          .boy-outside {
+            display: none !important;
+          }
+          .ask-bubble {
+            bottom: 155px !important;
+            right: 16px !important;
+          }
+          .chat-widget-open {
+            position: fixed !important;
+            top: 120px !important;
+            bottom: auto !important;
+            right: 8px !important;
+            left: auto !important;
+            width: 340px !important;
+            height: 500px !important;
+            max-height: calc(100vh - 140px) !important;
+            max-width: calc(100vw - 16px) !important;
+            border-radius: 16px !important;
+            overflow: hidden !important;
+          }
+          
+          .chat-widget-open > div:first-child {
+            border-radius: 16px 16px 0 0 !important;
+          }
+          .chat-launcher-btn {
+            bottom: 5.5rem !important;
+            right: 1rem !important;
+          }
+          
+          /* Mobile emoji fixes */
+          .chat-widget-open .emoji-text {
+            font-size: 14px !important;
+            line-height: 1.3 !important;
+          }
+          
+          /* Mobile text sizing */
+          .chat-widget-open .message-text {
+            font-size: 13px !important;
+            line-height: 1.4 !important;
+          }
+          
+          .chat-widget-open .quick-action-emoji {
+            font-size: 18px !important;
+          }
+          
+          .chat-widget-open .quick-action-title {
+            font-size: 11px !important;
+          }
+          
+          .chat-widget-open .quick-action-subtitle {
+            font-size: 10px !important;
+          }
+          
+          .chat-widget-open .quick-btn {
+            font-size: 11px !important;
+            padding: 6px 12px !important;
+          }
+          
+          .chat-widget-open .header-title {
+            font-size: 11px !important;
+            white-space: nowrap !important;
+          }
+          
+          .chat-widget-open .header-subtitle {
+            font-size: 8px !important;
+          }
+          
+          .chat-widget-open .time-text {
+            font-size: 9px !important;
+          }
+          
+          /* Fix header icon cropping on mobile */
+          .chat-widget-open > div:first-child {
+            padding: 10px 8px !important;
+          }
+          
+          .chat-widget-open button {
+            flex-shrink: 0 !important;
+          }
+          
+          .chat-widget-open > div:first-child > div > div:last-child {
+            gap: 4px !important;
+          }
+          
+          .chat-widget-open > div:first-child button {
+            height: 28px !important;
+            width: 28px !important;
+          }
+        }
       `}</style>
 
       {/* CLOSED LAUNCHER STATE - Positioned gracefully to the left of WhatsApp float */}
@@ -495,6 +587,7 @@ export default function ChatWidget() {
             type="button"
             onClick={() => setOpen(true)}
             aria-label="Open WeIntern AI Assistant"
+            className="chat-launcher-btn"
             style={{ position: "fixed", bottom: "1.75rem", right: "5.75rem", zIndex: 9999, border: "none", background: "transparent", padding: 0, cursor: "pointer" }}
           >
             <div className="boy-launcher" style={{ position: "relative", display: "flex", height: "68px", width: "68px", alignItems: "center", justifyCenter: "center", borderRadius: "50%", border: "3px solid #ffffff", background: "linear-gradient(135deg, #38bdf8, #2563eb, #1e40af)", boxShadow: "0 12px 40px rgba(14,116,244,0.4)" }}>
@@ -525,18 +618,19 @@ export default function ChatWidget() {
 
           {/* CHAT WINDOW CONTAINER */}
           <div
+            className="chat-widget-open"
             style={{
               position: "fixed",
               bottom: "1.75rem",
               right: "1.75rem",
               zIndex: 99999,
               display: "flex",
-              height: "min(680px, calc(100vh - 40px))",
-              width: "410px",
+              height: "min(580px, calc(100vh - 40px))",
+              width: "360px",
               maxWidth: "calc(100vw - 32px)",
               flexDirection: "column",
               overflow: "hidden",
-              borderRadius: "28px",
+              borderRadius: "24px",
               border: "1px solid #e2e8f0",
               backgroundColor: "#ffffff",
               boxShadow: "0 25px 90px rgba(15,23,42,0.30)",
@@ -544,50 +638,50 @@ export default function ChatWidget() {
             }}
           >
             {/* HEADER */}
-            <div style={{ position: "relative", overflow: "hidden", background: "linear-gradient(135deg, #0784dc, #087fce, #0759a5)", padding: "16px 20px", color: "#ffffff" }}>
+            <div style={{ position: "relative", overflow: "hidden", background: "linear-gradient(135deg, #0784dc, #087fce, #0759a5)", padding: "12px 14px", color: "#ffffff" }}>
               <div style={{ position: "absolute", right: "-64px", top: "-80px", height: "192px", width: "192px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.1)", filter: "blur(48px)" }} />
               <div style={{ position: "absolute", left: "-80px", bottom: "-80px", height: "176px", width: "176px", borderRadius: "50%", backgroundColor: "rgba(165,243,252,0.1)", filter: "blur(48px)" }} />
 
               <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <div style={{ position: "relative", display: "flex", height: "48px", width: "48px", alignItems: "center", justifyCenter: "center", overflow: "hidden", borderRadius: "50%", border: "2px solid #ffffff", backgroundColor: "#ffffff", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div style={{ position: "relative", display: "flex", height: "40px", width: "40px", alignItems: "center", justifyCenter: "center", overflow: "hidden", borderRadius: "50%", border: "2px solid #ffffff", backgroundColor: "#ffffff", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
                     <img
                       src="/weintern_avatar.png"
                       alt="WeIntern AI Assistant"
                       draggable={false}
                       style={{ position: "absolute", left: "-40%", top: "-3%", height: "132%", width: "180%", maxWidth: "none", objectFit: "contain" }}
                     />
-                    <span style={{ position: "absolute", bottom: 0, right: 0, height: "14px", width: "14px", borderRadius: "50%", border: "2px solid #ffffff", backgroundColor: "#22c55e" }} />
+                    <span style={{ position: "absolute", bottom: 0, right: 0, height: "12px", width: "12px", borderRadius: "50%", border: "2px solid #ffffff", backgroundColor: "#22c55e" }} />
                   </div>
 
                   <div>
-                    <h2 style={{ fontSize: "16px", fontWeight: "700", letterSpacing: "-0.02em", color: "#ffffff", margin: 0 }}>
+                    <h2 className="header-title" style={{ fontSize: "13px", fontWeight: "700", letterSpacing: "-0.02em", color: "#ffffff", margin: 0, whiteSpace: "nowrap" }}>
                       WeIntern AI Assistant ✨
                     </h2>
-                    <div style={{ marginTop: "2px", display: "flex", alignItems: "center", gap: "6px", fontSize: "11px", color: "rgba(255,255,255,0.85)" }}>
-                      <span style={{ height: "6px", width: "6px", borderRadius: "50%", backgroundColor: "#86efac" }} />
+                    <div className="header-subtitle" style={{ marginTop: "2px", display: "flex", alignItems: "center", gap: "4px", fontSize: "10px", color: "rgba(255,255,255,0.85)" }}>
+                      <span style={{ height: "5px", width: "5px", borderRadius: "50%", backgroundColor: "#86efac" }} />
                       <span>Here to help you 24/7 {voiceMode && "• Voice Active"}</span>
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                   <button
                     type="button"
                     onClick={() => setShowClearConfirm(true)}
                     title="Clear chat history"
-                    style={{ display: "flex", height: "32px", width: "32px", alignItems: "center", justifyContent: "center", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.15)", color: "#ffffff", border: "none", cursor: "pointer" }}
+                    style={{ display: "flex", height: "28px", width: "28px", alignItems: "center", justifyContent: "center", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.15)", color: "#ffffff", border: "none", cursor: "pointer" }}
                   >
-                    <BsTrash size={15} />
+                    <BsTrash size={13} />
                   </button>
 
                   <button
                     type="button"
                     onClick={() => isSpeakerMuted ? handleUnmute() : handleMute()}
                     title={isSpeakerMuted ? "Unmute bot output" : "Mute bot output"}
-                    style={{ display: "flex", height: "32px", width: "32px", alignItems: "center", justifyContent: "center", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.15)", color: "#ffffff", border: "none", cursor: "pointer" }}
+                    style={{ display: "flex", height: "28px", width: "28px", alignItems: "center", justifyContent: "center", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.15)", color: "#ffffff", border: "none", cursor: "pointer" }}
                   >
-                    {isSpeakerMuted ? <BsVolumeMuteFill size={16} /> : <BsVolumeUpFill size={16} />}
+                    {isSpeakerMuted ? <BsVolumeMuteFill size={14} /> : <BsVolumeUpFill size={14} />}
                   </button>
 
                   <button
@@ -607,8 +701,8 @@ export default function ChatWidget() {
                     title={voiceMode ? "Disable Voice Mode" : "Enable Voice Mode"}
                     style={{
                       display: "flex",
-                      height: "32px",
-                      width: "32px",
+                      height: "28px",
+                      width: "28px",
                       alignItems: "center",
                       justifyContent: "center",
                       borderRadius: "50%",
@@ -619,16 +713,16 @@ export default function ChatWidget() {
                       fontWeight: "700"
                     }}
                   >
-                    {voiceMode ? <BsMicFill size={16} /> : <BsMicMuteFill size={16} />}
+                    {voiceMode ? <BsMicFill size={14} /> : <BsMicMuteFill size={14} />}
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
                     aria-label="Close chat"
-                    style={{ display: "flex", height: "32px", width: "32px", alignItems: "center", justifyContent: "center", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.25)", color: "#ffffff", border: "none", cursor: "pointer" }}
+                    style={{ display: "flex", height: "28px", width: "28px", alignItems: "center", justifyContent: "center", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.25)", color: "#ffffff", border: "none", cursor: "pointer" }}
                   >
-                    <BsX size={22} />
+                    <BsX size={20} />
                   </button>
                 </div>
               </div>
@@ -702,10 +796,10 @@ export default function ChatWidget() {
                   <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
                     <AIBoyAvatar size="small" />
                     <div style={{ maxWidth: "82%", borderRadius: "16px 16px 16px 4px", border: "1px solid #f1f5f9", backgroundColor: "#ffffff", padding: "12px 16px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-                      <p style={{ fontSize: "13px", fontWeight: 600, lineHeight: "1.4", color: "#334155", margin: 0 }}>
+                      <p className="emoji-text" style={{ fontSize: "13px", fontWeight: 600, lineHeight: "1.4", color: "#334155", margin: 0 }}>
                         Hi there! 👋
                       </p>
-                      <p style={{ marginTop: "4px", fontSize: "12px", lineHeight: "1.4", color: "#64748b", margin: 0 }}>
+                      <p className="message-text" style={{ marginTop: "4px", fontSize: "12px", lineHeight: "1.4", color: "#64748b", margin: 0 }}>
                         I'm your WeIntern AI Assistant. Ask me anything about internships, courses, certificates, fees or placement.
                       </p>
                     </div>
@@ -717,9 +811,9 @@ export default function ChatWidget() {
                       onClick={() => quickReply("domains")}
                       style={{ borderRadius: "12px", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", padding: "10px 12px", textAlign: "left", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", cursor: "pointer" }}
                     >
-                      <div style={{ fontSize: "16px" }}>📚</div>
-                      <div style={{ marginTop: "4px", fontSize: "11px", fontWeight: "700", color: "#334155" }}>Internship</div>
-                      <div style={{ fontSize: "10px", color: "#94a3b8" }}>Programs</div>
+                      <div className="quick-action-emoji" style={{ fontSize: "16px" }}>📚</div>
+                      <div className="quick-action-title" style={{ marginTop: "4px", fontSize: "11px", fontWeight: "700", color: "#334155" }}>Internship</div>
+                      <div className="quick-action-subtitle" style={{ fontSize: "10px", color: "#94a3b8" }}>Programs</div>
                     </button>
 
                     <button
@@ -727,9 +821,9 @@ export default function ChatWidget() {
                       onClick={() => quickReply("fees")}
                       style={{ borderRadius: "12px", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", padding: "10px 12px", textAlign: "left", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", cursor: "pointer" }}
                     >
-                      <div style={{ fontSize: "16px" }}>💰</div>
-                      <div style={{ marginTop: "4px", fontSize: "11px", fontWeight: "700", color: "#334155" }}>Fees & Payment</div>
-                      <div style={{ fontSize: "10px", color: "#94a3b8" }}>Pricing info</div>
+                      <div className="quick-action-emoji" style={{ fontSize: "16px" }}>💰</div>
+                      <div className="quick-action-title" style={{ marginTop: "4px", fontSize: "11px", fontWeight: "700", color: "#334155" }}>Fees & Payment</div>
+                      <div className="quick-action-subtitle" style={{ fontSize: "10px", color: "#94a3b8" }}>Pricing info</div>
                     </button>
 
                     <button
@@ -737,9 +831,9 @@ export default function ChatWidget() {
                       onClick={() => quickReply("certificates")}
                       style={{ borderRadius: "12px", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", padding: "10px 12px", textAlign: "left", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", cursor: "pointer" }}
                     >
-                      <div style={{ fontSize: "16px" }}>📜</div>
-                      <div style={{ marginTop: "4px", fontSize: "11px", fontWeight: "700", color: "#334155" }}>Certificates</div>
-                      <div style={{ fontSize: "10px", color: "#94a3b8" }}>Learn more</div>
+                      <div className="quick-action-emoji" style={{ fontSize: "16px" }}>📜</div>
+                      <div className="quick-action-title" style={{ marginTop: "4px", fontSize: "11px", fontWeight: "700", color: "#334155" }}>Certificates</div>
+                      <div className="quick-action-subtitle" style={{ fontSize: "10px", color: "#94a3b8" }}>Learn more</div>
                     </button>
 
                     <button
@@ -747,9 +841,9 @@ export default function ChatWidget() {
                       onClick={() => quickReply("contact")}
                       style={{ borderRadius: "12px", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", padding: "10px 12px", textAlign: "left", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", cursor: "pointer" }}
                     >
-                      <div style={{ fontSize: "16px" }}>🎯</div>
-                      <div style={{ marginTop: "4px", fontSize: "11px", fontWeight: "700", color: "#334155" }}>Placement</div>
-                      <div style={{ fontSize: "10px", color: "#94a3b8" }}>Support</div>
+                      <div className="quick-action-emoji" style={{ fontSize: "16px" }}>🎯</div>
+                      <div className="quick-action-title" style={{ marginTop: "4px", fontSize: "11px", fontWeight: "700", color: "#334155" }}>Placement</div>
+                      <div className="quick-action-subtitle" style={{ fontSize: "10px", color: "#94a3b8" }}>Support</div>
                     </button>
 
                     <button
@@ -762,8 +856,8 @@ export default function ChatWidget() {
                           🚀
                         </div>
                         <div>
-                          <div style={{ fontSize: "12px", fontWeight: "700", color: "#1d4ed8" }}>Apply / Register</div>
-                          <div style={{ fontSize: "10px", color: "#94a3b8" }}>Start your WeIntern journey</div>
+                          <div className="quick-action-title" style={{ fontSize: "12px", fontWeight: "700", color: "#1d4ed8" }}>Apply / Register</div>
+                          <div className="quick-action-subtitle" style={{ fontSize: "10px", color: "#94a3b8" }}>Start your WeIntern journey</div>
                         </div>
                         <div style={{ marginLeft: "auto", color: "#2563eb", fontWeight: "700", fontSize: "14px" }}>→</div>
                       </div>
@@ -838,7 +932,7 @@ export default function ChatWidget() {
                         </div>
                       ) : (
                         <>
-                          <div style={{ whiteSpace: "pre-line", fontSize: "13px", lineHeight: "1.4" }}>
+                          <div className="message-text" style={{ whiteSpace: "pre-line", fontSize: "13px", lineHeight: "1.4" }}>
                             {msg.text}
                           </div>
                           {msg.sender === "bot" && (leadStep > 0 || showLeadForm) && (msg.text.includes("registered") || msg.text.includes("Please enter your")) && (
@@ -885,7 +979,7 @@ export default function ChatWidget() {
                             {copiedIndex === index ? (
                               <>
                                 <BsCheck2 size={14} color="#34d399" />
-                                <span style={{ fontSize: "10px", color: "#34d399", fontWeight: 600 }}>Copied!</span>
+                                <span className="time-text" style={{ fontSize: "10px", color: "#34d399", fontWeight: 600 }}>Copied!</span>
                               </>
                             ) : (
                               <BsCopy size={12} />
@@ -938,7 +1032,7 @@ export default function ChatWidget() {
                               )}
                             </div>
                           )}
-                          <span style={{ fontSize: "9px" }}>{msg.time}</span>
+                          <span className="time-text" style={{ fontSize: "9px" }}>{msg.time}</span>
                         </div>
                       </div>
                     </div>
@@ -998,6 +1092,7 @@ export default function ChatWidget() {
                 <button
                   type="button"
                   onClick={() => quickReply("apply")}
+                  className="quick-btn"
                   style={{ flexShrink: 0, borderRadius: "999px", border: "1px solid #bfdbfe", backgroundColor: "#eff6ff", padding: "6px 14px", fontSize: "11px", fontWeight: "600", color: "#1d4ed8", cursor: "pointer" }}
                 >
                   🚀 Apply
@@ -1006,6 +1101,7 @@ export default function ChatWidget() {
                 <button
                   type="button"
                   onClick={() => quickReply("fees")}
+                  className="quick-btn"
                   style={{ flexShrink: 0, borderRadius: "999px", border: "1px solid #bfdbfe", backgroundColor: "#eff6ff", padding: "6px 14px", fontSize: "11px", fontWeight: "500", color: "#1d4ed8", cursor: "pointer" }}
                 >
                   💰 Fees
@@ -1014,6 +1110,7 @@ export default function ChatWidget() {
                 <button
                   type="button"
                   onClick={() => quickReply("domains")}
+                  className="quick-btn"
                   style={{ flexShrink: 0, borderRadius: "999px", border: "1px solid #bfdbfe", backgroundColor: "#eff6ff", padding: "6px 14px", fontSize: "11px", fontWeight: "500", color: "#1d4ed8", cursor: "pointer" }}
                 >
                   💻 Domains
@@ -1022,6 +1119,7 @@ export default function ChatWidget() {
                 <button
                   type="button"
                   onClick={() => quickReply("certificates")}
+                  className="quick-btn"
                   style={{ flexShrink: 0, borderRadius: "999px", border: "1px solid #fde68a", backgroundColor: "#fffbeb", padding: "6px 14px", fontSize: "11px", fontWeight: "500", color: "#b45309", cursor: "pointer" }}
                 >
                   📜 Certificates
@@ -1030,6 +1128,7 @@ export default function ChatWidget() {
                 <button
                   type="button"
                   onClick={() => quickReply("contact")}
+                  className="quick-btn"
                   style={{ flexShrink: 0, borderRadius: "999px", border: "1px solid #e2e8f0", backgroundColor: "#f8fafc", padding: "6px 14px", fontSize: "11px", fontWeight: "500", color: "#334155", cursor: "pointer" }}
                 >
                   🎯 Contact

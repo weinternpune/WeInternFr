@@ -18,6 +18,7 @@ const contactRoutes = require("./routes/contact");
 const mentorRoutes = require("./routes/mentor");
 const blogRoutes = require("./routes/blog");
 const cohortRoutes = require("./routes/cohortroutes");
+const migrationRoutes = require("./routes/migration");
 
 // Passport config
 require("./config/passport");
@@ -117,6 +118,7 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/mentor", mentorRoutes);
 app.use("/api/blog", blogRoutes);
 app.use("/api/cohort", cohortRoutes);
+app.use("/api/migration", migrationRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

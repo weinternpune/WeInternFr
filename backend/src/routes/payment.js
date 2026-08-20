@@ -335,6 +335,7 @@ router.post('/internship/create-order', async (req, res) => {
       name: applicationData.name,
       email: applicationData.email,
       phone: applicationData.phone,
+      college: applicationData.college,
       interest: applicationData.course,
       duration: applicationData.internshipType,
       internshipType: applicationData.internshipType,

@@ -175,6 +175,21 @@ body, input, textarea, select, button,
 }
 .wa-float:hover { transform: scale(1.1); box-shadow: 0 8px 28px rgba(37,211,102,.55); }
 
+/* Mobile: Position below chat button */
+@media (max-width: 768px) {
+  .wa-float {
+    bottom: 1rem;
+    right: 1rem;
+    width: 50px;
+    height: 50px;
+  }
+  
+  .wa-float svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
 /* ============ MARQUEE ============ */
 .marquee-strip { background: var(--navy); padding: .75rem 0; overflow: hidden; border-top: 1px solid rgba(255,255,255,.06); border-bottom: 1px solid rgba(255,255,255,.06); }
 .marquee-track { display: flex; gap: 3rem; animation: marquee 28s linear infinite; width: max-content; }
