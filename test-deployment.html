@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WeIntern - Deployment Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 28px;
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #555;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      transition: all 0.2s;
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 6px;
+      display: none;
+    }
+    .result.success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+    .result.error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+    .result.info {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .status-badge.ok {
+      background: #28a745;
+      color: white;
+    }
+    .status-badge.error {
+      background: #dc3545;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 WeIntern Deployment Test</h1>
+    <p style="margin-bottom: 20px; color: #666;">Test if college field and delete button are working in production</p>
+
+    <div class="input-group">
+      <label>Backend URL:</label>
+      <input type="text" id="backendUrl" placeholder="https://your-backend.com" value="">
+    </div>
+
+    <div class="input-group">
+      <label>Admin Token:</label>
+      <input type="text" id="adminToken" placeholder="Your admin JWT token">
+      <small style="color: #888;">Get from localStorage after admin login</small>
+    </div>
+
+    <div>
+      <button onclick="testDeployment()">🔍 Test Deployment</button>
+      <button onclick="testDelete()">🗑️ Test Delete Route</button>
+      <button onclick="runMigration()">🔄 Run Migration</button>
+    </div>
+
+    <div id="result" class="result"></div>
+  </div>
+
+  <script>
+    function getBackendUrl() {
+      const url = document.getElementById('backendUrl').value.trim();
+      if (!url) {
+        showResult('error', 'Please enter backend URL');
+        return null;
+      }
+      return url.endsWith('/') ? url.slice(0, -1) : url;
+    }
+
+    function getToken() {
+      const token = document.getElementById('adminToken').value.trim();
+      if (!token) {
+        showResult('error', 'Please enter admin token');
+        return null;
+      }
+      return token;
+    }
+
+    function showResult(type, message, data = null) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.className = `result ${type}`;
+      resultDiv.style.display = 'block';
+      
+      let html = `<strong>${message}</strong>`;
+      if (data) {
+        html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      }
+      resultDiv.innerHTML = html;
+    }
+
+    async function testDeployment() {
+      const url = getBackendUrl();
+      const token = getToken();
+      if (!url || !token) return;
+
+      showResult('info', '🔄 Testing deployment...');
+
+      try {
+        const response = await fetch(`${url}/api/migration/test-deployment`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          const deleteStatus = data.deployment.deleteRouteExists ? 
+            '<span class="status-badge ok">✅ Working</span>' : 
+            '<span class="status-badge error">❌ Missing</span>';
+          
+          const collegePercent = data.database.percentageWithCollege;
+          const collegeStatus = collegePercent === 100 ?
+            '<span class="status-badge ok">✅ All have college</span>' :
+            '<span class="status-badge error">❌ Need migration</span>';
+
+          showResult('success', 
+            `✅ Deployment Test Results:
+            
+            <strong>Delete Route:</strong> ${deleteStatus}
+            <strong>College Field:</strong> ${collegeStatus}
+            
+            <strong>Database Stats:</strong>
+            • Total Applications: ${data.database.totalApplications}
+            • With College: ${data.database.withCollege} (${collegePercent}%)
+            • Without College: ${data.database.withoutCollege}
+            
+            ${data.latestApplication ? `
+            <strong>Latest Application:</strong>
+            • Name: ${data.latestApplication.name}
+            • College: ${data.latestApplication.college}
+            • Date: ${new Date(data.latestApplication.createdAt).toLocaleString()}
+            ` : ''}
+            `,
+            data
+          );
+        } else {
+          showResult('error', '❌ Test failed', data);
+        }
+      } catch (error) {
+        showResult('error', `❌ Error: ${error.message}`);
+        console.error(error);
+      }
+    }
+
+    async function testDelete() {
+      const url = getBackendUrl();
+      const token = getToken();
+      if (!url || !token) return;
+
+      showResult('info', '🔄 Testing delete route...');
+
+      try {
+        const response = await fetch(`${url}/api/admin/applications/test-fake-id-12345`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (response.status === 404 && !data.success) {
+          showResult('success', 
+            '✅ Delete route is working!\n\n' +
+            'Got 404 "Application not found" which is correct response for fake ID.\n' +
+            'This confirms DELETE route is deployed and working.'
+          );
+        } else if (response.status === 405) {
+          showResult('error', 
+            '❌ Delete route NOT working!\n\n' +
+            'Got 405 "Method Not Allowed" which means DELETE route is missing.\n' +
+            'Backend needs to be redeployed with latest code.'
+          );
+        } else {
+          showResult('info', `Status: ${response.status}`, data);
+        }
+      } catch (error) {
+        showResult('error', `❌ Error: ${error.message}`);
+        console.error(error);
+      }
+    }
+
+    async function runMigration() {
+      const url = getBackendUrl();
+      const token = getToken();
+      if (!url || !token) return;
+
+      if (!confirm('Run migration to add "Not Provided" to all applications without college field?')) {
+        return;
+      }
+
+      showResult('info', '🔄 Running migration...');
+
+      try {
+        const response = await fetch(`${url}/api/migration/migrate-college-field`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showResult('success', 
+            `✅ Migration completed successfully!\n\n` +
+            `• Modified: ${data.modifiedCount} applications\n` +
+            `• Matched: ${data.matchedCount} applications\n\n` +
+            `All old applications now have college = "Not Provided"`
+          , data);
+        } else {
+          showResult('error', '❌ Migration failed', data);
+        }
+      } catch (error) {
+        showResult('error', `❌ Error: ${error.message}`);
+        console.error(error);
+      }
+    }
+
+    // Auto-populate backend URL if on same domain
+    window.onload = function() {
+      const savedUrl = localStorage.getItem('testBackendUrl');
+      if (savedUrl) {
+        document.getElementById('backendUrl').value = savedUrl;
+      }
+      
+      const savedToken = localStorage.getItem('testAdminToken');
+      if (savedToken) {
+        document.getElementById('adminToken').value = savedToken;
+      }
+    };
+
+    // Save values on change
+    document.getElementById('backendUrl').addEventListener('change', function() {
+      localStorage.setItem('testBackendUrl', this.value);
+    });
+
+    document.getElementById('adminToken').addEventListener('change', function() {
+      localStorage.setItem('testAdminToken', this.value);
+    });
+  </script>
+</body>
+</html>
