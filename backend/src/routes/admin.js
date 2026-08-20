@@ -399,6 +399,18 @@ router.patch('/applications/:id', async (req, res) => {
   }
 });
 
+// Delete application
+router.delete('/applications/:id', async (req, res) => {
+  try {
+    const app = await Application.findById(req.params.id);
+    if (!app) return res.status(404).json({ success: false, message: 'Application not found' });
+    await Application.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Application deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Get all enrollments
 router.get('/enrollments', async (req, res) => {
   try {

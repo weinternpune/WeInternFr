@@ -873,6 +873,18 @@ const AdminApplications = () => {
     }
   };
 
+  const deleteApplication = async (id) => {
+    try {
+      await API.delete(`/admin/applications/${id}`);
+      toast.success("Application deleted");
+      load();
+      triggerGlobalUpdate();
+    } catch (error) {
+      toast.error("Delete failed");
+      console.error('Delete error:', error);
+    }
+  };
+
   return (
     <div>
       <div className="admin-filters">
@@ -914,12 +926,13 @@ const AdminApplications = () => {
               <tr>
                 <th>Name</th>
                 <th>Email</th>
+                <th>Phone</th>
                 <th>Interest</th>
                 <th>Duration</th>
                 <th>College</th>
                 <th>Applied</th>
                 <th>Status</th>
-                <th>Change</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -933,26 +946,30 @@ const AdminApplications = () => {
                       {a.email}
                     </a>
                   </td>
+                  <td>{a.phone || 'N/A'}</td>
                   <td>{a.interest}</td>
-                  <td>{a.duration === "3months" ? "3M" : "6M"}</td>
-                  <td>{a.college}</td>
+                  <td>
+                    {a.duration === "3-month" || a.duration === "3months" 
+                      ? "3 Month" 
+                      : a.duration === "6-month" || a.duration === "6months" 
+                      ? "6 Month" 
+                      : a.duration || 'N/A'}
+                  </td>
+                  <td>{a.college || 'N/A'}</td>
                   <td>{new Date(a.createdAt).toLocaleDateString("en-IN")}</td>
                   <td>{statusBadge(a.status)}</td>
                   <td>
-                    <select
-                      className="status-select"
-                      value={a.status}
-                      disabled={updating === a._id}
-                      onChange={(e) => updateStatus(a._id, e.target.value)}
+                    <button
+                      className="btn-delete-small"
+                      onClick={() => {
+                        if (window.confirm(`Delete application from ${a.name}?`)) {
+                          deleteApplication(a._id);
+                        }
+                      }}
+                      title="Delete application"
                     >
-                      {["pending", "reviewing", "accepted", "rejected"].map(
-                        (s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ),
-                      )}
-                    </select>
+                      🗑️
+                    </button>
                   </td>
                 </tr>
               ))}

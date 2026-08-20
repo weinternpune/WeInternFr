@@ -1298,3 +1298,27 @@
   box-shadow: 0 4px 12px rgba(232, 168, 32, 0.35) !important;
 }
 
+
+
+/* Delete Button for Applications Table */
+.btn-delete-small {
+  background: transparent;
+  border: 1px solid #dc4545;
+  color: #dc4545;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.btn-delete-small:hover {
+  background: #dc4545;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 69, 69, 0.3);
+}
+
+.btn-delete-small:active {
+  transform: translateY(0);
+}
