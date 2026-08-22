@@ -1090,6 +1090,7 @@
 
   height: 42px;
   padding: 0 12px;
+  margin-top: 36px;
 
   display: inline-flex;
   align-items: center;
@@ -1101,8 +1102,15 @@
 
   font-size: 14px;
 
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  box-shadow: 0 8px 20px rgba(74, 222, 128, 0.3);
+
   animation: ipApplyPulse 2.2s ease-in-out infinite;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ip-inline-apply-btn:hover {
+  box-shadow: 0 12px 28px rgba(74, 222, 128, 0.4);
 }
 
 /* Shine animation */
@@ -1141,11 +1149,11 @@
 @keyframes ipApplyPulse {
   0%,
   100% {
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 18px rgba(74, 222, 128, 0.25);
   }
 
   50% {
-    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 10px 26px rgba(74, 222, 128, 0.4);
   }
 }
 
@@ -1254,6 +1262,429 @@
   .ip-inline-apply-btn svg {
     width: 12px;
     height: 12px;
+  }
+}
+
+/* ================================================================
+   Full Element Responsive Refinements (480px & 380px)
+   Same design, colors and layout — only sizing/spacing scaled down
+   ================================================================ */
+
+@media (max-width: 480px) {
+  /* Hero */
+  .ip-hero {
+    padding: 90px 16px 40px;
+  }
+
+  .ip-badge {
+    font-size: 11px;
+    padding: 5px 12px;
+    margin-bottom: 16px;
+  }
+
+  .ip-hero-title {
+    font-size: 1.5rem;
+  }
+
+  .ip-hero-subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 24px;
+  }
+
+  .ip-hero-meta {
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .ip-meta-item {
+    font-size: 12.5px;
+  }
+
+  /* Buttons */
+  .ip-btn {
+    font-size: 0.85rem;
+    padding: 12px 18px;
+  }
+
+  /* Sections */
+  .ip-section {
+    padding: 40px 16px;
+  }
+
+  .ip-section-title {
+    font-size: 1.2rem;
+    margin-bottom: 32px;
+  }
+
+  .ip-section-subtitle {
+    font-size: 0.85rem;
+    margin: -20px auto 24px;
+  }
+
+  .ip-section-text {
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+  }
+
+  /* Feature cards */
+  .ip-feature-card {
+    padding: 24px 16px;
+  }
+
+  .ip-feature-card h3 {
+    font-size: 1rem;
+  }
+
+  .ip-feature-card p {
+    font-size: 13px;
+  }
+
+  /* Lists */
+  .ip-list li {
+    font-size: 13.5px;
+    padding: 14px 16px;
+    gap: 10px;
+  }
+
+  /* Benefits */
+  .ip-benefit-item {
+    padding: 14px 16px;
+    font-size: 13.5px;
+  }
+
+  /* CTA */
+  .ip-cta {
+    padding: 50px 16px;
+  }
+
+  .ip-cta h2 {
+    font-size: 1.3rem;
+  }
+
+  .ip-cta p {
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+  }
+
+  /* Modal */
+  .ip-modal {
+    padding: 24px 18px;
+    border-radius: 16px;
+  }
+
+  .ip-modal h2 {
+    font-size: 1.3rem;
+    margin-bottom: 18px;
+  }
+
+  .ip-modal-close {
+    width: 32px;
+    height: 32px;
+    top: 12px;
+    right: 12px;
+  }
+
+  /* Form */
+  .ip-form {
+    gap: 16px;
+  }
+
+  .ip-field label {
+    font-size: 12.5px;
+  }
+
+  .ip-field input {
+    padding: 10px 12px;
+    font-size: 13.5px;
+  }
+
+  /* What You Get */
+  .ip-whatyouget-card {
+    padding: 24px 18px;
+  }
+
+  .ip-whatyouget-card h3 {
+    font-size: 1.05rem;
+    margin-bottom: 12px;
+  }
+
+  .ip-whatyouget-card p {
+    font-size: 13.5px;
+  }
+
+  /* Highlights */
+  .ip-highlight-item {
+    padding: 14px 16px;
+    font-size: 13.5px;
+  }
+
+  /* Earning box */
+  .ip-earning-box {
+    padding: 24px 18px;
+  }
+
+  .ip-earning-box p {
+    font-size: 0.9rem;
+  }
+
+  /* Journey cards */
+  .ip-journey-card {
+    padding: 20px 16px;
+  }
+
+  .ip-journey-card h3 {
+    font-size: 1rem;
+  }
+
+  .ip-journey-card p {
+    font-size: 13.5px;
+  }
+
+  /* Career points */
+  .ip-career-ready-points {
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .ip-career-point {
+    font-size: 12.5px;
+    padding: 8px 16px;
+  }
+
+  /* Investment box */
+  .ip-cta-investment {
+    gap: 8px;
+    margin: 18px 0 24px;
+    flex-wrap: wrap;
+  }
+
+  .ip-investment-label {
+    font-size: 0.9rem;
+  }
+
+  .ip-investment-amount {
+    font-size: 1.3rem;
+    padding: 6px 18px;
+  }
+
+  /* Payment modal */
+  .ip-payment-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .ip-payment-header p {
+    font-size: 13px;
+  }
+
+  .ip-payment-details {
+    padding: 18px;
+  }
+
+  .ip-payment-row {
+    font-size: 13px;
+    padding: 10px 0;
+  }
+
+  .ip-payment-amount {
+    font-size: 1.3rem !important;
+  }
+
+  .ip-payment-info {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .ip-payment-info p {
+    font-size: 12.5px;
+  }
+
+  /* Success modal */
+  .ip-success-title {
+    font-size: 1.3rem;
+  }
+
+  .ip-success-subtitle {
+    font-size: 12.5px;
+  }
+
+  .ip-success-icon svg {
+    width: 56px;
+    height: 56px;
+  }
+
+  .ip-success-details {
+    padding: 18px;
+  }
+
+  .ip-success-row {
+    padding: 10px 0;
+  }
+
+  .ip-success-label {
+    font-size: 13px;
+  }
+
+  .ip-success-value {
+    font-size: 13px;
+  }
+
+  .ip-success-app-id {
+    font-size: 13px;
+    padding: 5px 10px;
+  }
+
+  .ip-success-message {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .ip-success-message p {
+    font-size: 13px;
+  }
+
+  /* Trusted section */
+  .ip-trusted {
+    padding: 40px 16px;
+  }
+
+  .ip-trusted-title {
+    font-size: 1.15rem;
+  }
+
+  .ip-trusted-subtitle {
+    font-size: 0.8rem;
+    margin-bottom: 32px;
+  }
+
+  .ip-trusted-divider {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  /* Hero */
+  .ip-hero {
+    padding: 80px 14px 32px;
+  }
+
+  .ip-hero-title {
+    font-size: 1.3rem;
+  }
+
+  .ip-hero-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .ip-hero-meta {
+    gap: 10px;
+  }
+
+  .ip-meta-item {
+    font-size: 12px;
+  }
+
+  /* Buttons */
+  .ip-btn {
+    font-size: 0.8rem;
+    padding: 11px 16px;
+  }
+
+  /* Sections */
+  .ip-section {
+    padding: 32px 14px;
+  }
+
+  .ip-section-title {
+    font-size: 1.1rem;
+    margin-bottom: 24px;
+  }
+
+  .ip-section-subtitle,
+  .ip-section-text {
+    font-size: 0.82rem;
+  }
+
+  /* Cards */
+  .ip-feature-card,
+  .ip-whatyouget-card,
+  .ip-journey-card {
+    padding: 18px 14px;
+  }
+
+  .ip-feature-card h3,
+  .ip-whatyouget-card h3,
+  .ip-journey-card h3 {
+    font-size: 0.95rem;
+  }
+
+  .ip-feature-card p,
+  .ip-whatyouget-card p,
+  .ip-journey-card p,
+  .ip-benefit-item,
+  .ip-highlight-item,
+  .ip-list li {
+    font-size: 12.5px;
+  }
+
+  /* CTA */
+  .ip-cta {
+    padding: 40px 14px;
+  }
+
+  .ip-cta h2 {
+    font-size: 1.15rem;
+  }
+
+  .ip-cta p {
+    font-size: 0.82rem;
+  }
+
+  /* Modal */
+  .ip-modal {
+    padding: 20px 14px;
+  }
+
+  .ip-modal h2 {
+    font-size: 1.15rem;
+  }
+
+  /* Investment / career points */
+  .ip-career-point {
+    font-size: 11.5px;
+    padding: 7px 14px;
+  }
+
+  .ip-investment-amount {
+    font-size: 1.15rem;
+    padding: 5px 14px;
+  }
+
+  /* Payment / Success modals */
+  .ip-payment-header h2,
+  .ip-success-title {
+    font-size: 1.15rem;
+  }
+
+  .ip-payment-amount {
+    font-size: 1.15rem !important;
+  }
+
+  .ip-success-icon svg {
+    width: 48px;
+    height: 48px;
+  }
+
+  /* Trusted section */
+  .ip-trusted {
+    padding: 32px 14px;
+  }
+
+  .ip-trusted-title {
+    font-size: 1rem;
+  }
+
+  .ip-trusted-subtitle {
+    font-size: 0.75rem;
   }
 }
 

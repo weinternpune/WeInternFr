@@ -405,19 +405,8 @@ const InternshipPage = () => {
         </div>
       </div>
 
-      {/* Additional Apply Now CTA */}
-      <div className="ip-inline-apply">
-        <div className="ip-container ip-inline-apply-container">
-          <button
-            type="button"
-            className="ip-btn ip-btn-primary ip-inline-apply-btn"
-            onClick={handleApply}
-          >
-            Apply Now
-            <Icon icon="mdi:arrow-right" width={18} />
-          </button>
-        </div>
-      </div>
+   
+
 
       {/* What You'll Do */}
       <div className="ip-section">
@@ -431,6 +420,18 @@ const InternshipPage = () => {
               </div>
             ))}
           </div>
+                <div className="ip-inline-apply">
+        <div className="ip-container ip-inline-apply-container">
+          <button
+            type="button"
+            className="ip-btn ip-btn-primary ip-inline-apply-btn"
+            onClick={handleApply}
+          >
+            Apply Now
+            <Icon icon="mdi:arrow-right" width={18} />
+          </button>
+        </div>
+      </div>
         </div>
       </div>
 
