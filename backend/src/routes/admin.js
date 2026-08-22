@@ -402,11 +402,21 @@ router.patch('/applications/:id', async (req, res) => {
 // Delete application
 router.delete('/applications/:id', async (req, res) => {
   try {
+    console.log('DELETE /admin/applications/:id called with ID:', req.params.id);
+    
     const app = await Application.findById(req.params.id);
-    if (!app) return res.status(404).json({ success: false, message: 'Application not found' });
+    if (!app) {
+      console.log('Application not found:', req.params.id);
+      return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+    
+    console.log('Deleting application:', app.name, app.email);
     await Application.findByIdAndDelete(req.params.id);
+    
+    console.log('Application deleted successfully:', req.params.id);
     res.json({ success: true, message: 'Application deleted successfully' });
   } catch (err) {
+    console.error('Delete application error:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -521,13 +531,21 @@ router.delete('/enrollments/:id', async (req, res) => {
 
 // Get user activity data for admin view
 router.get('/users/:id/activity', async (req, res) => {
-
   try {
+    console.log('Fetching activity for user:', req.params.id);
+    
+    // Validate user exists
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
 
-    const activityData =
-      await getDashboardAnalytics(
-        req.params.id
-      );
+    const activityData = await getDashboardAnalytics(req.params.id);
+    
+    console.log('Activity data fetched successfully for user:', req.params.id);
 
     res.json({
       success: true,
@@ -535,18 +553,16 @@ router.get('/users/:id/activity', async (req, res) => {
     });
 
   } catch (err) {
+    console.error('Admin user activity error:', err);
+    console.error('Error stack:', err.stack);
 
-    console.error(
-      'Admin user activity error:',
-      err
-    );
-
+    // Send a more detailed error response
     res.status(500).json({
       success: false,
-      message: err.message
+      message: err.message || 'Failed to load user activity',
+      error: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
   }
-
 });
 
 // Delete user

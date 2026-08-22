@@ -22,30 +22,33 @@ const getWeekStart = (date = new Date()) => {
 };
 
 const getDashboardAnalytics = async (userId) => {
-  const [progress, enrollments, activities, mentorSubmissions, mentorAttendance] =
-    await Promise.all([
-      UserProgress.findOne({ user: userId }).lean(),
+  try {
+    const [progress, enrollments, activities, mentorSubmissions, mentorAttendance] =
+      await Promise.all([
+        UserProgress.findOne({ user: userId }).lean().catch(() => null),
 
-      Enrollment
-        .find({ user: userId })
-        .sort('-createdAt')
-        .lean(),
+        Enrollment
+          .find({ user: userId })
+          .sort('-createdAt')
+          .lean()
+          .catch(() => []),
 
-      UserActivity
-        .find({ user: userId })
-        .sort('-createdAt')
-        .lean(),
+        UserActivity
+          .find({ user: userId })
+          .sort('-createdAt')
+          .lean()
+          .catch(() => []),
 
-      Submission
-        .find({ student: userId, score: { $exists: true, $ne: null } })
-        .lean()
-        .catch(() => []),
+        Submission
+          .find({ student: userId, score: { $exists: true, $ne: null } })
+          .lean()
+          .catch(() => []),
 
-      Attendance
-        .find({ student: userId })
-        .lean()
-        .catch(() => [])
-    ]);
+        Attendance
+          .find({ student: userId })
+          .lean()
+          .catch(() => [])
+      ]);
 
   const activitiesData = activities || [];
 
@@ -534,6 +537,52 @@ const getDashboardAnalytics = async (userId) => {
     recentActivities,
     sessionHistory
   };
+  } catch (error) {
+    console.error('Error in getDashboardAnalytics:', error);
+    // Return default data structure if error occurs
+    return {
+      totalStudyHours: 0,
+      practiceHours: 0,
+      currentStreak: 0,
+      longestStreak: 0,
+      sessionsAttended: 0,
+      sessionsTotal: 0,
+      attendanceRate: 0,
+      assignmentsCompleted: 0,
+      averageScore: 0,
+      practiceProblems: { solved: 0, total: 6 },
+      courses: 0,
+      hoursLogged: 0,
+      attendance: 0,
+      assignments: 0,
+      dayStreak: 0,
+      weeklyActivity: Array.from({ length: 8 }, (_, index) => ({
+        week: `W${index + 1}`,
+        lectures: 0,
+        practice: 0,
+        sessions: 0
+      })),
+      dailyHours: [
+        { day: 'Mon', hours: 0 },
+        { day: 'Tue', hours: 0 },
+        { day: 'Wed', hours: 0 },
+        { day: 'Thu', hours: 0 },
+        { day: 'Fri', hours: 0 },
+        { day: 'Sat', hours: 0 },
+        { day: 'Sun', hours: 0 }
+      ],
+      assignmentScores: [],
+      practiceResults: [],
+      courseProgress: [],
+      overallProgress: [
+        { name: 'Completed', value: 0 },
+        { name: 'In Progress', value: 0 },
+        { name: 'Pending', value: 0 }
+      ],
+      recentActivities: [],
+      sessionHistory: []
+    };
+  }
 };
 
 module.exports = {

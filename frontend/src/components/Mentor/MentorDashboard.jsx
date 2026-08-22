@@ -2694,23 +2694,33 @@ function AssignmentModal({ students, selectedMentorId, onClose, onSaved }) {
   const [form, setForm] = useState({
     title: '', description: '', batch: '', course: '',
     dueDate: '', maxScore: 100, studentIds: [],
-    attachmentUrl: '', attachmentName: ''
+    attachments: [] // Changed to array: [{url: '', name: ''}]
   });
   const [uploading, setUploading] = useState(false);
 
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const handleFileUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const formData = new FormData();
-    formData.append('file', file);
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    
     setUploading(true);
+    const uploadedFiles = [];
+    
     try {
-      const res = await uploadMentorFile(formData);
-      update('attachmentUrl', res.data.fileUrl);
-      update('attachmentName', file.name);
-      toast.success(`Attached ${file.name}`);
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await uploadMentorFile(formData);
+        uploadedFiles.push({
+          url: res.data.fileUrl,
+          name: file.name
+        });
+      }
+      
+      // Add new files to existing attachments
+      update('attachments', [...form.attachments, ...uploadedFiles]);
+      toast.success(`Uploaded ${uploadedFiles.length} file(s)`);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Upload failed');
     } finally {
@@ -2718,10 +2728,21 @@ function AssignmentModal({ students, selectedMentorId, onClose, onSaved }) {
     }
   };
 
+  const removeAttachment = (index) => {
+    update('attachments', form.attachments.filter((_, i) => i !== index));
+  };
+
   const submit = async () => {
     if (!form.title || !form.dueDate) return toast.error('Title and due date are required');
     try {
-      await createMentorAssignment({ ...form, mentorId: selectedMentorId });
+      // Prepare data with attachments array
+      const assignmentData = {
+        ...form,
+        mentorId: selectedMentorId,
+        attachmentUrls: form.attachments.map(a => a.url),
+        attachmentNames: form.attachments.map(a => a.name)
+      };
+      await createMentorAssignment(assignmentData);
       toast.success('Assignment created');
       onSaved();
     } catch (e) {
@@ -2740,9 +2761,9 @@ function AssignmentModal({ students, selectedMentorId, onClose, onSaved }) {
         
         <div className="span-2" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <label style={{ fontSize: '.7rem', fontWeight: 800, color: '#516078' }}>
-            Attach Problem Statement / Guideline PDF
+            Attach Problem Statement / Guideline Files (Multiple)
           </label>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <label style={{
               background: '#f8fafc',
               border: '1.5px dashed #cbd5e1',
@@ -2754,15 +2775,53 @@ function AssignmentModal({ students, selectedMentorId, onClose, onSaved }) {
               color: '#334155',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 6
+              gap: 6,
+              width: 'fit-content'
             }}>
-              📄 {uploading ? 'Uploading PDF...' : 'Upload PDF / Brief'}
-              <input type="file" accept=".pdf,.doc,.docx,.zip,.png,.jpg,.jpeg" onChange={handleFileUpload} style={{ display: 'none' }} disabled={uploading}/>
+              📄 {uploading ? 'Uploading Files...' : 'Upload Files (PDF, DOC, ZIP, Images)'}
+              <input 
+                type="file" 
+                accept=".pdf,.doc,.docx,.zip,.png,.jpg,.jpeg" 
+                onChange={handleFileUpload} 
+                style={{ display: 'none' }} 
+                disabled={uploading}
+                multiple
+              />
             </label>
-            {form.attachmentName && (
-              <span style={{ fontSize: '.75rem', color: '#166534', fontWeight: 700 }}>
-                ✅ {form.attachmentName}
-              </span>
+            {form.attachments.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {form.attachments.map((file, index) => (
+                  <div key={index} style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 8,
+                    padding: '6px 10px',
+                    background: '#f0fdf4',
+                    borderRadius: 6,
+                    fontSize: '.75rem'
+                  }}>
+                    <span style={{ color: '#166534', fontWeight: 700, flex: 1 }}>
+                      ✅ {file.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeAttachment(index)}
+                      style={{
+                        background: '#fee2e2',
+                        border: 'none',
+                        borderRadius: 4,
+                        padding: '4px 8px',
+                        cursor: 'pointer',
+                        fontSize: '.7rem',
+                        fontWeight: 700,
+                        color: '#991b1b'
+                      }}
+                    >
+                      ✕ Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>

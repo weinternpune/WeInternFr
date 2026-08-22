@@ -24,6 +24,7 @@ import {
   getUserActivity,
   getAdminMentors,
   createMentorAccount,
+  deleteMentorAccount,
   assignStudentToMentor,
   assignStudentsBulk,
   getAdminStudentsWithMentors,
@@ -875,13 +876,16 @@ const AdminApplications = () => {
 
   const deleteApplication = async (id) => {
     try {
+      console.log('Frontend: Attempting to delete application:', id);
       await API.delete(`/admin/applications/${id}`);
       toast.success("Application deleted");
+      console.log('Frontend: Delete successful');
       load();
       triggerGlobalUpdate();
     } catch (error) {
-      toast.error("Delete failed");
-      console.error('Delete error:', error);
+      console.error('Frontend: Delete error:', error);
+      console.error('Frontend: Error response:', error.response);
+      toast.error(error.response?.data?.message || "Delete failed");
     }
   };
 
@@ -4793,6 +4797,27 @@ const MentorManagement = () => {
     } catch(e) { toast.error(e.response?.data?.message || 'Unable to assign student'); }
   };
 
+  const deleteMentor = async (mentor) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete mentor "${mentor.name}"?\n\n` +
+      `This will:\n` +
+      `• Delete the mentor account permanently\n` +
+      `• Unassign all ${mentor.studentCount || 0} students from this mentor\n` +
+      `• Delete all classes, assignments, and submissions\n` +
+      `• This action cannot be undone!`
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+      await deleteMentorAccount(mentor._id);
+      toast.success(`Mentor ${mentor.name} deleted successfully`);
+      load();
+    } catch (e) {
+      toast.error(e.response?.data?.message || 'Unable to delete mentor');
+    }
+  };
+
   const openAllocateModal = async (mentor) => {
     setAllocatingMentor(mentor);
     const loadedStudents = await ensureStudentsLoaded();
@@ -5055,11 +5080,12 @@ const MentorManagement = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
+              <div style={{ display: 'flex', gap: '8px', marginTop: 'auto', flexWrap: 'wrap' }}>
                 <Link
                   to={`/mentor/dashboard?mentorId=${m._id}`}
                   style={{
-                    flex: 1,
+                    flex: '1 1 auto',
+                    minWidth: '80px',
                     textDecoration: 'none',
                     background: '#f1f5f9',
                     color: '#1e40af',
@@ -5080,7 +5106,8 @@ const MentorManagement = () => {
                 <button
                   onClick={() => openAllocateModal(m)}
                   style={{
-                    flex: 1,
+                    flex: '1 1 auto',
+                    minWidth: '100px',
                     background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
                     color: '#b45309',
                     border: '1px solid #fde68a',
@@ -5096,6 +5123,27 @@ const MentorManagement = () => {
                   }}
                 >
                   👥 Allocate ({m.studentCount || 0})
+                </button>
+                <button
+                  onClick={() => deleteMentor(m)}
+                  style={{
+                    flex: '0 0 auto',
+                    background: '#fee2e2',
+                    color: '#dc2626',
+                    border: '1px solid #fecaca',
+                    borderRadius: '7px',
+                    padding: '7px 10px',
+                    fontSize: '.72rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '4px'
+                  }}
+                  title="Delete Mentor"
+                >
+                  🗑️
                 </button>
               </div>
             </div>

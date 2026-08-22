@@ -358,7 +358,40 @@ const AssignmentsTab = () => {
                 <div className="desc-content">
                   {selectedAssignment.description || 'No detailed description provided.'}
                 </div>
-                {selectedAssignment.attachmentUrl && (
+                {/* Multiple Attachments Support */}
+                {selectedAssignment.attachmentUrls && selectedAssignment.attachmentUrls.length > 0 && (
+                  <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <strong style={{ fontSize: '.75rem', color: '#516078' }}>
+                      📎 Attached Files ({selectedAssignment.attachmentUrls.length}):
+                    </strong>
+                    {selectedAssignment.attachmentUrls.map((url, index) => (
+                      <a
+                        key={index}
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          background: '#f0fdf4',
+                          color: '#166534',
+                          border: '1px solid #bbf7d0',
+                          borderRadius: '6px',
+                          padding: '6px 12px',
+                          fontSize: '.75rem',
+                          fontWeight: 700,
+                          textDecoration: 'none',
+                          width: 'fit-content'
+                        }}
+                      >
+                        📄 {selectedAssignment.attachmentNames?.[index] || `Attachment ${index + 1}`}
+                      </a>
+                    ))}
+                  </div>
+                )}
+                {/* Legacy single attachment support */}
+                {selectedAssignment.attachmentUrl && (!selectedAssignment.attachmentUrls || selectedAssignment.attachmentUrls.length === 0) && (
                   <div style={{ marginTop: '12px' }}>
                     <a
                       href={selectedAssignment.attachmentUrl}

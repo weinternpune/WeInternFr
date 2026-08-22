@@ -534,7 +534,7 @@ router.post('/assignments', protect, mentorOrAdmin, async (req, res) => {
     const mentorId = await resolveTargetMentorId(req);
     if (!mentorId) return res.status(400).json({ success: false, message: 'Mentor not found' });
 
-    const { title, description, batch, course, dueDate, maxScore, studentIds = [] } = req.body;
+    const { title, description, batch, course, dueDate, maxScore, studentIds = [], attachmentUrls = [], attachmentNames = [] } = req.body;
     if (!title || !dueDate) return res.status(400).json({ success: false, message: 'Title and due date are required' });
     const validStudents = [];
     for (const id of studentIds) {
@@ -542,7 +542,9 @@ router.post('/assignments', protect, mentorOrAdmin, async (req, res) => {
       if (student) validStudents.push(student._id);
     }
     const assignment = await Assignment.create({
-      title, description, batch, course, dueDate, maxScore, students: validStudents, mentor: mentorId
+      title, description, batch, course, dueDate, maxScore, students: validStudents, mentor: mentorId,
+      attachmentUrls: Array.isArray(attachmentUrls) ? attachmentUrls : [],
+      attachmentNames: Array.isArray(attachmentNames) ? attachmentNames : []
     });
     await Promise.all(validStudents.map(studentId =>
       createNotification(studentId, 'assignment_created', `New assignment: ${title}`,
@@ -1073,6 +1075,46 @@ router.patch('/admin/assign-student/:studentId', protect, adminOnly, async (req,
     await createNotification(mentor._id, 'student_assigned', 'New student assigned', `${student.name} has been assigned to you.`, { studentId: student._id });
     res.json({ success: true, data: { studentId: student._id, mentorId: mentor._id } });
   } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Admin: delete mentor account
+router.delete('/admin/mentors/:id', protect, adminOnly, async (req, res) => {
+  try {
+    const mentor = await User.findOne({ _id: req.params.id, role: 'mentor' });
+    
+    if (!mentor) {
+      return res.status(404).json({ success: false, message: 'Mentor not found' });
+    }
+
+    // Unassign all students from this mentor
+    await User.updateMany(
+      { mentor: mentor._id, role: 'student' },
+      { $set: { mentor: null } }
+    );
+
+    // Delete all mentor-related data
+    await Promise.all([
+      MentorClass.deleteMany({ mentor: mentor._id }),
+      Attendance.deleteMany({ mentor: mentor._id }),
+      Assignment.deleteMany({ mentor: mentor._id }),
+      Submission.deleteMany({ mentor: mentor._id }),
+      Project.deleteMany({ mentor: mentor._id }),
+      Note.deleteMany({ mentor: mentor._id }),
+      Message.deleteMany({ $or: [{ sender: mentor._id }, { recipient: mentor._id }] }),
+      Notification.deleteMany({ $or: [{ recipient: mentor._id }, { data: { mentorId: mentor._id } }] })
+    ]);
+
+    // Delete the mentor account
+    await User.findByIdAndDelete(mentor._id);
+
+    res.json({ 
+      success: true, 
+      message: `Mentor ${mentor.name} deleted successfully. All associated students have been unassigned.` 
+    });
+  } catch (err) {
+    console.error('Delete mentor error:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 });

@@ -93,6 +93,7 @@ export const getMentorReports = (params) => API.get('/mentor/reports', { params 
 export const addMentorNote = (studentId, data) => API.post(`/mentor/students/${studentId}/notes`, data);
 export const getMentorNotes = (studentId, params) => API.get(`/mentor/students/${studentId}/notes`, { params });
 export const createMentorAccount = (data) => API.post('/mentor/admin/create', data);
+export const deleteMentorAccount = (mentorId) => API.delete(`/mentor/admin/mentors/${mentorId}`);
 export const assignStudentToMentor = (studentId, mentorId) => API.patch(`/mentor/admin/assign-student/${studentId}`, { mentorId });
 export const assignStudentsBulk = (data) => API.post('/mentor/admin/assign-students', data);
 export const getAdminStudentsWithMentors = () => API.get('/mentor/admin/students-with-mentors');

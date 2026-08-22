@@ -9,7 +9,10 @@ const mentorAssignmentSchema = new mongoose.Schema({
   course: String,
   dueDate: { type: Date, required: true, index: true },
   maxScore: { type: Number, default: 100 },
-  status: { type: String, enum: ['active','closed','draft'], default: 'active' }
+  status: { type: String, enum: ['active','closed','draft'], default: 'active' },
+  // Support for multiple attachments
+  attachmentUrls: [{ type: String }],
+  attachmentNames: [{ type: String }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('MentorAssignment', mentorAssignmentSchema);

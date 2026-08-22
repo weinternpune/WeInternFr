@@ -1474,7 +1474,29 @@ const PracticeTab = ({ dashboardStats, analyticsData }) => {
                   {a.description || 'Complete this task assigned by your mentor.'}
                 </p>
 
-                {a.attachmentUrl && (
+                {/* Multiple Attachments Support */}
+                {a.attachmentUrls && a.attachmentUrls.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '6px' }}>
+                    {a.attachmentUrls.slice(0, 2).map((url, index) => (
+                      <a
+                        key={index}
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ fontSize: '.72rem', color: '#1d4ed8', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        📄 {a.attachmentNames?.[index] || `File ${index + 1}`} ↗
+                      </a>
+                    ))}
+                    {a.attachmentUrls.length > 2 && (
+                      <span style={{ fontSize: '.7rem', color: '#64748b', fontWeight: 600 }}>
+                        +{a.attachmentUrls.length - 2} more file(s)
+                      </span>
+                    )}
+                  </div>
+                )}
+                {/* Legacy single attachment support */}
+                {a.attachmentUrl && (!a.attachmentUrls || a.attachmentUrls.length === 0) && (
                   <a
                     href={a.attachmentUrl}
                     target="_blank"
