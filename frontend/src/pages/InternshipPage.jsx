@@ -5,22 +5,6 @@ import Navbar from '../components/Layout/Navbar';
 import Footerpage from '../components/Layout/Footer';
 import { useCourses } from '../context/CoursesContext';
 import './InternshipPage.css';
-import {
-  Server,
-  Database,
-  Coffee,
-  Cpu,
-  Globe,
-  Smartphone,
-  BrainCircuit,
-  ChartNoAxesCombined,
-  Terminal,
-  ShieldCheck,
-  BarChart3,
-  Figma,
-  Palette,
-  Megaphone,
-} from "lucide-react";
 
 const INTERNSHIP_DATA = {
   '3-month': {
@@ -389,13 +373,17 @@ const InternshipPage = () => {
             <span className="ip-meta-item">
               <Icon icon="mdi:clock-outline" width={18} /> {internship.duration}
             </span>
-           
+            <span className="ip-meta-item">
+              <Icon icon="mdi:cash" width={18} /> Registration: {internship.registrationFee}
+            </span>
             <span className="ip-meta-item">
               <Icon icon="mdi:currency-inr" width={18} /> Stipend: {internship.stipend}
             </span>
           </div>
 
-         
+          <button className="ip-btn ip-btn-primary" onClick={handleApply}>
+            Apply Now <Icon icon="mdi:arrow-right" width={18} />
+          </button>
         </div>
       </div>
 

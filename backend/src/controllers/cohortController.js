@@ -8,6 +8,10 @@ const getCohortWeek = require("../utils/cohortWeek");
 
 const createCohortBooking = async (req, res) => {
   try {
+    // --------------------------------------------------------
+    // 1. Get form data
+    // --------------------------------------------------------
+
     const {
       college,
       domain,
@@ -16,7 +20,7 @@ const createCohortBooking = async (req, res) => {
     } = req.body;
 
     // --------------------------------------------------------
-    // Get logged-in user
+    // 2. Get logged-in user from database
     // --------------------------------------------------------
 
     const user = await User.findById(req.user._id);
@@ -29,7 +33,7 @@ const createCohortBooking = async (req, res) => {
     }
 
     // --------------------------------------------------------
-    // Validate required fields
+    // 3. Validate required fields
     // --------------------------------------------------------
 
     if (!college || !domain || !day) {
@@ -40,7 +44,7 @@ const createCohortBooking = async (req, res) => {
     }
 
     // --------------------------------------------------------
-    // Get current cohort week
+    // 4. Get current cohort week
     // --------------------------------------------------------
 
     const {
@@ -50,7 +54,7 @@ const createCohortBooking = async (req, res) => {
     } = getCohortWeek();
 
     // --------------------------------------------------------
-    // Saturday registration restriction
+    // 5. Saturday registration restriction
     // --------------------------------------------------------
 
     if (currentDay === 6) {
@@ -62,7 +66,7 @@ const createCohortBooking = async (req, res) => {
     }
 
     // --------------------------------------------------------
-    // Check applications for current week
+    // 6. Check applications for current week
     // --------------------------------------------------------
 
     const applicationCount = await CohortApplication.countDocuments({
@@ -71,26 +75,25 @@ const createCohortBooking = async (req, res) => {
     });
 
     // --------------------------------------------------------
-    // Only 1 application allowed per week
+    // 7. Maximum 2 applications per week
     // --------------------------------------------------------
 
-    if (applicationCount >= 1) {
+    if (applicationCount >= 2) {
       return res.status(409).json({
         success: false,
-        code: "ALREADY_REGISTERED_THIS_WEEK",
         message:
-          "You have already registered for a session this week. Please try again next week.",
+          "You have already submitted 2 cohort applications for this week.",
       });
     }
 
     // --------------------------------------------------------
-    // Create cohort application
+    // 8. Create cohort application
     // --------------------------------------------------------
 
     const booking = await CohortApplication.create({
       user: req.user._id,
 
-      // Always take these from logged-in user's database
+      // Always take these from the logged-in user's database
       name: user.name,
       email: user.email,
       phone: user.phone,
@@ -110,7 +113,7 @@ const createCohortBooking = async (req, res) => {
     });
 
     // --------------------------------------------------------
-    // Success response
+    // 9. Success response
     // --------------------------------------------------------
 
     return res.status(201).json({
@@ -129,7 +132,6 @@ const createCohortBooking = async (req, res) => {
   }
 };
 
-
 // ============================================================
 // GET ALL COHORT APPLICATIONS - ADMIN
 // ============================================================
@@ -145,7 +147,6 @@ const getAdminCohortApplications = async (req, res) => {
       count: applications.length,
       data: applications,
     });
-
   } catch (error) {
     console.error("Get admin cohort applications error:", error);
 
@@ -155,41 +156,6 @@ const getAdminCohortApplications = async (req, res) => {
     });
   }
 };
-
-
-// ============================================================
-// STUDENT: GET MY COHORT APPLICATION
-// ============================================================
-
-const getMyCohortApplication = async (req, res) => {
-  try {
-    const application = await CohortApplication.findOne({
-      user: req.user._id,
-    }).sort({ createdAt: -1 });
-
-    if (!application) {
-      return res.status(404).json({
-        success: false,
-        message: "No cohort application found.",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      data: application,
-    });
-
-  } catch (error) {
-    console.error("Get my cohort application error:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Failed to fetch cohort application.",
-    });
-  }
-};
-
-
 // ============================================================
 // UPDATE COHORT STATUS - ADMIN
 // ============================================================
@@ -263,6 +229,5 @@ const updateCohortStatus = async (req, res) => {
 module.exports = {
   createCohortBooking,
   getAdminCohortApplications,
-  getMyCohortApplication,
   updateCohortStatus,
 };
