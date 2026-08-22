@@ -11,6 +11,7 @@ const {
 const {
   createCohortBooking,
   getAdminCohortApplications,
+  getMyCohortApplication,
   updateCohortStatus,
 } = require("../controllers/cohortController");
 
@@ -23,6 +24,17 @@ router.post(
   protect,
   studentOnly,
   createCohortBooking
+);
+
+// ============================================================
+// STUDENT: Get my cohort application
+// ============================================================
+
+router.get(
+  "/my-application",
+  protect,
+  studentOnly,
+  getMyCohortApplication
 );
 
 // ============================================================

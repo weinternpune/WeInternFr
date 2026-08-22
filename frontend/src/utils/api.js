@@ -143,3 +143,8 @@ export const getAdminCohortApplications = () =>
 // Admin: Update cohort application status
 export const updateCohortStatus = (id, status) =>
   API.patch(`/cohort/book/${id}/status`, { status });
+
+
+// Student Dashboard Cohort update
+export const getMyCohortApplication = () =>
+  API.get("/cohort/my-application");

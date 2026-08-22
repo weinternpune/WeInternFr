@@ -1849,4 +1849,131 @@
   font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
 }
 
+/* ============================================================
+   COHORT APPLICATION STATUS
+   ============================================================ */
 
+.cohort-status-card {
+  background: #ffffff;
+  border: 1px solid rgba(27, 42, 74, 0.08);
+  border-radius: 14px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 4px 18px rgba(27, 42, 74, 0.05);
+}
+
+.cohort-status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.cohort-status-header h3 {
+  margin: 0;
+  color: var(--navy, #1b2a4a);
+  font-size: 1rem;
+}
+
+.cohort-status-header p {
+  margin: 0.25rem 0 0;
+  color: #718096;
+  font-size: 0.8rem;
+}
+
+.cohort-status-badge {
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.cohort-status-badge.pending {
+  background: #fff8e1;
+  color: #b7791f;
+}
+
+.cohort-status-badge.confirmed {
+  background: #e8f5e9;
+  color: #1e8449;
+}
+
+.cohort-status-badge.rejected {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.cohort-status-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.cohort-status-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  background: #fff8e1;
+  color: #b7791f;
+}
+
+.cohort-status-badge.confirmed + .cohort-status-content .cohort-status-icon {
+  background: #e8f5e9;
+  color: #1e8449;
+}
+
+.cohort-status-message strong {
+  display: block;
+  color: #1b2a4a;
+  font-size: 0.9rem;
+}
+
+.cohort-status-message p {
+  margin: 0.25rem 0 0;
+  color: #718096;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.cohort-status-empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.cohort-status-empty strong {
+  color: #1b2a4a;
+  font-size: 0.9rem;
+}
+
+.cohort-status-empty p {
+  margin: 0.25rem 0 0;
+  color: #718096;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 600px) {
+  .cohort-status-header,
+  .cohort-status-empty {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .cohort-status-badge {
+    align-self: flex-start;
+  }
+}

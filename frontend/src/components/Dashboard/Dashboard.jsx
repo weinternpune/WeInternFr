@@ -3,10 +3,19 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCourses } from '../../context/CoursesContext';
 import {
-  getMyApplications, getMyEnrollments, updateProfile, getDashboardStats,
-  getDashboardAnalytics, trackActivity, getStudentMentorClasses,
-  getStudentLiveClasses, getStudentMentorAssignments, submitStudentMentorAssignment,
-  getStudentProjects, submitStudentProject
+  getMyApplications,
+  getMyEnrollments,
+  updateProfile,
+  getDashboardStats,
+  getDashboardAnalytics,
+  trackActivity,
+  getStudentMentorClasses,
+  getStudentLiveClasses,
+  getStudentMentorAssignments,
+  submitStudentMentorAssignment,
+  getStudentProjects,
+  submitStudentProject,
+  getMyCohortApplication
 } from '../../utils/api';
 import API from '../../utils/api';
 import toast from 'react-hot-toast';
@@ -77,6 +86,7 @@ const Dashboard = () => {
   const [applications, setApplications] = useState([]);
   const [enrollments, setEnrollments] = useState([]);
   const [mentorClasses, setMentorClasses] = useState([]);
+  const [cohortApplication, setCohortApplication] = useState(null);
   const [dashboardStats, setDashboardStats] = useState({
     totalStudyHours: 0,
     currentStreak: 0,
@@ -108,20 +118,22 @@ const Dashboard = () => {
   const loadDashboard = async () => {
     try {
       const results = await Promise.allSettled([
-        getMyApplications(),
-        getMyEnrollments(),
-        getDashboardStats(),
-        getDashboardAnalytics(),
-        getStudentMentorClasses()
-      ]);
+  getMyApplications(),
+  getMyEnrollments(),
+  getDashboardStats(),
+  getDashboardAnalytics(),
+  getStudentMentorClasses(),
+  getMyCohortApplication()
+]);
 
       const [
-        appsResult,
-        enrollmentsResult,
-        statsResult,
-        analyticsResult,
-        mentorClassesResult
-      ] = results;
+  appsResult,
+  enrollmentsResult,
+  statsResult,
+  analyticsResult,
+  mentorClassesResult,
+  cohortResult
+] = results;
 
       if (appsResult.status === 'fulfilled') {
         setApplications(
@@ -170,6 +182,19 @@ const Dashboard = () => {
       if (mentorClassesResult.status === 'fulfilled') {
         setMentorClasses(mentorClassesResult.value.data.data || []);
       }
+      if (cohortResult.status === 'fulfilled') {
+  setCohortApplication(
+    cohortResult.value.data.data || null
+  );
+} else if (cohortResult.reason?.response?.status === 404) {
+  // Student has not registered for a cohort yet
+  setCohortApplication(null);
+} else {
+  console.error(
+    'Cohort application failed:',
+    cohortResult.reason
+  );
+}
 
     } catch (error) {
       console.error(
@@ -376,7 +401,7 @@ const Dashboard = () => {
         </header>
 
         <div className="dash-content">
-          {tab === 'overview'      && <OverviewTab user={user} applications={applications} enrollments={enrollments} dashboardStats={dashboardStats} analyticsData={analyticsData} mentorClasses={mentorClasses} setTab={setTab} />}
+          {tab === 'overview'      && <OverviewTab user={user} applications={applications} enrollments={enrollments} dashboardStats={dashboardStats} analyticsData={analyticsData} mentorClasses={mentorClasses} setTab={setTab} cohortApplication={cohortApplication} />}
           {tab === 'analytics'     && <AnalyticsTab enrollments={enrollments} applications={applications} dashboardStats={dashboardStats} analyticsData={analyticsData} />}
           {tab === 'mentor'        && <MyMentorTab user={user} setTab={setTab} />}
           {tab === 'assignments'   && <AssignmentsTab />}
@@ -389,6 +414,7 @@ const Dashboard = () => {
           {tab === 'practice'      && <PracticeTab dashboardStats={dashboardStats} analyticsData={analyticsData} />}
           {tab === 'certificates'  && <CertificatesTab enrollments={enrollments} />}
           {tab === 'profile'       && <ProfileTab user={user} setUser={setUser} />}
+          
         </div>
       </main>
     </div>
@@ -398,7 +424,16 @@ const Dashboard = () => {
 };
 
 // ── Overview ────────────────────────────────────────────
-const OverviewTab = ({ user, applications, enrollments, dashboardStats, analyticsData, mentorClasses, setTab }) => {
+const OverviewTab = ({
+  user,
+  applications,
+  enrollments,
+  dashboardStats,
+  analyticsData,
+  mentorClasses,
+  cohortApplication,
+  setTab
+}) => {
   const accepted = applications.filter(a => a.status === 'accepted').length;
   const activeEnrollments = enrollments.filter(
     e => e.paymentStatus === 'paid' || e.paymentStatus?.startsWith('emi') || e.amountPaid > 0
@@ -451,7 +486,90 @@ const OverviewTab = ({ user, applications, enrollments, dashboardStats, analytic
           </div>
         ))}
       </div>
+{/* Cohort Application Status */}
+<div className="cohort-status-card">
+  <div className="cohort-status-header">
+    <div>
+      <h3>Cohort Application</h3>
+      <p>Track your cohort registration status</p>
+    </div>
 
+    {cohortApplication && (
+      <span
+        className={`cohort-status-badge ${cohortApplication.status}`}
+      >
+        {cohortApplication.status === 'confirmed'
+          ? 'Confirmed'
+          : cohortApplication.status === 'rejected'
+          ? 'Rejected'
+          : 'Pending'}
+      </span>
+    )}
+  </div>
+
+  {!cohortApplication ? (
+    <div className="cohort-status-empty">
+      <div>
+        <strong>No cohort application yet</strong>
+        <p>
+          You have not registered for a cohort session yet.
+        </p>
+      </div>
+
+      <a
+        href="/#cohort"
+        className="wb-btn-primary"
+      >
+        Register Now
+      </a>
+    </div>
+  ) : (
+    <div className="cohort-status-content">
+
+      <div className="cohort-status-icon">
+        {cohortApplication.status === 'confirmed'
+          ? '✓'
+          : cohortApplication.status === 'rejected'
+          ? '×'
+          : '…'}
+      </div>
+
+      <div className="cohort-status-message">
+        {cohortApplication.status === 'confirmed' && (
+          <>
+            <strong>Your cohort application has been confirmed!</strong>
+            <p>
+              Congratulations! You are confirmed for the cohort session.
+            </p>
+          </>
+        )}
+
+        {cohortApplication.status === 'pending' && (
+          <>
+            <strong>Your application is under review.</strong>
+            <p>
+              Our team is reviewing your cohort application.
+              You will see the confirmation here once it is updated.
+            </p>
+          </>
+        )}
+
+        {cohortApplication.status === 'rejected' && (
+          <>
+            <strong>Your cohort application was rejected.</strong>
+            <p>
+              Unfortunately, your application was not approved for this cohort.
+            </p>
+          </>
+        )}
+      </div>
+
+    </div>
+  )}
+</div>
+
+{/* Recent Activity */}
+<div className="overview-grid"></div>
       {/* Recent Activity */}
       <div className="overview-grid">
         <div className="overview-card">
