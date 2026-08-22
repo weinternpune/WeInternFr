@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import Navbar from '../components/Layout/Navbar';
 import Footerpage from '../components/Layout/Footer';
 import { useCourses } from '../context/CoursesContext';
+import CourseMarquee from './CoursesMarquee';
 import './InternshipPage.css';
+
+const PAYMENT_URL = 'https://rzp.io/rzp/weintern-internship';
 
 const INTERNSHIP_DATA = {
   '3-month': {
-    title: '3 Month Internship Program',
+    title: '3 & 6 Month Internship',
     subtitle: 'Learn. Build. Work on Real Projects. Get Career-Ready.',
     description: 'A 3-month industry-focused internship designed to help students move beyond theoretical learning and gain practical experience by working on real-world projects.',
-    duration: '3 Months',
+    duration: '3 & 6 Months',
     registrationFee: '₹999',
     stipend: 'Up to ₹10,000',
     badge: 'Career-Ready',
@@ -30,7 +33,7 @@ const INTERNSHIP_DATA = {
       { icon: 'mdi:domain', title: 'Industry Connections', desc: '40+ companies and industry partners network' },
     ],
     highlights: [
-      'Duration: 3 Months',
+      'Duration: 3 & 6 Months',
       'Real-World Project Experience',
       '100% Placement Support',
       'Internship Certificate',
@@ -172,7 +175,6 @@ const INTERNSHIP_DATA = {
 };
 
 const InternshipPage = () => {
-  const { type } = useParams();
   const navigate = useNavigate();
   const { activeCourses } = useCourses();
   const [showApplyModal, setShowApplyModal] = useState(false);
@@ -189,8 +191,10 @@ const InternshipPage = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const type = '3-month';
   const internship = INTERNSHIP_DATA[type];
 
+  /*
   // Load Razorpay script
   useEffect(() => {
     const script = document.createElement('script');
@@ -201,6 +205,7 @@ const InternshipPage = () => {
       document.body.removeChild(script);
     };
   }, []);
+  */
 
   if (!internship) {
     return (
@@ -215,7 +220,7 @@ const InternshipPage = () => {
   }
 
   const handleApply = () => {
-    setShowApplyModal(true);
+    window.open(PAYMENT_URL, '_blank', 'noopener,noreferrer');
   };
 
   const handleSubmit = async (e) => {
@@ -373,18 +378,15 @@ const InternshipPage = () => {
             <span className="ip-meta-item">
               <Icon icon="mdi:clock-outline" width={18} /> {internship.duration}
             </span>
-            <span className="ip-meta-item">
-              <Icon icon="mdi:cash" width={18} /> Registration: {internship.registrationFee}
-            </span>
+           
             <span className="ip-meta-item">
               <Icon icon="mdi:currency-inr" width={18} /> Stipend: {internship.stipend}
             </span>
           </div>
 
-          <button className="ip-btn ip-btn-primary" onClick={handleApply}>
-            Apply Now <Icon icon="mdi:arrow-right" width={18} />
-          </button>
+          
         </div>
+        <CourseMarquee/>
       </div>
 
       {/* Features */}
@@ -400,6 +402,20 @@ const InternshipPage = () => {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Additional Apply Now CTA */}
+      <div className="ip-inline-apply">
+        <div className="ip-container ip-inline-apply-container">
+          <button
+            type="button"
+            className="ip-btn ip-btn-primary ip-inline-apply-btn"
+            onClick={handleApply}
+          >
+            Apply Now
+            <Icon icon="mdi:arrow-right" width={18} />
+          </button>
         </div>
       </div>
 
@@ -643,10 +659,7 @@ const InternshipPage = () => {
               : 'Don\'t just add another certificate to your resume. Build real skills, work on real projects, and create real career opportunities.'
             }
           </p>
-          <div className="ip-cta-investment">
-            <span className="ip-investment-label">Registration Fee:</span>
-            <span className="ip-investment-amount">{internship.registrationFee}</span>
-          </div>
+          
           <button className="ip-btn ip-btn-primary" onClick={handleApply}>
             Apply for {internship.title} <Icon icon="mdi:arrow-right" width={18} />
           </button>
@@ -810,6 +823,95 @@ const InternshipPage = () => {
           </div>
         </div>
       )}
+
+      <style>{`
+        .ip-inline-apply {
+          width: 100%;
+          padding: 18px 0 8px;
+        }
+
+        .ip-inline-apply-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .ip-inline-apply-btn {
+          position: relative;
+          overflow: hidden;
+          min-width: 190px;
+          animation: ipApplyPulse 2.2s ease-in-out infinite;
+          transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .ip-inline-apply-btn::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -120%;
+          width: 70%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.35),
+            transparent
+          );
+          transform: skewX(-20deg);
+          animation: ipApplyShine 2.8s ease-in-out infinite;
+          pointer-events: none;
+        }
+
+        .ip-inline-apply-btn:hover {
+          transform: translateY(-3px) scale(1.02);
+          box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+        }
+
+        .ip-inline-apply-btn:active {
+          transform: translateY(0) scale(0.98);
+        }
+
+        @keyframes ipApplyPulse {
+          0%, 100% {
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.10);
+          }
+          50% {
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+          }
+        }
+
+        @keyframes ipApplyShine {
+          0% {
+            left: -120%;
+          }
+          55%, 100% {
+            left: 140%;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .ip-inline-apply {
+            padding: 14px 16px 6px;
+          }
+
+          .ip-inline-apply-btn {
+            width: 100%;
+            min-width: 0;
+            max-width: 360px;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .ip-inline-apply-btn,
+          .ip-inline-apply-btn::before {
+            animation: none;
+          }
+
+          .ip-inline-apply-btn {
+            transition: none;
+          }
+        }
+      `}</style>
 
       <Footerpage />
     </div>
