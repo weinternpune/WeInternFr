@@ -603,25 +603,20 @@ const Navbar = () => {
   };
 
   const handleInternshipNavigate = useCallback((item, column) => {
-    if (internshipsCloseTimer.current) clearTimeout(internshipsCloseTimer.current);
-    setInternshipsOpen(false);
-    setMenuOpen(false);
-    
-    // Navigate to internship detail page based on column type
-    if (column && column.key) {
-      navigate(`/internships/${column.key}`);
-    }
-  }, [navigate]);
+  if (internshipsCloseTimer.current) clearTimeout(internshipsCloseTimer.current);
+  setInternshipsOpen(false);
+  setMenuOpen(false);
+
+  navigate('/internship');
+}, [navigate]);
 
   const handleInternshipApplyNow = () => {
-    console.log('Apply Now clicked in Navbar'); // Debug
-    setInternshipsOpen(false); // Close dropdown
-    // Prevent body scroll when modal opens
-    document.body.style.overflow = 'hidden';
-    setTimeout(() => {
-      setShowInternshipModal(true); // Show modal after dropdown closes
-    }, 100);
-  };
+  setInternshipsOpen(false);
+  setMenuOpen(false);
+  document.body.style.overflow = 'auto';
+
+  navigate('/internship');
+};
 
   const handleInternshipSelection = (type) => {
     console.log('Selection:', type); // Debug
@@ -924,10 +919,10 @@ const Navbar = () => {
                                     <button
                                       key={item.label}
                                       onClick={() => { 
-                                        setMenuOpen(false); 
-                                        setMobileInternshipsOpen(false); 
-                                        navigate(`/internships/${col.key}`);
-                                      }}
+  setMenuOpen(false); 
+  setMobileInternshipsOpen(false); 
+  navigate('/internship');
+}}
                                       className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2.5 text-left text-sm text-white/90 active:bg-white/[0.06]"
                                     >
                                       <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.04] ${item.color}`}>
@@ -949,10 +944,10 @@ const Navbar = () => {
                                   {/* Add Apply Now button at bottom of each internship section */}
                                   <button
                                     onClick={() => {
-                                      setMenuOpen(false);
-                                      setMobileInternshipsOpen(false);
-                                      navigate(`/internships/${col.key}`);
-                                    }}
+  setMenuOpen(false);
+  setMobileInternshipsOpen(false);
+  navigate('/internship');
+}}
                                     className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-[#00d68f] px-4 py-2.5 text-sm font-semibold text-[#04160f]"
                                   >
                                     <Briefcase size={15} />

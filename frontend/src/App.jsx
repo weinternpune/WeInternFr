@@ -83,7 +83,7 @@ function AppRoutes() {
       <Route path="/courses/:slug" element={<CoursePage />} />
       
       {/* Internship detail pages */}
-      <Route path="/internships/:type" element={<InternshipPage />} />
+      <Route path="/internship" element={<InternshipPage />} />
       
       <Route path="/blog" element={<Blog />} />
       <Route path="/blog/:slug" element={<BlogPost />} />

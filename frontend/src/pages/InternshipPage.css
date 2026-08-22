@@ -1066,3 +1066,205 @@
     height: 60px;
   }
 }
+
+.ip-inline-apply {
+  width: 100%;
+  padding: 16px 16px 6px;
+  box-sizing: border-box;
+}
+
+.ip-inline-apply-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ip-inline-apply-btn {
+  position: relative;
+  overflow: hidden;
+
+  width: 160px;
+  min-width: 140px;
+  max-width: 160px;
+
+  height: 42px;
+  padding: 0 12px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  white-space: nowrap;
+  box-sizing: border-box;
+
+  font-size: 14px;
+
+  animation: ipApplyPulse 2.2s ease-in-out infinite;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Shine animation */
+.ip-inline-apply-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 70%;
+  height: 100%;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.35),
+    transparent
+  );
+
+  transform: skewX(-20deg);
+  animation: ipApplyShine 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Hover */
+.ip-inline-apply-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+/* Click */
+.ip-inline-apply-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Pulse animation */
+@keyframes ipApplyPulse {
+  0%,
+  100% {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  }
+
+  50% {
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+  }
+}
+
+/* Shine animation */
+@keyframes ipApplyShine {
+  0% {
+    left: -120%;
+  }
+
+  55%,
+  100% {
+    left: 140%;
+  }
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .ip-inline-apply {
+    padding: 14px 14px 5px;
+  }
+
+  .ip-inline-apply-btn {
+    width: 150px;
+    min-width: 140px;
+    max-width: 150px;
+
+    height: 41px;
+    padding: 0 11px;
+
+    font-size: 13.5px;
+    gap: 6px;
+  }
+
+  .ip-inline-apply-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Mobile - button made smaller */
+@media (max-width: 640px) {
+  .ip-inline-apply {
+    padding: 12px 10px 4px;
+  }
+
+  .ip-inline-apply-btn {
+    width: 125px;
+    min-width: 115px;
+    max-width: 125px;
+
+    height: 36px;
+    padding: 0 8px;
+
+    font-size: 12px;
+    gap: 4px;
+  }
+
+  .ip-inline-apply-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Small Mobile - button made smaller */
+@media (max-width: 480px) {
+  .ip-inline-apply {
+    padding: 10px 8px 3px;
+  }
+
+  .ip-inline-apply-btn {
+    width: 115px;
+    min-width: 105px;
+    max-width: 115px;
+
+    height: 34px;
+    padding: 0 7px;
+
+    font-size: 11.5px;
+    gap: 4px;
+  }
+
+  .ip-inline-apply-btn svg {
+    width: 13px;
+    height: 13px;
+  }
+}
+
+/* Very Small Screens - button made smaller */
+@media (max-width: 380px) {
+  .ip-inline-apply {
+    padding: 8px 6px 2px;
+  }
+
+  .ip-inline-apply-btn {
+    width: 100px;
+    min-width: 95px;
+    max-width: 100px;
+
+    height: 32px;
+    padding: 0 6px;
+
+    font-size: 11px;
+    gap: 3px;
+  }
+
+  .ip-inline-apply-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .ip-inline-apply-btn,
+  .ip-inline-apply-btn::before {
+    animation: none;
+  }
+
+  .ip-inline-apply-btn {
+    transition: none;
+  }
+}
